@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Your First Fit – camdl</title>
+<title>Simulation and Experiments – camdl</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -33,8 +33,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../language/spec.html" rel="next">
-<link href="../guide/first-model.html" rel="prev">
+<link href="../guide/fitting.html" rel="next">
+<link href="../guide/getting-started.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -77,6 +77,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -251,7 +280,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/first-model.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/first-fit.html"><span class="chapter-title">Your First Fit</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/experiments.html"><span class="chapter-title">Simulation and Experiments</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -296,12 +325,17 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guide/first-model.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Your First Model</span></a>
+  <a href="../guide/getting-started.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Getting Started: An SIR Model</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guide/first-fit.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Your First Fit</span></a>
+  <a href="../guide/experiments.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Simulation and Experiments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/fitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
   </div>
 </li>
       </ul>
@@ -430,16 +464,27 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#interventions-time-varying-actions" id="toc-interventions-time-varying-actions" class="nav-link active" data-scroll-target="#interventions-time-varying-actions">Interventions — time-varying actions</a></li>
+  <li><a href="#scenarios-as-counterfactuals" id="toc-scenarios-as-counterfactuals" class="nav-link" data-scroll-target="#scenarios-as-counterfactuals">Scenarios as counterfactuals</a></li>
+  <li><a href="#the-experiment-system" id="toc-the-experiment-system" class="nav-link" data-scroll-target="#the-experiment-system">The experiment system</a></li>
+  <li><a href="#parameter-sweeps" id="toc-parameter-sweeps" class="nav-link" data-scroll-target="#parameter-sweeps">Parameter sweeps</a></li>
+  <li><a href="#visualizing-uncertainty" id="toc-visualizing-uncertainty" class="nav-link" data-scroll-target="#visualizing-uncertainty">Visualizing uncertainty</a></li>
+  <li><a href="#whats-next" id="toc-whats-next" class="nav-link" data-scroll-target="#whats-next">What’s next</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/experiments.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/first-model.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/first-fit.html"><span class="chapter-title">Your First Fit</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/experiments.html"><span class="chapter-title">Simulation and Experiments</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Your First Fit</span></h1>
+<h1 class="title"><span class="chapter-title">Simulation and Experiments</span></h1>
 </div>
 
 
@@ -456,9 +501,47 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><em>Coming soon.</em> This chapter walks through fitting an SIR model to synthetic data: generating observations, running IF2 scout, refining with PGAS+NUTS, and validating the fit.</p>
+<p><em>Coming soon.</em> This chapter extends the SIR model from the previous chapter with interventions and counterfactual scenarios, then introduces camdl’s experiment system for systematic simulation studies.</p>
+<section id="interventions-time-varying-actions" class="level2">
+<h2 class="anchored" data-anchor-id="interventions-time-varying-actions">Interventions — time-varying actions</h2>
+<p>The SIR model from <a href="../guide/getting-started.html">Getting Started</a> has fixed parameters: <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\gamma\)</span> don’t change over the course of the epidemic. But real epidemics are shaped by policy responses — vaccination campaigns, school closures, quarantine orders — that alter transmission at specific times.</p>
+<p>camdl’s <code>interventions</code> block declares these actions directly in the model. Interventions are <strong>off by default</strong> and activated through scenarios or the command line, so the same model file can represent both the uncontrolled epidemic and the intervention counterfactual.</p>
+<!-- TODO: extend SIR to SIRV with a pulse vaccination intervention -->
+<!-- TODO: show `transfer(fraction = ..., from = S, to = V) at [...]` syntax -->
+<!-- TODO: recurring schedule with `every = 30 'days` -->
+</section>
+<section id="scenarios-as-counterfactuals" class="level2">
+<h2 class="anchored" data-anchor-id="scenarios-as-counterfactuals">Scenarios as counterfactuals</h2>
+<p>In <a href="../guide/getting-started.html">Getting Started</a> we used scenarios as named parameter presets. With interventions, scenarios become counterfactual comparisons: “what would have happened if we had (or hadn’t) intervened?”</p>
+<!-- TODO: baseline vs. with_vaccination scenario -->
+<!-- TODO: `--enable` / `--disable` CLI flags -->
+<!-- TODO: scenario `set` and `scale` for parameter overrides -->
+</section>
+<section id="the-experiment-system" class="level2">
+<h2 class="anchored" data-anchor-id="the-experiment-system">The experiment system</h2>
+<p>Running five seeds by hand is fine for a tutorial. Running a 3-scenario × 1000-replicate study with parameter sweeps is not. camdl’s experiment system manages this: you write a TOML manifest declaring the scenarios, seeds, and parameter variations, and <code>camdl experiment run</code> executes them in parallel with content-addressable caching.</p>
+<!-- TODO: write experiment TOML manifest for the SIRV model -->
+<!-- TODO: `camdl experiment run`, `status`, `summarize` -->
+<!-- TODO: visualize scenario comparison (cases averted, peak reduction) -->
+</section>
+<section id="parameter-sweeps" class="level2">
+<h2 class="anchored" data-anchor-id="parameter-sweeps">Parameter sweeps</h2>
+<!-- TODO: [sweep] block with linspace/logspace -->
+<!-- TODO: sensitivity of peak timing to beta -->
+</section>
+<section id="visualizing-uncertainty" class="level2">
+<h2 class="anchored" data-anchor-id="visualizing-uncertainty">Visualizing uncertainty</h2>
+<!-- TODO: replicate fans / ribbon plots for scenario comparison -->
+<!-- TODO: distribution of peak size, final size across replicates -->
+</section>
+<section id="whats-next" class="level2">
+<h2 class="anchored" data-anchor-id="whats-next">What’s next</h2>
+<ul>
+<li><a href="../guide/fitting.html">Fitting to Data</a> — given real (or synthetic) observations, recover the parameters that generated them.</li>
+</ul>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -876,13 +959,13 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../guide/first-model.html" class="pagination-link" aria-label="Your First Model">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Your First Model</span></span>
+      <a href="../guide/getting-started.html" class="pagination-link" aria-label="Getting Started: An SIR Model">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Getting Started: An SIR Model</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../language/spec.html" class="pagination-link" aria-label="Language Specification">
-        <span class="nav-page-text"><span class="chapter-title">Language Specification</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../guide/fitting.html" class="pagination-link" aria-label="Fitting to Data">
+        <span class="nav-page-text"><span class="chapter-title">Fitting to Data</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -891,4 +974,4 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/first-fit.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/experiments.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer></body></html>

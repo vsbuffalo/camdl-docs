@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Your First Model – camdl</title>
+<title>Getting Started: An SIR Model – camdl</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -68,7 +68,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../guide/first-fit.html" rel="next">
+<link href="../guide/experiments.html" rel="next">
 <link href="../index.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -315,7 +315,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/first-model.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/first-model.html"><span class="chapter-title">Your First Model</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/getting-started.html"><span class="chapter-title">Getting Started: An SIR Model</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -360,12 +360,17 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guide/first-model.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Your First Model</span></a>
+  <a href="../guide/getting-started.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Getting Started: An SIR Model</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guide/first-fit.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Your First Fit</span></a>
+  <a href="../guide/experiments.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simulation and Experiments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/fitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
   </div>
 </li>
       </ul>
@@ -524,15 +529,15 @@ window.Quarto = {
   <li><a href="#the-complete-first-model" id="toc-the-complete-first-model" class="nav-link" data-scroll-target="#the-complete-first-model">The complete first model</a></li>
   <li><a href="#whats-next" id="toc-whats-next" class="nav-link" data-scroll-target="#whats-next">What’s next</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/first-model.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/getting-started.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/first-model.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/first-model.html"><span class="chapter-title">Your First Model</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/getting-started.html"><span class="chapter-title">Getting Started: An SIR Model</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Your First Model</span></h1>
+<h1 class="title"><span class="chapter-title">Getting Started: An SIR Model</span></h1>
 </div>
 
 
@@ -714,7 +719,7 @@ window.Quarto = {
 <div id="fig-sir-single" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-sir-single-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="first-model_files/figure-html/fig-sir-single-output-1.png" width="1030" height="504" class="figure-img">
+<img src="getting-started_files/figure-html/fig-sir-single-output-1.png" width="1030" height="504" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sir-single-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2.1: A single stochastic SIR trajectory. S declines as infection spreads, I rises and falls, R accumulates.
@@ -794,7 +799,7 @@ Table&nbsp;2.1: Parameter types and their domains.
 </div>
 </figure>
 </div>
-<p>You’ll see more on why this matters in <a href="../guide/first-fit.html">Your First Fit</a>; getting the types right means camdl can fit your model without you having to think about parameter transforms — the compiler naturally knows what is best to use as a result of the parameter you declare.</p>
+<p>You’ll see more on why this matters in <a href="../guide/fitting.html">Fitting to Data</a>; getting the types right means camdl can fit your model without you having to think about parameter transforms — the compiler naturally knows what is best to use as a result of the parameter you declare.</p>
 <section id="bounds" class="level3">
 <h3 class="anchored" data-anchor-id="bounds">Bounds</h3>
 <p>Types constrain the domain; <strong>bounds</strong> narrow it further for a specific model. <code>beta : rate</code> means “non-negative.” Adding <code>in [0.01, 2.0]</code> means “non-negative, and for this model we only consider values between 0.01 and 2.0.” Often you have scientific knowledge that rules out certain parameter values, and adding bounds helps the compiler and inference algorithms focus on the relevant region of parameter space (which can greatly improve model fitting performance). Bounds also serve as documentation for readers, showing the range of plausible values, in much the same way that parameter types do.</p>
@@ -979,7 +984,7 @@ Table&nbsp;2.2: Decomposing propensities into per-capita rates and populations a
 <div id="fig-sir-multi-seed" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-sir-multi-seed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="first-model_files/figure-html/fig-sir-multi-seed-output-1.png" width="1030" height="504" class="figure-img">
+<img src="getting-started_files/figure-html/fig-sir-multi-seed-output-1.png" width="1030" height="504" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sir-multi-seed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2.2: Five stochastic SIR trajectories from different seeds. Same parameters, different realizations of the stochastic process.
@@ -1091,7 +1096,7 @@ Figure&nbsp;2.2: Five stochastic SIR trajectories from different seeds. Same par
 <div id="fig-sir-obs" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-sir-obs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="first-model_files/figure-html/fig-sir-obs-output-1.png" width="1030" height="504" class="figure-img">
+<img src="getting-started_files/figure-html/fig-sir-obs-output-1.png" width="1030" height="504" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sir-obs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2.3: The observation pipeline: true daily infections (grey bars) are aggregated weekly, scaled by the reporting fraction ρ (blue step), and then scattered by negative binomial noise (black dots). Given only the black dots, the fitting algorithms must recover the underlying epidemic.
@@ -1101,7 +1106,7 @@ Figure&nbsp;2.3: The observation pipeline: true daily infections (grey bars) are
 </div>
 </div>
 <p>camdl supports multiple observation streams in a single model — for example, weekly case counts from one surveillance system and wastewater viral load from another. Each stream gets its own name, accumulator, and likelihood. We’ll see examples of this in later chapters.</p>
-<p>This is the observation pipeline that inference must invert. Given only the black dots, the fitting algorithms in the <a href="../guide/first-fit.html">next chapter</a> will try to recover <span class="math inline">\(\beta\)</span>, <span class="math inline">\(\gamma\)</span>, and <span class="math inline">\(\rho\)</span>.</p>
+<p>This is the observation pipeline that inference must invert. Given only the black dots, the fitting algorithms in <a href="../guide/fitting.html">Fitting to Data</a> will try to recover <span class="math inline">\(\beta\)</span>, <span class="math inline">\(\gamma\)</span>, and <span class="math inline">\(\rho\)</span>.</p>
 </section>
 <section id="the-complete-first-model" class="level2">
 <h2 class="anchored" data-anchor-id="the-complete-first-model">The complete first model</h2>
@@ -1147,9 +1152,9 @@ Figure&nbsp;2.3: The observation pipeline: true daily infections (grey bars) are
 <section id="whats-next" class="level2">
 <h2 class="anchored" data-anchor-id="whats-next">What’s next</h2>
 <ul>
-<li><a href="../guide/first-fit.html">Your First Fit</a> — generate synthetic data and recover the parameters with IF2.</li>
+<li><a href="../guide/experiments.html">Simulation and Experiments</a> — interventions, counterfactual scenarios, and the experiment system.</li>
+<li><a href="../guide/fitting.html">Fitting to Data</a> — generate synthetic data and recover parameters with IF2 and PGAS+NUTS.</li>
 <li>Later: dimensions and stratification add age groups, spatial patches, and contact matrices.</li>
-<li>Later: interventions and scenarios for counterfactual comparison.</li>
 </ul>
 
 
@@ -1576,8 +1581,8 @@ Figure&nbsp;2.3: The observation pipeline: true daily infections (grey bars) are
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../guide/first-fit.html" class="pagination-link" aria-label="Your First Fit">
-        <span class="nav-page-text"><span class="chapter-title">Your First Fit</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../guide/experiments.html" class="pagination-link" aria-label="Simulation and Experiments">
+        <span class="nav-page-text"><span class="chapter-title">Simulation and Experiments</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1586,4 +1591,4 @@ Figure&nbsp;2.3: The observation pipeline: true daily infections (grey bars) are
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/first-model.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/getting-started.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer></body></html>
