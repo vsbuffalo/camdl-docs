@@ -1,5 +1,5 @@
 ---
-title: "Getting Started: An SIR Model"
+title: "Building an SIR Model"
 ---
 
 ```{python}
