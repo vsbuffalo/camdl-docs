@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.36">
+<meta name="generator" content="quarto-1.9.37">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -76,14 +76,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-f418161beb48e0141c760e455f12af2c.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-9acc14e827bb3f716c85e04c1be82ddc.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-ac5f05a5d9400a202088c6be8769120d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-9acc14e827bb3f716c85e04c1be82ddc.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-fed1e424e7663f8fd56c914262044006.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-938acf6e507da7d9619c7b382e848435.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-fed1e424e7663f8fd56c914262044006.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -520,11 +520,7 @@ window.Quarto = {
   <li><a href="#seeds-and-stochasticity" id="toc-seeds-and-stochasticity" class="nav-link" data-scroll-target="#seeds-and-stochasticity">Seeds and stochasticity</a></li>
   </ul></li>
   <li><a href="#scenarios-named-presets-for-simulation" id="toc-scenarios-named-presets-for-simulation" class="nav-link" data-scroll-target="#scenarios-named-presets-for-simulation">Scenarios — named presets for simulation</a></li>
-  <li><a href="#observations-connecting-your-model-to-data" id="toc-observations-connecting-your-model-to-data" class="nav-link" data-scroll-target="#observations-connecting-your-model-to-data">Observations — connecting your model to data</a>
-  <ul class="collapse">
-  <li><a href="#generating-synthetic-observations" id="toc-generating-synthetic-observations" class="nav-link" data-scroll-target="#generating-synthetic-observations">Generating synthetic observations</a></li>
-  <li><a href="#why-this-matters" id="toc-why-this-matters" class="nav-link" data-scroll-target="#why-this-matters">Why this matters</a></li>
-  </ul></li>
+  <li><a href="#observations-connecting-your-model-to-data" id="toc-observations-connecting-your-model-to-data" class="nav-link" data-scroll-target="#observations-connecting-your-model-to-data">Observations — connecting your model to data</a></li>
   <li><a href="#the-complete-first-model" id="toc-the-complete-first-model" class="nav-link" data-scroll-target="#the-complete-first-model">The complete first model</a></li>
   <li><a href="#whats-next" id="toc-whats-next" class="nav-link" data-scroll-target="#whats-next">What’s next</a></li>
   </ul>
@@ -834,14 +830,14 @@ Table&nbsp;2.1: Parameter types and their domains.
 <span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>(20 / 100_000) 'per_year</code> and <code>0.000000548 'per_day</code> are the same rate — the compiler handles the conversion, and the unit annotation documents where the number came from. The parentheses matter: a unit literal binds to the number immediately before it, so <code>20 / 100_000 'per_year</code> would apply <code>'per_year</code> only to <code>100_000</code>, not to the whole expression. The compiler catches this and tells you to add parentheses.</p>
 <p>Numeric literals also support underscore separators for readability — write <code>100_000</code> instead of <code>100000</code>. The compiler even warns you if your grouping looks like a typo:</p>
-<pre class="ansi-output"><code><span style="color:#b8860b"><span style="font-weight:bold">warning[W100]<span style="color:#b8860b"></span></span></span>: suspicious digit grouping in '10_00' (group widths: 2, 2) — did you mean 1000? Use 3-digit groups: 1_000, 10_000, 1_000_000
-
-<span style="opacity:0.6">  ┌─ sir.camdl:10:12
-  │
+<pre class="ansi-output"><code> <span style="color:#b8860b"><span style="font-weight:bold">warning[W100]<span style="color:#b8860b"></span></span></span>: suspicious digit grouping in '10_00' (group widths: 2, 2) — did you mean 1000? Use 3-digit groups: 1_000, 10_000, 1_000_000
+ 
+ <span style="opacity:0.6">  ┌─ sir.camdl:10:12
+   │
 </span><span style="opacity:0.6"> </span><span style="font-weight:bold"><span style="color:#3366cc">10<span style="font-weight:bold"></span></span></span><span style="opacity:0.6">│</span>  init { S = 10_00 }
-  │             <span style="color:#b8860b">~~~~^</span>
-<span style="opacity:0.6">  │
-</span></code></pre>
+   │             <span style="color:#b8860b">~~~~^</span>
+ <span style="opacity:0.6">  │
+ </span></code></pre>
 </section>
 </section>
 <section id="transitions-what-happens" class="level2">
@@ -958,29 +954,26 @@ Table&nbsp;2.2: Decomposing propensities into per-capita rates and populations a
 <section id="seeds-and-stochasticity" class="level3">
 <h3 class="anchored" data-anchor-id="seeds-and-stochasticity">Seeds and stochasticity</h3>
 <p>Every run is stochastic. Different seeds give different trajectories. Run 5 seeds and overlay the curves:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> seed <span class="kw">in</span> 1 2 3 4 5<span class="kw">;</span> <span class="cf">do</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">camdl</span> simulate sir.camdl <span class="at">--params</span> params.toml <span class="at">--seed</span> <span class="va">$seed</span> <span class="op">&gt;</span> run_<span class="va">${seed}</span>.tsv</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> simulate sir.camdl <span class="at">--params</span> params.toml <span class="at">--seed</span> 42 <span class="at">--replicates</span> 5</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="cell-fig-sir-multi-seed" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Plotting code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># runs = {seed: pl.read_csv(f"run_{seed}.tsv", separator="\t") for seed in range(1, 6)}</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">3.5</span>))</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> {<span class="st">"S"</span>: <span class="st">"#3366cc"</span>, <span class="st">"I"</span>: <span class="st">"#cc3333"</span>, <span class="st">"R"</span>: <span class="st">"#2e8b2e"</span>}</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, (seed, d) <span class="kw">in</span> <span class="bu">enumerate</span>(runs.items()):</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> col, color <span class="kw">in</span> colors.items():</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>        ax.plot(d[<span class="st">"t"</span>], d[col], color<span class="op">=</span>color, alpha<span class="op">=</span><span class="fl">0.5</span>, linewidth<span class="op">=</span><span class="dv">1</span>,</span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>                label<span class="op">=</span>col <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="va">None</span>)</span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Time (days)"</span>)</span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Individuals"</span>)</span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, d[<span class="st">"t"</span>].<span class="bu">max</span>())</span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">3.5</span>))</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> {<span class="st">"S"</span>: <span class="st">"#3366cc"</span>, <span class="st">"I"</span>: <span class="st">"#cc3333"</span>, <span class="st">"R"</span>: <span class="st">"#2e8b2e"</span>}</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, d <span class="kw">in</span> <span class="bu">enumerate</span>(multi.partition_by(<span class="st">"replicate"</span>)):</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> col, color <span class="kw">in</span> colors.items():</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>        ax.plot(d[<span class="st">"t"</span>], d[col], color<span class="op">=</span>color, alpha<span class="op">=</span><span class="fl">0.5</span>, linewidth<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>                label<span class="op">=</span>col <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="va">None</span>)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Time (days)"</span>)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Individuals"</span>)</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, d[<span class="st">"t"</span>].<span class="bu">max</span>())</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-sir-multi-seed" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -1017,7 +1010,8 @@ Figure&nbsp;2.2: Five stochastic SIR trajectories from different seeds. Same par
 </section>
 <section id="observations-connecting-your-model-to-data" class="level2">
 <h2 class="anchored" data-anchor-id="observations-connecting-your-model-to-data">Observations — connecting your model to data</h2>
-<p>So far, the model describes how an epidemic unfolds. But we (unfortunately) do not observe the S, I, and R trajectories directly. Instead, we observe a noisy sample, that may also have reporting delays, missing timepoints, and/or incomplete case reports. The <code>observations</code> block describes that measurement process, and allows for users to generate synthetic data under a more realistic observation process.</p>
+<p>So far, the model describes how an epidemic unfolds. But we don’t observe the S, I, and R trajectories directly. What we actually get from a surveillance system is noisy, delayed, and incomplete: weekly case reports where only a fraction of infections are caught, and the counts bounce around from week to week even when the underlying epidemic is smooth. The <code>observations</code> block describes this measurement process — the pipeline that stands between the true epidemic and your data.</p>
+<p>In our SIR model, the true number of infections each week is tracked by <code>incidence(infection)</code> — the flow accumulator counting S → I events since the last observation time. But surveillance systems don’t report every infection. A fraction <span class="math inline">\(\rho\)</span> of cases are reported, and the counts are overdispersed — some weeks more cases are caught than expected, some weeks fewer. The <code>neg_binomial</code> likelihood captures both effects: the mean is <span class="math inline">\(\rho\)</span> times the true incidence, and the dispersion parameter <span class="math inline">\(k\)</span> controls how noisy the observations are around that mean.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">parameters</span> {</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  rho : <span class="dt">probability</span>  <span class="cf">in</span> [<span class="dv">0.1</span>, <span class="dv">0.9</span>]    <span class="co"># reporting fraction</span></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  k   : <span class="dt">positive</span>     <span class="cf">in</span> [<span class="dv">1.0</span>, <span class="dv">100.0</span>]  <span class="co"># NegBin dispersion</span></span>
@@ -1030,47 +1024,68 @@ Figure&nbsp;2.2: Five stochastic SIR trajectories from different seeds. Same par
 <span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">likelihood</span> = <span class="bu">neg_binomial</span>(mean = rho * projected, r = k)</span>
 <span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>In camdl, multiple observation streams are supported (e.g.&nbsp;weekly case counts may be one source of data, but we may also have wastewater prevalence). In the example above, we just have the former so the observation stream named <code>weekly_cases</code> is defined, and has three parts:</p>
-<ul>
-<li><p><code>incidence(infection)</code> counts infection events since the last observation time. This is the flow accumulator: how many people moved from S to I this week.</p></li>
-<li><p><code>every = 7 'days</code> defines that observations happen weekly. (Given camdl’s support for time units, one could alternatively express this as <code>every = 1 'weeks</code>.)</p></li>
-<li><p><code>neg_binomial(mean = rho * projected, r = k)</code> is the observation likelihood, in this case a negative binomial distribution with mean equal to the projected cases multiplied by the reporting fraction <span class="math inline">\(\rho\)</span>, and dispersion parameter <span class="math inline">\(k\)</span>. This means that the observed weekly cases are a noisy, overdispersed version of the true incidence, reflecting the realities of case reporting in epidemiological surveillance systems.</p></li>
-</ul>
-<section id="generating-synthetic-observations" class="level3">
-<h3 class="anchored" data-anchor-id="generating-synthetic-observations">Generating synthetic observations</h3>
-<p>The <code>flow_infection</code> column in the simulation output records the cumulative number of infection events. The observation model aggregates these into weekly windows and applies the reporting fraction <span class="math inline">\(\rho\)</span> with overdispersion <span class="math inline">\(k\)</span>. We can compute the weekly incidence from the raw flows to see what this looks like:</p>
+<p>To see this pipeline in action, generate synthetic observations alongside the trajectory with the <code>--obs</code> flag:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> simulate sir.camdl <span class="at">--params</span> params.toml <span class="at">--seed</span> 42 <span class="at">--obs</span> cases.tsv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This runs the same stochastic simulation and then draws from the <code>neg_binomial</code> likelihood at each observation time, writing the synthetic data to <code>cases.tsv</code>. The trajectory output is unchanged — the observation RNG is seeded independently, so adding <code>--obs</code> produces byte-identical trajectories.</p>
+<p>The three-layer plot below shows exactly what this pipeline does to the signal. The light grey bars are the true daily infections — what actually happened in the simulation. The stepped blue line is the expected weekly report after applying the reporting fraction <span class="math inline">\(\rho\)</span> (here 0.6, so 60% of cases are reported). The black dots are the synthetic observations generated by <code>--obs</code> — negative binomial draws around that expected value, with dispersion <span class="math inline">\(k = 10\)</span>. This is the information loss that inference must invert.</p>
 <div id="cell-fig-sir-obs" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Plotting code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># df = pl.read_csv("output.tsv", separator="\t")  # from: camdl simulate sir.camdl ...</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Daily new infections from the cumulative flow accumulator</span></span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>daily_infections <span class="op">=</span> df[<span class="st">"flow_infection"</span>].diff().fill_null(df[<span class="st">"flow_infection"</span>][<span class="dv">0</span>])</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Aggregate to weekly</span></span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>weeks <span class="op">=</span> (df[<span class="st">"t"</span>] <span class="op">//</span> <span class="dv">7</span>).cast(pl.Int64)</span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>weekly <span class="op">=</span> (</span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    df.with_columns(daily_infections.alias(<span class="st">"new_infections"</span>), weeks.alias(<span class="st">"week"</span>))</span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    .group_by(<span class="st">"week"</span>)</span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>    .agg(pl.col(<span class="st">"new_infections"</span>).<span class="bu">sum</span>())</span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    .sort(<span class="st">"week"</span>)</span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">3.5</span>))</span>
-<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>ax.bar(df[<span class="st">"t"</span>], daily_infections, width<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">"#cccccc"</span>, edgecolor<span class="op">=</span><span class="st">"none"</span>,</span>
-<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>       label<span class="op">=</span><span class="st">"Daily infections"</span>)</span>
-<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>ax.scatter(weekly[<span class="st">"week"</span>] <span class="op">*</span> <span class="dv">7</span> <span class="op">+</span> <span class="fl">3.5</span>, weekly[<span class="st">"new_infections"</span>],</span>
-<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>           color<span class="op">=</span><span class="st">"#cc3333"</span>, s<span class="op">=</span><span class="dv">30</span>, zorder<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span><span class="st">"Weekly total"</span>)</span>
-<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Time (days)"</span>)</span>
-<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"New infections"</span>)</span>
-<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, df[<span class="st">"t"</span>].<span class="bu">max</span>())</span>
-<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
-<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate synthetic observations from the observation model</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>_, obs_df <span class="op">=</span> run_sim(seed<span class="op">=</span><span class="dv">42</span>, obs<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Daily new infections (flow_infection is already per-step)</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>daily_infections <span class="op">=</span> df[<span class="st">"flow_infection"</span>]</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Aggregate to weekly</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>weeks <span class="op">=</span> (df[<span class="st">"t"</span>] <span class="op">//</span> <span class="dv">7</span>).cast(pl.Int64)</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>weekly <span class="op">=</span> (</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    df.with_columns(daily_infections.alias(<span class="st">"new_infections"</span>), weeks.alias(<span class="st">"week"</span>))</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    .group_by(<span class="st">"week"</span>)</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    .agg(pl.col(<span class="st">"new_infections"</span>).<span class="bu">sum</span>())</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>    .sort(<span class="st">"week"</span>)</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Expected reports (rho from params.toml)</span></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>rho <span class="op">=</span> <span class="fl">0.6</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>true_weekly <span class="op">=</span> weekly[<span class="st">"new_infections"</span>].to_numpy().astype(<span class="bu">float</span>)</span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>expected <span class="op">=</span> rho <span class="op">*</span> true_weekly</span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Observed counts from camdl --obs (NegBin draws from the observation model)</span></span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop the t=0 row (before the first observation window completes)</span></span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>obs_df <span class="op">=</span> obs_df.<span class="bu">filter</span>(pl.col(<span class="st">"time"</span>) <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>observed <span class="op">=</span> obs_df[<span class="st">"weekly_cases"</span>].to_numpy()</span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>obs_times <span class="op">=</span> obs_df[<span class="st">"time"</span>].to_numpy()</span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">3.5</span>))</span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Layer 1: true daily incidence</span></span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a>ax.bar(df[<span class="st">"t"</span>], daily_infections, width<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">"#cccccc"</span>, edgecolor<span class="op">=</span><span class="st">"none"</span>,</span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a>       label<span class="op">=</span><span class="st">"True daily infections"</span>, zorder<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Layer 2: expected weekly reports (stepped)</span></span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(weekly)):</span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>    x0 <span class="op">=</span> weekly[<span class="st">"week"</span>][i] <span class="op">*</span> <span class="dv">7</span></span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a>    x1 <span class="op">=</span> x0 <span class="op">+</span> <span class="dv">7</span></span>
+<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a>    ax.plot([x0, x1], [expected[i], expected[i]], color<span class="op">=</span><span class="st">"#3366cc"</span>,</span>
+<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a>            linewidth<span class="op">=</span><span class="fl">1.5</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, label<span class="op">=</span><span class="st">"Expected reports (ρ × weekly)"</span> <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="va">None</span>,</span>
+<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a>            zorder<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Layer 3: observed draws from camdl --obs</span></span>
+<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a>ax.scatter(obs_times <span class="op">-</span> <span class="fl">3.5</span>, observed, color<span class="op">=</span><span class="st">"black"</span>, s<span class="op">=</span><span class="dv">25</span>, zorder<span class="op">=</span><span class="dv">3</span>,</span>
+<span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a>           label<span class="op">=</span><span class="st">"Observed (NegBin draws)"</span>)</span>
+<span id="cb23-48"><a href="#cb23-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-49"><a href="#cb23-49" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Time (days)"</span>)</span>
+<span id="cb23-50"><a href="#cb23-50" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Infections"</span>)</span>
+<span id="cb23-51"><a href="#cb23-51" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb23-52"><a href="#cb23-52" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, df[<span class="st">"t"</span>].<span class="bu">max</span>())</span>
+<span id="cb23-53"><a href="#cb23-53" aria-hidden="true" tabindex="-1"></a>ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb23-54"><a href="#cb23-54" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb23-55"><a href="#cb23-55" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-sir-obs" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -1079,57 +1094,54 @@ Figure&nbsp;2.2: Five stochastic SIR trajectories from different seeds. Same par
 <img src="first-model_files/figure-html/fig-sir-obs-output-1.png" width="1030" height="504" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sir-obs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2.3: Daily infection incidence (grey bars) and weekly totals (red points) from one stochastic SIR realization. In practice, a surveillance system would observe something like the weekly totals — noisy, delayed, and incomplete.
+Figure&nbsp;2.3: The observation pipeline: true daily infections (grey bars) are aggregated weekly, scaled by the reporting fraction ρ (blue step), and then scattered by negative binomial noise (black dots). Given only the black dots, the fitting algorithms must recover the underlying epidemic.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
-</section>
-<section id="why-this-matters" class="level3">
-<h3 class="anchored" data-anchor-id="why-this-matters">Why this matters</h3>
-<p>The observation block does two things. During simulation, it generates synthetic data for testing. During inference, it scores real data against the model — the observation likelihood. With this block, your model is ready to fit.</p>
-</section>
+<p>camdl supports multiple observation streams in a single model — for example, weekly case counts from one surveillance system and wastewater viral load from another. Each stream gets its own name, accumulator, and likelihood. We’ll see examples of this in later chapters.</p>
+<p>This is the observation pipeline that inference must invert. Given only the black dots, the fitting algorithms in the <a href="../guide/first-fit.html">next chapter</a> will try to recover <span class="math inline">\(\beta\)</span>, <span class="math inline">\(\gamma\)</span>, and <span class="math inline">\(\rho\)</span>.</p>
 </section>
 <section id="the-complete-first-model" class="level2">
 <h2 class="anchored" data-anchor-id="the-complete-first-model">The complete first model</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="pp">time_unit</span> = <span class="ss">'days</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="kw">compartments</span> { S, I, R }</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="kw">parameters</span> {</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  beta  : <span class="dt">rate</span>         <span class="cf">in</span> [<span class="dv">0.05</span>, <span class="dv">1.0</span>]</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  gamma : <span class="dt">rate</span>         <span class="cf">in</span> [<span class="dv">0.01</span>, <span class="dv">0.5</span>]</span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  N0    : <span class="dt">count</span></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  I0    : <span class="dt">count</span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  rho   : <span class="dt">probability</span>  <span class="cf">in</span> [<span class="dv">0.1</span>, <span class="dv">0.9</span>]</span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  k     : <span class="dt">positive</span>     <span class="cf">in</span> [<span class="dv">1.0</span>, <span class="dv">100.0</span>]</span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="pp">let</span> N = S + I + R</span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">infection </span>: S <span class="op">--&gt;</span> I  <span class="op">@</span> beta * S * I / N</span>
-<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recovery  </span>: I <span class="op">--&gt;</span> R  <span class="op">@</span> gamma * I</span>
-<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="kw">init</span> {</span>
-<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>  S = N0 - I0</span>
-<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>  I = I0</span>
-<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a><span class="kw">observations</span> {</span>
-<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">weekly_cases </span>: {</span>
-<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>    projected  = <span class="bu">incidence</span>(infection)</span>
-<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">every</span>      = <span class="dv">7</span> <span class="ss">'days</span></span>
-<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">likelihood</span> = <span class="bu">neg_binomial</span>(mean = rho * projected, r = k)</span>
-<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a><span class="kw">simulate</span> {</span>
-<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a>  <span class="cf">from</span> = <span class="dv">0</span> <span class="ss">'days</span></span>
-<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a>  <span class="cf">to</span>   = <span class="dv">80</span> <span class="ss">'days</span></span>
-<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="pp">time_unit</span> = <span class="ss">'days</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="kw">compartments</span> { S, I, R }</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="kw">parameters</span> {</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  beta  : <span class="dt">rate</span>         <span class="cf">in</span> [<span class="dv">0.05</span>, <span class="dv">1.0</span>]</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  gamma : <span class="dt">rate</span>         <span class="cf">in</span> [<span class="dv">0.01</span>, <span class="dv">0.5</span>]</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  N0    : <span class="dt">count</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  I0    : <span class="dt">count</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  rho   : <span class="dt">probability</span>  <span class="cf">in</span> [<span class="dv">0.1</span>, <span class="dv">0.9</span>]</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>  k     : <span class="dt">positive</span>     <span class="cf">in</span> [<span class="dv">1.0</span>, <span class="dv">100.0</span>]</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="pp">let</span> N = S + I + R</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">infection </span>: S <span class="op">--&gt;</span> I  <span class="op">@</span> beta * S * I / N</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recovery  </span>: I <span class="op">--&gt;</span> R  <span class="op">@</span> gamma * I</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a><span class="kw">init</span> {</span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>  S = N0 - I0</span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>  I = I0</span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a><span class="kw">observations</span> {</span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">weekly_cases </span>: {</span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>    projected  = <span class="bu">incidence</span>(infection)</span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">every</span>      = <span class="dv">7</span> <span class="ss">'days</span></span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">likelihood</span> = <span class="bu">neg_binomial</span>(mean = rho * projected, r = k)</span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a><span class="kw">simulate</span> {</span>
+<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>  <span class="cf">from</span> = <span class="dv">0</span> <span class="ss">'days</span></span>
+<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>  <span class="cf">to</span>   = <span class="dv">80</span> <span class="ss">'days</span></span>
+<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>30 lines. A stochastic SIR with typed parameters and a statistical observation model. In the next chapter, you’ll generate synthetic data from this model and fit it.</p>
 </section>
 <section id="whats-next" class="level2">
