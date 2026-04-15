@@ -1,0 +1,46 @@
+---
+title: "Design Philosophy"
+---
+
+## Structure lives in the model, values live outside
+
+A `.camdl` file defines compartments, transitions, and parameter _names_.
+Parameter _values_ come from external TOML files or CLI flags — never
+hardcoded. The same model file serves forward simulation, calibration, and
+scenario comparison.
+
+## Everything expands
+
+Stratification, indexed parameters, indexed interventions — all expand to flat,
+concrete IR at compile time. The runtime sees no index variables, no dimension
+metadata, no sugar. If the model has 238 patches × 5 compartments, the IR has
+1,190 compartment entries with explicit names like `S_kano_dala`.
+
+This is a deliberate trade-off: the IR is verbose but unambiguous. There is
+exactly one representation of a model at runtime, and it carries no implicit
+structure that could be misinterpreted.
+
+## Write the math
+
+The index notation `[a in age]` reads like mathematical subscripts. Transitions
+read as "from → to at rate." Tables are lookup arrays. The goal is that a
+modeler can read a `.camdl` file and know what it does without learning a
+programming language.
+
+## Error messages are a feature
+
+Error quality is a first-class design goal. A bad error message is a bug — it
+means the compiler detected a problem but failed to help the user fix it.
+
+Every diagnostic should:
+
+- Show what went wrong (the mismatch, the constraint violation)
+- Show where (source location, transition name, parameter name)
+- Show why (the expected vs actual value, with domain-specific names)
+- Suggest a fix when possible (hint text, corrected code)
+
+## Backwards compatibility is a non-goal
+
+camdl is unreleased research software. When a field is renamed, it is renamed
+everywhere atomically. When a format changes, all golden files are updated.
+Clean design beats legacy support.

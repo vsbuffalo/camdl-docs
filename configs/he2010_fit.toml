@@ -1,0 +1,51 @@
+# He et al. (2010) London measles — parameter estimation
+# Uses camdl fit workflow: scout → refine → validate
+
+[fit]
+model = "../he2010_london.camdl"
+output_dir = "results"
+
+[data]
+weekly_cases = "../data/he2010_london_cases.tsv"
+
+[config]
+backend = "chain_binomial"
+dt = 1.0
+flow = "recovery"
+
+# Structural parameters — estimated from data
+# Start values are bounds midpoints (needed for compilation).
+# Scout ignores these and draws random starts from bounds.
+[estimate]
+R0        = { start = 50.5 }
+sigma     = { start = 0.255 }
+gamma     = { start = 0.255 }
+amplitude = { start = 0.5 }
+alpha     = { start = 0.75 }
+iota      = { start = 0.5 }
+sigma_se  = { start = 2.5 }
+s0        = { start = 0.055, ivp = true }
+
+# Known/fixed parameters
+# Sources: He et al. (2010) Table 1 + UK vital statistics
+[fixed]
+mu     = 0.0000548   # daily death rate (= 0.02/yr), UK vital statistics
+rho    = 0.488        # reporting probability, He et al. MLE (fixed to avoid rho-R0 ridge)
+psi    = 0.116        # measurement overdispersion, He et al. MLE
+cohort = 0.557        # fraction of births at school start, He et al. MLE (correlated with amplitude)
+N0     = 2462500      # population at t=0 (London, 1944-01-07), census/covariate table
+e0     = 0.0000517    # initial exposed fraction (He et al., weakly identifiable)
+i0     = 0.0000514    # initial infected fraction (He et al., weakly identifiable)
+
+# Per-stage IF2 settings
+[scout]
+chains = 8
+particles = 1000
+iterations = 80
+cooling = 0.9
+
+[refine]
+chains = 4
+particles = 2000
+iterations = 100
+cooling = 0.95

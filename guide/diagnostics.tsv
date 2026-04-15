@@ -1,0 +1,3 @@
+transition_name	total_firings	mean_propensity	max_propensity	first_firing	last_firing
+infection	9056	320.464772	497.599000	0.100057	79.821163
+recovery	9045	251.702239	385.350000	0.145118	79.106631

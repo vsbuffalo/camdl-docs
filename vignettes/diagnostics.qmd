@@ -1,0 +1,7 @@
+---
+title: "Diagnostics Cookbook"
+---
+
+*Coming soon.* Recipes for common diagnostic tasks: trace plot interpretation,
+convergence assessment, cooling schedule tuning, identifiability checks,
+posterior predictive checks.

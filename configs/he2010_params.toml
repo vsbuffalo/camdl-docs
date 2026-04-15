@@ -1,0 +1,34 @@
+# He, Ionides & King (2010) MLE for London measles
+# J. R. Soc. Interface 7: 271–283
+# Source: pomp short-course materials (kingaa.github.io/short-course)
+
+# Transmission
+R0        = 56.8       # basic reproduction number (inflated by alpha < 1)
+alpha     = 0.976      # mixing exponent: FOI ∝ (I + iota)^alpha
+amplitude = 0.554      # school-term forcing amplitude
+iota      = 0.00794    # importation rate (cases/day; = 2.9/yr)
+# He et al. sigmaSE = 0.0878 (std dev, yearly units).
+# Convert: σ²_daily = sigmaSE² × 365.25 = 0.0878² × 365.25 = 2.816
+sigma_se  = 2.816
+
+# Natural history
+sigma     = 0.0791     # latent rate (1/sigma ≈ 12.6 days; = 28.9/yr)
+gamma     = 0.0832     # recovery rate (1/gamma ≈ 12.0 days; = 30.4/yr)
+
+# Demography (now time-varying via interpolated covariates)
+mu        = 0.0000548  # death rate (= 0.02/yr); births from covariate
+cohort    = 0.557      # fraction of births entering S at school start (day 251)
+
+# Observation model
+rho       = 0.488      # reporting probability
+k         = 50.0       # neg-binomial overdispersion (for forward simulation)
+psi       = 0.116      # He et al. measurement overdispersion (for discretized Normal pfilter)
+
+# Initial conditions (London, 1944-01-07)
+# He et al. fractions: S_0=0.0297, E_0=5.17e-5, I_0=5.14e-5, R_0=0.97
+# Scaled by interpolated pop at t=0 ≈ 2,462,500
+N0        = 2462500     # pop at t=0 (1944-01-07), for init of R = N0-S0-E0-I0
+S0        = 73151       # He et al. S_0 = 0.0297 × pop(t=0)
+E0        = 127         # He et al. E_0 = 5.17e-5 × pop(t=0)
+I0        = 127         # He et al. I_0 = 5.14e-5 × pop(t=0)
+R0_init   = 2389095     # pop(t=0) - S0 - E0 - I0

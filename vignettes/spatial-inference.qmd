@@ -1,0 +1,7 @@
+---
+title: "Spatial Inference"
+---
+
+*Coming soon.* Fitting a 5-patch spatial model: the R0–kappa ridge, basin
+finding with multi-start IF2, and PGAS refinement on correlated spatial
+parameters.

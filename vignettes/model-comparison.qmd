@@ -1,0 +1,6 @@
+---
+title: "Model Comparison"
+---
+
+*Coming soon.* Age-structured vs. unstratified models: when misspecification
+matters, how to detect it, and how to compare models using held-out prediction.

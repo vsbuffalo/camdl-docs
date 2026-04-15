@@ -1,0 +1,7 @@
+---
+title: "Fitting Pipeline"
+---
+
+*Coming soon.* The operational workflow for fitting a model: scout (IF2 with
+random starts), refine (PGAS+NUTS from best scout), validate (held-out data,
+posterior predictive checks).

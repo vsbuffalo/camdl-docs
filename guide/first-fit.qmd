@@ -1,0 +1,7 @@
+---
+title: "Your First Fit"
+---
+
+*Coming soon.* This chapter walks through fitting an SIR model to synthetic
+data: generating observations, running IF2 scout, refining with PGAS+NUTS,
+and validating the fit.

@@ -1,0 +1,7 @@
+---
+title: "Sampler Comparison"
+---
+
+*Coming soon.* PMMH vs. PGAS+NUTS: convergence speed, effective sample size,
+and when each sampler wins. Controlled comparison on synthetic data with
+known truth.

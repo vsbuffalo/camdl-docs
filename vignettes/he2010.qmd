@@ -1,0 +1,7 @@
+---
+title: "He et al. (2010) Measles"
+---
+
+*Coming soon.* Replicating the London measles SEIR model from He, Ionides &
+King (2010). Forward simulation, IF2 parameter estimation, and comparison
+with pomp.

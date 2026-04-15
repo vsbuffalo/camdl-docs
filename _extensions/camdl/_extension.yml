@@ -1,0 +1,10 @@
+title: camdl
+author: camdl-vignettes
+version: 0.1.0
+contributes:
+  filters:
+    - camdl-filter.lua
+  format:
+    html:
+      syntax-definitions:
+        - camdl.xml

@@ -1,0 +1,86 @@
+/*-- scss:defaults --*/
+
+/*-- scss:variables --*/
+$content-max-width: 1400px !default;
+
+/*-- scss:rules --*/
+
+/* Wider content area on desktop */
+.page-columns .content {
+  max-width: $content-max-width;
+}
+
+/* Figures should never overflow their container */
+.cell-output-display img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Custom callout: design philosophy */
+div.callout-design {
+  border-left: 4px solid #6C5CE7;
+  background-color: rgba(108, 92, 231, 0.05);
+  padding: 0.8em 1.2em;
+  margin: 1.2em 0;
+  border-radius: 4px;
+}
+div.callout-design > .callout-header {
+  font-weight: 600;
+  color: #6C5CE7;
+  margin-bottom: 0.4em;
+}
+div.callout-design > .callout-header::before {
+  content: "\f3e0\00a0";  /* FontAwesome compass icon */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+}
+
+/* Custom callout: feature highlight */
+div.callout-feature {
+  border-left: 4px solid #00B894;
+  background-color: rgba(0, 184, 148, 0.05);
+  padding: 0.8em 1.2em;
+  margin: 1.2em 0;
+  border-radius: 4px;
+}
+div.callout-feature > .callout-header {
+  font-weight: 600;
+  color: #00B894;
+  margin-bottom: 0.4em;
+}
+div.callout-feature > .callout-header::before {
+  content: "\f005\00a0";  /* FontAwesome star icon */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+}
+
+/* Dark mode adjustments */
+.quarto-dark div.callout-design {
+  background-color: rgba(108, 92, 231, 0.1);
+}
+.quarto-dark div.callout-feature {
+  background-color: rgba(0, 184, 148, 0.1);
+}
+
+/* Dark mode: inline code in headings, paragraphs, and annotations */
+.quarto-dark code:not(.sourceCode) {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+}
+.quarto-dark .code-annotation-container-grid code {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+}
+.quarto-dark dl.code-annotation-container-grid dt code {
+  background-color: transparent;
+}
+
+/* ANSI output styling */
+pre.ansi-output {
+  background-color: inherit;
+  padding: 1em;
+  border-radius: 4px;
+  font-size: 0.9em;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}

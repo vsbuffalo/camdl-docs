@@ -1,0 +1,62 @@
+project:
+  type: book
+  output-dir: _site
+
+book:
+  title: "camdl"
+  subtitle: "Compartmental Model Description Language"
+  author: "Vince Buffalo"
+  repo-url: https://github.com/idm-tools/camdl-book
+  repo-actions: [edit]
+  page-navigation: true
+  sidebar:
+    collapse-level: 2
+  chapters:
+    - index.qmd
+    - part: "Getting Started"
+      chapters:
+        - guide/first-model.qmd
+        - guide/first-fit.qmd
+    - part: "Language"
+      chapters:
+        - language/spec.qmd
+        - language/data-spec.qmd
+    - part: "Inference"
+      chapters:
+        - inference/guide.qmd
+        - inference/pipeline.qmd
+        - inference/debugging.qmd
+    - part: "Vignettes"
+      chapters:
+        - vignettes/he2010.qmd
+        - vignettes/model-comparison.qmd
+        - vignettes/spatial-inference.qmd
+        - vignettes/sampler-comparison.qmd
+        - vignettes/diagnostics.qmd
+    - part: "Reference"
+      chapters:
+        - reference/features.qmd
+        - reference/inference-spec.qmd
+        - reference/ir-spec.qmd
+        - reference/runtimes.qmd
+        - reference/design.qmd
+
+format:
+  html:
+    theme:
+      light: [cosmo, custom.scss]
+      dark: [darkly, custom.scss]
+    syntax-definitions:
+      - _extensions/camdl/camdl.xml
+    code-copy: true
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    code-annotations: below
+
+filters:
+  - camdl
+  - _filters/ansi.lua
+
+execute:
+  freeze: auto
