@@ -6,7 +6,7 @@ book:
   title: "camdl"
   subtitle: "Compartmental Model Description Language"
   author: "Vince Buffalo"
-  repo-url: https://github.com/idm-tools/camdl-book
+  repo-url: https://github.com/vsbuffalo/camdl-book
   repo-actions: [edit]
   page-navigation: true
   sidebar:
