@@ -1,5 +1,5 @@
 ---
-title: "Your First Model"
+title: "Getting Started: An SIR Model"
 ---
 
 ```{python}
@@ -275,7 +275,7 @@ There are four built-in parameter types in camdl:
 
 : Parameter types and their domains. {#tbl-param-types}
 
-You'll see more on why this matters in [Your First Fit](first-fit.qmd); getting
+You'll see more on why this matters in [Fitting to Data](fitting.qmd); getting
 the types right means camdl can fit your model without you having to think
 about parameter transforms --- the compiler naturally knows what is best to
 use as a result of the parameter you declare.
@@ -745,7 +745,7 @@ another. Each stream gets its own name, accumulator, and likelihood. We'll see
 examples of this in later chapters.
 
 This is the observation pipeline that inference must invert. Given only the
-black dots, the fitting algorithms in the [next chapter](first-fit.qmd) will
+black dots, the fitting algorithms in [Fitting to Data](fitting.qmd) will
 try to recover $\beta$, $\gamma$, and $\rho$.
 
 
@@ -798,8 +798,9 @@ from this model and fit it.
 
 ## What's next
 
-- [Your First Fit](first-fit.qmd) — generate synthetic
-  data and recover the parameters with IF2.
+- [Simulation and Experiments](experiments.qmd) — interventions,
+  counterfactual scenarios, and the experiment system.
+- [Fitting to Data](fitting.qmd) — generate synthetic data
+  and recover parameters with IF2 and PGAS+NUTS.
 - Later: dimensions and stratification add age groups, spatial patches,
   and contact matrices.
-- Later: interventions and scenarios for counterfactual comparison.

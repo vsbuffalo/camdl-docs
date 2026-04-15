@@ -15,8 +15,9 @@ book:
     - index.qmd
     - part: "Getting Started"
       chapters:
-        - guide/first-model.qmd
-        - guide/first-fit.qmd
+        - guide/getting-started.qmd
+        - guide/experiments.qmd
+        - guide/fitting.qmd
     - part: "Language"
       chapters:
         - language/spec.qmd

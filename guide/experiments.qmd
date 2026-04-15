@@ -1,0 +1,65 @@
+---
+title: "Simulation and Experiments"
+---
+
+*Coming soon.* This chapter extends the SIR model from the previous chapter
+with interventions and counterfactual scenarios, then introduces camdl's
+experiment system for systematic simulation studies.
+
+## Interventions — time-varying actions
+
+The SIR model from [Getting Started](getting-started.qmd) has fixed parameters:
+$\beta$ and $\gamma$ don't change over the course of the epidemic. But real
+epidemics are shaped by policy responses — vaccination campaigns, school
+closures, quarantine orders — that alter transmission at specific times.
+
+camdl's `interventions` block declares these actions directly in the model.
+Interventions are **off by default** and activated through scenarios or the
+command line, so the same model file can represent both the uncontrolled
+epidemic and the intervention counterfactual.
+
+<!-- TODO: extend SIR to SIRV with a pulse vaccination intervention -->
+<!-- TODO: show `transfer(fraction = ..., from = S, to = V) at [...]` syntax -->
+<!-- TODO: recurring schedule with `every = 30 'days` -->
+
+
+## Scenarios as counterfactuals
+
+In [Getting Started](getting-started.qmd) we used scenarios as named parameter
+presets. With interventions, scenarios become counterfactual comparisons:
+"what would have happened if we had (or hadn't) intervened?"
+
+<!-- TODO: baseline vs. with_vaccination scenario -->
+<!-- TODO: `--enable` / `--disable` CLI flags -->
+<!-- TODO: scenario `set` and `scale` for parameter overrides -->
+
+
+## The experiment system
+
+Running five seeds by hand is fine for a tutorial. Running a 3-scenario ×
+1000-replicate study with parameter sweeps is not. camdl's experiment system
+manages this: you write a TOML manifest declaring the scenarios, seeds, and
+parameter variations, and `camdl experiment run` executes them in parallel
+with content-addressable caching.
+
+<!-- TODO: write experiment TOML manifest for the SIRV model -->
+<!-- TODO: `camdl experiment run`, `status`, `summarize` -->
+<!-- TODO: visualize scenario comparison (cases averted, peak reduction) -->
+
+
+## Parameter sweeps
+
+<!-- TODO: [sweep] block with linspace/logspace -->
+<!-- TODO: sensitivity of peak timing to beta -->
+
+
+## Visualizing uncertainty
+
+<!-- TODO: replicate fans / ribbon plots for scenario comparison -->
+<!-- TODO: distribution of peak size, final size across replicates -->
+
+
+## What's next
+
+- [Fitting to Data](fitting.qmd) — given real (or synthetic) observations,
+  recover the parameters that generated them.
