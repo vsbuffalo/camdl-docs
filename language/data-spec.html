@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Data Model – camdl</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../inference/guide.html" rel="next">
+<link href="../language/spec.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-f418161beb48e0141c760e455f12af2c.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-9acc14e827bb3f716c85e04c1be82ddc.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-ac5f05a5d9400a202088c6be8769120d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-9acc14e827bb3f716c85e04c1be82ddc.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../language/spec.html">Language</a></li><li class="breadcrumb-item"><a href="../language/data-spec.html"><span class="chapter-title">Data Model</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">camdl</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/vsbuffalo/camdl-book" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">camdl</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Getting Started</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/first-model.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Your First Model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/first-fit.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Your First Fit</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Language</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Language Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/data-spec.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Data Model</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Inference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/guide.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference Guide</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/pipeline.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting Pipeline</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/debugging.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Debugging</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Vignettes</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/he2010.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">He et al.&nbsp;(2010) Measles</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/model-comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/spatial-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Spatial Inference</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/sampler-comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sampler Comparison</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/diagnostics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diagnostics Cookbook</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Reference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/features.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">User Features</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/inference-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/ir-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">IR Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/runtimes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simulation Backends</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/design.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Design Philosophy</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#camdl-data-model" id="toc-camdl-data-model" class="nav-link active" data-scroll-target="#camdl-data-model">camdl Data Model</a>
+  <ul class="collapse">
+  <li><a href="#long-format-data" id="toc-long-format-data" class="nav-link" data-scroll-target="#long-format-data">Long-format data</a></li>
+  <li><a href="#the-type-signature-is-the-mapping" id="toc-the-type-signature-is-the-mapping" class="nav-link" data-scroll-target="#the-type-signature-is-the-mapping">The type signature is the mapping</a></li>
+  <li><a href="#dimensions-where-dimension-levels-come-from" id="toc-dimensions-where-dimension-levels-come-from" class="nav-link" data-scroll-target="#dimensions-where-dimension-levels-come-from"><code>dimensions {}</code>: where dimension levels come from</a>
+  <ul class="collapse">
+  <li><a href="#rules" id="toc-rules" class="nav-link" data-scroll-target="#rules">Rules</a></li>
+  </ul></li>
+  <li><a href="#two-ways-to-specify-dimensions" id="toc-two-ways-to-specify-dimensions" class="nav-link" data-scroll-target="#two-ways-to-specify-dimensions">Two ways to specify dimensions</a></li>
+  <li><a href="#multiple-value-columns" id="toc-multiple-value-columns" class="nav-link" data-scroll-target="#multiple-value-columns">Multiple value columns</a></li>
+  <li><a href="#sparsity-and-defaults" id="toc-sparsity-and-defaults" class="nav-link" data-scroll-target="#sparsity-and-defaults">Sparsity and defaults</a></li>
+  <li><a href="#sia-campaigns-the-complete-pattern" id="toc-sia-campaigns-the-complete-pattern" class="nav-link" data-scroll-target="#sia-campaigns-the-complete-pattern">SIA campaigns: the complete pattern</a></li>
+  <li><a href="#time-time_unit-and-the-interpolation-boundary" id="toc-time-time_unit-and-the-interpolation-boundary" class="nav-link" data-scroll-target="#time-time_unit-and-the-interpolation-boundary">Time: <code>time_unit</code> and the interpolation boundary</a></li>
+  <li><a href="#stress-test-every-epi-data-type" id="toc-stress-test-every-epi-data-type" class="nav-link" data-scroll-target="#stress-test-every-epi-data-type">Stress test: every epi data type</a></li>
+  <li><a href="#file-format-rules" id="toc-file-format-rules" class="nav-link" data-scroll-target="#file-format-rules">File format rules</a></li>
+  <li><a href="#complete-nigeria-model-with-data-model" id="toc-complete-nigeria-model-with-data-model" class="nav-link" data-scroll-target="#complete-nigeria-model-with-data-model">Complete Nigeria model with data model</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/language/data-spec.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../language/spec.html">Language</a></li><li class="breadcrumb-item"><a href="../language/data-spec.html"><span class="chapter-title">Data Model</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Data Model</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- DO NOT EDIT — synced from camdl/docs/ via make sync -->
+<section id="camdl-data-model" class="level1">
+<h1>camdl Data Model</h1>
+<p>How external data enters a <code>.camdl</code> model, how CSV columns map to DSL objects, and how dimensions are derived from data.</p>
+<hr>
+<section id="long-format-data" class="level2">
+<h2 class="anchored" data-anchor-id="long-format-data">Long-format data</h2>
+<p>All external data in camdl is <strong>long-format</strong>: one row per observation, columns are either <strong>index columns</strong> (keys into dimensions) or <strong>value columns</strong> (the numbers the model uses).</p>
+<p>Each row is one fact. Each column has one role. This is the tidy data principle applied to compartmental models.</p>
+<p><strong>Example: population by district</strong></p>
+<pre class="tsv"><code>patch   population
+kano_dala   485000
+borno_maiduguri 345000
+borno_gwoza 78000</code></pre>
+<p>One index column (<code>patch</code>), one value column (<code>population</code>). Each row says: “the population of this patch is this number.”</p>
+<p><strong>Example: spatial adjacency</strong></p>
+<pre class="tsv"><code>src dst weight
+kano_dala   borno_maiduguri 0.10
+kano_dala   kano_fagge  0.15
+borno_maiduguri kano_dala   0.10</code></pre>
+<p>Two index columns (<code>src</code>, <code>dst</code>), one value column (<code>weight</code>). Pairs not listed have weight 0 (sparse — most patches aren’t adjacent).</p>
+<p><strong>Example: SIA campaign records</strong></p>
+<pre class="tsv"><code>patch   day coverage
+kano_dala   180 0.82
+kano_dala   365 0.75
+kano_dala   540 0.71
+borno_maiduguri 182 0.68
+borno_maiduguri 370 0.55
+borno_gwoza 190 0.45</code></pre>
+<p>Two index columns (<code>patch</code>, <code>day</code>), one value column (<code>coverage</code>). Kano has 3 rows (3 campaigns), Gwoza has 1. Patches with no campaigns have no rows — coverage is 0 by default (no event).</p>
+<p><strong>The pattern:</strong> every table is <code>(index₁, index₂, ...) → value</code>. The type signature in the DSL declares which columns are indices (by naming dimensions) and which are values (everything remaining).</p>
+<hr>
+</section>
+<section id="the-type-signature-is-the-mapping" class="level2">
+<h2 class="anchored" data-anchor-id="the-type-signature-is-the-mapping">The type signature is the mapping</h2>
+<p>A table declaration maps CSV structure to DSL objects:</p>
+<pre><code>name : dim₁ × dim₂ × ... = read("file.tsv")</code></pre>
+<p>The dimensions map <strong>positionally</strong> to index columns in the CSV. The remaining column(s) are the value(s). A CSV with <code>n_dims + 1</code> columns has exactly one value column (the last).</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pop </span>: patch = <span class="bu">read</span>(<span class="st">"data/pop.tsv"</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The type says 1 dimension (<code>patch</code>). The CSV has 2 columns. Positional mapping:</p>
+<pre><code>Column 1 (patch)      → patch dimension index
+Column 2 (population) → table value
+
+kano_dala   485000    → pop[kano_dala] = 485000
+borno_gwoza  78000    → pop[borno_gwoza] = 78000</code></pre>
+<p>For a 2D table:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">adj </span>: patch × patch = <span class="bu">read</span>(<span class="st">"data/adj.tsv"</span>, default = <span class="dv">0.0</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The type says 2 dimensions. The CSV has 3 columns:</p>
+<pre><code>Column 1 (src)    → first patch dimension
+Column 2 (dst)    → second patch dimension
+Column 3 (weight) → table value
+
+kano_dala   borno_maiduguri   0.10  → adj[kano_dala, borno_maiduguri] = 0.10</code></pre>
+<p>Column names in the CSV are for human readability. The compiler uses positional mapping from the type signature only. (It does require a header row and skips it.)</p>
+<hr>
+</section>
+<section id="dimensions-where-dimension-levels-come-from" class="level2">
+<h2 class="anchored" data-anchor-id="dimensions-where-dimension-levels-come-from"><code>dimensions {}</code>: where dimension levels come from</h2>
+<p>A dimension is a named set of <strong>levels</strong> — the valid values for that index. <code>age</code> has levels <code>{under5, over5}</code>. <code>patch</code> has levels <code>{kano_dala, borno_maiduguri, ...}</code>.</p>
+<p>Levels come from the <code>dimensions {}</code> block, which is declared at the top level of the file. Two forms are supported:</p>
+<p><strong>Inline</strong> — small structural dimensions:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  age = [under5, over5]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Data-derived</strong> — large or data-driven dimensions read from a file column:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  patch = <span class="bu">read</span>(<span class="st">"data/pop.tsv"</span>, column = <span class="st">"patch"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The <code>read(file, column = "col")</code> form reads the named column, collects unique values in first-occurrence order, and those become the levels of the dimension. All tables referencing <code>patch</code> validate against these derived levels.</p>
+<p>After declaring dimensions, <code>stratify(by = X)</code> applies them to compartments:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  age   = [under5, over5]</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  patch = <span class="bu">read</span>(<span class="st">"data/pop.tsv"</span>, column = <span class="st">"patch"</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="pp">stratify</span>(<span class="cf">by</span> = age)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="pp">stratify</span>(<span class="cf">by</span> = patch)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pop </span>: patch = <span class="bu">read</span>(<span class="st">"data/pop.tsv"</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">adj </span>: patch × patch = <span class="bu">read</span>(<span class="st">"data/adj.tsv"</span>, default = <span class="dv">0.0</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="rules" class="level3">
+<h3 class="anchored" data-anchor-id="rules">Rules</h3>
+<p><strong>1. Each dimension is defined exactly once.</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># OK: patch defined once, referenced by two tables</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> { patch = <span class="bu">read</span>(<span class="st">"data/pop.tsv"</span>, column = <span class="st">"patch"</span>) }</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pop </span>: patch = <span class="bu">read</span>(<span class="st">"data/pop.tsv"</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">adj </span>: patch × patch = <span class="bu">read</span>(<span class="st">"data/adj.tsv"</span>, default = <span class="dv">0.0</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ERROR: "dimension 'patch' declared twice in dimensions block"</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  patch = <span class="bu">read</span>(<span class="st">"data/pop.tsv"</span>, column = <span class="st">"patch"</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  patch = <span class="bu">read</span>(<span class="st">"data/pop2.tsv"</span>, column = <span class="st">"patch"</span>)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>2. Validation is exhaustive and strict.</strong></p>
+<p>When a table references a known dimension, the compiler checks the CSV column values against the dimension’s known levels:</p>
+<ul>
+<li>CSV value not in dimension → <strong>error</strong>: <code>"'kano_dala_north' in column 1 of adj.tsv is not a valid 'patch' level"</code></li>
+<li>Dimension level not in CSV → depends on <code>default</code>:
+<ul>
+<li>With <code>default = 0.0</code> → missing cells filled with default (sparse)</li>
+<li>Without <code>default</code> → <strong>error</strong>: <code>"patch level 'borno_abadam' has no entry in adj.tsv"</code> (dense — every level must appear)</li>
+</ul></li>
+</ul>
+<p><strong>3. Dimension levels are exhaustively validated.</strong></p>
+<p>If <code>stratify(by = patch)</code> appears, the levels from the <code>dimensions {}</code> block become the compartment expansion set. The compiler ensures every level produces a valid identifier (no spaces, no special characters beyond <code>_</code>).</p>
+<p><strong>4. Bare dimension names must already be declared.</strong></p>
+<p>Unknown bare name in a type signature → <strong>error</strong>: <code>"unknown dimension 'ptach' — did you mean 'patch'?"</code> (with Levenshtein suggestion). This catches typos that implicit derivation would silently accept.</p>
+<p><strong>5. Inline <code>[...]</code> and <code>read(...)</code> are mutually exclusive for the same dim.</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># OK: inline levels</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> { age = [under5, over5] }</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># OK: data-derived levels</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> { patch = <span class="bu">read</span>(<span class="st">"data/pop.tsv"</span>, column = <span class="st">"patch"</span>) }</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># ERROR: "dimension 'age' declared with both inline levels and read()"</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> { age = [under5, over5] }</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co"># (cannot also have age = read(...) in the same block)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+</section>
+<section id="two-ways-to-specify-dimensions" class="level2">
+<h2 class="anchored" data-anchor-id="two-ways-to-specify-dimensions">Two ways to specify dimensions</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 57%">
+<col style="width: 20%">
+<col style="width: 9%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Source</th>
+<th>Declaration</th>
+<th>Stratifies compartments?</th>
+<th>Levels from</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Inline</td>
+<td><code>dimensions { age = [under5, over5] }</code> + <code>stratify(by = age)</code></td>
+<td>yes</td>
+<td>inline list</td>
+</tr>
+<tr class="even">
+<td>Data, stratified</td>
+<td><code>dimensions { patch = read(f, column="c") }</code> + <code>stratify(by = patch)</code></td>
+<td>yes</td>
+<td>CSV column</td>
+</tr>
+<tr class="odd">
+<td>Data, index-only</td>
+<td><code>dimensions { sia_time = read(f, column="c") }</code> (no <code>stratify</code>)</td>
+<td>no</td>
+<td>CSV column</td>
+</tr>
+</tbody>
+</table>
+<p>All three produce the same thing internally: a named set of levels. They differ in: (a) whether the dimension stratifies compartments, and (b) where the levels come from.</p>
+<p><code>stratify(by = X)</code> declares the role: “this dimension applies to compartments.” The <code>dimensions {}</code> block provides the membership. Role and membership are orthogonal — you can declare a dimension from data without stratifying (e.g., <code>sia_time = read(...)</code> with no <code>stratify</code>), or stratify with inline levels.</p>
+<hr>
+</section>
+<section id="multiple-value-columns" class="level2">
+<h2 class="anchored" data-anchor-id="multiple-value-columns">Multiple value columns</h2>
+<p>When a CSV has more columns than <code>n_dims + 1</code>, there are multiple value columns. List multiple table names on the left of <code>:</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  pop, <span class="fu">sex_ratio </span>: patch = <span class="bu">read</span>(<span class="st">"data/demographics.tsv"</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="tsv"><code>patch   population  sex_ratio
+kano_dala   485000  0.51
+borno_maiduguri 345000  0.49</code></pre>
+<p>One index column, two value columns. Creates two tables with the same index: <code>pop[kano_dala] = 485000</code>, <code>sex_ratio[kano_dala] = 0.51</code>.</p>
+<p>Value columns map positionally to the names on the left of <code>:</code>. The compiler validates: number of names must match number of non-index columns.</p>
+<p><strong>All values are <code>f64</code>.</strong> Table values are always numeric. Dimension levels are strings (or numeric-coercible strings). These are different things: levels are the index space, values are what the table stores.</p>
+<hr>
+</section>
+<section id="sparsity-and-defaults" class="level2">
+<h2 class="anchored" data-anchor-id="sparsity-and-defaults">Sparsity and defaults</h2>
+<p><code>default = 0.0</code> fills index combinations with no CSV row:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  sia_time = <span class="bu">read</span>(<span class="st">"data/sia.tsv"</span>, column = <span class="st">"day"</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">adj     </span>: patch × patch          = <span class="bu">read</span>(<span class="st">"data/adj.tsv"</span>, default = <span class="dv">0.0</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sia_cov </span>: patch × sia_time       = <span class="bu">read</span>(<span class="st">"data/sia.tsv"</span>, default = <span class="dv">0.0</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Table</th>
+<th>What default means</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>adj</code>, default = 0.0</td>
+<td>Non-adjacent patches have zero coupling</td>
+</tr>
+<tr class="even">
+<td><code>sia_cov</code>, default = 0.0</td>
+<td>No campaign event → zero coverage</td>
+</tr>
+</tbody>
+</table>
+<p>Without <code>default</code>, the table is <strong>dense</strong>: every index combination MUST have a row. Missing rows → compile error. Dense is the right default for things like population — every patch must have a value.</p>
+<p><strong>Future: <code>default = missing</code>.</strong> For observation data with genuinely absent measurements. The inference engine conditions on present values and skips missing ones. Same table structure, different default semantics. Not needed for forward simulation.</p>
+<hr>
+</section>
+<section id="sia-campaigns-the-complete-pattern" class="level2">
+<h2 class="anchored" data-anchor-id="sia-campaigns-the-complete-pattern">SIA campaigns: the complete pattern</h2>
+<p>This is where the data model earns its keep. Campaign data is ragged (different patches get different numbers of rounds), indexed by time (which is continuous in the model), and has per-event values (coverage).</p>
+<p>The data:</p>
+<pre class="tsv"><code>patch   day coverage
+kano_dala   180 0.82
+kano_dala   365 0.75
+kano_dala   540 0.71
+borno_maiduguri 182 0.68
+borno_maiduguri 370 0.55
+borno_gwoza 190 0.45</code></pre>
+<p>The model:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  sia_time = <span class="bu">read</span>(<span class="st">"data/sia.tsv"</span>, column = <span class="st">"day"</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sia_cov </span>: patch × sia_time = <span class="bu">read</span>(<span class="st">"data/sia.tsv"</span>, default = <span class="dv">0.0</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="kw">interventions</span> {</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sia[p in patch, t in sia_time] </span>: <span class="kw">transfer</span>(</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    fraction = vacc_eff * sia_cov[p, t],</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">from</span> = S[under5, p], <span class="cf">to</span> = V[under5, p],</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">at</span> = t</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="cf">where</span> sia_cov[p, t] &gt; <span class="dv">0</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>What the compiler does:</strong></p>
+<ol type="1">
+<li><p>Reads <code>sia.tsv</code>. Column “day” → <code>sia_time</code> levels (unique values: <code>[180, 182, 190, 365, 370, 540]</code>). Column 1 → <code>patch</code> (known, validated). Column 3 → value.</p></li>
+<li><p>Builds <code>sia_cov</code> as sparse <code>238 × 6</code> table. Most cells are 0.0.</p></li>
+<li><p>Expands <code>sia[p in patch, t in sia_time]</code>: Cartesian product of 238 × 6 = 1,428 candidate interventions.</p></li>
+<li><p>Applies <code>where sia_cov[p, t] &gt; 0</code>: evaluates at compile time (table values are known). ~1,422 zero-coverage cells eliminated. 6 survive.</p></li>
+<li><p>Each surviving intervention:</p>
+<ul>
+<li><code>sia_kano_dala_180</code>: at = 180.0, fraction = vacc_eff × 0.82</li>
+<li><code>sia_kano_dala_365</code>: at = 365.0, fraction = vacc_eff × 0.75</li>
+<li>etc.</li>
+</ul></li>
+<li><p>IR contains 6 flat interventions. No dimension metadata, no table references. Concrete names, times, expressions.</p></li>
+</ol>
+<p><strong>Numeric dimension levels.</strong> <code>sia_time</code> has levels <code>[180, 182, 190, ...]</code>. These are numeric strings from the CSV. They coerce to <code>f64</code> in expression contexts like <code>at = t</code>. The compiler tracks which dimensions have all-numeric levels and allows this coercion. Non-numeric levels (<code>at = child</code>) would be a type error.</p>
+<p><strong>Two campaign data sources.</strong> If routine and outbreak campaigns are separate:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  routine_time  = <span class="bu">read</span>(<span class="st">"data/routine.tsv"</span>,  column = <span class="st">"day"</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  outbreak_time = <span class="bu">read</span>(<span class="st">"data/outbreak.tsv"</span>, column = <span class="st">"day"</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">routine_cov  </span>: patch × routine_time  = <span class="bu">read</span>(<span class="st">"data/routine.tsv"</span>,  default = <span class="dv">0.0</span>)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">outbreak_cov </span>: patch × outbreak_time = <span class="bu">read</span>(<span class="st">"data/outbreak.tsv"</span>, default = <span class="dv">0.0</span>)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="kw">interventions</span> {</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sia_routine[p in patch, t in routine_time] </span>: <span class="kw">transfer</span>(</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    fraction = vacc_eff * routine_cov[p, t],</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">from</span> = S[under5, p], <span class="cf">to</span> = V[under5, p],</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">at</span> = t</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="cf">where</span> routine_cov[p, t] &gt; <span class="dv">0</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sia_outbreak[p in patch, t in outbreak_time] </span>: <span class="kw">transfer</span>(</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    fraction = vacc_eff * outbreak_cov[p, t],</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">from</span> = S[under5, p], <span class="cf">to</span> = V[under5, p],</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">at</span> = t</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>  ) <span class="cf">where</span> outbreak_cov[p, t] &gt; <span class="dv">0</span></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a><span class="kw">scenarios</span> {</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>  routine_only  { <span class="kw">enable</span> = [sia_routine] }</span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>  full_response { <span class="kw">enable</span> = [sia_routine, sia_outbreak] }</span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Two dimensions, two tables, two intervention families. No union, no intersection, no ambiguity. The scenario system composes them.</p>
+<hr>
+</section>
+<section id="time-time_unit-and-the-interpolation-boundary" class="level2">
+<h2 class="anchored" data-anchor-id="time-time_unit-and-the-interpolation-boundary">Time: <code>time_unit</code> and the interpolation boundary</h2>
+<p><strong>What <code>time_unit</code> does today:</strong> normalizes unit literals at compile time. <code>5 'years</code> with <code>time_unit = 'days</code> becomes <code>5 × 365.25 = 1826.25</code>. All rate expressions and schedule times are in the declared time unit after compilation. The runtime operates in a single unit — no conversions at simulation time.</p>
+<p><strong>The convention:</strong> all numeric time values in CSVs are in the model’s <code>time_unit</code>. Campaign day 180 means day 180. Climate week 26 means… day 26? No — the user converts. If <code>time_unit = 'days</code> and the CSV has weekly data, the time column should be <code>7, 14, 21, ...</code> (days), not <code>1, 2, 3, ...</code> (weeks). The DSL doesn’t do unit conversion on CSV columns.</p>
+<p><strong>Where this matters for <code>at = t</code>:</strong> when <code>sia_time</code> has levels <code>[180, 365, 540]</code>, <code>at = t</code> produces fire times <code>180.0, 365.0, 540.0</code> in the model’s time unit (days). The runtime schedules interventions at exactly these times. No interpolation needed — discrete events at exact times.</p>
+<p><strong>Where interpolation IS needed: continuous time-varying covariates.</strong></p>
+<p>Climate data, seasonal contact rates, rainfall — these vary continuously but are measured at discrete intervals. The table stores <code>patch × climate_week → temperature</code>, but the Gillespie algorithm asks “what’s the temperature at t = 14.73 days?”</p>
+<p>This is NOT a table lookup problem — it’s a time function problem. Tables are compile-time lookups. Time-varying covariates need runtime interpolation.</p>
+<p><strong>The design: indexed time functions (future).</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  patch_clim   = <span class="bu">read</span>(<span class="st">"data/temperature.tsv"</span>, column = <span class="st">"patch"</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  climate_week = <span class="bu">read</span>(<span class="st">"data/temperature.tsv"</span>, column = <span class="st">"week"</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">temp_data </span>: patch_clim × climate_week = <span class="bu">read</span>(<span class="st">"data/temperature.tsv"</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="kw">forcing</span> {</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  temperature[p <span class="cf">in</span> patch] = <span class="bu">interpolated</span>(</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    times  = climate_week,        <span class="co"># the time index levels (as floats)</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    values = temp_data[p, :],     <span class="co"># the row of the table for this patch</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    method = linear               <span class="co"># linear interpolation between points</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">infection[p in patch] </span>: S[p] <span class="op">--&gt;</span> I[p]</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">@</span> beta * (<span class="dv">1</span> + alpha * temperature[p]) * S[p] * I[p] / N[p]</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>At runtime, <code>temperature[kano_dala]</code> evaluates by interpolating the Kano temperature series at the current time <code>t</code>. This extends the existing time function system (which already handles sinusoidal, piecewise, interpolated) with per-dimension members.</p>
+<p>This is a natural extension, not a new concept: time functions already do runtime interpolation. Indexing them by a dimension is the same <code>[p in patch]</code> pattern used everywhere else.</p>
+<p><strong>For the immediate Nigeria model:</strong> per-patch sinusoidal approximation via parameters works:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">forcing</span> {</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  seasonal = <span class="bu">sinusoidal</span>(amplitude = <span class="dv">1.0</span>, period = <span class="dv">365.25</span> <span class="ss">'days</span>,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    phase = phi_season, baseline = <span class="dv">1.0</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">infection[p in patch] </span>: S[p] <span class="op">--&gt;</span> I[p]</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">@</span> beta[p] * seasonal * S[p] * I[p] / N[p]</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Shared waveform, per-patch R0 absorbs amplitude differences. Good enough for the forward generative model.</p>
+<hr>
+</section>
+<section id="stress-test-every-epi-data-type" class="level2">
+<h2 class="anchored" data-anchor-id="stress-test-every-epi-data-type">Stress test: every epi data type</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 30%">
+<col style="width: 39%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Data type</th>
+<th>Type signature</th>
+<th>Works?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Population</td>
+<td><code>patch → f64</code></td>
+<td>✅</td>
+</tr>
+<tr class="even">
+<td>Population × age</td>
+<td><code>patch × age → f64</code></td>
+<td>✅</td>
+</tr>
+<tr class="odd">
+<td>Contact matrix</td>
+<td><code>age × age → f64</code></td>
+<td>✅</td>
+</tr>
+<tr class="even">
+<td>Spatial adjacency (sparse)</td>
+<td><code>patch × patch → f64</code></td>
+<td>✅ <code>default = 0.0</code></td>
+</tr>
+<tr class="odd">
+<td>SIA campaigns (ragged)</td>
+<td><code>patch × sia_time → f64</code></td>
+<td>✅ <code>where &gt; 0</code> filter</td>
+</tr>
+<tr class="even">
+<td>Demographics (multi-value)</td>
+<td><code>patch → (f64, f64)</code></td>
+<td>✅ <code>pop, sex_ratio : patch = read(...)</code></td>
+</tr>
+<tr class="odd">
+<td>Seroprevalence</td>
+<td><code>patch × age → f64</code></td>
+<td>✅</td>
+</tr>
+<tr class="even">
+<td>Environmental covariates</td>
+<td><code>patch → f64</code></td>
+<td>✅</td>
+</tr>
+<tr class="odd">
+<td>Routine immunization</td>
+<td><code>patch × age × ri_month → f64</code></td>
+<td>✅ 3D table</td>
+</tr>
+<tr class="even">
+<td>Detection probability</td>
+<td><code>patch → f64</code></td>
+<td>✅</td>
+</tr>
+<tr class="odd">
+<td>Genetic distances</td>
+<td><code>strain × strain → f64</code></td>
+<td>✅</td>
+</tr>
+<tr class="even">
+<td>Climate / time-varying spatial</td>
+<td><code>patch × week → f64</code></td>
+<td>⚠️ Needs indexed time functions</td>
+</tr>
+<tr class="odd">
+<td>Case data (for fitting)</td>
+<td>observation data</td>
+<td>separate pipeline (observations block)</td>
+</tr>
+</tbody>
+</table>
+<p>One gap: per-patch time-varying covariates need indexed time functions. Everything else works with <code>dims → scalar</code> tables, the <code>dimensions {}</code> block, and the existing <code>[i in dim]</code> iteration.</p>
+<hr>
+</section>
+<section id="file-format-rules" class="level2">
+<h2 class="anchored" data-anchor-id="file-format-rules">File format rules</h2>
+<p><strong>Extension determines separator:</strong></p>
+<ul>
+<li><code>.csv</code> → comma-separated</li>
+<li><code>.tsv</code> → tab-separated</li>
+<li>Other → error: <code>"unrecognized extension '.txt'; use .csv or .tsv"</code></li>
+</ul>
+<p><strong>Validation:</strong></p>
+<ul>
+<li>Compiler checks that the detected separator is actually present</li>
+<li><code>.csv</code> file with tabs but no commas → error: <code>"file 'data.csv' has .csv extension but appears tab-separated; rename to .tsv"</code></li>
+<li>First row is always a header (required)</li>
+<li>No-header detection: if first row parses as all-numeric when subsequent rows are also all-numeric, warn: <code>"first row of 'data.tsv' looks like data, not a header; add a header row"</code></li>
+<li>Comment lines: off by default. <code>read(..., comment = "#")</code> enables skipping lines starting with <code>#</code></li>
+</ul>
+<hr>
+</section>
+<section id="complete-nigeria-model-with-data-model" class="level2">
+<h2 class="anchored" data-anchor-id="complete-nigeria-model-with-data-model">Complete Nigeria model with data model</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="pp">time_unit</span> = <span class="ss">'days</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="kw">compartments</span> { S, E, I, R, V }</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  age      = [under5, over5]</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  patch    = <span class="bu">read</span>(<span class="st">"data/demographics.tsv"</span>, column = <span class="st">"patch"</span>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  sia_time = <span class="bu">read</span>(<span class="st">"data/sia.tsv"</span>, column = <span class="st">"day"</span>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="pp">stratify</span>(<span class="cf">by</span> = age)</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="pp">stratify</span>(<span class="cf">by</span> = patch)</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="kw">parameters</span> {</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>  sigma    : <span class="dt">rate</span>        <span class="cf">in</span> [<span class="dv">0.001</span>, <span class="dv">1.0</span>]</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>  gamma    : <span class="dt">rate</span>        <span class="cf">in</span> [<span class="dv">0.001</span>, <span class="dv">1.0</span>]</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>  omega    : <span class="dt">rate</span>        <span class="cf">in</span> [<span class="dv">0.0001</span>, <span class="dv">0.1</span>]</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>  kappa    : <span class="dt">rate</span>        <span class="cf">in</span> [<span class="dv">0.0</span>, <span class="dv">0.5</span>]</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>  vacc_eff : <span class="dt">probability</span> <span class="cf">in</span> [<span class="dv">0.0</span>, <span class="dv">1.0</span>]</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>  I0       : <span class="dt">count</span>       <span class="cf">in</span> [<span class="dv">1</span>, <span class="dv">10000</span>]</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>  R0[patch] : <span class="dt">positive</span>   <span class="cf">in</span> [<span class="dv">0.5</span>, <span class="dv">15.0</span>]</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="pp">let</span> beta[p <span class="cf">in</span> patch] = R0[p] * gamma</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a><span class="pp">let</span> N[a <span class="cf">in</span> age, p <span class="cf">in</span> patch] = S[a, p] + E[a, p] + I[a, p] + R[a, p] + V[a, p]</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># patch levels derived from demographics.tsv (238 LGAs)</span></span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>  pop, <span class="fu">init_sus </span>: patch                = <span class="bu">read</span>(<span class="st">"data/demographics.tsv"</span>)</span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">adj      </span>: patch × patch             = <span class="bu">read</span>(<span class="st">"data/adj.tsv"</span>, default = <span class="dv">0.0</span>)</span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">age_frac </span>: age                       = [<span class="dv">0.18</span>, <span class="dv">0.82</span>]</span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sia_cov  </span>: patch × sia_time          = <span class="bu">read</span>(<span class="st">"data/sia.tsv"</span>, default = <span class="dv">0.0</span>)</span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">infection[a in age, p in patch] </span>: S[a, p] <span class="op">--&gt;</span> E[a, p]</span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>    <span class="op">@</span> beta[p] * S[a, p] * I[a, p] / N[a, p]</span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">importation[a in age, p in patch, q in patch] </span>: S[a, p] <span class="op">--&gt;</span> E[a, p]</span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>    <span class="op">@</span> kappa * adj[p, q] * S[a, p] * I[a, q] / N[a, q]</span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">where</span> p != q</span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">progression[a in age, p in patch] </span>: E[a, p] <span class="op">--&gt;</span> I[a, p]  <span class="op">@</span> sigma * E[a, p]</span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recovery[a in age, p in patch]    </span>: I[a, p] <span class="op">--&gt;</span> R[a, p]  <span class="op">@</span> gamma * I[a, p]</span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">waning[a in age, p in patch]      </span>: V[a, p] <span class="op">--&gt;</span> S[a, p]  <span class="op">@</span> omega * V[a, p]</span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a><span class="kw">interventions</span> {</span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sia[p in patch, t in sia_time] </span>: <span class="kw">transfer</span>(</span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a>    fraction = vacc_eff * sia_cov[p, t],</span>
+<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">from</span> = S[under5, p], <span class="cf">to</span> = V[under5, p],</span>
+<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">at</span> = t</span>
+<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a>  ) <span class="cf">where</span> sia_cov[p, t] &gt; <span class="dv">0</span></span>
+<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a><span class="kw">init</span> {</span>
+<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a>  S[a <span class="cf">in</span> age, p <span class="cf">in</span> patch] = pop[p] * init_sus[p] * age_frac[a]</span>
+<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a>  I[under5, borno_damboa] = I0</span>
+<span id="cb22-60"><a href="#cb22-60" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-61"><a href="#cb22-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-62"><a href="#cb22-62" aria-hidden="true" tabindex="-1"></a><span class="kw">simulate</span> {</span>
+<span id="cb22-63"><a href="#cb22-63" aria-hidden="true" tabindex="-1"></a>  <span class="cf">from</span> = <span class="dv">0</span> <span class="ss">'days</span></span>
+<span id="cb22-64"><a href="#cb22-64" aria-hidden="true" tabindex="-1"></a>  <span class="cf">to</span>   = <span class="dv">730</span> <span class="ss">'days</span></span>
+<span id="cb22-65"><a href="#cb22-65" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-66"><a href="#cb22-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-67"><a href="#cb22-67" aria-hidden="true" tabindex="-1"></a><span class="kw">scenarios</span> {</span>
+<span id="cb22-68"><a href="#cb22-68" aria-hidden="true" tabindex="-1"></a>  baseline {</span>
+<span id="cb22-69"><a href="#cb22-69" aria-hidden="true" tabindex="-1"></a>    <span class="kw">label</span> = <span class="st">"no SIA"</span></span>
+<span id="cb22-70"><a href="#cb22-70" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb22-71"><a href="#cb22-71" aria-hidden="true" tabindex="-1"></a>  with_sia {</span>
+<span id="cb22-72"><a href="#cb22-72" aria-hidden="true" tabindex="-1"></a>    <span class="kw">label</span> = <span class="st">"with SIA"</span></span>
+<span id="cb22-73"><a href="#cb22-73" aria-hidden="true" tabindex="-1"></a>    <span class="kw">enable</span> = [sia]</span>
+<span id="cb22-74"><a href="#cb22-74" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb22-75"><a href="#cb22-75" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 36%">
+<col style="width: 38%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Concept</th>
+<th>Mechanism</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Small structural dimension</td>
+<td><code>dimensions { X = [...] }</code></td>
+<td><code>age = [under5, over5]</code></td>
+</tr>
+<tr class="even">
+<td>Large data-driven dimension</td>
+<td><code>dimensions { X = read(f, column="c") }</code></td>
+<td><code>patch = read("pop.tsv", column="patch")</code></td>
+</tr>
+<tr class="odd">
+<td>Index-only dimension</td>
+<td><code>dimensions { X = ... }</code> (no stratify)</td>
+<td><code>sia_time = read("sia.tsv", column="day")</code></td>
+</tr>
+<tr class="even">
+<td>Dimension validation</td>
+<td>bare <code>X</code> in type signature</td>
+<td>adj references known <code>patch</code></td>
+</tr>
+<tr class="odd">
+<td>Table loading</td>
+<td><code>read("file.tsv")</code></td>
+<td>positional column → dimension mapping</td>
+</tr>
+<tr class="even">
+<td>Sparse tables</td>
+<td><code>default = 0.0</code></td>
+<td>missing index combinations → default</td>
+</tr>
+<tr class="odd">
+<td>Multiple values</td>
+<td><code>a, b : dims = read(...)</code></td>
+<td>two tables from one CSV</td>
+</tr>
+<tr class="even">
+<td>Numeric level coercion</td>
+<td><code>at = t</code> where <code>t</code> iterates numeric dim</td>
+<td>campaign times as floats</td>
+</tr>
+<tr class="odd">
+<td>Compile-time filtering</td>
+<td><code>where expr &gt; 0</code></td>
+<td>skip zero-coverage events</td>
+</tr>
+<tr class="even">
+<td>Time-varying spatial</td>
+<td>indexed time functions (future)</td>
+<td><code>temperature[p in patch]</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>One loader, one table type, one iteration syntax.</strong> All external data is <code>dims → scalar</code>. All iteration is <code>[i in dim]</code>. Dimensions are declared in the <code>dimensions {}</code> block, validated everywhere. No union, no intersection, no implicit derivation. Every mapping from CSV to model is explicit and traceable.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../language/spec.html" class="pagination-link" aria-label="Language Specification">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Language Specification</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../inference/guide.html" class="pagination-link" aria-label="Inference Guide">
+        <span class="nav-page-text"><span class="chapter-title">Inference Guide</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/language/data-spec.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer></body></html>
