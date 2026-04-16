@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Getting Started: An SIR Model – camdl</title>
+<title>Building an SIR Model – camdl</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -315,7 +315,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/getting-started.html"><span class="chapter-title">Getting Started: An SIR Model</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/getting-started.html"><span class="chapter-title">Building an SIR Model</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -360,7 +360,7 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guide/getting-started.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Getting Started: An SIR Model</span></a>
+  <a href="../guide/getting-started.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Building an SIR Model</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -535,9 +535,9 @@ window.Quarto = {
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/getting-started.html"><span class="chapter-title">Getting Started: An SIR Model</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/getting-started.html"><span class="chapter-title">Building an SIR Model</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Getting Started: An SIR Model</span></h1>
+<h1 class="title"><span class="chapter-title">Building an SIR Model</span></h1>
 </div>
 
 
@@ -1054,52 +1054,62 @@ Figure&nbsp;2.2: Five stochastic SIR trajectories from different seeds. Same par
 <span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    .agg(pl.col(<span class="st">"new_infections"</span>).<span class="bu">sum</span>())</span>
 <span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>    .sort(<span class="st">"week"</span>)</span>
 <span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Expected reports (rho from params.toml)</span></span>
-<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>rho <span class="op">=</span> <span class="fl">0.6</span></span>
-<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>true_weekly <span class="op">=</span> weekly[<span class="st">"new_infections"</span>].to_numpy().astype(<span class="bu">float</span>)</span>
-<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>expected <span class="op">=</span> rho <span class="op">*</span> true_weekly</span>
-<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Observed counts from camdl --obs (NegBin draws from the observation model)</span></span>
-<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop the t=0 row (before the first observation window completes)</span></span>
-<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>obs_df <span class="op">=</span> obs_df.<span class="bu">filter</span>(pl.col(<span class="st">"time"</span>) <span class="op">&gt;</span> <span class="dv">0</span>)</span>
-<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>observed <span class="op">=</span> obs_df[<span class="st">"weekly_cases"</span>].to_numpy()</span>
-<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>obs_times <span class="op">=</span> obs_df[<span class="st">"time"</span>].to_numpy()</span>
-<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">3.5</span>))</span>
-<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Layer 1: true daily incidence</span></span>
-<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a>ax.bar(df[<span class="st">"t"</span>], daily_infections, width<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">"#cccccc"</span>, edgecolor<span class="op">=</span><span class="st">"none"</span>,</span>
-<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a>       label<span class="op">=</span><span class="st">"True daily infections"</span>, zorder<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Layer 2: expected weekly reports (stepped)</span></span>
-<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(weekly)):</span>
-<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>    x0 <span class="op">=</span> weekly[<span class="st">"week"</span>][i] <span class="op">*</span> <span class="dv">7</span></span>
-<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a>    x1 <span class="op">=</span> x0 <span class="op">+</span> <span class="dv">7</span></span>
-<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a>    ax.plot([x0, x1], [expected[i], expected[i]], color<span class="op">=</span><span class="st">"#3366cc"</span>,</span>
-<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a>            linewidth<span class="op">=</span><span class="fl">1.5</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, label<span class="op">=</span><span class="st">"Expected reports (ρ × weekly)"</span> <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="va">None</span>,</span>
-<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a>            zorder<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Layer 3: observed draws from camdl --obs</span></span>
-<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a>ax.scatter(obs_times <span class="op">-</span> <span class="fl">3.5</span>, observed, color<span class="op">=</span><span class="st">"black"</span>, s<span class="op">=</span><span class="dv">25</span>, zorder<span class="op">=</span><span class="dv">3</span>,</span>
-<span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a>           label<span class="op">=</span><span class="st">"Observed (NegBin draws)"</span>)</span>
-<span id="cb23-48"><a href="#cb23-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-49"><a href="#cb23-49" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Time (days)"</span>)</span>
-<span id="cb23-50"><a href="#cb23-50" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Infections"</span>)</span>
-<span id="cb23-51"><a href="#cb23-51" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb23-52"><a href="#cb23-52" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, df[<span class="st">"t"</span>].<span class="bu">max</span>())</span>
-<span id="cb23-53"><a href="#cb23-53" aria-hidden="true" tabindex="-1"></a>ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
-<span id="cb23-54"><a href="#cb23-54" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb23-55"><a href="#cb23-55" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>week_starts <span class="op">=</span> weekly[<span class="st">"week"</span>].to_numpy() <span class="op">*</span> <span class="dv">7</span></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Expected reports (rho from params.toml)</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>rho <span class="op">=</span> <span class="fl">0.6</span></span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>true_weekly <span class="op">=</span> weekly[<span class="st">"new_infections"</span>].to_numpy().astype(<span class="bu">float</span>)</span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>expected <span class="op">=</span> rho <span class="op">*</span> true_weekly</span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Observed counts from camdl --obs (NegBin draws from the observation model)</span></span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop the t=0 row (before the first observation window completes)</span></span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>obs_df <span class="op">=</span> obs_df.<span class="bu">filter</span>(pl.col(<span class="st">"time"</span>) <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>observed <span class="op">=</span> obs_df[<span class="st">"weekly_cases"</span>].to_numpy()</span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>obs_times <span class="op">=</span> obs_df[<span class="st">"time"</span>].to_numpy()</span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>fig, (ax_daily, ax_weekly) <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">5</span>),</span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>    height_ratios<span class="op">=</span>[<span class="dv">1</span>, <span class="dv">2</span>], sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Top panel: true daily incidence ──</span></span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a>ax_daily.bar(df[<span class="st">"t"</span>], daily_infections, width<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">"#cccccc"</span>,</span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>             edgecolor<span class="op">=</span><span class="st">"none"</span>)</span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a>ax_daily.set_ylabel(<span class="st">"Daily infections"</span>)</span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>ax_daily.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Bottom panel: weekly pipeline ──</span></span>
+<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Layer 1: true weekly totals</span></span>
+<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a>ax_weekly.bar(week_starts <span class="op">+</span> <span class="fl">3.5</span>, true_weekly, width<span class="op">=</span><span class="dv">6</span>, color<span class="op">=</span><span class="st">"#cccccc"</span>,</span>
+<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a>              edgecolor<span class="op">=</span><span class="st">"none"</span>, label<span class="op">=</span><span class="st">"True weekly total"</span>, zorder<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a><span class="co"># Layer 2: expected weekly reports (stepped)</span></span>
+<span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(weekly)):</span>
+<span id="cb23-48"><a href="#cb23-48" aria-hidden="true" tabindex="-1"></a>    x0 <span class="op">=</span> week_starts[i]</span>
+<span id="cb23-49"><a href="#cb23-49" aria-hidden="true" tabindex="-1"></a>    x1 <span class="op">=</span> x0 <span class="op">+</span> <span class="dv">7</span></span>
+<span id="cb23-50"><a href="#cb23-50" aria-hidden="true" tabindex="-1"></a>    ax_weekly.plot([x0, x1], [expected[i], expected[i]], color<span class="op">=</span><span class="st">"#3366cc"</span>,</span>
+<span id="cb23-51"><a href="#cb23-51" aria-hidden="true" tabindex="-1"></a>                   linewidth<span class="op">=</span><span class="fl">1.5</span>, alpha<span class="op">=</span><span class="fl">0.7</span>,</span>
+<span id="cb23-52"><a href="#cb23-52" aria-hidden="true" tabindex="-1"></a>                   label<span class="op">=</span><span class="st">"Expected reports (ρ × weekly)"</span> <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="va">None</span>,</span>
+<span id="cb23-53"><a href="#cb23-53" aria-hidden="true" tabindex="-1"></a>                   zorder<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb23-54"><a href="#cb23-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-55"><a href="#cb23-55" aria-hidden="true" tabindex="-1"></a><span class="co"># Layer 3: observed draws from camdl --obs</span></span>
+<span id="cb23-56"><a href="#cb23-56" aria-hidden="true" tabindex="-1"></a>ax_weekly.scatter(obs_times <span class="op">-</span> <span class="fl">3.5</span>, observed, color<span class="op">=</span><span class="st">"black"</span>, s<span class="op">=</span><span class="dv">25</span>, zorder<span class="op">=</span><span class="dv">3</span>,</span>
+<span id="cb23-57"><a href="#cb23-57" aria-hidden="true" tabindex="-1"></a>                  label<span class="op">=</span><span class="st">"Observed (NegBin draws)"</span>)</span>
+<span id="cb23-58"><a href="#cb23-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-59"><a href="#cb23-59" aria-hidden="true" tabindex="-1"></a>ax_weekly.set_xlabel(<span class="st">"Time (days)"</span>)</span>
+<span id="cb23-60"><a href="#cb23-60" aria-hidden="true" tabindex="-1"></a>ax_weekly.set_ylabel(<span class="st">"Weekly infections"</span>)</span>
+<span id="cb23-61"><a href="#cb23-61" aria-hidden="true" tabindex="-1"></a>ax_weekly.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb23-62"><a href="#cb23-62" aria-hidden="true" tabindex="-1"></a>ax_weekly.set_xlim(<span class="dv">0</span>, df[<span class="st">"t"</span>].<span class="bu">max</span>())</span>
+<span id="cb23-63"><a href="#cb23-63" aria-hidden="true" tabindex="-1"></a>ax_weekly.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb23-64"><a href="#cb23-64" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb23-65"><a href="#cb23-65" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-sir-obs" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-sir-obs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="getting-started_files/figure-html/fig-sir-obs-output-1.png" width="1030" height="504" class="figure-img">
+<img src="getting-started_files/figure-html/fig-sir-obs-output-1.png" width="1030" height="729" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sir-obs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2.3: The observation pipeline: true daily infections (grey bars) are aggregated weekly, scaled by the reporting fraction ρ (blue step), and then scattered by negative binomial noise (black dots). Given only the black dots, the fitting algorithms must recover the underlying epidemic.
+Figure&nbsp;2.3: The observation pipeline. <strong>Top:</strong> true daily infections from the simulation. <strong>Bottom:</strong> the same signal aggregated to weekly totals (grey bars), scaled by the reporting fraction ρ = 0.6 (blue step), and scattered by negative binomial noise (black dots). Each layer loses information; inference must recover the epidemic from only the black dots.
 </figcaption>
 </figure>
 </div>
