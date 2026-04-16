@@ -681,7 +681,7 @@ This is the information loss that inference must invert.
 #| code-fold: true
 #| code-summary: "Plotting code"
 #| label: fig-sir-obs
-#| fig-cap: "The observation pipeline: true daily infections (grey bars) are aggregated weekly, scaled by the reporting fraction ρ (blue step), and then scattered by negative binomial noise (black dots). Given only the black dots, the fitting algorithms must recover the underlying epidemic."
+#| fig-cap: "The observation pipeline. **Top:** true daily infections from the simulation. **Bottom:** the same signal aggregated to weekly totals (grey bars), scaled by the reporting fraction ρ = 0.6 (blue step), and scattered by negative binomial noise (black dots). Each layer loses information; inference must recover the epidemic from only the black dots."
 import polars as pl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -700,6 +700,7 @@ weekly = (
     .agg(pl.col("new_infections").sum())
     .sort("week")
 )
+week_starts = weekly["week"].to_numpy() * 7
 
 # Expected reports (rho from params.toml)
 rho = 0.6
@@ -712,29 +713,38 @@ obs_df = obs_df.filter(pl.col("time") > 0)
 observed = obs_df["weekly_cases"].to_numpy()
 obs_times = obs_df["time"].to_numpy()
 
-fig, ax = plt.subplots(figsize=(7, 3.5))
+fig, (ax_daily, ax_weekly) = plt.subplots(2, 1, figsize=(7, 5),
+    height_ratios=[1, 2], sharex=True)
 
-# Layer 1: true daily incidence
-ax.bar(df["t"], daily_infections, width=1, color="#cccccc", edgecolor="none",
-       label="True daily infections", zorder=1)
+# ── Top panel: true daily incidence ──
+ax_daily.bar(df["t"], daily_infections, width=1, color="#cccccc",
+             edgecolor="none")
+ax_daily.set_ylabel("Daily infections")
+ax_daily.spines[["top", "right"]].set_visible(False)
+
+# ── Bottom panel: weekly pipeline ──
+# Layer 1: true weekly totals
+ax_weekly.bar(week_starts + 3.5, true_weekly, width=6, color="#cccccc",
+              edgecolor="none", label="True weekly total", zorder=1)
 
 # Layer 2: expected weekly reports (stepped)
 for i in range(len(weekly)):
-    x0 = weekly["week"][i] * 7
+    x0 = week_starts[i]
     x1 = x0 + 7
-    ax.plot([x0, x1], [expected[i], expected[i]], color="#3366cc",
-            linewidth=1.5, alpha=0.7, label="Expected reports (ρ × weekly)" if i == 0 else None,
-            zorder=2)
+    ax_weekly.plot([x0, x1], [expected[i], expected[i]], color="#3366cc",
+                   linewidth=1.5, alpha=0.7,
+                   label="Expected reports (ρ × weekly)" if i == 0 else None,
+                   zorder=2)
 
 # Layer 3: observed draws from camdl --obs
-ax.scatter(obs_times - 3.5, observed, color="black", s=25, zorder=3,
-           label="Observed (NegBin draws)")
+ax_weekly.scatter(obs_times - 3.5, observed, color="black", s=25, zorder=3,
+                  label="Observed (NegBin draws)")
 
-ax.set_xlabel("Time (days)")
-ax.set_ylabel("Infections")
-ax.legend(frameon=False, fontsize=9)
-ax.set_xlim(0, df["t"].max())
-ax.spines[["top", "right"]].set_visible(False)
+ax_weekly.set_xlabel("Time (days)")
+ax_weekly.set_ylabel("Weekly infections")
+ax_weekly.legend(frameon=False, fontsize=9)
+ax_weekly.set_xlim(0, df["t"].max())
+ax_weekly.spines[["top", "right"]].set_visible(False)
 plt.tight_layout()
 plt.show()
 ```
