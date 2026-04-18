@@ -1,0 +1,33 @@
+[model]
+camdl = "sir_negbin_with_priors.camdl"
+scenario = "baseline"
+fit_seeds = 42
+
+[synthetic]
+true_params = "data/true_params_negbin.toml"
+datasets = 30
+sim_seeds = "1:30"
+
+[estimate]
+beta  = { bounds = [0.5, 5.0], start = 1.5 }
+gamma = { bounds = [0.1, 1.0], start = 0.4 }
+k     = { bounds = [1.0, 100.0], start = 10.0 }
+
+[fixed]
+N0 = 763
+I0 = 5
+
+[stages.scout]
+method = "if2"
+chains = 24
+particles = 1000
+iterations = 100
+cooling = 0.9
+
+[stages.refine]
+method = "if2"
+chains = 8
+particles = 2000
+iterations = 120
+cooling = 0.95
+starts_from = "scout"

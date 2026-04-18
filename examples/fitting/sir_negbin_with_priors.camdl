@@ -1,0 +1,52 @@
+# SIR model for the 1978 boarding school influenza outbreak.
+#
+# Maps "confined to bed" = prevalence(I).
+# No reporting fraction — every infectious boy is in bed.
+# Observation noise via NegBin dispersion k.
+
+time_unit = 'days
+
+compartments { S, I, R }
+
+parameters {
+  beta  : rate     in [0.5, 5.0]  ~ log_normal(mu = log(2.0), sigma = 0.5)
+  gamma : rate     in [0.1, 1.0]  ~ log_normal(mu = log(0.4), sigma = 0.3)
+  N0    : count
+  I0    : count
+  k     : positive in [1.0, 100.0] ~ half_normal(sigma = 10.0)
+}
+
+let N = S + I + R
+
+transitions {
+  infection : S --> I  @ beta * S * I / N
+  recovery  : I --> R  @ gamma * I
+}
+
+init {
+  S = N0 - I0
+  I = I0
+}
+
+observations {
+  in_bed : {
+    projected  = prevalence(I)
+    every      = 1 'days
+    likelihood = neg_binomial(mean = projected, r = k)
+  }
+}
+
+scenarios {
+  baseline {
+    label = "Boarding school flu, 1978"
+    set = {
+      N0 = 763
+      I0 = 5
+    }
+  }
+}
+
+simulate {
+  from = 0 'days
+  to   = 14 'days
+}

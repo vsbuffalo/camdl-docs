@@ -6,9 +6,13 @@ book:
   title: "camdl"
   subtitle: "Compartmental Model Description Language"
   author: "Vince Buffalo"
+  date: "2026"
   repo-url: https://github.com/vsbuffalo/camdl-book
   repo-actions: [edit]
   page-navigation: true
+  page-footer:
+    left: "© 2026 Vince Buffalo. Supported by the Institute for Disease Modeling, Bill & Melinda Gates Foundation."
+    right: "License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)"
   sidebar:
     collapse-level: 2
   chapters:
@@ -17,15 +21,14 @@ book:
       chapters:
         - guide/getting-started.qmd
         - guide/experiments.qmd
+        - guide/scenarios.qmd
         - guide/fitting.qmd
-    - part: "Language"
-      chapters:
-        - language/spec.qmd
-        - language/data-spec.qmd
     - part: "Inference"
       chapters:
-        - inference/guide.qmd
+        - inference/likelihood.qmd
+        - inference/algorithms.qmd
         - inference/pipeline.qmd
+        - inference/diagnostics.qmd
         - inference/debugging.qmd
     - part: "Vignettes"
       chapters:
@@ -36,6 +39,8 @@ book:
         - vignettes/diagnostics.qmd
     - part: "Reference"
       chapters:
+        - language/spec.qmd
+        - language/data-spec.qmd
         - reference/features.qmd
         - reference/inference-spec.qmd
         - reference/ir-spec.qmd
@@ -50,6 +55,8 @@ format:
     syntax-definitions:
       - _extensions/camdl/camdl.xml
     code-copy: true
+    include-after-body:
+      - text: '<script src="cli-copy.js"></script>'
     toc: true
     toc-depth: 3
     number-sections: false

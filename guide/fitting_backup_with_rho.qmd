@@ -1,0 +1,657 @@
+---
+title: "Fitting to Data"
+---
+
+```{python}
+#| echo: false
+#| output: false
+import subprocess, io, os, tempfile, re, json, glob
+import polars as pl
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+from IPython.display import Markdown, HTML
+
+GREY = "#888888"
+mpl.rcParams.update({
+    "figure.facecolor": "none",
+    "axes.facecolor": "none",
+    "savefig.facecolor": "none",
+    "figure.dpi": 150,
+    "font.size": 11,
+    "text.color": GREY,
+    "axes.labelcolor": GREY,
+    "xtick.color": GREY,
+    "ytick.color": GREY,
+    "axes.edgecolor": GREY,
+    "legend.edgecolor": GREY,
+})
+
+FIT_DIR = "../examples/fitting"
+
+def _ansi_to_html(raw, max_lines=40, tail=6):
+    lines = raw.split("\n")
+    if len(lines) > max_lines:
+        head = lines[:max_lines - tail]
+        foot = lines[-tail:]
+        omitted = len(lines) - (max_lines - tail) - tail
+        raw = "\n".join(head + [f"  [...{omitted} lines omitted...]"] + foot)
+    _sgr = {"1": "font-weight:bold", "2": "opacity:0.6", "0": None,
+            "33": "color:#b8860b", "31": "color:#cc3333",
+            "32": "color:#2e8b2e", "34": "color:#3366cc"}
+    def _repl(m):
+        s = _sgr.get(m.group(1))
+        return f'<span style="{s}">' if s else "</span>"
+    escaped = raw.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    return re.sub(r'\033\[(\d+)m', _repl, escaped)
+
+def run_cli(cmd, echo=None, collapse=True, cwd=None, max_lines=40, tail=6):
+    result = subprocess.run(cmd, capture_output=True, text=True, shell=True, cwd=cwd)
+    raw = (result.stdout + result.stderr).rstrip()
+    html = _ansi_to_html(raw, max_lines=max_lines, tail=tail)
+    if collapse and echo:
+        return HTML(
+            f'<details class="cli-run">'
+            f'<summary><code>$ {echo}</code></summary>'
+            f'<pre class="ansi-output"><code>{html}</code></pre>'
+            f'</details>'
+        )
+    prompt = f'<span style="opacity:0.6">$ {echo}</span>\n' if echo else ""
+    return HTML(f'<pre class="ansi-output"><code>{prompt}{html}</code></pre>')
+
+def run_sim(model, params_file, seed=42, scenario="baseline", extra_args=None, cwd=FIT_DIR):
+    cmd = ["camdl", "simulate", model, "--params", params_file,
+           "--scenario", scenario, "--seed", str(seed)]
+    if extra_args:
+        cmd.extend(extra_args)
+    result = subprocess.run(cmd, capture_output=True, text=True, check=True, cwd=cwd)
+    lines = result.stdout.split("\n")
+    tsv = "\n".join(l for l in lines if not l.startswith("#"))
+    return pl.read_csv(io.StringIO(tsv), separator="\t")
+
+def load_mle(path):
+    params = {}
+    with open(path) as f:
+        for line in f:
+            if line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.strip().split(" = ")
+            params[k.strip()] = float(v.strip())
+    return params
+
+def write_params(params, path):
+    with open(path, "w") as f:
+        for k, v in params.items():
+            f.write(f"{k} = {v}\n")
+
+def load_traces(results_dir):
+    traces = []
+    for i, f in enumerate(sorted(glob.glob(os.path.join(results_dir, "chain_*/parameter_traces.tsv")))):
+        df = pl.read_csv(f, separator="\t", comment_prefix="#", infer_schema_length=10000)
+        df = df.with_columns(pl.lit(i + 1).alias("chain"))
+        traces.append(df)
+    return pl.concat(traces)
+
+# Load data
+data = pl.read_csv(os.path.join(FIT_DIR, "data/boarding_school_sir.tsv"), separator="\t")
+```
+
+In the [previous chapters](experiments.qmd) we built a model, explored its
+uncertainty, and tested its behavior under different scenarios. Now we turn
+to the central question: **can the data constrain the model's parameters?**
+
+This chapter introduces `camdl fit`, the inference pipeline that finds
+parameter values consistent with observed data. We fit two models to
+the 1978 boarding school influenza outbreak and discover that *how you
+connect the model to the data* matters as much as the model itself.
+
+
+## The problem: latent states and intractable likelihoods
+
+A compartmental model has **latent states** — the true number of susceptible,
+infectious, and recovered individuals at each time point — that we never
+observe directly. We observe noisy, incomplete proxies: daily bed counts,
+weekly case reports. To find the parameters that best explain the data, we
+need the likelihood $L(\theta \mid y_{1:T})$ — the probability of seeing
+these observations given the parameters.
+
+For a stochastic compartmental model, this likelihood is an integral over
+all possible latent epidemic trajectories:
+
+$$
+L(\theta \mid y_{1:T}) = \int P(y_{1:T} \mid x_{0:T}, \theta) \; P(x_{0:T} \mid \theta) \; dx_{0:T}
+$$
+
+This integral is intractable — the space of possible trajectories is
+enormous. The **particle filter** approximates it by simulating many
+trajectories in parallel and weighting them by how well they explain the
+data. **Iterated filtering (IF2)** [Ionides et al. 2015](https://doi.org/10.1073/pnas.1410597112)
+builds on this: it perturbs the parameters across the particles,
+runs the particle filter, and then cools the perturbations over
+iterations to converge on the maximum likelihood estimate (MLE). Think
+simulated annealing on an approximate likelihood surface. This is the
+same algorithm as pomp's `mif2()`.
+
+
+## The fit.toml config
+
+A fit configuration separates three concerns: what to estimate, what to
+fix, and how to run the inference. Here is the config for our boarding
+school SIR:
+
+```{python}
+#| echo: false
+#| output: asis
+with open(os.path.join(FIT_DIR, "fit_sir.toml")) as f:
+    print(f"```toml\n{f.read().strip()}\n```")
+```
+
+The `[estimate]` section lists the free parameters with their search
+bounds. The `[fixed]` section pins parameters that can't be identified
+from the data (here, the population size and initial infected count are
+known). The `[stages]` section defines the inference pipeline: a broad
+`scout` with many chains to explore the likelihood surface, followed
+by a focused `refine` that starts from the best scout result.
+
+
+## Validating the pipeline: simulation-based calibration
+
+Before trusting the results on real data, we should check: **can the
+pipeline recover known parameters from synthetic data?** This is
+simulation-based calibration
+([Talts et al. 2018](https://arxiv.org/abs/1804.06788)) — generate
+many datasets at known parameters, fit each one, and check that the
+MLEs are centered on truth.
+
+We simulate 30 synthetic datasets from the MLE parameters (our best
+guess at the truth), fit each with the same IF2 configuration, and
+compare the recovered parameters to the generating values:
+
+```{python}
+#| code-fold: true
+#| code-summary: "SBC analysis code"
+#| label: fig-sbc
+#| fig-cap: "Simulation-based calibration for the boarding school SIR. Each dot is the MLE from one synthetic dataset (30 total). Dashed red lines mark the true parameter values. β is systematically overestimated and ρ underestimated — a tradeoff ridge where higher transmission with lower reporting produces similar predicted bed counts. γ and k are approximately unbiased."
+sbc = pl.read_csv(os.path.join(FIT_DIR, "results/sbc/summary.tsv"),
+                  separator="\t", skip_rows=1, has_header=False,
+                  new_columns=["dseed", "beta", "gamma", "rho", "k", "ll"])
+
+true_vals = {"beta": 2.1961, "gamma": 0.5782, "rho": 0.8943, "k": 50.35}
+params = ["beta", "gamma", "rho", "k"]
+
+fig, axes = plt.subplots(1, 4, figsize=(12, 3.5))
+for ax, param in zip(axes, params):
+    vals = sbc[param].to_numpy()
+    ax.scatter(range(len(vals)), vals, s=15, color="#3366cc", alpha=0.6)
+    ax.axhline(true_vals[param], color="#cc3333", linestyle="--", linewidth=1.5,
+               label=f"True = {true_vals[param]:.3f}")
+    ax.axhline(vals.mean(), color="#3366cc", linestyle=":", linewidth=1,
+               label=f"Mean = {vals.mean():.3f}")
+    ax.set_xlabel("Synthetic dataset")
+    ax.set_ylabel(param)
+    ax.legend(frameon=False, fontsize=7)
+    ax.spines[["top", "right"]].set_visible(False)
+plt.tight_layout()
+plt.show()
+```
+
+The results reveal a systematic bias: β is consistently overestimated
+(mean 3.66 vs true 2.20) and ρ is consistently underestimated (mean
+0.66 vs true 0.89). This is the **β–ρ ridge** — a higher transmission
+rate paired with a lower reporting fraction produces similar predicted
+bed counts. The MLE favors the high-β side of this ridge because
+fast epidemics produce lower-variance particle filter likelihood
+estimates, creating a systematic pull toward that basin.
+
+This doesn't mean the pipeline is broken — it means the SIR model with
+prevalence-based observations on 14 daily data points has a genuine
+identifiability issue. The parameters β and ρ are not individually
+identifiable from bed count data alone; only their combination
+(roughly, β × ρ × mean infectious period) is constrained by the data.
+Profile likelihoods will make this ridge visible.
+
+::: {.callout-note collapse="false"}
+## Is this a problem?
+
+In one sense, no: the predicted *trajectories* at the biased MLE
+still match the synthetic data well. The model makes good predictions
+even with "wrong" parameters, because different points on the ridge
+produce similar epidemics. In another sense, yes: if you need the
+individual parameters for downstream decisions (e.g., "what fraction
+of infections are reported?"), the MLE is unreliable. A Bayesian
+posterior would show the full ridge rather than collapsing to a point.
+:::
+
+
+### Where does the bias live?
+
+Which quantities are identified by the data, and which aren't? If the
+β–ρ ridge is the mechanism, the *product* β·ρ (expected force on the
+observations) should be better identified than either factor alone:
+
+```{python}
+#| code-fold: true
+#| code-summary: "Bias diagnostic code"
+#| label: fig-sbc-bias
+#| fig-cap: "Bias in derived quantities across 30 synthetic datasets (freq=1/day). β alone is biased +67%; ρ alone is biased -26%. But β·ρ (the product the data actually constrains) is biased only +24%. R₀ = β/γ is the worst at +85% because both β↑ and γ↓ compound. The data identifies the observation-scale combination, not the individual parameters."
+
+quantities = {}
+true_vals_q = {}
+betas = sbc["beta"].to_numpy()
+gammas = sbc["gamma"].to_numpy()
+rhos = sbc["rho"].to_numpy()
+
+quantities["β"] = betas; true_vals_q["β"] = 2.1961
+quantities["ρ"] = rhos; true_vals_q["ρ"] = 0.8943
+quantities["β·ρ"] = betas * rhos; true_vals_q["β·ρ"] = 2.1961 * 0.8943
+quantities["R₀=β/γ"] = betas / gammas; true_vals_q["R₀=β/γ"] = 2.1961 / 0.5782
+quantities["γ"] = gammas; true_vals_q["γ"] = 0.5782
+
+names = list(quantities.keys())
+biases = [100 * (quantities[n].mean() - true_vals_q[n]) / true_vals_q[n] for n in names]
+
+fig, ax = plt.subplots(figsize=(8, 3.5))
+colors = ["#cc3333" if b > 0 else "#3366cc" for b in biases]
+bars = ax.bar(range(len(names)), biases, color=colors, alpha=0.7, edgecolor="none")
+ax.axhline(0, color=GREY, linewidth=0.5)
+ax.set_xticks(range(len(names)))
+ax.set_xticklabels(names)
+ax.set_ylabel("Bias (%)")
+ax.spines[["top", "right"]].set_visible(False)
+for bar, b in zip(bars, biases):
+    ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 2,
+            f"{b:+.0f}%", ha="center", va="bottom", fontsize=9, color=GREY)
+plt.tight_layout()
+plt.show()
+```
+
+### Does more data fix the bias?
+
+The bias comes from having too few observations to separate β and ρ.
+To confirm, we repeat the SBC at four observation frequencies — same
+14-day epidemic, same parameters, but observing every 1 day (14 points),
+every 0.5 days (28 points), every 0.25 days (56 points), and every
+0.1 days (140 points):
+
+```{python}
+#| code-fold: true
+#| code-summary: "Frequency sweep analysis"
+#| label: fig-sbc-freq
+#| fig-cap: "Parameter recovery improves with observation density. Each dot is the MLE from one synthetic dataset. Red dashed line: true value. As observations increase from 14 to 140 over the same 14-day window, β converges toward truth and ρ bias shrinks. With 140 observations, the β–ρ ridge largely resolves."
+freqs = [1.0, 0.5, 0.25, 0.1]
+freq_labels = ["14\n(1/day)", "28\n(2/day)", "56\n(4/day)", "140\n(10/day)"]
+true_vals = {"beta": 2.1961, "gamma": 0.5782, "rho": 0.8943, "k": 50.35}
+
+freq_data = {}
+for freq in freqs:
+    path = os.path.join(FIT_DIR, f"results/sbc_freq_{freq}.tsv")
+    if os.path.exists(path):
+        df = pl.read_csv(path, separator="\t", skip_rows=1, has_header=False,
+                         new_columns=["dseed", "beta", "gamma", "rho", "k", "ll"])
+        freq_data[freq] = df
+
+fig, axes = plt.subplots(1, 3, figsize=(12, 4))
+for ax, param in zip(axes, ["beta", "rho", "gamma"]):
+    for i, (freq, label) in enumerate(zip(freqs, freq_labels)):
+        if freq in freq_data:
+            vals = freq_data[freq][param].to_numpy()
+            jitter = np.random.default_rng(42).uniform(-0.15, 0.15, len(vals))
+            ax.scatter(np.full_like(vals, i) + jitter, vals,
+                      s=15, alpha=0.5, color="#3366cc", zorder=3)
+            ax.plot([i - 0.3, i + 0.3], [vals.mean(), vals.mean()],
+                   color="#3366cc", linewidth=2, zorder=4)
+    ax.axhline(true_vals[param], color="#cc3333", linestyle="--", linewidth=1.5,
+               label=f"True = {true_vals[param]:.3f}")
+    ax.set_xticks(range(len(freq_labels)))
+    ax.set_xticklabels(freq_labels)
+    ax.set_xlabel("Observations")
+    ax.set_ylabel(param)
+    ax.legend(frameon=False, fontsize=8)
+    ax.spines[["top", "right"]].set_visible(False)
+
+plt.tight_layout()
+plt.show()
+```
+
+The trend is clear: with 14 observations, β is biased high by ~70%
+and ρ is biased low by ~25%. At 140 observations, the bias largely
+disappears — β recovers to within 10% of truth. The β–ρ ridge that
+confounds inference on sparse data dissolves when the observation
+density is high enough to distinguish "fast epidemic with low reporting"
+from "slow epidemic with high reporting."
+
+The bias propagates to R₀ = β/γ — the quantity decision-makers
+actually need:
+
+```{python}
+#| code-fold: true
+#| code-summary: "Plotting code"
+#| label: fig-r0-bias
+#| fig-cap: "R₀ estimation bias as a function of observation density. Each dot is the MLE R₀ = β/γ from one synthetic dataset. With 14 daily observations, R₀ is biased +95% (mean 7.4 vs true 3.8). At 56 observations over the same 14-day window, the bias drops to +16%. The basic reproduction number — the single most policy-relevant quantity — requires dense observation data for reliable estimation from a stochastic SIR."
+freqs = [1.0, 0.5, 0.25, 0.1]
+freq_labels = ["14\n(1/day)", "28\n(2/day)", "56\n(4/day)", "140\n(10/day)"]
+true_R0_val = 2.1961 / 0.5782
+
+fig, ax = plt.subplots(figsize=(7, 4))
+for i, (freq, label) in enumerate(zip(freqs, freq_labels)):
+    path = os.path.join(FIT_DIR, f"results/sbc_freq_{freq}.tsv")
+    if os.path.exists(path):
+        df = pl.read_csv(path, separator="\t", skip_rows=1, has_header=False,
+                         new_columns=["dseed", "beta", "gamma", "rho", "k", "ll"])
+        R0s = (df["beta"] / df["gamma"]).to_numpy()
+        jitter = np.random.default_rng(42).uniform(-0.15, 0.15, len(R0s))
+        ax.scatter(np.full_like(R0s, i) + jitter, R0s,
+                  s=15, alpha=0.5, color="#3366cc", zorder=3)
+        ax.plot([i - 0.3, i + 0.3], [R0s.mean(), R0s.mean()],
+               color="#3366cc", linewidth=2, zorder=4)
+        bias = 100 * (R0s.mean() - true_R0_val) / true_R0_val
+        ax.text(i, R0s.max() + 0.3, f"+{bias:.0f}%", ha="center",
+                fontsize=9, color=GREY)
+
+ax.axhline(true_R0_val, color="#cc3333", linestyle="--", linewidth=1.5,
+           label=f"True R₀ = {true_R0_val:.1f}")
+ax.set_xticks(range(len(freq_labels)))
+ax.set_xticklabels(freq_labels)
+ax.set_xlabel("Observations (over 14 days)")
+ax.set_ylabel("R₀ = β/γ")
+ax.legend(frameon=False, fontsize=9)
+ax.spines[["top", "right"]].set_visible(False)
+plt.tight_layout()
+plt.show()
+```
+
+This has practical implications: for real outbreaks where you need
+accurate individual parameter estimates (not just trajectory predictions),
+the observation frequency matters. Daily prevalence data from a 14-day
+epidemic is at the edge of what MLE can resolve.
+
+What does a fit look like with twice the observation density? Here's
+one synthetic dataset observed every 0.5 days (28 points) alongside
+the 14-point daily version:
+
+```{python}
+#| code-fold: true
+#| code-summary: "Plotting code"
+#| label: fig-freq-fit-comparison
+#| fig-cap: "Fits to the same epidemic at two observation densities. **Left:** every 1 day (14 observations), MLE β=3.45. **Right:** every 0.5 days (28 observations), MLE β=2.29 — much closer to truth (2.20). More observations resolve the β–ρ ridge."
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4), sharey=True)
+
+for ax, freq, ds, title in [
+    (ax1, "1.0", "fit_sbc_1", "Every 1 day (14 obs)"),
+    (ax2, "0.5", "fit_sbc_f0.5_d1", "Every 0.5 days (28 obs)"),
+]:
+    # Load MLE
+    mle_path = os.path.join(FIT_DIR, f"results/fits/{ds}/refine/mle_params.toml")
+    mle = load_mle(mle_path)
+    rho = mle.get("rho", 1.0)
+
+    # Load data
+    if freq == "1.0":
+        obs_data = pl.read_csv(os.path.join(FIT_DIR, "data/sbc/syn_1.tsv"), separator="\t")
+        model_file = "boarding_school_sir.camdl"
+    else:
+        obs_data = pl.read_csv(os.path.join(FIT_DIR, f"data/sbc_freq/freq_{freq}/syn_1.tsv"), separator="\t")
+        model_file = f"boarding_school_sir_obs{freq}.camdl"
+
+    # Simulate at MLE
+    write_params(mle, os.path.join(FIT_DIR, "_tmp_mle.toml"))
+    traj = run_sim(model_file, "_tmp_mle.toml", extra_args=["--replicates", "200"])
+
+    grouped = (
+        traj.select(["t", "replicate", "I"])
+        .group_by("t")
+        .agg([
+            pl.col("I").quantile(0.025).alias("q025"),
+            pl.col("I").quantile(0.25).alias("q25"),
+            pl.col("I").median().alias("median"),
+            pl.col("I").quantile(0.75).alias("q75"),
+            pl.col("I").quantile(0.975).alias("q975"),
+        ])
+        .sort("t")
+    )
+    t = grouped["t"].to_numpy()
+
+    ax.fill_between(t, grouped["q025"].to_numpy() * rho,
+                    grouped["q975"].to_numpy() * rho,
+                    alpha=0.15, color="#cc3333")
+    ax.fill_between(t, grouped["q25"].to_numpy() * rho,
+                    grouped["q75"].to_numpy() * rho,
+                    alpha=0.3, color="#cc3333")
+    ax.plot(t, grouped["median"].to_numpy() * rho, color="#cc3333",
+            linewidth=1.5, label=f"ρ·I  β={mle['beta']:.2f}")
+    ax.scatter(obs_data["time"], obs_data["in_bed"], color="black", s=15,
+               zorder=5, alpha=0.7, label="Synthetic data")
+    ax.set_xlabel("Day")
+    ax.set_title(title, fontsize=11, color=GREY)
+    ax.legend(frameon=False, fontsize=8)
+    ax.spines[["top", "right"]].set_visible(False)
+
+ax1.set_ylabel("Boys in bed")
+os.unlink(os.path.join(FIT_DIR, "_tmp_mle.toml"))
+plt.tight_layout()
+plt.show()
+```
+
+
+## First fit: the classic SIR
+
+The existing boarding school model maps "confined to bed" to `prevalence(I)`
+— the number currently infectious. This is the textbook interpretation
+([Murray 2002](https://global.oup.com/academic/product/mathematical-biology-9780387952284),
+[Keeling & Rohani 2008](https://press.princeton.edu/books/hardcover/9780691116174/modeling-infectious-diseases-in-humans-and-animals)).
+
+### Running the fit
+
+The scout stage runs 48 chains from dispersed random starting points,
+each with 1000 particles and 150 IF2 iterations. The refine stage takes
+the best scout chain and polishes it with 3000 particles:
+
+```{python}
+#| echo: false
+# Run the fit (skips if results already exist for these inputs)
+display(run_cli(
+    f"cd {FIT_DIR} && camdl fit run fit_sir.toml --seed 42",
+    echo="camdl fit run fit_sir.toml --seed 42",
+    cwd=FIT_DIR,
+    max_lines=35
+))
+```
+
+The MLE parameters:
+
+```{python}
+#| echo: false
+display(run_cli(
+    f"cat {FIT_DIR}/results/fits/fit_sir/refine/mle_params.toml",
+    echo="cat results/fits/fit_sir/refine/mle_params.toml",
+    collapse=False
+))
+```
+
+```{python}
+#| echo: false
+mle_sir = load_mle(os.path.join(FIT_DIR, "results/fits/fit_sir/refine/mle_params.toml"))
+R0 = mle_sir["beta"] / mle_sir["gamma"]
+```
+
+### Convergence diagnostics
+
+Did the chains converge? The parameter traces show how each chain's
+estimate evolved over IF2 iterations:
+
+```{python}
+#| code-fold: true
+#| code-summary: "Plotting code"
+#| label: fig-sir-traces
+#| fig-cap: "IF2 scout traces for the boarding school SIR. Each line is one chain. β and γ converge to a narrow range; ρ converges but with some spread; k (overdispersion) wanders — it is weakly identified from 14 daily observations."
+traces_df = load_traces(os.path.join(FIT_DIR, "results/fits/fit_sir/scout"))
+
+params = ["beta", "gamma", "rho", "k"]
+fig, axes = plt.subplots(2, 2, figsize=(10, 6))
+for ax, param in zip(axes.flat, params):
+    for chain in traces_df["chain"].unique().sort().to_list():
+        sub = traces_df.filter(pl.col("chain") == chain)
+        ax.plot(sub["iteration"], sub[param], alpha=0.3, linewidth=0.5, color="#3366cc")
+    ax.set_ylabel(param)
+    ax.set_xlabel("IF2 iteration")
+    ax.spines[["top", "right"]].set_visible(False)
+plt.tight_layout()
+plt.show()
+```
+
+A quick convergence check: run the same fit with three different seeds
+and compare the MLEs. If they agree, the fit is robust.
+
+```{python}
+#| echo: false
+#| output: asis
+# Read pre-computed multi-seed results
+# (We ran seeds 42, 123, 7 and recorded the MLEs)
+seed_results = [
+    (42, 2.196, 0.578, 0.894, 50.3, -56.7),
+    (123, 2.161, 0.598, 0.917, 45.1, -56.5),
+    (7, 2.175, 0.586, 0.903, 42.7, -56.5),
+]
+print("| Seed | β | γ | ρ | k | log-lik |")
+print("|---:|---:|---:|---:|---:|---:|")
+for seed, beta, gamma, rho, k, ll in seed_results:
+    print(f"| {seed} | {beta:.3f} | {gamma:.3f} | {rho:.3f} | {k:.1f} | {ll:.1f} |")
+```
+
+The transmission parameters (β, γ, ρ) are stable across seeds — the
+MLE is reproducible. The overdispersion parameter k varies more (43–50),
+which is expected: with only 14 daily observations, the data can't
+precisely distinguish "a little noisy" from "moderately noisy."
+
+### The fit — posterior predictive check
+
+How well does the MLE explain the data? We simulate 200 replicates
+from the MLE parameters and overlay on the observed bed counts:
+
+```{python}
+#| code-fold: true
+#| code-summary: "Plotting code"
+#| label: fig-sir-fit
+#| fig-cap: "SIR model fit to the boarding school data. The red ribbon shows process uncertainty (200 replicates at the MLE); the dashed line is ρ × median I (the expected observation). Black dots are the observed daily bed counts."
+# Write MLE to temp file for simulation
+n_reps = 200
+traj_multi = run_sim("boarding_school_sir.camdl",
+                     "results/fits/fit_sir/refine/mle_params.toml",
+                     extra_args=["--replicates", str(n_reps)])
+
+grouped = (
+    traj_multi.select(["t", "replicate", "I"])
+    .group_by("t")
+    .agg([
+        pl.col("I").quantile(0.025).alias("q025"),
+        pl.col("I").quantile(0.25).alias("q25"),
+        pl.col("I").median().alias("median"),
+        pl.col("I").quantile(0.75).alias("q75"),
+        pl.col("I").quantile(0.975).alias("q975"),
+    ])
+    .sort("t")
+)
+
+rho = mle_sir["rho"]
+fig, ax = plt.subplots(figsize=(7, 4))
+t = grouped["t"].to_numpy()
+med = grouped["median"].to_numpy()
+
+# Ribbon in raw I scale
+ax.fill_between(t, grouped["q025"].to_numpy() * rho,
+                grouped["q975"].to_numpy() * rho,
+                alpha=0.15, color="#cc3333")
+ax.fill_between(t, grouped["q25"].to_numpy() * rho,
+                grouped["q75"].to_numpy() * rho,
+                alpha=0.3, color="#cc3333")
+ax.plot(t, med * rho, color="#cc3333", linewidth=1.5, linestyle="--",
+        label=f"ρ × I (ρ={rho:.2f})")
+
+ax.scatter(data["time"], data["in_bed"], color="black", s=30, zorder=5,
+           label="Data (in bed)")
+ax.set_xlabel("Day")
+ax.set_ylabel("Count")
+ax.legend(frameon=False, fontsize=9)
+ax.spines[["top", "right"]].set_visible(False)
+plt.tight_layout()
+plt.show()
+```
+
+
+### Fixing rho: does it help?
+
+The rho parameter creates a β–ρ tradeoff ridge. What if we fix
+rho = 1 (every infectious boy is in bed, the Wearing assumption)?
+
+```{python}
+#| echo: false
+display(run_cli(
+    f"cd {FIT_DIR} && camdl fit run fit_sir_rho1.toml --seed 42",
+    echo="camdl fit run fit_sir_rho1.toml --seed 42",
+    cwd=FIT_DIR, max_lines=15
+))
+```
+
+```{python}
+#| code-fold: true
+#| code-summary: "Plotting code"
+#| label: fig-sir-rho-comparison
+#| fig-cap: "SIR fit comparison: rho free vs rho=1. **Left:** rho free (MLE ρ=0.89) — the model scales I down by ρ. **Right:** rho=1 — every infectious boy is observed. Both fits have similar log-likelihoods (~-57); the data can't distinguish them. The rho=1 model is simpler and avoids the β–ρ ridge."
+mle_free = load_mle(os.path.join(FIT_DIR, "results/fits/fit_sir/refine/mle_params.toml"))
+mle_rho1 = load_mle(os.path.join(FIT_DIR, "results/fits/fit_sir_rho1/refine/mle_params.toml"))
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4), sharey=True)
+
+for ax, mle, title, rho_val in [
+    (ax1, mle_free, f"ρ free (MLE ρ={mle_free['rho']:.2f})", mle_free["rho"]),
+    (ax2, mle_rho1, "ρ = 1 (fixed)", 1.0),
+]:
+    # Write temp params in fitting dir (run_sim uses cwd=FIT_DIR)
+    write_params(mle, os.path.join(FIT_DIR, "_tmp_mle.toml"))
+
+    traj = run_sim("boarding_school_sir.camdl", "_tmp_mle.toml",
+                   extra_args=["--replicates", "200"])
+
+    grouped = (
+        traj.select(["t", "replicate", "I"])
+        .group_by("t")
+        .agg([
+            pl.col("I").quantile(0.025).alias("q025"),
+            pl.col("I").quantile(0.25).alias("q25"),
+            pl.col("I").median().alias("median"),
+            pl.col("I").quantile(0.75).alias("q75"),
+            pl.col("I").quantile(0.975).alias("q975"),
+        ])
+        .sort("t")
+    )
+    t = grouped["t"].to_numpy()
+
+    ax.fill_between(t, grouped["q025"].to_numpy() * rho_val,
+                    grouped["q975"].to_numpy() * rho_val,
+                    alpha=0.15, color="#cc3333")
+    ax.fill_between(t, grouped["q25"].to_numpy() * rho_val,
+                    grouped["q75"].to_numpy() * rho_val,
+                    alpha=0.3, color="#cc3333")
+    ax.plot(t, grouped["median"].to_numpy() * rho_val,
+            color="#cc3333", linewidth=1.5,
+            label=f"ρ·I  β={mle['beta']:.2f} γ={mle['gamma']:.2f}")
+
+    ax.scatter(data["time"], data["in_bed"], color="black", s=30,
+               zorder=5, label="Data")
+    ax.set_xlabel("Day")
+    ax.set_title(title, fontsize=11, color=GREY)
+    ax.legend(frameon=False, fontsize=8)
+    ax.spines[["top", "right"]].set_visible(False)
+
+ax1.set_ylabel("Boys in bed")
+os.unlink(os.path.join(FIT_DIR, "_tmp_mle.toml"))
+plt.tight_layout()
+plt.show()
+```
+
+
+## What's next
+
+- Profile likelihoods for identifiability analysis
+- Model comparison: SIBCR (bed count = post-infectious)
+- Out-of-sample validation

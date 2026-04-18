@@ -24,10 +24,36 @@ mpl.rcParams.update({
     "axes.edgecolor": GREY,
     "legend.edgecolor": GREY,
 })
-from IPython.display import Markdown
+from IPython.display import Markdown, HTML
+import re
 
-MODEL = "../models/sir.camdl"
-PARAMS = "../configs/sir_params.toml"
+EXAMPLE_DIR = "../examples/getting-started"
+MODEL = f"{EXAMPLE_DIR}/sir.camdl"
+PARAMS = f"{EXAMPLE_DIR}/params.toml"
+
+def _ansi_to_html(raw, max_lines=40, tail=6):
+    """Convert raw ANSI text to HTML, truncating long output."""
+    lines = raw.split("\n")
+    if len(lines) > max_lines:
+        head = lines[:max_lines - tail]
+        foot = lines[-tail:]
+        omitted = len(lines) - (max_lines - tail) - tail
+        raw = "\n".join(head + [f"  [...{omitted} lines omitted...]"] + foot)
+    _sgr = {"1": "font-weight:bold", "2": "opacity:0.6", "0": None,
+            "33": "color:#b8860b", "31": "color:#cc3333"}
+    def _repl(m):
+        s = _sgr.get(m.group(1))
+        return f'<span style="{s}">' if s else "</span>"
+    escaped = raw.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    return re.sub(r'\033\[(\d+)m', _repl, escaped)
+
+def run_cli(cmd, echo=None, cwd=None, max_lines=40, tail=6):
+    """Run a shell command, return ANSI-styled HTML for display."""
+    result = subprocess.run(cmd, capture_output=True, text=True, shell=True, cwd=cwd)
+    raw = (result.stdout + result.stderr).rstrip()
+    html = _ansi_to_html(raw, max_lines=max_lines, tail=tail)
+    prompt = f'<span style="opacity:0.6">$ {echo}</span>\n' if echo else ""
+    return HTML(f'<pre class="ansi-output"><code>{prompt}{html}</code></pre>')
 
 def run_sim(seed=42, extra_args=None, obs=False):
     """Run camdl simulate, return polars DataFrame (and obs DataFrame if obs=True)."""
@@ -133,11 +159,40 @@ init {
 ::::
 
 That's the complete camdl code for an SIR model! Let's run it, then walk
-through what each piece does. In your terminal, create a file `sir.camdl` and
-paste the code above into it. Then, run the model with some parameters:
+through what each piece does.
 
 
 ## Run it, see it
+
+The full model and parameter files for this chapter are in
+[`examples/getting-started/`](https://github.com/vsbuffalo/camdl-book/tree/main/examples/getting-started).
+Clone the book repo and `cd` into that directory to follow along.
+
+Running `camdl simulate` without arguments shows the help — a quick
+reference for what's available:
+
+```{python}
+#| echo: false
+# Show help, truncated after --scenario to keep concise
+_r = subprocess.run("camdl simulate", shell=True, capture_output=True, text=True)
+_raw = (_r.stdout + _r.stderr).rstrip()
+_lines = _raw.split("\n")
+_cut = next((i for i, l in enumerate(_lines) if "--scenario" in l), len(_lines))
+_truncated = "\n".join(_lines[:_cut + 1]) + "\n  ..."
+
+# Convert ANSI to HTML inline
+_sgr = {"1": "font-weight:bold", "2": "opacity:0.6", "0": None}
+def _repl(m):
+    s = _sgr.get(m.group(1))
+    return f'<span style="{s}">' if s else "</span>"
+_escaped = _truncated.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+_html = re.sub(r'\033\[(\d+)m', _repl, _escaped)
+_prompt = '<span style="opacity:0.6">$ camdl simulate</span>\n'
+display(HTML(f'<pre class="ansi-output"><code>{_prompt}{_html}</code></pre>'))
+```
+
+Don't worry about the advanced flags yet — we'll use most of them through
+this guide. For now, the basic invocation:
 
 ```bash
 camdl simulate sir.camdl \
@@ -218,7 +273,10 @@ parameter values externally, either through a TOML file or at the command line.
 This keeps the model definition clean: the `.camdl` file says *what* the model
 is, not what any particular run of it looks like.
 
-This is an intentional design choice borrowed from the
+::: {.callout-note}
+## Why no default parameter values?
+
+This is an intentional design choice inspired by the
 [Stan](https://mc-stan.org/) ecosystem's philosophy. As
 [Betancourt (2018)](https://betanalpha.github.io/assets/case_studies/principled_bayesian_workflow.html)
 puts it:
@@ -239,6 +297,7 @@ their implications
 When camdl refuses to simulate without a value for $\gamma$, it's forcing a
 choice you'd have to make anyway — and making that choice visible to anyone
 who reads the model.
+:::
 
 Every parameter in camdl has a **type** that says what kind of quantity it is.
 These *parameter types* serve two purposes: they document the mathematical and
@@ -286,10 +345,11 @@ Types constrain the domain; **bounds** narrow it further for a specific model.
 `beta : rate` means "non-negative." Adding `in [0.01, 2.0]` means
 "non-negative, and for this model we only consider values between 0.01 and
 2.0." Often you have scientific knowledge that rules out certain parameter
-values, and adding bounds helps the compiler and inference algorithms focus on
-the relevant region of parameter space (which can greatly improve model fitting
-performance). Bounds also serve as documentation for readers, showing the range
-of plausible values, in much the same way that parameter types do.
+values (e.g. the common cold does not have an $R_0 = 100$), and adding bounds
+helps the compiler and inference algorithms focus on the relevant region of
+parameter space (which can *greatly* improve model fitting performance). Bounds
+also serve as documentation for readers, showing the range of plausible values,
+in much the same way that parameter types do.
 
 Here is an example of parameters with bounds:
 
@@ -390,11 +450,12 @@ can read each line as a sentence: "an infection event moves individuals
 from S to I at propensity $\beta S I / N$"; "a recovery event moves
 individuals from I to R at propensity $\gamma I$."
 
-### Propensity, not rate
+::: {.callout-important}
+## Propensity, not rate
 
-This is the most important concept in camdl. The expression after `@` is
-the **propensity** — the total expected number of events per unit time
-across the entire population. It is *not* the per-capita rate.
+The expression after `@` is the **propensity** — the total expected number
+of events per unit time across the entire population. It is *not* the
+per-capita rate.
 
 | Transition | Per-capita rate | × Population at risk | = Propensity |
 |------------|-----------------|----------------------|--------------|
@@ -403,15 +464,13 @@ across the entire population. It is *not* the per-capita rate.
 
 : Decomposing propensities into per-capita rates and populations at risk. {#tbl-propensity}
 
-camdl never silently multiplies by a population count (an explicit design
-philosophy of camdl is that in scientific model building, *explicit is safer,
-and thus better, than implicit*). You write the multiplication explicitly. This
-eliminates a common source of modeling bugs: ambiguity about whether a "rate"
-is per-capita or total.
-
-Some frameworks have you specify per-capita rates and the engine multiplies by
-the source population internally. In camdl, what you write is what you get. The
-`@` expression *is* the propensity.
+camdl never silently multiplies by a population count — *explicit is safer
+than implicit*. You write the multiplication yourself. This eliminates a
+common source of modeling bugs: ambiguity about whether a "rate" is
+per-capita or total. Some frameworks have you specify per-capita rates and
+the engine multiplies by the source population internally. In camdl, what
+you write is what you get. The `@` expression *is* the propensity.
+:::
 
 
 ## Let bindings — names for expressions
@@ -484,10 +543,10 @@ evaluated once at $t = 0$.
 
 ## Running the model
 
-As noted above, camdl requires all parameters to be supplied externally.
-There are two ways to do this.
-
-### Params file
+To simulate, you need to supply every parameter declared in the model. camdl
+will not guess — omit one and you get a clear error listing what's missing.
+The simplest approach is a
+[TOML](https://en.wikipedia.org/wiki/TOML) file:
 
 ```toml
 # params.toml
@@ -501,27 +560,61 @@ I0    = 10
 camdl simulate sir.camdl --params params.toml --seed 42
 ```
 
-### CLI overrides
+You can override individual values at the command line with `--param`:
 
 ```bash
 camdl simulate sir.camdl --params params.toml --param beta=0.6 --seed 42
 ```
 
-`--param` overrides the file. Useful for quick sweeps.
+`--param` takes precedence over the file. Typos are caught immediately —
+`--param bta=0.6` produces an error listing the available parameter names.
 
-### Output
+For complex workflows you can **stack** multiple `--params` files (later
+files override earlier ones), and `--param` overrides everything. This
+layering is useful when you have a base parameter set and want to swap in
+regional or pathogen-specific values without editing the original file.
 
-camdl writes TSV to stdout. Columns are time, compartment populations,
-and flow accumulators. Pipe it wherever you want:
+To see exactly what values will be used without running a simulation, use
+`--dry-run`:
+
+```{python}
+#| echo: false
+display(run_cli(
+    f"cd {EXAMPLE_DIR} && camdl simulate sir.camdl --params params.toml --param beta=0.6 --seed 42 --dry-run",
+    echo="camdl simulate sir.camdl --params params.toml --param beta=0.6 --seed 42 --dry-run"
+))
+```
+
+Every parameter shows its final value and where it came from. When a value
+was overridden, you can see both the new value and what it replaced — here,
+`beta` was 0.4 in `params.toml` but overridden to 0.6 by `--param`.
+
+::: {.callout-tip collapse="false"}
+## Parameter precedence and error handling
+
+camdl's parameter resolution is designed to prevent silent mistakes:
+
+- **Missing parameters** are a hard error. The error message lists exactly
+  which parameters are missing.
+- **Unknown parameters** (typos like `bta` instead of `beta`) are a hard
+  error in both `--param` and `--params` files, with a list of valid names.
+- **Precedence** follows a simple rule: later sources override earlier ones.
+  `--params` files are applied left-to-right, and `--param` flags override
+  everything.
+- **`--dry-run`** resolves the full parameter vector and shows provenance
+  without running any simulation — useful for verifying complex setups
+  before committing to a long batch run.
+:::
+
+Output is TSV on stdout — time, compartment populations, and flow
+accumulators. Pipe it wherever you want:
 
 ```bash
 camdl simulate sir.camdl --params params.toml --seed 42 > output.tsv
 ```
 
-### Seeds and stochasticity
-
-Every run is stochastic. Different seeds give different trajectories.
-Run 5 seeds and overlay the curves:
+Every run is stochastic — different seeds give different trajectories.
+Run 5 replicates and overlay the curves:
 
 ```bash
 camdl simulate sir.camdl --params params.toml --seed 42 --replicates 5
@@ -532,6 +625,27 @@ camdl simulate sir.camdl --params params.toml --seed 42 --replicates 5
 #| output: false
 multi = run_sim(seed=42, extra_args=["--replicates", "5"])
 ```
+
+With `--replicates`, camdl derives independent seeds from the base seed, runs
+multiple simulations, and stacks the results on top of each other in the output
+TSV, with an additional `replicate` column to distinguish them. The resulting
+file looks like:
+
+```{python}
+#| echo: false
+#| output: asis
+sub = multi.head(8)
+header = "| " + " | ".join(sub.columns) + " |"
+sep = "| " + " | ".join(["---:"] * len(sub.columns)) + " |"
+rows = "\n".join(
+    "| " + " | ".join(str(v) for v in row) + " |"
+    for row in sub.iter_rows()
+)
+print(f"{header}\n{sep}\n{rows}\n| ... | | | | | | |")
+```
+
+Each replicate is a full independent trajectory. Overlaying them shows the
+range of stochastic outcomes under the same parameters:
 
 ```{python}
 #| code-fold: true
@@ -557,70 +671,9 @@ plt.show()
 ```
 
 This is the stochastic process from §1 of the
-[inference guide](/inference/guide.qmd). The latent state you never
+[inference guide](/inference/likelihood.qmd). The latent state you never
 observe directly.
 
-
-## Scenarios — named presets for simulation
-
-In epidemiological modeling, we often want to simulate under *counterfactual
-scenarios* that differ in their parameters from some baseline situation (i.e.
-the status quo under no interventions). For example, we might want to compare
-how peak infection incidence would differ if school closure policy reduced
-transmission in younger age groups.
-
-In camdl, named parameter presets and modifications for baseline and various
-scenarios are defined in the `scenarios` block. Note that earlier, we said that
-camdl does not support default parameter values, and it seems like having a
-scenario with a preset parameters contradicts this. However, it is important to
-clarify the difference here, as it reveals camdl's intentional design to avoid
-common mistakes with default parameters, yet still provide the convenience of
-named parameter sets for simulation. 
-
-The distinction is that the `parameters` block defines the model's degrees of
-freedom — the knobs you turn to specify a particular run of the model, and that
-*may be the focus of estimation or inference* from observed data. Importantly,
-when a user runs a simulation without specifying a scenario, camdl will error
-out and ask the user to specify parameters explicitly through the file or
-command line argument, rather than silently falling back to any defaults.
-Moreover, if a user does not provide all parameters, they will get an error,
-which forces them to make explicit choices about the parameters for that
-simulation run. This design choice is intentional to prevent modeling mistakes
-that can arise from implicit defaults.
-
-But, sometimes a researcher will want to package a set preset parameters
-together within the `.camdl` model file under a named scenario for teaching
-purposes or reproducibility. These can be defined in the `scenarios` block,
-which is separated from the `parameters` so that no silent, accidental fallback
-to a default parameter can occur without the user explicitly selecting a
-scenario. For example, we can define a "baseline" scenario (there is nothing
-special about this name, it's just convention):
-
-
-```camdl
-scenarios {
-  baseline {
-    label = "SIR with moderate transmission"
-    set = { beta = 0.4, gamma = 0.15, N0 = 10_000, I0 = 10 }
-  }
-}
-```
-
-and then simulate under it with the `--scenario` argument,
-
-```bash
-camdl simulate sir.camdl --scenario baseline --seed 42
-```
-
-There's no silent fallback: omit `--scenario` and camdl demands `--params` or
-`--param` as before. Moreover, all scenarios are deliberately walled off from
-inference; the fitting pipeline ignores them entirely, drawing its parameters
-from the fit configuration file instead (and parameters fixed during inference
-must be explicitly stated as such). Scenarios are for reproducible simulation;
-inference has its own explicit parameter specification.
-
-Scenarios become much more powerful when combined with interventions and
-counterfactual comparisons; we will cover those in a later chapter.
 
 ## Observations — connecting your model to data
 
@@ -802,15 +855,51 @@ simulate {
 ```
 
 30 lines. A stochastic SIR with typed parameters and a statistical
-observation model. In the next chapter, you'll generate synthetic data
-from this model and fit it.
+observation model. This is the `sir.camdl` in
+[`examples/getting-started/`](https://github.com/vsbuffalo/camdl-book/tree/main/examples/getting-started),
+along with `params.toml`.
 
+
+## A glimpse of what's ahead
+
+The SIR is the simplest possible compartmental model — one pathogen, one
+population, no age structure. Real models need to stratify by age, spatial
+patch, risk group, or all three. In camdl, this is a few extra lines:
+
+```camdl
+dimensions {
+  age = [child, adult, elderly]
+}
+
+stratify(by = age)
+
+tables {
+  C : age × age = external("contact_matrix.csv")
+}
+
+transitions {
+  infection[a in age] : S[a] --> I[a]
+    @ beta * S[a] * sum(b in age, C[a, b] * I[b] / N[b])
+  recovery[a in age]  : I[a] --> R[a]  @ gamma * I[a]
+}
+```
+
+`stratify(by = age)` expands every compartment — `S` becomes `S[child]`,
+`S[adult]`, `S[elderly]`. Transitions are indexed over the dimension.
+The contact matrix `C` governs who infects whom. The compiler checks
+that all dimensions align, that the contact matrix is the right shape,
+and that no index is misspelled. This is the same SIR — just with age
+groups — and the compiler does all the bookkeeping.
+
+We'll cover dimensions, spatial patches, and contact matrices in a later
+chapter. For now, the next step is learning to ask "what if?" — comparing
+scenarios, running experiments, and checking whether your model's
+assumptions produce plausible epidemics.
 
 ## What's next
 
-- [Simulation and Experiments](experiments.qmd) — interventions,
-  counterfactual scenarios, and the experiment system.
-- [Fitting to Data](fitting.qmd) — generate synthetic data
-  and recover parameters with IF2 and PGAS+NUTS.
-- Later: dimensions and stratification add age groups, spatial patches,
-  and contact matrices.
+- [Uncertainty, Priors, Simulation, and Experiments](experiments.qmd) — prior
+  predictive checks, process uncertainty, and the observation model.
+- [Scenarios, Interventions, and Sweeps](scenarios.qmd) — counterfactual
+  comparisons, parameter sweeps, and the batch system.
+- [Fitting to Data](fitting.qmd) — recover parameters with IF2 and PGAS+NUTS.
