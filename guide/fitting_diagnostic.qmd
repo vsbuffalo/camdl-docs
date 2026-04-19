@@ -28,7 +28,7 @@ FIT_DIR = "../examples/fitting"
 import glob
 def find_fit_root(stem, root=None):
     """Locate `<root>/fits/<stem>-<hash>/` — most-recent match wins."""
-    root = root or os.path.join(FIT_DIR, "output")
+    root = root or os.path.join(FIT_DIR, "results")
     cands = sorted(glob.glob(os.path.join(root, "fits", f"{stem}-*")),
                    key=os.path.getmtime, reverse=True)
     if not cands:

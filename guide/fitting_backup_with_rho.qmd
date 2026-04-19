@@ -94,7 +94,7 @@ def load_traces(results_dir):
 
 # ── Fit-tree locators (content-addressable output/, post 2026-04-19) ────
 def find_fit_root(stem, root=None):
-    root = root or os.path.join(FIT_DIR, "output")
+    root = root or os.path.join(FIT_DIR, "results")
     cands = sorted(glob.glob(os.path.join(root, "fits", f"{stem}-*")),
                    key=os.path.getmtime, reverse=True)
     if not cands:

@@ -99,7 +99,7 @@ def load_traces(results_dir):
 # Book snippets can't hard-code the hash, so they resolve the directory
 # by globbing on the stem and picking the most-recent match.
 def find_fit_root(stem, root=None):
-    root = root or os.path.join(FIT_DIR, "output")
+    root = root or os.path.join(FIT_DIR, "results")
     cands = sorted(glob.glob(os.path.join(root, "fits", f"{stem}-*")),
                    key=os.path.getmtime, reverse=True)
     if not cands:
