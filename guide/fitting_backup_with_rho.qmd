@@ -92,6 +92,24 @@ def load_traces(results_dir):
         traces.append(df)
     return pl.concat(traces)
 
+# ── Fit-tree locators (content-addressable output/, post 2026-04-19) ────
+def find_fit_root(stem, root=None):
+    root = root or os.path.join(FIT_DIR, "output")
+    cands = sorted(glob.glob(os.path.join(root, "fits", f"{stem}-*")),
+                   key=os.path.getmtime, reverse=True)
+    if not cands:
+        raise FileNotFoundError(f"no fit {stem!r} under {root!r}")
+    return cands[0]
+
+def find_fit_stage(stem, stage, seed=None, root=None):
+    fit_root = find_fit_root(stem, root=root)
+    seed_glob = f"fit_{seed}" if seed else "fit_*"
+    cands = sorted(glob.glob(os.path.join(fit_root, "real", seed_glob, stage)),
+                   key=os.path.getmtime, reverse=True)
+    if not cands:
+        raise FileNotFoundError(f"no stage {stage!r} under {fit_root!r}")
+    return cands[0]
+
 # Load data
 data = pl.read_csv(os.path.join(FIT_DIR, "data/boarding_school_sir.tsv"), separator="\t")
 ```
@@ -381,7 +399,7 @@ for ax, freq, ds, title in [
     (ax2, "0.5", "fit_sbc_f0.5_d1", "Every 0.5 days (28 obs)"),
 ]:
     # Load MLE
-    mle_path = os.path.join(FIT_DIR, f"results/fits/{ds}/refine/mle_params.toml")
+    mle_path = os.path.join(find_fit_stage(ds, "refine"), "mle_params.toml")
     mle = load_mle(mle_path)
     rho = mle.get("rho", 1.0)
 
@@ -462,15 +480,15 @@ The MLE parameters:
 ```{python}
 #| echo: false
 display(run_cli(
-    f"cat {FIT_DIR}/results/fits/fit_sir/refine/mle_params.toml",
-    echo="cat results/fits/fit_sir/refine/mle_params.toml",
+    f"cat {find_fit_stage('fit_sir', 'refine')}/mle_params.toml",
+    echo="cat output/fits/fit_sir-<hash>/real/fit_<seed>/refine/mle_params.toml",
     collapse=False
 ))
 ```
 
 ```{python}
 #| echo: false
-mle_sir = load_mle(os.path.join(FIT_DIR, "results/fits/fit_sir/refine/mle_params.toml"))
+mle_sir = load_mle(os.path.join(find_fit_stage("fit_sir", "refine"), "mle_params.toml"))
 R0 = mle_sir["beta"] / mle_sir["gamma"]
 ```
 
@@ -484,7 +502,7 @@ estimate evolved over IF2 iterations:
 #| code-summary: "Plotting code"
 #| label: fig-sir-traces
 #| fig-cap: "IF2 scout traces for the boarding school SIR. Each line is one chain. β and γ converge to a narrow range; ρ converges but with some spread; k (overdispersion) wanders — it is weakly identified from 14 daily observations."
-traces_df = load_traces(os.path.join(FIT_DIR, "results/fits/fit_sir/scout"))
+traces_df = load_traces(find_fit_stage("fit_sir", "scout"))
 
 params = ["beta", "gamma", "rho", "k"]
 fig, axes = plt.subplots(2, 2, figsize=(10, 6))
@@ -536,7 +554,7 @@ from the MLE parameters and overlay on the observed bed counts:
 # Write MLE to temp file for simulation
 n_reps = 200
 traj_multi = run_sim("boarding_school_sir.camdl",
-                     "results/fits/fit_sir/refine/mle_params.toml",
+                     os.path.join(find_fit_stage("fit_sir", "refine"), "mle_params.toml"),
                      extra_args=["--replicates", str(n_reps)])
 
 grouped = (
@@ -597,8 +615,8 @@ display(run_cli(
 #| code-summary: "Plotting code"
 #| label: fig-sir-rho-comparison
 #| fig-cap: "SIR fit comparison: rho free vs rho=1. **Left:** rho free (MLE ρ=0.89) — the model scales I down by ρ. **Right:** rho=1 — every infectious boy is observed. Both fits have similar log-likelihoods (~-57); the data can't distinguish them. The rho=1 model is simpler and avoids the β–ρ ridge."
-mle_free = load_mle(os.path.join(FIT_DIR, "results/fits/fit_sir/refine/mle_params.toml"))
-mle_rho1 = load_mle(os.path.join(FIT_DIR, "results/fits/fit_sir_rho1/refine/mle_params.toml"))
+mle_free = load_mle(os.path.join(find_fit_stage("fit_sir",      "refine"), "mle_params.toml"))
+mle_rho1 = load_mle(os.path.join(find_fit_stage("fit_sir_rho1", "refine"), "mle_params.toml"))
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4), sharey=True)
 

@@ -645,7 +645,7 @@ store and Nix's `/nix/store`. The hash *is* the identity.
 first_run = manifest["runs"][0]
 run_path = first_run["run_path"]
 display(run_cli(
-    f"camdl show output/runs/{run_path}",
+    f"camdl show output/sims/{run_path}",
     echo=f"camdl show {run_path.split('/')[0][:8]}…",
     cwd=batch_dir
 ))
@@ -657,7 +657,7 @@ into analysis tools without hunting for file paths:
 ```{python}
 #| echo: false
 display(run_cli(
-    f"camdl cat output/runs/{run_path} 2>&1 | head -6",
+    f"camdl cat output/sims/{run_path} 2>&1 | head -6",
     echo=f"camdl cat {run_path.split('/')[0][:8]}… | head -6",
     cwd=batch_dir
 ))

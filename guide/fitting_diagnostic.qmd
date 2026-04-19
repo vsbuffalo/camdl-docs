@@ -24,6 +24,16 @@ mpl.rcParams.update({
 })
 
 FIT_DIR = "../examples/fitting"
+
+import glob
+def find_fit_root(stem, root=None):
+    """Locate `<root>/fits/<stem>-<hash>/` — most-recent match wins."""
+    root = root or os.path.join(FIT_DIR, "output")
+    cands = sorted(glob.glob(os.path.join(root, "fits", f"{stem}-*")),
+                   key=os.path.getmtime, reverse=True)
+    if not cands:
+        raise FileNotFoundError(f"no fit {stem!r} under {root!r}")
+    return cands[0]
 ```
 
 ## What happened
@@ -56,7 +66,7 @@ for model in ["negbin", "poisson", "binomial"]:
 #| echo: true
 # Load all three SBC summary tables
 for model in ["negbin", "poisson", "binomial"]:
-    path = os.path.join(FIT_DIR, f"results/fits/fit_sbc_{model}/synthetic/summary.tsv")
+    path = os.path.join(find_fit_root(f"fit_sbc_{model}"), "synthetic", "summary.tsv")
     df = pl.read_csv(path, separator="\t")
     print(f"=== {model}: {len(df)} rows, stage={df['stage'][0]} ===")
     print(df.head(5))
@@ -68,7 +78,7 @@ for model in ["negbin", "poisson", "binomial"]:
 ```{python}
 #| echo: true
 for model in ["negbin", "poisson", "binomial"]:
-    path = os.path.join(FIT_DIR, f"results/fits/fit_sbc_{model}/synthetic/coverage.tsv")
+    path = os.path.join(find_fit_root(f"fit_sbc_{model}"), "synthetic", "coverage.tsv")
     df = pl.read_csv(path, separator="\t")
     # Filter to estimated params only
     df = df.filter(~pl.col("param").is_in(["I0", "N0"]))
@@ -96,7 +106,7 @@ models = {
 
 for ax, param in zip(axes, ["beta", "gamma"]):
     for i, (label, (model, color)) in enumerate(models.items()):
-        path = os.path.join(FIT_DIR, f"results/fits/fit_sbc_{model}/synthetic/summary.tsv")
+        path = os.path.join(find_fit_root(f"fit_sbc_{model}"), "synthetic", "summary.tsv")
         df = pl.read_csv(path, separator="\t")
         vals = df[param].to_numpy()
         jitter = np.random.default_rng(42 + i).uniform(-0.12, 0.12, len(vals))
@@ -132,7 +142,7 @@ true_R0 = 2.1961 / 0.5782
 fig, ax = plt.subplots(figsize=(8, 4))
 
 for i, (label, (model, color)) in enumerate(models.items()):
-    path = os.path.join(FIT_DIR, f"results/fits/fit_sbc_{model}/synthetic/summary.tsv")
+    path = os.path.join(find_fit_root(f"fit_sbc_{model}"), "synthetic", "summary.tsv")
     df = pl.read_csv(path, separator="\t")
     R0s = (df["beta"] / df["gamma"]).to_numpy()
     jitter = np.random.default_rng(42 + i).uniform(-0.12, 0.12, len(R0s))
@@ -171,7 +181,7 @@ old = {
 # New results (from [synthetic] feature)
 new_results = {}
 for model_name, (model_key, _) in models.items():
-    path = os.path.join(FIT_DIR, f"results/fits/fit_sbc_{model_key}/synthetic/summary.tsv")
+    path = os.path.join(find_fit_root(f"fit_sbc_{model_key}"), "synthetic", "summary.tsv")
     df = pl.read_csv(path, separator="\t")
     b_bias = 100 * (df["beta"].mean() - 2.1961) / 2.1961
     g_bias = 100 * (df["gamma"].mean() - 0.5782) / 0.5782
@@ -218,7 +228,8 @@ real_mles = {}
 for model_key in ["negbin", "poisson", "binomial"]:
     # Find the MLE params file
     import glob
-    mle_files = glob.glob(os.path.join(FIT_DIR, f"results/fits/fit_real_{model_key}/real/fit_*/refine/mle_params.toml"))
+    mle_files = glob.glob(os.path.join(find_fit_root(f"fit_real_{model_key}"),
+                                        "real", "fit_*", "refine", "mle_params.toml"))
     if mle_files:
         # Make path relative to FIT_DIR for subprocess cwd
         real_mles[model_key] = os.path.relpath(mle_files[0], FIT_DIR)
@@ -289,19 +300,19 @@ MLEs from the same clean pipeline:
 
 # Read scout-only results
 scout_only = pl.read_csv(
-    os.path.join(FIT_DIR, "results/fits/fit_sbc_negbin_scout_only/synthetic/summary.tsv"),
+    os.path.join(find_fit_root("fit_sbc_negbin_scout_only"), "synthetic", "summary.tsv"),
     separator="\t")
 
 # Read scout+refine results
 full = pl.read_csv(
-    os.path.join(FIT_DIR, "results/fits/fit_sbc_negbin/synthetic/summary.tsv"),
+    os.path.join(find_fit_root("fit_sbc_negbin"), "synthetic", "summary.tsv"),
     separator="\t")
 
 # Also extract scout MLEs from the full pipeline
 scout_from_full = []
 for ds in range(1, 31):
-    path = os.path.join(FIT_DIR,
-        f"results/fits/fit_sbc_negbin/synthetic/ds_{ds:02d}/fit_1/scout/mle_params.toml")
+    path = os.path.join(find_fit_root("fit_sbc_negbin"),
+        "synthetic", f"ds_{ds:02d}", "fit_1", "scout", "mle_params.toml")
     if os.path.exists(path):
         vals = {}
         with open(path) as f:
