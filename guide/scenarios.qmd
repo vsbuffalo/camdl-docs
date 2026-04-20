@@ -1,5 +1,6 @@
 ---
 title: "Scenarios, Interventions, and Sweeps"
+freeze: true
 ---
 
 ```{python}

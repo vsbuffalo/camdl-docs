@@ -259,7 +259,7 @@ axes[1,0].set_title(f"β × k  (γ = {mle['gamma']:.3f} fixed)",
 # Lower-right: legend + colorbar
 axes[1,1].axis("off")
 
-cbar_ax = fig.add_axes([0.615, 0.10, 0.014, 0.30])
+cbar_ax = fig.add_axes([0.56, 0.12, 0.014, 0.34])
 fig.colorbar(im, cax=cbar_ax, label="Δ log-lik from panel max (clipped at 30)")
 
 import matplotlib.lines as mlines
@@ -284,8 +284,8 @@ handles = [
     mlines.Line2D([], [], color="#c0392b", linewidth=1.1,
                   label="99.9% Δ-ll contour"),
 ]
-axes[1,1].legend(handles=handles, loc="upper right", frameon=False,
-                 fontsize=10, bbox_to_anchor=(0.98, 0.98))
+axes[1,1].legend(handles=handles, loc="center left", frameon=False,
+                 fontsize=10, bbox_to_anchor=(0.22, 0.50))
 
 fig.suptitle("IF2 chain trajectories on the NegBin log-lik surface — pair-plot layout",
              y=0.995, fontsize=11)

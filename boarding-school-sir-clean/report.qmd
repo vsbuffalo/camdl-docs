@@ -1,17 +1,44 @@
 ---
-title: "Boarding-school flu — simple SIR fit with IF2, with synthetic calibration"
-format:
-  html:
-    toc: true
-    embed-resources: true
-    theme: cosmo
-    syntax-definitions:
-      - ../_extensions/camdl/camdl.xml
-filters:
-  - ../_extensions/camdl/camdl-filter.lua
+title: "Fitting to Data"
 execute:
   echo: false
 ---
+
+In the [previous chapters](../guide/experiments.qmd) we built a model, explored its
+uncertainty, and tested its behavior under different scenarios. Now we turn
+to the central question: **can the data constrain the model's parameters?**
+
+This chapter fits an SIR model to the 1978 boarding school influenza
+outbreak using iterated filtering (IF2), and discovers how much 14 daily
+observations can — and can't — tell us about the underlying epidemic.
+
+
+## The problem: latent states and intractable likelihoods
+
+A compartmental model has **latent states** — the true number of susceptible,
+infectious, and recovered individuals at each time point — that we never
+observe directly. We observe noisy, incomplete proxies: daily bed counts,
+weekly case reports. To find the parameters that best explain the data, we
+need the likelihood $L(\theta \mid y_{1:T})$ — the probability of seeing
+these observations given the parameters.
+
+For a stochastic compartmental model, this likelihood is an integral over
+all possible latent epidemic trajectories:
+
+$$
+L(\theta \mid y_{1:T}) = \int P(y_{1:T} \mid x_{0:T}, \theta) \; P(x_{0:T} \mid \theta) \; dx_{0:T}
+$$
+
+This integral is intractable — the space of possible trajectories is
+enormous. The **particle filter** approximates it by simulating many
+trajectories in parallel and weighting them by how well they explain the
+data. **Iterated filtering (IF2)** [Ionides et al. 2015](https://doi.org/10.1073/pnas.1410597112)
+builds on this: it perturbs the parameters across the particles,
+runs the particle filter, and then cools the perturbations over
+iterations to converge on the maximum likelihood estimate (MLE). Think
+simulated annealing on an approximate likelihood surface. This is the
+same algorithm as pomp's `mif2()`.
+
 
 ::: {.callout-warning appearance="default"}
 ## A hazard worth naming: backend consistency
