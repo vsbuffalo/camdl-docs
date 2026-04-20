@@ -1,0 +1,39 @@
+---
+title: "Diagnostics Reference"
+---
+
+## Particle filter
+
+| Diagnostic     | Healthy    | Warning    | Action                                 |
+| -------------- | ---------- | ---------- | -------------------------------------- |
+| ESS (per-obs)  | > 50% of N | 10-50%     | More particles or looser obs model     |
+| ESS at MLE     | mean > 50% | mean < 30% | Estimate $\sigma^2$ or $k$             |
+| Log-likelihood | finite     | $-\infty$  | Check starting values, model structure |
+
+## IF2
+
+| Diagnostic             | Healthy | Warning           | Action                             |
+| ---------------------- | ------- | ----------------- | ---------------------------------- |
+| $\hat{R}$              | < 1.05  | 1.1–1.5           | More iterations                    |
+| $\hat{R}$              | —       | > 1.5 + LL spread | Multimodal surface, more chains    |
+| Logit position $\|z\|$ | < 2     | > 3               | Widen bounds or change transform   |
+| Cooling at 2/3 iters   | > 1%    | < 1%              | Fewer iterations or milder cooling |
+
+## PGAS
+
+| Diagnostic          | Healthy         | Warning       | Action                           |
+| ------------------- | --------------- | ------------- | -------------------------------- |
+| Trajectory renewal  | > 30%           | < 10%         | More CSMC particles or tempering |
+| NUTS divergences    | 0               | any           | Reduce step size, reparameterize |
+| NUTS max tree depth | < 20% of sweeps | > 50%         | Increase max_treedepth           |
+| Tempering swap rate | 20-50%          | < 10%         | Denser temperature ladder        |
+| Acceptance rate     | 15-50%          | < 5% or > 80% | Adjust proposal SD               |
+
+## Profile likelihood
+
+| Shape          | Interpretation                                    | Action                          |
+| -------------- | ------------------------------------------------- | ------------------------------- |
+| Clear parabola | Well-identified, CI from $\Delta\text{LL} = 1.92$ | None needed                     |
+| Flat           | Parameter not identifiable from this data         | Fix it or add informative prior |
+| Asymmetric     | Identifiable but skewed posterior expected        | PGAS will capture the asymmetry |
+| Multiple peaks | Multimodal — CI from profile is unreliable        | PGAS with tempering             |

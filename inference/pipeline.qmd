@@ -1,7 +1,61 @@
 ---
-title: "Fitting Pipeline"
+title: "The Fitting Pipeline"
 ---
 
-*Coming soon.* The operational workflow for fitting a model: scout (IF2 with
-random starts), refine (PGAS+NUTS from best scout), validate (held-out data,
-posterior predictive checks).
+The `camdl fit` pipeline connects the [inference algorithms](algorithms.qmd)
+into a workflow where each stage feeds the next.
+
+### Scout: find the right basin
+
+```
+camdl fit scout fit.toml
+```
+
+IF2 with many chains (8+), gentle cooling, random starts. Goal: find the region
+of parameter space where the likelihood is highest. Chains that find different
+basins are expected — that's the point. The best chain's parameters and
+auto-calibrated `rw_sd` values carry forward.
+
+### Refine: converge within the basin
+
+```
+camdl fit refine fit.toml --starts-from scout/
+```
+
+IF2 with fewer chains (4), aggressive cooling, starting from scout's best
+parameters. Goal: precise MLE within the basin scout found. $\hat{R} < 1.05$ for
+all parameters indicates convergence.
+
+### Validate: verify and characterize the MLE
+
+```
+camdl fit validate fit.toml --starts-from refine/
+```
+
+Three things happen:
+
+1. **True log-likelihood** at the MLE via clean particle filter (no IF2
+   perturbations).
+2. **Profile likelihoods** for each estimated parameter — 1D slices through the
+   likelihood surface. Profiles that don't curve indicate unidentifiable
+   parameters.
+3. **ESS diagnostic** — if ESS at the MLE is low, the observation model may be
+   misspecified.
+
+### PGAS: Bayesian posterior
+
+```
+camdl fit pgas fit.toml --starts-from validate/
+```
+
+PGAS starting from the MLE. Produces posterior samples of parameters and
+(optionally) trajectories. The MLE from validate provides a good initial
+trajectory and mass matrix starting point.
+
+### Status
+
+```
+camdl fit status fit.toml
+```
+
+Colored summary of all stages: completion, convergence, staleness.

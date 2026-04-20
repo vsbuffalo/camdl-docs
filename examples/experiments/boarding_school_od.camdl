@@ -1,0 +1,57 @@
+# SIR model with environmental overdispersion for the boarding school outbreak.
+#
+# Same as boarding_school.camdl but with overdispersed transmission.
+# The overdispersed() wrapper applies Gamma multiplicative noise to
+# the force of infection, modeling day-to-day fluctuations in contact
+# patterns (assemblies, meals, dormitory mixing, weather).
+#
+# See He et al. (2010) for the epidemiological motivation.
+
+time_unit = 'days
+
+compartments { S, I, R }
+
+parameters {
+  beta     : rate         in [0.1, 5.0]   ~ log_normal(mu = log(2.0), sigma = 0.5)
+  gamma    : rate         in [0.1, 1.0]   ~ log_normal(mu = log(0.4), sigma = 0.3)
+  N0       : count
+  I0       : count
+  rho      : probability  in [0.5, 1.0]   ~ beta(alpha = 5.0, beta = 2.0)
+  k        : positive     in [1.0, 100.0] ~ half_normal(sigma = 10.0)
+  sigma_se : positive     in [0.01, 5.0]
+}
+
+let N = S + I + R
+
+transitions {
+  infection : S --> I  @ overdispersed(beta * S * I / N, sigma_se)
+  recovery  : I --> R  @ gamma * I
+}
+
+init {
+  S = N0 - I0
+  I = I0
+}
+
+observations {
+  in_bed : {
+    projected  = prevalence(I)
+    every      = 1 'days
+    likelihood = neg_binomial(mean = rho * projected, r = k)
+  }
+}
+
+scenarios {
+  baseline {
+    label = "Boarding school flu with environmental noise"
+    set = {
+      N0 = 763
+      I0 = 1
+    }
+  }
+}
+
+simulate {
+  from = 0 'days
+  to   = 14 'days
+}

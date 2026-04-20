@@ -1,0 +1,14 @@
+[config]
+model = "sirv.camdl"
+params = "params.toml"
+seeds = { n = 50 }
+
+[[scenario]]
+name = "baseline"
+
+[[scenario]]
+name = "with_vaccination"
+enable = ["vaccination"]
+
+[sweep]
+beta = { linspace = { min = 0.2, max = 0.6, n = 5 } }

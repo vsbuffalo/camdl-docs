@@ -1,0 +1,192 @@
+---
+title: "Algorithms: IF2, PGAS, and PMMH"
+---
+
+## IF2 — find the maximum likelihood estimate
+
+Iterated Filtering (Ionides, Bretó & King 2006) finds the MLE
+$\hat{\theta}, \hat{\varphi}$ without ever evaluating the transition likelihood.
+It turns the particle filter into an optimizer.
+
+### How it works
+
+IF2 runs the particle filter with one modification: each particle carries its
+own perturbed copy of the parameters. Perturbations are Gaussian on the
+transformed scale, and their magnitude decreases ("cools") across iterations.
+
+In early iterations, large perturbations explore the parameter space. Particles
+with better parameters (higher observation likelihood weights) survive
+resampling. In later iterations, small perturbations fine-tune around the
+emerging optimum.
+
+This is stochastic gradient ascent on the marginal likelihood surface, mediated
+by particle selection rather than explicit gradient computation. No transition
+likelihood evaluation, no gradient — just simulation and weighting.
+
+### Multi-chain diagnostics
+
+Run $K$ chains from different starting points. Compare their MLEs.
+
+**$\hat{R}$ (Rhat):** For each parameter, compute the ratio of between-chain to
+within-chain variance. $\hat{R} < 1.1$: chains agree (converged to same basin).
+$\hat{R} > 1.5$: chains found different optima (multimodal surface or
+insufficient iterations).
+
+**Log-likelihood spread:** If chains have similar parameters
+($\hat{R} \approx 1$) but different log-likelihoods (spread > 50), the surface
+is multimodal — chains found different likelihood basins.
+
+### Cooling schedule
+
+The `cooling` parameter (called `cf50` — cooling fraction at 50% of target
+iterations) controls how fast perturbations decay. Aggressive cooling (0.05)
+converges fast but may miss basins. Gentle cooling (0.70) explores more but
+converges slowly. The scout stage uses gentle cooling; refine uses aggressive
+cooling starting from scout's best parameters.
+
+### Perturbed vs true log-likelihood
+
+IF2's reported log-likelihood includes the perturbation noise — it's inflated
+relative to the true marginal likelihood. The validate stage re-evaluates the
+MLE with a clean particle filter (no perturbations) to get the true
+$\log \hat{p}(y \mid \hat\theta, \hat\varphi)$. Profile likelihoods use this
+true value, not the IF2 value.
+
+---
+
+## PGAS — sample the Bayesian posterior
+
+Particle Gibbs with Ancestor Sampling (Lindsten, Jordan & Schön 2014) produces
+posterior samples of both parameters AND trajectories. It works with the
+complete-data posterior directly:
+
+$$\log p(\theta, \varphi \mid x, y) \propto \underbrace{\sum_{t} \log p(y_t \mid x_t, \varphi)}_{\text{observation}} + \underbrace{\sum_{t} \log p(x_t \mid x_{t-1}, \theta)}_{\text{transition}} + \log p(x_0 \mid \theta) + \log p(\theta) + \log p(\varphi)$$
+
+No intractable integral. Every term is evaluable in closed form for
+chain-binomial models. The $\theta$/$\varphi$ separation from the
+[likelihood factorization](likelihood.qmd) makes the structure visible:
+observation parameters $\varphi$ appear only in the first sum, dynamics
+parameters $\theta$ appear only in the second.
+
+### The Gibbs sweep
+
+Each PGAS sweep alternates two updates:
+
+1. **Update parameters given trajectory.** With $x_{0:T}$ fixed, the
+   complete-data log-posterior above is a tractable function of
+   $(\theta, \varphi)$. Use NUTS to propose new parameter values. Both
+   $\theta$ and $\varphi$ are updated jointly — the separation is conceptual,
+   not operational.
+
+2. **Update trajectory given parameters.** With $(\theta, \varphi)$ fixed, run
+   Conditional SMC with Ancestor Sampling (CSMC-AS) to draw a new trajectory.
+   This is a particle filter conditioned on the previous trajectory — it
+   explores nearby trajectory space while maintaining the correct stationary
+   distribution.
+
+The CSMC step is the key innovation over standard Gibbs: it updates the entire
+$T$-dimensional trajectory in one sweep, avoiding the slow mixing of single-site
+trajectory updates.
+
+### Trajectory renewal
+
+After CSMC-AS, the new trajectory partially overlaps with the old one.
+**Trajectory renewal** measures what fraction of substeps changed. High renewal
+(> 50%) means the trajectory is mixing well — CSMC is exploring new epidemic
+paths. Low renewal (< 10%) means the trajectory is stuck — the reference
+particle dominates, and parameter updates are exploring around a fixed epidemic
+narrative.
+
+Low renewal is the most common PGAS failure mode. Remedies: more CSMC particles,
+tempering, or reparameterizing to reduce trajectory-parameter correlation.
+
+### Parallel tempering
+
+For models with multimodal posterior surfaces (multiple epidemic scenarios
+consistent with the data), single-chain PGAS can get trapped. Parallel tempering
+runs multiple chains at different "temperatures" $\beta_k \in [0, 1]$ that
+flatten the likelihood:
+
+$$p_{\beta}(\theta, \varphi \mid x, y) \propto p(y \mid x, \theta, \varphi)^{\beta} \cdot p(x \mid \theta) \cdot p(\theta) \cdot p(\varphi)$$
+
+Adjacent chains periodically propose swaps. The cold chain ($\beta = 1$) targets
+the true posterior; warm chains ($\beta < 1$) explore freely.
+
+**Swap rate** between adjacent rungs is the key diagnostic. Below 10%: the
+temperature ladder is too sparse, chains can't communicate. Above 50%: the
+ladder is denser than needed (wasting compute).
+
+---
+
+## NUTS — parameter proposals within PGAS
+
+The No-U-Turn Sampler (Hoffman & Gelman 2014) proposes new parameters within
+each PGAS sweep by simulating Hamiltonian dynamics on the complete-data
+log-posterior surface.
+
+### Why NUTS works here
+
+The complete-data log-posterior is a sum of smooth, differentiable terms. The
+compiler provides exact gradients via source-to-source symbolic differentiation
+of rate expressions. No finite differences, no autodiff tape — the OCaml
+compiler emits `rate_grad` fields in the IR, and the Rust engine evaluates them.
+
+The gradient decomposes along the likelihood factorization:
+
+$$\nabla_\theta \log p = \sum_t \nabla_\theta \log p(x_t \mid x_{t-1}, \theta) + \nabla_\theta \log p(\theta)$$
+
+$$\nabla_\varphi \log p = \sum_t \nabla_\varphi \log p(y_t \mid x_t, \varphi) + \nabla_\varphi \log p(\varphi)$$
+
+Dynamics gradients come from the transition likelihood (Binomial + Gamma).
+Observation gradients come from the observation likelihood (NegBin, etc.). These
+are independent computations — a bug in one doesn't affect the other, which aids
+debugging.
+
+### Diagnostics
+
+**Divergent transitions:** The leapfrog integrator encountered a region where
+the posterior surface curves too sharply for the current step size. Usually
+indicates a poorly conditioned posterior — reparameterize or increase
+`max_treedepth`.
+
+**Max tree depth hits:** NUTS builds a binary tree of leapfrog steps until it
+"turns around." Hitting the max depth means the trajectory wanted to go further
+— the posterior has a long, narrow ridge. Increase `max_treedepth` or improve
+the mass matrix.
+
+**Mass matrix adaptation:** NUTS uses a diagonal or dense mass matrix to
+precondition the Hamiltonian. During warmup sweeps, the mass matrix adapts to
+the posterior marginal variances (diagonal) or covariance (dense). Dense mass
+matrices handle correlated parameters ($\beta$ and $\gamma$ are often
+anticorrelated through $R_0 = \beta/\gamma$) but require more warmup to estimate
+reliably.
+
+---
+
+## PMMH — the middle ground
+
+Particle Marginal Metropolis-Hastings (Andrieu, Doucet & Holenstein 2010) uses
+the particle filter's likelihood estimate as an MCMC acceptance ratio. It
+produces posterior samples like PGAS but doesn't require evaluating the
+transition likelihood.
+
+At each MCMC step:
+
+1. Propose new parameters $(\theta', \varphi')$.
+2. Run a particle filter to get $\log \hat{p}(y \mid \theta', \varphi')$.
+3. Accept/reject using the Metropolis-Hastings ratio with the PF estimate.
+
+The remarkable result: despite the PF estimate being noisy, the MCMC chain
+targets the exact posterior. The noise inflates the rejection rate (more
+particles → less noise → higher acceptance) but doesn't introduce bias.
+
+**When to use PMMH over PGAS:** When you can't evaluate the transition
+likelihood (non-chain-binomial backends), when the model is simple enough that
+PF variance is manageable, or when you want posterior samples without
+implementing CSMC.
+
+**When to prefer PGAS:** For chain-binomial models with many parameters. PGAS
+evaluates the exact complete-data likelihood (no PF noise), uses NUTS for
+efficient joint proposals, and produces posterior trajectories as a byproduct.
+For the models camdl targets — stochastic compartmental models with
+chain-binomial dynamics — PGAS is almost always the better choice.

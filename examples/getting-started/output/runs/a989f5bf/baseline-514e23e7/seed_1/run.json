@@ -1,0 +1,20 @@
+{
+  "model": "sir.camdl",
+  "model_hash": "8747beae2dc5c8013e0930d60bac2e0e9821f7d65e16dee1d4fc68d268a49327",
+  "scenario": "baseline",
+  "sim_hash": "a989f5bf20b8ab542ca24f9e01bc97d47374b099981b9e48ac362a3911c46cee",
+  "scen_hash": "514e23e7b6cc8b94164ca0af75231bf5334ddbb8208ad5a917947a6619ad86fc",
+  "seed": 1,
+  "backend": "gillespie",
+  "dt": 1.0,
+  "version": "0.1.0+251d7ee",
+  "created_at": "2026-04-17T05:33:31Z",
+  "argv": [
+    "camdl-sim",
+    "simulate",
+    "sir.camdl",
+    "--params",
+    "params.toml",
+    "--cas"
+  ]
+}

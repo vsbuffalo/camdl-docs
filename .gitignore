@@ -9,3 +9,12 @@ __pycache__/
 
 /.quarto/
 **/*.quarto_ipynb
+
+# Large fit results (reproducible from configs)
+examples/fitting/results/
+examples/fitting_archive_*/
+
+# Scratch HTML reports
+fitting_diagnostic.html
+fitting_review.html
+guide/fitting_diagnostic.html
