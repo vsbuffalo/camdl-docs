@@ -1,0 +1,47 @@
+[model]
+camdl = "boarding_school_sir_init.ir.json"
+output_dir = "results/sir_free_init_v2"
+scenario = "baseline"
+
+[data.observations]
+in_bed = "data/in_bed.tsv"
+
+[config]
+backend = "chain_binomial"
+dt = 1.0
+
+# Staged remedy (see report's "Free initial conditions" section):
+#   - I(0) bounds narrowed from [1, 20] to [1, 10]
+#     (scout Rhat on I(0) was 11.9; 20-unit range was too wide)
+#   - R(0) bounds narrowed from [0, 400] to [0, 250]
+#     (previous chain endpoints at 140-400, Avilov sero R(0) ≈ 258 — keep
+#     headroom above that, but cut off the 300-400 tail that chains
+#     wandered into to no benefit)
+# Bounds in `.camdl` ([1, 20] for I0, [0, 400] for R_init) are still
+# permissive supersets; we only tighten the estimate-block bounds.
+#
+# Scout also doubled: 96 → 128 chains, 500 → 1000 iter. Cooling kept
+# at 0.9 (scout's standard explore-and-settle value).
+[estimate]
+beta   = { bounds = [0.5, 5.0],  start = 1.5 }
+gamma  = { bounds = [0.1, 1.0],  start = 0.4 }
+I0     = { bounds = [1.0, 10.0], start = 5.0,   ivp = true, rw_sd = 0.10 }
+R_init = { bounds = [0.0, 250.0], start = 50.0, ivp = true, rw_sd = 5.0 }
+
+[fixed]
+N0 = 763
+
+[stages.scout]
+method     = "if2"
+chains     = 128
+particles  = 2000
+iterations = 1000
+cooling    = 0.9
+
+[stages.refine]
+method      = "if2"
+chains      = 12
+particles   = 4000
+iterations  = 800
+cooling     = 0.98
+starts_from = "scout"

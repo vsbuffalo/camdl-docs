@@ -1,0 +1,41 @@
+# IC-free inference: condition the likelihood on y₁ (skip it from the
+# sum) and let the PF resample pin the initial state. Requires at least
+# one [estimate.*] entry with ivp = true so particles have spread at t=0.
+# This is a top-level field on FitConfigV2.
+ic_free = true
+
+[model]
+camdl = "boarding_school_sir_init.ir.json"
+output_dir = "results/sir_ic_free"
+scenario = "baseline"
+
+[data.observations]
+in_bed = "data/in_bed.tsv"
+
+[config]
+backend = "chain_binomial"
+dt = 1.0
+
+[estimate]
+beta   = { bounds = [0.5, 5.0],  start = 1.5 }
+gamma  = { bounds = [0.1, 1.0],  start = 0.4 }
+I0     = { bounds = [1.0, 20.0], start = 5.0,   ivp = true, rw_sd = 0.10 }
+R_init = { bounds = [0.0, 400.0], start = 100.0, ivp = true, rw_sd = 5.0 }
+
+[fixed]
+N0 = 763
+
+[stages.scout]
+method     = "if2"
+chains     = 96
+particles  = 2000
+iterations = 500
+cooling    = 0.9
+
+[stages.refine]
+method      = "if2"
+chains      = 12
+particles   = 4000
+iterations  = 800
+cooling     = 0.98
+starts_from = "scout"

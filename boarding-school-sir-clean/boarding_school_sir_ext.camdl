@@ -1,0 +1,47 @@
+# Plain SIR, simulate to 30 days — used for the synthetic-recovery PPC
+# where the R₀=3.6 guesstimate outbreak takes ~20+ days to decline.
+time_unit = 'days
+
+compartments { S, I, R }
+
+parameters {
+  beta  : rate     in [0.5, 5.0]
+  gamma : rate     in [0.1, 1.0]
+  N0    : count
+  I0    : count
+}
+
+let N = S + I + R
+
+transitions {
+  infection : S --> I  @ beta * S * I / N
+  recovery  : I --> R  @ gamma * I
+}
+
+init {
+  S = N0 - I0
+  I = I0
+}
+
+observations {
+  in_bed : {
+    projected  = prevalence(I)
+    every      = 1 'days
+    likelihood = poisson(rate = projected)
+  }
+}
+
+scenarios {
+  baseline {
+    label = "Boarding school flu, 1978, extended 30-day sim"
+    set = {
+      N0 = 763
+      I0 = 5
+    }
+  }
+}
+
+simulate {
+  from = 0 'days
+  to   = 30 'days
+}

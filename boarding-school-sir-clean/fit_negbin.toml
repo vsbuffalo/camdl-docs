@@ -1,0 +1,39 @@
+[model]
+camdl = "boarding_school_sir_negbin.ir.json"
+output_dir = "results/sir_negbin"
+scenario = "baseline"
+
+[data.observations]
+in_bed = "data/in_bed.tsv"
+
+[config]
+backend = "chain_binomial"
+dt = 1.0
+
+[estimate]
+beta  = { bounds = [0.5, 5.0], start = 1.5 }
+gamma = { bounds = [0.1, 1.0], start = 0.4 }
+# k (NegBin dispersion): weakly identified from 14 obs. Scout Rhat will
+# likely fail to converge on k — this itself is a finding (the data doesn't
+# need over-dispersion beyond Poisson). We run with --allow-nonconverged-scout
+# to see where k̂ lands; large k̂ means Poisson limit.
+k     = { bounds = [1.0, 100.0], start = 20.0 }
+
+[fixed]
+N0 = 763
+I0 = 5
+
+[stages.scout]
+method     = "if2"
+chains     = 96
+particles  = 2000
+iterations = 500
+cooling    = 0.9
+
+[stages.refine]
+method      = "if2"
+chains      = 12
+particles   = 4000
+iterations  = 400
+cooling     = 0.98
+starts_from = "scout"

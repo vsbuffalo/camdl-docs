@@ -1,0 +1,41 @@
+[model]
+camdl = "boarding_school_sir_init.ir.json"
+output_dir = "results/profile_sweep"
+scenario = "baseline"
+
+[data.observations]
+in_bed = "data/in_bed.tsv"
+
+[config]
+backend = "chain_binomial"
+dt = 1.0
+
+# For the 2D profile: β and γ are estimated, I(0) and R(0) are fixed
+# (sweep varies them via --sweep). Modest fit budget per sweep point
+# since each point does a full scout+refine.
+[estimate]
+# Tighter bounds than [0.5, 5.0] / [0.1, 1.0] — profile experiment previously
+# showed β and γ MLEs stay in these narrower ranges regardless of (I0, R_init).
+# Narrower bounds help scout converge per cell.
+beta   = { bounds = [1.0, 4.5], start = 2.0, rw_sd = 0.04 }
+gamma  = { bounds = [0.2, 0.9], start = 0.55, rw_sd = 0.02 }
+
+[fixed]
+N0     = 763
+I0     = 5      # overridden by --sweep
+R_init = 0      # overridden by --sweep
+
+[stages.scout]
+method     = "if2"
+chains     = 48
+particles  = 1500
+iterations = 400
+cooling    = 0.9
+
+[stages.refine]
+method      = "if2"
+chains      = 8
+particles   = 3000
+iterations  = 300
+cooling     = 0.98
+starts_from = "scout"

@@ -1,0 +1,37 @@
+[model]
+camdl = "boarding_school_sir_synth.ir.json"
+output_dir = "synthetic_recovery"
+scenario = "baseline"
+
+[data.observations]
+in_bed = "/Users/vsb/projects/work/camdl-book/.claude/worktrees/new-fitting/boarding-school-sir-clean/output/synthetic_data.tsv"
+
+# Backend: explicit. chain_binomial dt=1.0 is the IF2 + PF default; we pin it
+# here so every downstream `camdl simulate` at the MLE can match on the same
+# backend with no ambiguity. See docs/dev/incidents/2026-04-19-backend-default-mismatch.md.
+[config]
+backend = "chain_binomial"
+dt = 1.0
+
+[estimate]
+beta  = { bounds = [0.5, 5.0], start = 1.5 }
+gamma = { bounds = [0.1, 1.0], start = 0.4 }
+
+[fixed]
+N0 = 763
+I0 = 5
+
+[stages.scout]
+method     = "if2"
+chains     = 48
+particles  = 2000
+iterations = 250
+cooling    = 0.9
+
+[stages.refine]
+method      = "if2"
+chains      = 12
+particles   = 4000
+iterations  = 400
+cooling     = 0.98
+starts_from = "scout"

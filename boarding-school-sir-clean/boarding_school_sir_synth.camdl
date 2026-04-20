@@ -1,0 +1,51 @@
+# Plain SIR variant used for the synthetic pipeline validation.
+# Observations every 2 days over 28 days → 15 observations spanning the
+# whole epidemic (the R₀ = 3.6 guesstimate outbreak declines over ~25 days).
+# Daily observation frequency (as in the real-data fit) would only capture
+# the rising limb and miss the decline.
+
+time_unit = 'days
+
+compartments { S, I, R }
+
+parameters {
+  beta  : rate     in [0.5, 5.0]
+  gamma : rate     in [0.1, 1.0]
+  N0    : count
+  I0    : count
+}
+
+let N = S + I + R
+
+transitions {
+  infection : S --> I  @ beta * S * I / N
+  recovery  : I --> R  @ gamma * I
+}
+
+init {
+  S = N0 - I0
+  I = I0
+}
+
+observations {
+  in_bed : {
+    projected  = prevalence(I)
+    every      = 2 'days
+    likelihood = poisson(rate = projected)
+  }
+}
+
+scenarios {
+  baseline {
+    label = "Boarding school flu, synth variant (every 2 days, 28-day sim)"
+    set = {
+      N0 = 763
+      I0 = 5
+    }
+  }
+}
+
+simulate {
+  from = 0 'days
+  to   = 28 'days
+}

@@ -1,0 +1,38 @@
+[model]
+camdl = "boarding_school_sir_negbin.ir.json"
+output_dir = "results/sir_negbin_long"
+scenario = "baseline"
+
+[data.observations]
+in_bed = "data/in_bed.tsv"
+
+[config]
+backend = "chain_binomial"
+dt = 1.0
+
+[estimate]
+beta  = { bounds = [0.5, 5.0],    start = 1.5 }
+gamma = { bounds = [0.1, 1.0],    start = 0.4 }
+k     = { bounds = [1.0, 100.0],  start = 20.0 }
+
+[fixed]
+N0 = 763
+I0 = 5
+
+# Same scout as before. The interesting change is refine: more iterations
+# AND slower cooling, so chains can keep descending the sloppy k-ridge
+# toward the grid max at k ≈ 50–80.
+[stages.scout]
+method     = "if2"
+chains     = 96
+particles  = 2000
+iterations = 500
+cooling    = 0.9
+
+[stages.refine]
+method      = "if2"
+chains      = 12
+particles   = 4000
+iterations  = 2000        # 5× more iterations than the standard fit
+cooling     = 0.995       # slower cooling (was 0.98) — chains stay mobile
+starts_from = "scout"
