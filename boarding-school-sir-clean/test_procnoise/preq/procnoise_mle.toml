@@ -1,0 +1,7 @@
+# Procnoise full-data MLE from 1D σ_se profile (σ_se grid, (β,γ) optimised per cell).
+# Profile max from test_procnoise/output/profile_sigma_1d.tsv.
+beta = 2.294
+gamma = 0.698
+sigma_se = 0.12
+N0 = 763
+I0 = 5
