@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Scenarios, Interventions, and Sweeps – camdl</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../boarding-school-sir-clean/report.html" rel="next">
+<link href="../guide/experiments.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-7834fc316dc47462563faadba97a63a5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/scenarios.html"><span class="chapter-title">Scenarios, Interventions, and Sweeps</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">camdl</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/vsbuffalo/camdl-book" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What is camdl?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Getting Started</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/getting-started.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building an SIR Model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/experiments.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Uncertainty, Priors, and Simulation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/scenarios.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Scenarios, Interventions, and Sweeps</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../boarding-school-sir-clean/report.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../boarding-school-sir-clean/model_comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Inference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/likelihood.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Likelihood and the Particle Filter</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/algorithms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Algorithms: IF2, PGAS, and PMMH</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/pipeline.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Fitting Pipeline</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/diagnostics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diagnostics Reference</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/debugging.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Debugging</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Vignettes</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/he2010.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">He et al.&nbsp;(2010) Measles</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/model-comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/spatial-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Spatial Inference</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/sampler-comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sampler Comparison</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/diagnostics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diagnostics Cookbook</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Reference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Language Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/data-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/features.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">User Features</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/inference-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/ir-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">IR Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/runtimes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simulation Backends</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/design.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Design Philosophy</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#interventions" id="toc-interventions" class="nav-link active" data-scroll-target="#interventions">Interventions</a></li>
+  <li><a href="#scenarios-declaring-the-comparison" id="toc-scenarios-declaring-the-comparison" class="nav-link" data-scroll-target="#scenarios-declaring-the-comparison">Scenarios — declaring the comparison</a></li>
+  <li><a href="#the-counterfactual-comparison" id="toc-the-counterfactual-comparison" class="nav-link" data-scroll-target="#the-counterfactual-comparison">The counterfactual comparison</a></li>
+  <li><a href="#sensitivity-how-robust-are-the-conclusions" id="toc-sensitivity-how-robust-are-the-conclusions" class="nav-link" data-scroll-target="#sensitivity-how-robust-are-the-conclusions">Sensitivity — how robust are the conclusions?</a></li>
+  <li><a href="#content-addressed-storage-provenance-by-construction" id="toc-content-addressed-storage-provenance-by-construction" class="nav-link" data-scroll-target="#content-addressed-storage-provenance-by-construction">Content-addressed storage — provenance by construction</a></li>
+  <li><a href="#what-if-modern-interventions-for-a-1978-epidemic" id="toc-what-if-modern-interventions-for-a-1978-epidemic" class="nav-link" data-scroll-target="#what-if-modern-interventions-for-a-1978-epidemic">What if? — modern interventions for a 1978 epidemic</a></li>
+  <li><a href="#dry-run-verify-before-committing" id="toc-dry-run-verify-before-committing" class="nav-link" data-scroll-target="#dry-run-verify-before-committing"><code>--dry-run</code> — verify before committing</a></li>
+  <li><a href="#whats-next" id="toc-whats-next" class="nav-link" data-scroll-target="#whats-next">What’s next</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/scenarios.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/scenarios.html"><span class="chapter-title">Scenarios, Interventions, and Sweeps</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Scenarios, Interventions, and Sweeps</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>The <a href="../guide/experiments.html">previous chapter</a> built up three layers of uncertainty — parameter, process, and observation — and showed how to interrogate each through simulation. But understanding the baseline epidemic is not the end goal. The questions that matter for policy are counterfactual: <em>what would change if we intervened?</em> And the answers must be robust: <em>do they hold across plausible parameter values?</em></p>
+<p>This chapter introduces camdl’s tools for asking and answering those questions systematically: interventions that modify the model mid-simulation, scenarios that package counterfactual comparisons, parameter sweeps that test robustness, and a batch system that manages hundreds of runs reproducibly.</p>
+<section id="interventions" class="level2">
+<h2 class="anchored" data-anchor-id="interventions">Interventions</h2>
+<p>camdl’s <code>interventions</code> block declares actions that change the population structure at specific times. To model a vaccination campaign, we first add a Vaccinated compartment and then declare the intervention:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">compartments</span> { S, I, R, V }</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">interventions</span> {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">vaccination </span>: <span class="kw">transfer</span>(fraction = vacc_eff, <span class="cf">from</span> = S, <span class="cf">to</span> = V) <span class="cf">at</span> [<span class="dv">15</span>]</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This reads: “on day 15, move a fraction <code>vacc_eff</code> of the susceptible population into the vaccinated compartment.” The <code>transfer</code> action takes individuals from one compartment and puts them in another — here, vaccinating 80% of remaining susceptibles in a single pulse.</p>
+<p>Interventions are <strong>off by default</strong>. The model file declares what’s <em>possible</em>, not what happens in every run. To activate the vaccination, pass <code>--enable</code>:</p>
+<div id="b0da9af6" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate sirv.camdl --params params.toml --enable vaccination --seed 42</code></summary><pre class="ansi-output"><code>warning: 1 transition never fired during simulation:
+  infection_v    (propensity always 0.0)
+# camdl 0.1.0+6e9d642 (2026-04-17)
+t   S   I   R   V   flow_infection  flow_infection_v    flow_recovery
+0   9990    10  0   0   0   0   0
+1   9986    11  3   0   4   0   3
+2   9972    24  4   0   14  0   1
+3   9960    31  9   0   12  0   5</code></pre></details>
+</div>
+</div>
+<div id="cell-fig-enable-vaccination" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Plotting code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>no_vacc <span class="op">=</span> run_sim(params<span class="op">=</span>PARAMS, seed<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>with_vacc <span class="op">=</span> run_sim(params<span class="op">=</span>PARAMS, seed<span class="op">=</span><span class="dv">42</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                    extra_args<span class="op">=</span>[<span class="st">"--enable"</span>, <span class="st">"vaccination"</span>])</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, df, title <span class="kw">in</span> [(ax1, no_vacc, <span class="st">"Intervention off (default)"</span>),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                       (ax2, with_vacc, <span class="st">"--enable vaccination"</span>)]:</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    colors <span class="op">=</span> {<span class="st">"S"</span>: <span class="st">"#3366cc"</span>, <span class="st">"I"</span>: <span class="st">"#cc3333"</span>, <span class="st">"R"</span>: <span class="st">"#2e8b2e"</span>, <span class="st">"V"</span>: <span class="st">"#9b59b6"</span>}</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> col, color <span class="kw">in</span> colors.items():</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> col <span class="kw">in</span> df.columns:</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>            ax.plot(df[<span class="st">"t"</span>], df[col], color<span class="op">=</span>color, label<span class="op">=</span>col, linewidth<span class="op">=</span><span class="fl">1.5</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">"Time (days)"</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title, fontsize<span class="op">=</span><span class="dv">11</span>, color<span class="op">=</span>GREY)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    ax.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    ax.set_xlim(<span class="dv">0</span>, df[<span class="st">"t"</span>].<span class="bu">max</span>())</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">"Individuals"</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-enable-vaccination" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-enable-vaccination-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="scenarios_files/figure-html/fig-enable-vaccination-output-1.png" width="1480" height="504" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-enable-vaccination-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.1: Effect of <code>--enable vaccination</code>. <strong>Left:</strong> baseline run with the intervention declared but inactive — the epidemic runs unchecked. <strong>Right:</strong> enabling the vaccination intervention moves 80% of susceptibles to V on day 15, sharply reducing transmission.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>camdl supports several scheduling patterns:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">interventions</span> {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Single pulse</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sia_round_1 </span>: <span class="kw">transfer</span>(fraction = <span class="dv">0.8</span>, <span class="cf">from</span> = S, <span class="cf">to</span> = V) <span class="cf">at</span> [<span class="dv">180</span>]</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Multiple pulses</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sia_rounds </span>: <span class="kw">transfer</span>(fraction = <span class="dv">0.8</span>, <span class="cf">from</span> = S, <span class="cf">to</span> = V) <span class="cf">at</span> [<span class="dv">180</span>, <span class="dv">545</span>, <span class="dv">910</span>]</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Recurring schedule</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">routine_vacc </span>: <span class="kw">transfer</span>(fraction = vacc_rate, <span class="cf">from</span> = S, <span class="cf">to</span> = V) {</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">every</span> = <span class="dv">30</span> <span class="ss">'days</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">from</span>  = <span class="dv">0</span> <span class="ss">'days</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    until = <span class="dv">2</span> <span class="ss">'years</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Interventions vs events — things that <em>might</em> happen vs things that <em>did</em>
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Interventions are off by default because they represent hypothetical policy levers — “what if we vaccinated?” But some scheduled actions aren’t hypothetical. If you’re fitting a model to data from a region that had three historical vaccination campaigns, those campaigns <em>happened</em> — they shaped the data you’re fitting to, and omitting them is wrong.</p>
+<p>camdl has a separate <code>events {}</code> block for this. Events use the same syntax as interventions but are <strong>always active</strong> — they fire in every simulation and during inference without any scenario or <code>--enable</code> flag:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sia_dates </span>: round = <span class="bu">read</span>(<span class="st">"data/campaign_dates.tsv"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">events</span> {</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">historical_sia[r in round] </span>:</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">transfer</span>(fraction = sia_coverage, <span class="cf">from</span> = S, <span class="cf">to</span> = V)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">at</span> [sia_dates[r]]</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The schedule comes from a data file — one row per campaign with its date. No hardcoded times, no scenario boilerplate. When you run <code>camdl fit run fit.toml</code>, the events fire automatically at the right times.</p>
+<p>The decision rule is simple:</p>
+<ul>
+<li><strong>“Did it happen?”</strong> → <code>events {}</code>. Always on, zero config in fit.toml.</li>
+<li><strong>“What if it happened?”</strong> → <code>interventions {}</code>. Off by default, enable via scenario.</li>
+</ul>
+<p>If you later want a counterfactual — “what if the third campaign hadn’t happened?” — you can disable individual events with <code>--disable</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> simulate model.camdl <span class="at">--scenario</span> baseline <span class="at">--disable</span> historical_sia_r3</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>We’ll see <code>events {}</code> used for annual cohort entry in the <a href="../vignettes/he2010.html">He et al.&nbsp;measles vignette</a>, where each year’s birth cohort enters the susceptible class at school start — a structural demographic process, not a policy choice.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="scenarios-declaring-the-comparison" class="level2">
+<h2 class="anchored" data-anchor-id="scenarios-declaring-the-comparison">Scenarios — declaring the comparison</h2>
+<p>A <strong>scenario</strong> packages a set of parameter values and intervention switches into a named configuration. This is where the counterfactual becomes explicit.</p>
+<p>The <code>--enable</code> flag we used above is fine for quick one-off runs, but for systematic comparisons we want the configurations named and version-controlled. The SIRV model declares three scenarios:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">scenarios</span> {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  baseline {</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">label</span> = <span class="st">"No intervention"</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">set</span> = {</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>      beta       = <span class="dv">0.4</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>      gamma      = <span class="dv">0.15</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>      N0         = <span class="dv">10_000</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>      I0         = <span class="dv">10</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>      rho        = <span class="dv">0.6</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>      k          = <span class="dv">10.0</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>      vacc_eff   = <span class="dv">0.8</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>      leaky_susc = <span class="dv">0.0</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  with_vaccination {</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    extends = baseline</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">label</span> = <span class="st">"All-or-nothing vaccination at day 15"</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">enable</span> = [vaccination]</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  with_leaky_vaccination {</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    extends = baseline</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">label</span> = <span class="st">"Leaky vaccination at day 15"</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">enable</span> = [vaccination]</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">set</span> = { leaky_susc = <span class="dv">0.3</span> }</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The <code>extends = baseline</code> keyword says “inherit everything from <code>baseline</code>, then apply my overrides.” The <code>with_vaccination</code> scenario only adds <code>enable = [vaccination]</code> — same parameters, same initial conditions, so the comparison isolates the causal effect.</p>
+<p>The <code>with_leaky_vaccination</code> scenario goes further: it inherits from baseline, enables the same intervention, and overrides one parameter. With <code>leaky_susc = 0.0</code> (the default), vaccinated individuals in V are completely protected — the <code>V --&gt; I</code> transition has rate zero. With <code>leaky_susc = 0.3</code>, every vaccinee retains 30% residual susceptibility. This is the distinction between an <strong>all-or-nothing</strong> vaccine (a fraction are fully protected, the rest get nothing) and a <strong>leaky</strong> vaccine (everyone gets partial protection). Same coverage, same VE on average, very different epidemic dynamics — a structural question answered by a single parameter.</p>
+<p>Run all three with:</p>
+<div id="e96a9fc5" class="cell" data-execution_count="4">
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate sirv.camdl --scenario baseline --seed 42</code></summary><pre class="ansi-output"><code>warning: 1 transition never fired during simulation:
+  infection_v    (propensity always 0.0)
+# camdl 0.1.0+6e9d642 (2026-04-17)
+t   S   I   R   V   flow_infection  flow_infection_v    flow_recovery
+0   9990    10  0   0   0   0   0
+1   9986    11  3   0   4   0   3
+2   9972    24  4   0   14  0   1
+3   9960    31  9   0   12  0   5</code></pre></details>
+</div>
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate sirv.camdl --scenario with_vaccination --seed 42</code></summary><pre class="ansi-output"><code>warning: 1 transition never fired during simulation:
+  infection_v    (propensity always 0.0)
+# camdl 0.1.0+6e9d642 (2026-04-17)
+t   S   I   R   V   flow_infection  flow_infection_v    flow_recovery
+0   9990    10  0   0   0   0   0
+1   9986    11  3   0   4   0   3
+2   9972    24  4   0   14  0   1
+3   9960    31  9   0   12  0   5</code></pre></details>
+</div>
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate sirv.camdl --scenario with_leaky_vaccination --seed 42</code></summary><pre class="ansi-output"><code># camdl 0.1.0+6e9d642 (2026-04-17)
+t   S   I   R   V   flow_infection  flow_infection_v    flow_recovery
+0   9990    10  0   0   0   0   0
+1   9986    11  3   0   4   0   3
+2   9972    24  4   0   14  0   1
+3   9960    31  9   0   12  0   5
+4   9949    38  13  0   11  0   4
+5   9928    52  20  0   21  0   7</code></pre></details>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Baseline scenario vs default parameter values
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Our usage of <code>baseline</code> as preset parameters might seem to contract camdls “no default parameter values” rule introduced in <a href="../guide/getting-started.html">Chapter 2</a>. However, the distinction is deliberate: the <code>parameters</code> block defines the model’s degrees of freedom — the knobs that <em>may be the focus of estimation or inference</em> from observed data. When you run a simulation without specifying all paramters or a particular scenario like <code>baseline</code>, camdl errors out and asks you to supply parameters explicitly.</p>
+<p>Scenarios are a separate mechanism, walled off from inference. They exist so researchers can package named configurations for reproducible simulation, without those presets leaking into the fitting pipeline as implicit defaults. This separation is the same principle as the “no default parameters” rule — every assumption must be visible and explicit.</p>
+<p>Mechanically: <code>--scenario baseline</code> supplies all parameter values from the scenario’s <code>set</code> block. If you also pass <code>--params</code>, the scenario values take precedence — the scenario is the final word.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="the-counterfactual-comparison" class="level2">
+<h2 class="anchored" data-anchor-id="the-counterfactual-comparison">The counterfactual comparison</h2>
+<div id="137b1cdd" class="cell" data-execution_count="5">
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate sirv.camdl --params params.toml --seed 42 --scenario baseline</code></summary><pre><code>warning: 1 transition never fired during simulation:
+  infection_v    (propensity always 0.0)
+# camdl 0.1.0+6e9d642 (2026-04-17)
+t   S   I   R   V   flow_infection  flow_infection_v    flow_recovery
+0   9990    10  0   0   0   0   0
+1   9986    11  3   0   4   0   3
+2   9972    24  4   0   14  0   1
+3   9960    31  9   0   12  0   5
+...</code></pre></details>
+</div>
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate sirv.camdl --params params.toml --seed 42 --scenario with_vaccination</code></summary><pre><code>warning: 1 transition never fired during simulation:
+  infection_v    (propensity always 0.0)
+# camdl 0.1.0+6e9d642 (2026-04-17)
+t   S   I   R   V   flow_infection  flow_infection_v    flow_recovery
+0   9990    10  0   0   0   0   0
+1   9986    11  3   0   4   0   3
+2   9972    24  4   0   14  0   1
+3   9960    31  9   0   12  0   5
+...</code></pre></details>
+</div>
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate sirv.camdl --params params.toml --seed 42 --scenario with_leaky_vaccination</code></summary><pre><code>warning: 1 transition never fired during simulation:
+  infection_v    (propensity always 0.0)
+# camdl 0.1.0+6e9d642 (2026-04-17)
+t   S   I   R   V   flow_infection  flow_infection_v    flow_recovery
+0   9990    10  0   0   0   0   0
+1   9986    11  3   0   4   0   3
+2   9972    24  4   0   14  0   1
+3   9960    31  9   0   12  0   5
+...</code></pre></details>
+</div>
+</div>
+<div id="cell-fig-intervention-effect" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Plotting code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2, ax3) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="fl">3.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, df, title <span class="kw">in</span> [(ax1, baseline, <span class="st">"Baseline"</span>),</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                       (ax2, vaccinated, <span class="st">"All-or-nothing"</span>),</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                       (ax3, leaky, <span class="st">"Leaky (30</span><span class="sc">% r</span><span class="st">esidual)"</span>)]:</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    colors <span class="op">=</span> {<span class="st">"S"</span>: <span class="st">"#3366cc"</span>, <span class="st">"I"</span>: <span class="st">"#cc3333"</span>, <span class="st">"R"</span>: <span class="st">"#2e8b2e"</span>, <span class="st">"V"</span>: <span class="st">"#9b59b6"</span>}</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> col, color <span class="kw">in</span> colors.items():</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> col <span class="kw">in</span> df.columns:</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>            ax.plot(df[<span class="st">"t"</span>], df[col], color<span class="op">=</span>color, label<span class="op">=</span>col, linewidth<span class="op">=</span><span class="fl">1.5</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">"Time (days)"</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title, fontsize<span class="op">=</span><span class="dv">11</span>, color<span class="op">=</span>GREY)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    ax.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    ax.set_xlim(<span class="dv">0</span>, df[<span class="st">"t"</span>].<span class="bu">max</span>())</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">"Individuals"</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-intervention-effect" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-intervention-effect-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="scenarios_files/figure-html/fig-intervention-effect-output-1.png" width="1802" height="504" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-intervention-effect-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.2: Three scenarios from a single model file. <strong>Left:</strong> no intervention. <strong>Center:</strong> all-or-nothing vaccination moves 80% of S to V on day 15 — those in V are fully protected. <strong>Right:</strong> leaky vaccination moves the same fraction to V, but vaccinees retain 30% susceptibility (<code>leaky_susc = 0.3</code>). The leaky vaccine produces a larger, delayed epidemic because every vaccinee can still be infected.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>But a single trajectory per scenario is exactly the mistake we warned about. To compare scenarios honestly, we need the <em>distribution</em> of outcomes under each:</p>
+<div id="0702de03" class="cell" data-execution_count="7">
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate sirv.camdl --params params.toml --seed 42 --scenario baseline --replicates 200</code></summary><pre><code>200 replicates = 200 runs
+warning: 1 transition never fired during simulation:
+  infection_v    (propensity always 0.0)
+# camdl 0.1.0+6e9d642 (2026-04-17)
+replicate   t   S   I   R   V   flow_infection  flow_infection_v    flow_recovery
+1   0   9990    10  0   0   0   0   0
+1   1   9986    11  3   0   4   0   3
+1   2   9972    24  4   0   14  0   1
+1   3   9960    31  9   0   12  0   5
+...</code></pre></details>
+</div>
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate sirv.camdl --params params.toml --seed 42 --scenario with_vaccination --replicates 200</code></summary><pre><code>200 replicates = 200 runs
+warning: 1 transition never fired during simulation:
+  infection_v    (propensity always 0.0)
+# camdl 0.1.0+6e9d642 (2026-04-17)
+replicate   t   S   I   R   V   flow_infection  flow_infection_v    flow_recovery
+1   0   9990    10  0   0   0   0   0
+1   1   9986    11  3   0   4   0   3
+1   2   9972    24  4   0   14  0   1
+1   3   9960    31  9   0   12  0   5
+...</code></pre></details>
+</div>
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate sirv.camdl --params params.toml --seed 42 --scenario with_leaky_vaccination --replicates 200</code></summary><pre><code>200 replicates = 200 runs
+warning: 1 transition never fired during simulation:
+  infection_v    (propensity always 0.0)
+# camdl 0.1.0+6e9d642 (2026-04-17)
+replicate   t   S   I   R   V   flow_infection  flow_infection_v    flow_recovery
+1   0   9990    10  0   0   0   0   0
+1   1   9986    11  3   0   4   0   3
+1   2   9972    24  4   0   14  0   1
+1   3   9960    31  9   0   12  0   5
+...</code></pre></details>
+</div>
+</div>
+<div id="cell-fig-scenario-uncertainty" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Plotting code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2, ax3) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="fl">3.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>ribbon(ax1, baseline_multi, <span class="st">"I"</span>, <span class="st">"#cc3333"</span>, <span class="st">"Infected"</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>ax1.set_title(<span class="st">"Baseline"</span>, fontsize<span class="op">=</span><span class="dv">11</span>, color<span class="op">=</span>GREY)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">"Time (days)"</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">"Infected individuals"</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>ribbon(ax2, vacc_multi, <span class="st">"I"</span>, <span class="st">"#cc3333"</span>, <span class="st">"Infected"</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>ax2.axvline(<span class="dv">15</span>, color<span class="op">=</span><span class="st">"#9b59b6"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">"Vaccination"</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>ax2.set_title(<span class="st">"All-or-nothing"</span>, fontsize<span class="op">=</span><span class="dv">11</span>, color<span class="op">=</span>GREY)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">"Time (days)"</span>)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>ribbon(ax3, leaky_multi, <span class="st">"I"</span>, <span class="st">"#cc3333"</span>, <span class="st">"Infected"</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>ax3.axvline(<span class="dv">15</span>, color<span class="op">=</span><span class="st">"#9b59b6"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">"Vaccination"</span>)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>ax3.set_title(<span class="st">"Leaky (30</span><span class="sc">% r</span><span class="st">esidual)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>, color<span class="op">=</span>GREY)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>ax3.set_xlabel(<span class="st">"Time (days)"</span>)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax <span class="kw">in</span> (ax1, ax2, ax3):</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    ax.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    ax.set_xlim(<span class="dv">0</span>, <span class="dv">120</span>)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-scenario-uncertainty" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-scenario-uncertainty-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="scenarios_files/figure-html/fig-scenario-uncertainty-output-1.png" width="1801" height="504" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scenario-uncertainty-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.3: Uncertainty ribbons for the infection curve under three scenarios (200 replicates each). All-or-nothing vaccination sharply reduces and compresses the peak. Leaky vaccination delays and reduces the peak but produces a broader, more uncertain epidemic — because every vaccinee can still be infected, the stochastic trajectories spread out more.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="cell-fig-peak-comparison" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Plotting code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_peaks(multi_df):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>        multi_df.group_by(<span class="st">"replicate"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>        .agg(pl.col(<span class="st">"I"</span>).<span class="bu">max</span>().alias(<span class="st">"peak_I"</span>))</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        .sort(<span class="st">"replicate"</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>peaks_base <span class="op">=</span> get_peaks(baseline_multi)[<span class="st">"peak_I"</span>].to_numpy()</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>peaks_vacc <span class="op">=</span> get_peaks(vacc_multi)[<span class="st">"peak_I"</span>].to_numpy()</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>peaks_leaky <span class="op">=</span> get_peaks(leaky_multi)[<span class="st">"peak_I"</span>].to_numpy()</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">3.5</span>))</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>all_peaks <span class="op">=</span> np.concatenate([peaks_base, peaks_vacc, peaks_leaky])</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> np.linspace(<span class="dv">0</span>, all_peaks.<span class="bu">max</span>() <span class="op">*</span> <span class="fl">1.05</span>, <span class="dv">40</span>)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>ax.hist(peaks_base, bins<span class="op">=</span>bins, alpha<span class="op">=</span><span class="fl">0.6</span>, color<span class="op">=</span><span class="st">"#cc3333"</span>,</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="st">"Baseline"</span>, edgecolor<span class="op">=</span><span class="st">"none"</span>)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>ax.hist(peaks_leaky, bins<span class="op">=</span>bins, alpha<span class="op">=</span><span class="fl">0.6</span>, color<span class="op">=</span><span class="st">"#e67e22"</span>,</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="st">"Leaky vaccine"</span>, edgecolor<span class="op">=</span><span class="st">"none"</span>)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>ax.hist(peaks_vacc, bins<span class="op">=</span>bins, alpha<span class="op">=</span><span class="fl">0.6</span>, color<span class="op">=</span><span class="st">"#9b59b6"</span>,</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="st">"All-or-nothing"</span>, edgecolor<span class="op">=</span><span class="st">"none"</span>)</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Peak infected count"</span>)</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Frequency"</span>)</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-peak-comparison" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-peak-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="scenarios_files/figure-html/fig-peak-comparison-output-1.png" width="1030" height="504" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-peak-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.4: Distribution of peak infection counts across 200 replicates. All-or-nothing vaccination shifts the peak far left and compresses it. Leaky vaccination reduces the median peak but the distribution remains wide — the mechanism of protection matters, not just the coverage.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The ribbons and histograms tell the story that single trajectories can’t. The all-or-nothing vaccine doesn’t just reduce the peak — it narrows the range of possible outcomes. The leaky vaccine reduces the median peak but the distribution stays wide: because every vaccinee retains some susceptibility, stochastic variation in when those breakthrough infections happen produces a broader range of epidemic trajectories. The <em>mechanism</em> of protection matters, not just the coverage — and that’s a structural question about the model, not a parameter you can sweep over.</p>
+</section>
+<section id="sensitivity-how-robust-are-the-conclusions" class="level2">
+<h2 class="anchored" data-anchor-id="sensitivity-how-robust-are-the-conclusions">Sensitivity — how robust are the conclusions?</h2>
+<p>The results above assumed <span class="math inline">\(\beta = 0.4\)</span>. But what if transmission is higher or lower? Does vaccination still help at <span class="math inline">\(\beta = 0.6\)</span>? Does it matter at <span class="math inline">\(\beta = 0.2\)</span>?</p>
+<p>A <strong>parameter sweep</strong> runs the model across a grid of values, crossed with scenarios and replicates. This is where individual CLI calls become unwieldy — you’d need a loop over <span class="math inline">\(\beta\)</span> values, each with <code>--param beta=X</code>. camdl’s batch system handles this natively with a TOML manifest:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sweep.toml</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">[config]</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="dt">model</span> <span class="op">=</span> <span class="st">"sirv.camdl"</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="dt">params</span> <span class="op">=</span> <span class="st">"params.toml"</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="dt">seeds</span> <span class="op">=</span> <span class="op">{ </span><span class="dt">n</span><span class="op"> =</span> <span class="dv">50</span><span class="op"> }</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="kw">[[scenario]]</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">"baseline"</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="kw">[[scenario]]</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">"with_vaccination"</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="dt">enable</span> <span class="op">=</span> <span class="op">[</span><span class="st">"vaccination"</span><span class="op">]</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="kw">[sweep]</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="dt">beta</span> <span class="op">=</span> <span class="op">{ </span><span class="dt">linspace</span><span class="op"> =</span> <span class="op">{ </span><span class="dt">min</span><span class="op"> =</span> <span class="fl">0.2</span><span class="op">, </span><span class="dt">max</span><span class="op"> =</span> <span class="fl">0.6</span><span class="op">, </span><span class="dt">n</span><span class="op"> =</span> <span class="dv">5</span><span class="op"> } }</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="b5b21f6b" class="cell" data-execution_count="10">
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate batch sweep.toml --dry-run</code></summary><pre class="ansi-output"><code>camdl simulate batch (dry run)
+
+  model:       sirv.camdl
+  backend:     gillespie
+  dt:          1
+  output_dir:  output
+  parallel:    1
+
+Scenarios (2):
+  baseline                 (baseline)
+  with_vaccination         enable=vaccination
+
+Sweep grid (5 points × 2 scenarios × 50 seeds = 500 runs):
+
+  point 0:
+    I0                   = 10            params file: params.toml
+    N0                   = 10000         params file: params.toml
+    beta                 = 0.2           sweep override
+    gamma                = 0.15          params file: params.toml
+    k                    = 10            params file: params.toml
+    leaky_susc           = 0             params file: params.toml
+    rho                  = 0.6           params file: params.toml
+    vacc_eff             = 0.8           params file: params.toml
+
+  point 1:
+    beta                 = 0.3           sweep override
+
+  point 2:
+    beta                 = 0.4           sweep override
+
+  point 3:
+    beta                 = 0.5           sweep override
+
+  point 4:
+  [...1 lines omitted...]
+
+Cache status:
+  0 cache hits  → skipped
+  500 cache misses → would simulate
+
+(dry run — no simulation, no files written.)</code></pre></details>
+</div>
+</div>
+<p>The batch system manages the Cartesian product: 5 sweep points × 2 scenarios × 50 seeds = 500 runs, parallelized across cores and written to content-addressed output directories.</p>
+<div class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Sweep + plotting code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the sweep via batch subcommand (writes to content-addressed output)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>batch_dir <span class="op">=</span> tempfile.mkdtemp()</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> f <span class="kw">in</span> [<span class="st">"sirv.camdl"</span>, <span class="st">"params.toml"</span>, <span class="st">"sweep.toml"</span>]:</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    shutil.copy(os.path.join(EXAMPLE_DIR, f), batch_dir)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>batch_result <span class="op">=</span> subprocess.run(</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"camdl"</span>, <span class="st">"simulate"</span>, <span class="st">"batch"</span>, <span class="st">"sweep.toml"</span>],</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    cwd<span class="op">=</span>batch_dir, capture_output<span class="op">=</span><span class="va">True</span>, text<span class="op">=</span><span class="va">True</span>, check<span class="op">=</span><span class="va">True</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>_batch_html <span class="op">=</span> _ansi_to_html(batch_result.stderr.rstrip())</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>display(HTML(</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f'&lt;details class="cli-run"&gt;'</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f'&lt;summary&gt;&lt;code&gt;$ camdl simulate batch sweep.toml&lt;/code&gt;&lt;/summary&gt;'</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f'&lt;pre class="ansi-output"&gt;&lt;code&gt;</span><span class="sc">{</span>_batch_html<span class="sc">}</span><span class="ss">&lt;/code&gt;&lt;/pre&gt;'</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f'&lt;/details&gt;'</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>))</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Read manifest and all trajectories</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(os.path.join(batch_dir, <span class="st">"output"</span>, <span class="st">"manifest.json"</span>)) <span class="im">as</span> f:</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    manifest <span class="op">=</span> json.load(f)</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>sweep_results <span class="op">=</span> []</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> run <span class="kw">in</span> manifest[<span class="st">"runs"</span>]:</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    traj_path <span class="op">=</span> os.path.join(batch_dir, <span class="st">"output"</span>, <span class="st">"runs"</span>, run[<span class="st">"run_path"</span>], <span class="st">"traj.tsv"</span>)</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    traj <span class="op">=</span> pl.read_csv(traj_path, separator<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>)</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    peak <span class="op">=</span> traj[<span class="st">"I"</span>].<span class="bu">max</span>()</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>    sweep_results.append({</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>        <span class="st">"beta"</span>: run[<span class="st">"sweep_point"</span>][<span class="st">"beta"</span>],</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>        <span class="st">"scenario"</span>: run[<span class="st">"scenario"</span>],</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>        <span class="st">"peak_I"</span>: peak,</span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>sweep_df <span class="op">=</span> pl.DataFrame(sweep_results)</span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>betas <span class="op">=</span> <span class="bu">sorted</span>(sweep_df[<span class="st">"beta"</span>].unique().to_list())</span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">4</span>))</span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> {<span class="st">"baseline"</span>: <span class="st">"#cc3333"</span>, <span class="st">"with_vaccination"</span>: <span class="st">"#9b59b6"</span>}</span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> {<span class="st">"baseline"</span>: <span class="st">"Baseline"</span>, <span class="st">"with_vaccination"</span>: <span class="st">"With vaccination"</span>}</span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> scenario, color <span class="kw">in</span> colors.items():</span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>    sub <span class="op">=</span> sweep_df.<span class="bu">filter</span>(pl.col(<span class="st">"scenario"</span>) <span class="op">==</span> scenario)</span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> beta <span class="kw">in</span> betas:</span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>        pts <span class="op">=</span> sub.<span class="bu">filter</span>(pl.col(<span class="st">"beta"</span>) <span class="op">==</span> beta)[<span class="st">"peak_I"</span>].to_numpy()</span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>        ax.scatter([beta] <span class="op">*</span> <span class="bu">len</span>(pts), pts, color<span class="op">=</span>color, alpha<span class="op">=</span><span class="fl">0.15</span>, s<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>                   edgecolors<span class="op">=</span><span class="st">"none"</span>)</span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>    medians <span class="op">=</span> (</span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>        sub.group_by(<span class="st">"beta"</span>)</span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>        .agg(pl.col(<span class="st">"peak_I"</span>).median())</span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>        .sort(<span class="st">"beta"</span>)</span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>    ax.plot(medians[<span class="st">"beta"</span>], medians[<span class="st">"peak_I"</span>], color<span class="op">=</span>color,</span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>            linewidth<span class="op">=</span><span class="dv">2</span>, marker<span class="op">=</span><span class="st">"o"</span>, markersize<span class="op">=</span><span class="dv">5</span>, label<span class="op">=</span>labels[scenario])</span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Transmission rate (β)"</span>)</span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Peak infected count"</span>)</span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a>ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="fig-sweep" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="11">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sweep-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="fig-sweep-1" class="cell-output cell-output-display quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-sweep-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="cli-run"><summary><code>$ camdl simulate batch sweep.toml</code></summary><pre class="ansi-output"><code>Sweep: 5 parameter points
+  point 0: beta=0.2
+  point 1: beta=0.3
+  point 2: beta=0.4
+  ... (2 more)
+[1/500] scenario=baseline seed=1
+[2/500] scenario=baseline seed=2
+[3/500] scenario=baseline seed=3
+[4/500] scenario=baseline seed=4
+[5/500] scenario=baseline seed=5
+[6/500] scenario=baseline seed=6
+[7/500] scenario=baseline seed=7
+[8/500] scenario=baseline seed=8
+[9/500] scenario=baseline seed=9
+[10/500] scenario=baseline seed=10
+[11/500] scenario=baseline seed=11
+[12/500] scenario=baseline seed=12
+[13/500] scenario=baseline seed=13
+[14/500] scenario=baseline seed=14
+[15/500] scenario=baseline seed=15
+[16/500] scenario=baseline seed=16
+[17/500] scenario=baseline seed=17
+[18/500] scenario=baseline seed=18
+[19/500] scenario=baseline seed=19
+[20/500] scenario=baseline seed=20
+[21/500] scenario=baseline seed=21
+[22/500] scenario=baseline seed=22
+[23/500] scenario=baseline seed=23
+[24/500] scenario=baseline seed=24
+[25/500] scenario=baseline seed=25
+[26/500] scenario=baseline seed=26
+[27/500] scenario=baseline seed=27
+[28/500] scenario=baseline seed=28
+[29/500] scenario=baseline seed=29
+  [...466 lines omitted...]
+[496/500] scenario=with_vaccination seed=46
+[497/500] scenario=with_vaccination seed=47
+[498/500] scenario=with_vaccination seed=48
+[499/500] scenario=with_vaccination seed=49
+[500/500] scenario=with_vaccination seed=50
+Done: 500/500 runs completed. Manifest: output/manifest.json</code></pre></details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-sweep-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Peak infections vs transmission rate (β) under two scenarios, 50 replicates each. Points are individual replicates; lines connect medians. Vaccination consistently reduces the peak, with the largest absolute impact at intermediate β.
+</figcaption>
+</figure>
+</div>
+<div class="cell-output cell-output-display">
+<div id="fig-sweep-2" class="quarto-float quarto-figure quarto-figure-center anchored" width="1030" height="579">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-sweep-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="scenarios_files/figure-html/fig-sweep-output-2.png" id="fig-sweep-2" data-ref-parent="fig-sweep" width="1030" height="579" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-sweep-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b)
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-sweep-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.5
+</figcaption>
+</figure>
+</div>
+</div>
+<p>The sweep reveals that vaccination consistently reduces the peak across all plausible transmission rates. The conclusion is robust — it doesn’t depend on getting <span class="math inline">\(\beta\)</span> exactly right. If the conclusion <em>had</em> flipped at some plausible <span class="math inline">\(\beta\)</span>, that would mean we need better data to estimate <span class="math inline">\(\beta\)</span> before the policy comparison is meaningful.</p>
+<p>This is sensitivity analysis applied to simulation: not “what is the answer?” but “does the answer change when I vary my assumptions?”</p>
+</section>
+<section id="content-addressed-storage-provenance-by-construction" class="level2">
+<h2 class="anchored" data-anchor-id="content-addressed-storage-provenance-by-construction">Content-addressed storage — provenance by construction</h2>
+<p>The batch run above generated 500 simulations. Where did they go? <code>camdl list</code> browses the output store:</p>
+<div id="702a6848" class="cell" data-execution_count="12">
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl list --scenario baseline | head -12</code></summary><pre class="ansi-output"><code> CREATED   MODEL        SCENARIO  SEED  PARAMS    SIZE  PATH                                           
+ just now  camdl_37533  baseline  33    beta=0.4  2K    output/runs/93762008/baseline-d405c916/seed_33 
+ just now  camdl_37533  baseline  34    beta=0.4  2K    output/runs/93762008/baseline-d405c916/seed_34 
+ just now  camdl_37533  baseline  35    beta=0.4  2K    output/runs/93762008/baseline-d405c916/seed_35 
+ just now  camdl_37533  baseline  32    beta=0.4  2K    output/runs/93762008/baseline-d405c916/seed_32 
+ just now  camdl_37533  baseline  50    beta=0.4  2K    output/runs/93762008/baseline-d405c916/seed_50 
+ just now  camdl_37533  baseline  43    beta=0.4  2K    output/runs/93762008/baseline-d405c916/seed_43 
+ just now  camdl_37533  baseline  44    beta=0.4  2K    output/runs/93762008/baseline-d405c916/seed_44 
+ just now  camdl_37533  baseline  26    beta=0.4  2K    output/runs/93762008/baseline-d405c916/seed_26 
+ just now  camdl_37533  baseline  28    beta=0.4  2K    output/runs/93762008/baseline-d405c916/seed_28 
+ just now  camdl_37533  baseline  45    beta=0.4  2K    output/runs/93762008/baseline-d405c916/seed_45 
+ just now  camdl_37533  baseline  42    beta=0.4  2K    output/runs/93762008/baseline-d405c916/seed_42</code></pre></details>
+</div>
+</div>
+<p>Each row is one run. The PARAMS column shows the sweep point (<code>beta=0.2</code>, <code>beta=0.3</code>, …) — every run knows what produced it. The PATH column reveals the layout: runs live under content-addressed hashes derived from their exact inputs (model source, parameter values, backend configuration). This is the same principle behind Git’s object store and Nix’s <code>/nix/store</code>. The hash <em>is</em> the identity.</p>
+<p><code>camdl show</code> displays the full provenance for a single run:</p>
+<div id="5e249cdb" class="cell" data-execution_count="13">
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl show 93762008…</code></summary><pre class="ansi-output"><code>path
+  output/runs/93762008/baseline-90a5cb6f/seed_1
+model
+  /var/folders/mp/j_ybkq8j72ndvhfm_1msdj1c0000gn/T/camdl_37533.ir.json
+scenario
+  baseline
+seed
+  1
+backend
+  gillespie (dt = 1)
+hashes
+  sim  <span style="opacity:0.6">93762008101db4c4a847f9200cbaad8edc5e610135c626c356cd94f44dcb86eb</span>
+  scen <span style="opacity:0.6">90a5cb6fd89d269e2f753c9fcfb13a27153ec17b8e00e23b9a05b6a55e781e98</span>
+  model <span style="opacity:0.6">630078cb3256e3038cbc5b9f43cb05cc375a900b672d4ab7d78770c3bd01a11b</span>
+created
+  2026-04-17T19:11:34Z  (just now)
+version
+  0.1.0+6e9d642
+argv
+  camdl-sim simulate batch sweep.toml
+trajectory
+  2104 bytes</code></pre></details>
+</div>
+</div>
+<p>And <code>camdl cat</code> emits the cached trajectory — useful for piping into analysis tools without hunting for file paths:</p>
+<div id="8c616a3a" class="cell" data-execution_count="14">
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl cat 93762008… | head -6</code></summary><pre class="ansi-output"><code>t    S   I   R   V
+0   9990    10  0   0
+1   9989    10  1   0
+2   9988    10  2   0
+3   9987    10  3   0
+4   9983    13  4   0</code></pre></details>
+</div>
+</div>
+<p>The hash-based layout has three important properties:</p>
+<ul>
+<li><strong>Adding seeds</strong> reuses all existing runs. The sim_hash and scen_hash are unchanged — only new seed directories are created.</li>
+<li><strong>Changing one scenario</strong> only invalidates that scenario’s runs. Everything else is cached.</li>
+<li><strong>Renaming a scenario</strong> without changing its content reuses the cached runs, because the hash depends on the <em>configuration</em>, not the name.</li>
+</ul>
+<p>Every output is traceable to its exact inputs. When a collaborator asks “which parameters produced Figure 3?” the answer is in <code>camdl show</code>. When a reviewer asks “can you rerun with updated data?” you change the data, and the hash changes — old results are preserved, new results land in a new directory. No <code>results_v3_final_FINAL2/</code>.</p>
+</section>
+<section id="what-if-modern-interventions-for-a-1978-epidemic" class="level2">
+<h2 class="anchored" data-anchor-id="what-if-modern-interventions-for-a-1978-epidemic">What if? — modern interventions for a 1978 epidemic</h2>
+<p>The scenarios above used a toy SIRV to introduce the syntax. Now let’s apply the same machinery to the boarding school outbreak with realistically parameterized interventions. The premise: <em>what if we could apply modern public health tools to the 1978 epidemic?</em></p>
+<p>In January 1978, the available interventions were limited. Amantadine existed but was not routinely deployed in UK schools. Influenza vaccines existed but were not matched to the A/USSR/77 H1N1 strain that had re-emerged after a 20-year absence. The realistic response was non-pharmaceutical: isolating symptomatic boys in the infirmary and restricting dormitory mixing.</p>
+<p>We’ll model two interventions — one reactive, one proactive — and then combine them:</p>
+<ul>
+<li><p><strong>Reactive isolation</strong>: starting on day 4 (when the school recognizes the outbreak), 50% of currently infectious boys are moved daily to an isolation ward (<code>Q</code> compartment) where they recover but no longer transmit. This reflects realistic detection delays and imperfect compliance (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC1526768/">Wu et al., 2006</a>).</p></li>
+<li><p><strong>Hypothetical vaccination</strong>: a pre-epidemic pulse that moves a fraction of susceptibles to a vaccinated compartment <code>V</code>. We use a vaccine effectiveness of 70% (<a href="https://doi.org/10.1002/14651858.CD004879.pub2">Jefferson et al., 2005</a>) at two coverage levels (40% and 80%), giving effective immune fractions of 28% and 56%.</p></li>
+<li><p><strong>Combined</strong>: 60% coverage vaccination (42% effectively immune) plus reactive isolation.</p></li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">compartments</span> { S, I, R, Q, V }</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">interventions</span> {</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">vaccination </span>: <span class="kw">transfer</span>(fraction = vacc_frac, <span class="cf">from</span> = S, <span class="cf">to</span> = V) <span class="cf">at</span> [<span class="dv">1</span>]</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">isolation   </span>: <span class="kw">transfer</span>(fraction = isol_frac, <span class="cf">from</span> = I, <span class="cf">to</span> = Q) {</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">every</span> = <span class="dv">1</span> <span class="ss">'days</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">from</span>  = <span class="dv">4</span> <span class="ss">'days</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    until = <span class="dv">14</span> <span class="ss">'days</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The <code>Q</code> compartment removes individuals from the force of infection (<span class="math inline">\(\beta S I / N\)</span> depends on <span class="math inline">\(I\)</span>, not <span class="math inline">\(I + Q\)</span>). Isolated boys still recover at rate <span class="math inline">\(\gamma\)</span>, but they can’t infect anyone.</p>
+<div id="2fede249" class="cell" data-execution_count="15">
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate boarding_school_intv.camdl --params boarding_school_params.toml --seed 7 --scenario baseline --replicates 200</code></summary><pre><code>200 replicates = 200 runs
+warning: 1 transition never fired during simulation:
+  recovery_q    (propensity always 0.0)
+# camdl 0.1.0+6e9d642 (2026-04-17)
+replicate   t   S   I   R   Q   V   flow_infection  flow_recovery   flow_recovery_q
+1   0   762 1   0   0   0   0   0   0
+1   1   747 16  0   0   0   15  0   0
+1   2   685 59  19  0   0   62  19  0
+1   3   574 134 55  0   0   111 36  0
+...</code></pre></details>
+</div>
+</div>
+<div id="cell-fig-intervention-scenarios" class="cell" data-execution_count="16">
+<details class="code-fold">
+<summary>Plotting code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">7</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>configs <span class="op">=</span> [</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"isolation_only"</span>, <span class="st">"Isolation only (day 4)"</span>, <span class="st">"#e67e22"</span>, axes[<span class="dv">0</span>, <span class="dv">0</span>]),</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"vaccination_low"</span>, <span class="st">"Vaccination (40</span><span class="sc">% c</span><span class="st">ov × 70% VE)"</span>, <span class="st">"#27ae60"</span>, axes[<span class="dv">0</span>, <span class="dv">1</span>]),</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"vaccination_high"</span>, <span class="st">"Vaccination (80</span><span class="sc">% c</span><span class="st">ov × 70% VE)"</span>, <span class="st">"#2980b9"</span>, axes[<span class="dv">1</span>, <span class="dv">0</span>]),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"combined"</span>, <span class="st">"Vaccination (60%) + isolation"</span>, <span class="st">"#8e44ad"</span>, axes[<span class="dv">1</span>, <span class="dv">1</span>]),</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sc, title, color, ax <span class="kw">in</span> configs:</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    ribbon(ax, intv_scenarios[<span class="st">"baseline"</span>], <span class="st">"I"</span>, <span class="st">"#cc3333"</span>, <span class="st">"Baseline"</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    ribbon(ax, intv_scenarios[sc], <span class="st">"I"</span>, color, sc.replace(<span class="st">"_"</span>, <span class="st">" "</span>).title())</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    ax.scatter(flu_data[<span class="st">"day"</span>], flu_data[<span class="st">"in_bed"</span>], color<span class="op">=</span><span class="st">"black"</span>,</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>               s<span class="op">=</span><span class="dv">15</span>, zorder<span class="op">=</span><span class="dv">5</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title, fontsize<span class="op">=</span><span class="dv">10</span>, color<span class="op">=</span>GREY)</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">"Day"</span>)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    ax.set_xlim(<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">14.5</span>)</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    ax.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">7</span>, loc<span class="op">=</span><span class="st">"upper right"</span>)</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>, <span class="dv">0</span>].set_ylabel(<span class="st">"Infected individuals"</span>)</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>, <span class="dv">0</span>].set_ylabel(<span class="st">"Infected individuals"</span>)</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-intervention-scenarios" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-intervention-scenarios-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="scenarios_files/figure-html/fig-intervention-scenarios-output-1.png" width="1480" height="1030" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-intervention-scenarios-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.6: Uncertainty ribbons for four intervention scenarios (200 replicates each) vs baseline. <strong>Isolation only</strong> (day 4 start, 50% daily isolation rate) blunts the peak but can’t prevent the epidemic — too much transmission happens before day 4. <strong>Low vaccination</strong> (28% effectively immune) slows the epidemic but doesn’t prevent it. <strong>High vaccination</strong> (56% effectively immune) dramatically reduces the epidemic. <strong>Combined</strong> (42% vaccinated + isolation) nearly eliminates it. Dashed lines mark intervention timing.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="cell-fig-intervention-peaks" class="cell" data-execution_count="17">
+<details class="code-fold">
+<summary>Plotting code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_peaks_intv(multi_df, active_col<span class="op">=</span><span class="st">"I"</span>):</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>        multi_df.group_by(<span class="st">"replicate"</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>        .agg(pl.col(active_col).<span class="bu">max</span>().alias(<span class="st">"peak"</span>))</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>        .sort(<span class="st">"replicate"</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">4</span>))</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> {</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"baseline"</span>: (<span class="st">"#cc3333"</span>, <span class="st">"Baseline"</span>),</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"isolation_only"</span>: (<span class="st">"#e67e22"</span>, <span class="st">"Isolation only"</span>),</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"vaccination_high"</span>: (<span class="st">"#2980b9"</span>, <span class="st">"Vacc (80</span><span class="sc">% c</span><span class="st">ov)"</span>),</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"combined"</span>: (<span class="st">"#8e44ad"</span>, <span class="st">"Combined"</span>),</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>all_peaks <span class="op">=</span> []</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sc, (color, label) <span class="kw">in</span> colors.items():</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    peaks <span class="op">=</span> get_peaks_intv(intv_scenarios[sc])[<span class="st">"peak"</span>].to_numpy()</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    all_peaks.extend(peaks)</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="bu">max</span>(all_peaks) <span class="op">*</span> <span class="fl">1.05</span>, <span class="dv">40</span>)</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sc, (color, label) <span class="kw">in</span> colors.items():</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    peaks <span class="op">=</span> get_peaks_intv(intv_scenarios[sc])[<span class="st">"peak"</span>].to_numpy()</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>    ax.hist(peaks, bins<span class="op">=</span>bins, alpha<span class="op">=</span><span class="fl">0.5</span>, color<span class="op">=</span>color,</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>            edgecolor<span class="op">=</span><span class="st">"none"</span>, label<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>label<span class="sc">}</span><span class="ss"> (med </span><span class="sc">{</span>np<span class="sc">.</span>median(peaks)<span class="sc">:.0f}</span><span class="ss">)"</span>)</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Peak infected count"</span>)</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Frequency"</span>)</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-intervention-peaks" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-intervention-peaks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="scenarios_files/figure-html/fig-intervention-peaks-output-1.png" width="1180" height="579" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-intervention-peaks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.7: Peak infection distributions across scenarios. Baseline peaks cluster around 280–340. Isolation alone reduces the median peak by roughly 40%. High-coverage vaccination compresses the peak to below 50. The combined strategy nearly eliminates the epidemic — most replicates never exceed 30 infected.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Several lessons emerge from this comparison:</p>
+<p><strong>Timing is everything for reactive interventions.</strong> Isolation starting on day 4 still allows three days of exponential growth. By then, dozens of boys are already infectious and have seeded transmission chains that isolation can’t fully contain. This is a fundamental constraint: with influenza’s 1–2 day incubation period, a substantial fraction of transmission occurs before symptoms appear (<a href="https://doi.org/10.1093/aje/kwn012">Carrat et al., 2008</a>), setting a ceiling on how much symptom-based isolation can achieve.</p>
+<p><strong>The herd immunity threshold is demanding.</strong> With <span class="math inline">\(R_0 \approx 3.8\)</span> for this parameterization (at the high end of estimates for this outbreak; <a href="https://global.oup.com/academic/product/mathematical-biology-9780387952284">Murray 2002</a> and <a href="https://global.oup.com/academic/product/an-introduction-to-infectious-disease-modelling-9780198565765">Vynnycky &amp; White 2010</a> give <span class="math inline">\(R_0 \approx 3.0\)</span>–<span class="math inline">\(3.5\)</span>), the herd immunity threshold is <span class="math inline">\(1 - 1/R_0 = 0.74\)</span>. To reach this with a 70%-effective vaccine, you’d need to vaccinate <span class="math inline">\(0.74 / 0.70 = 106\%\)</span> of the population — impossible. Even 80% coverage (56% effectively immune) doesn’t cross the threshold, though it substantially blunts the epidemic.</p>
+<p><strong>Layered interventions compound.</strong> Neither vaccination at 60% coverage nor isolation alone brings <span class="math inline">\(R_0\)</span> below 1. But the combination reduces the effective reproduction number from 3.8 to roughly 1.3–1.5. The epidemic is nearly eliminated — not because either intervention is sufficient on its own, but because they multiply. This is the Swiss-cheese model of public health: each layer is imperfect, but stacking them drives transmission toward extinction.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>A note on the 1978 reality
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>The observed data already reflects partial isolation — sick boys <em>were</em> confined to bed. The “baseline” scenario uses parameters fitted to this partially-mitigated epidemic. A truly unmitigated outbreak would have an even higher effective <span class="math inline">\(\beta\)</span>. The counterfactual comparisons above ask “what if we had done <em>more</em>” — the more interesting and policy-relevant question.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="dry-run-verify-before-committing" class="level2">
+<h2 class="anchored" data-anchor-id="dry-run-verify-before-committing"><code>--dry-run</code> — verify before committing</h2>
+<p>Before launching a large batch, <code>--dry-run</code> shows the resolved parameters and their provenance without executing anything:</p>
+<div id="da2158cf" class="cell" data-execution_count="18">
+<div class="cell-output cell-output-display">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl simulate sirv.camdl --scenario with_vaccination --seed 42 --dry-run</span>
+<span style="font-weight:bold">camdl simulate (dry run)</span>
+
+  <span style="opacity:0.6">model:</span> sirv.camdl
+  <span style="opacity:0.6">backend:</span> gillespie
+  <span style="opacity:0.6">dt:</span> 1
+  <span style="opacity:0.6">seed:</span> 42
+  <span style="opacity:0.6">scenarios:</span> with_vaccination
+
+Parameters (0):</code></pre>
+</div>
+</div>
+<p>Every parameter shows its final value and where it came from — model defaults, params file, scenario override, or CLI <code>--param</code>. For batch runs with sweeps and multiple scenarios, <code>--dry-run</code> shows the total run count and the full parameter grid.</p>
+</section>
+<section id="whats-next" class="level2">
+<h2 class="anchored" data-anchor-id="whats-next">What’s next</h2>
+<p>The SIR here is deliberately simple — one pathogen, one population, fourteen days. The same tools scale to substantially more complex models. camdl supports indexed parameters, spatial stratification with coupling matrices, time-varying covariates via forcing functions, and observation models with multiple data streams. In the <a href="../vignettes/he2010.html">He et al.&nbsp;measles vignette</a>, we apply the same workflow — <code>--draws prior</code>, <code>--replicates</code>, <code>--scenario</code>, <code>batch</code> — to a model with seasonal forcing, environmental overdispersion, and 60 years of weekly case data. The commands are the same; the model is not.</p>
+<ul>
+<li><a href="fitting.qmd">Fitting to Data</a> — recover parameters from observed data using IF2 and PGAS+NUTS.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../guide/experiments.html" class="pagination-link" aria-label="Uncertainty, Priors, and Simulation">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Uncertainty, Priors, and Simulation</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../boarding-school-sir-clean/report.html" class="pagination-link" aria-label="Fitting to Data">
+        <span class="nav-page-text"><span class="chapter-title">Fitting to Data</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Vince Buffalo. Supported by the Institute for Disease Modeling, Bill &amp; Melinda Gates Foundation.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/scenarios.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>License: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p>
+</div>
+  </div>
+</footer>
+<script src="cli-copy.js"></script>
+
+
+
+
+</body></html>

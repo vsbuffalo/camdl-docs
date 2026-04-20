@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Inference Guide – camdl</title>
+<title>Likelihood and the Particle Filter – camdl</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -33,8 +33,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../inference/pipeline.html" rel="next">
-<link href="../language/data-spec.html" rel="prev">
+<link href="../inference/algorithms.html" rel="next">
+<link href="../boarding-school-sir-clean/model_comparison.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -46,9 +46,9 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fed1e424e7663f8fd56c914262044006.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-938acf6e507da7d9619c7b382e848435.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-fed1e424e7663f8fd56c914262044006.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-7834fc316dc47462563faadba97a63a5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -280,7 +280,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../inference/guide.html">Inference</a></li><li class="breadcrumb-item"><a href="../inference/guide.html"><span class="chapter-title">Inference Guide</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../inference/likelihood.html">Inference</a></li><li class="breadcrumb-item"><a href="../inference/likelihood.html"><span class="chapter-title">Likelihood and the Particle Filter</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -311,7 +311,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">camdl</span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What is camdl?</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -330,12 +330,22 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guide/experiments.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simulation and Experiments</span></a>
+  <a href="../guide/experiments.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Uncertainty, Priors, and Simulation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guide/fitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
+  <a href="../guide/scenarios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scenarios, Interventions, and Sweeps</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../boarding-school-sir-clean/report.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../boarding-school-sir-clean/model_comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
   </div>
 </li>
       </ul>
@@ -343,7 +353,7 @@ window.Quarto = {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">Language</span></a>
+ <span class="menu-text">Inference</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -351,33 +361,22 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../language/spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Language Specification</span></a>
+  <a href="../inference/likelihood.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Likelihood and the Particle Filter</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../language/data-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Model</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text">Inference</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../inference/guide.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Inference Guide</span></a>
+  <a href="../inference/algorithms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Algorithms: IF2, PGAS, and PMMH</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../inference/pipeline.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting Pipeline</span></a>
+  <a href="../inference/pipeline.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Fitting Pipeline</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/diagnostics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diagnostics Reference</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -389,13 +388,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
  <span class="menu-text">Vignettes</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../vignettes/he2010.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">He et al.&nbsp;(2010) Measles</span></a>
@@ -425,13 +424,23 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
  <span class="menu-text">Reference</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Language Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/data-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Model</span></a>
+  </div>
+</li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/features.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">User Features</span></a>
@@ -481,6 +490,7 @@ window.Quarto = {
   <li><a href="#chain-binomial-closed-form-density-available" id="toc-chain-binomial-closed-form-density-available" class="nav-link" data-scroll-target="#chain-binomial-closed-form-density-available">Chain-binomial: closed-form density available</a></li>
   <li><a href="#gillespie-tau-leap-closed-form-density-not-available" id="toc-gillespie-tau-leap-closed-form-density-not-available" class="nav-link" data-scroll-target="#gillespie-tau-leap-closed-form-density-not-available">Gillespie / tau-leap: closed-form density not available</a></li>
   <li><a href="#why-the-gamma-term-matters" id="toc-why-the-gamma-term-matters" class="nav-link" data-scroll-target="#why-the-gamma-term-matters">Why the Gamma term matters</a></li>
+  <li><a href="#choosing-a-backend" id="toc-choosing-a-backend" class="nav-link" data-scroll-target="#choosing-a-backend">Choosing a backend</a></li>
   </ul></li>
   <li><a href="#three-strategies-for-the-intractable-integral" id="toc-three-strategies-for-the-intractable-integral" class="nav-link" data-scroll-target="#three-strategies-for-the-intractable-integral">4. Three strategies for the intractable integral</a></li>
   <li><a href="#the-particle-filter" id="toc-the-particle-filter" class="nav-link" data-scroll-target="#the-particle-filter">5. The particle filter</a>
@@ -488,50 +498,16 @@ window.Quarto = {
   <li><a href="#algorithm" id="toc-algorithm" class="nav-link" data-scroll-target="#algorithm">Algorithm</a></li>
   <li><a href="#ess-the-primary-diagnostic" id="toc-ess-the-primary-diagnostic" class="nav-link" data-scroll-target="#ess-the-primary-diagnostic">ESS — the primary diagnostic</a></li>
   </ul></li>
-  <li><a href="#if2-find-the-maximum-likelihood-estimate" id="toc-if2-find-the-maximum-likelihood-estimate" class="nav-link" data-scroll-target="#if2-find-the-maximum-likelihood-estimate">6. IF2 — find the maximum likelihood estimate</a>
-  <ul class="collapse">
-  <li><a href="#how-it-works-1" id="toc-how-it-works-1" class="nav-link" data-scroll-target="#how-it-works-1">How it works</a></li>
-  <li><a href="#multi-chain-diagnostics" id="toc-multi-chain-diagnostics" class="nav-link" data-scroll-target="#multi-chain-diagnostics">Multi-chain diagnostics</a></li>
-  <li><a href="#cooling-schedule" id="toc-cooling-schedule" class="nav-link" data-scroll-target="#cooling-schedule">Cooling schedule</a></li>
-  <li><a href="#perturbed-vs-true-log-likelihood" id="toc-perturbed-vs-true-log-likelihood" class="nav-link" data-scroll-target="#perturbed-vs-true-log-likelihood">Perturbed vs true log-likelihood</a></li>
-  </ul></li>
-  <li><a href="#pgas-sample-the-bayesian-posterior" id="toc-pgas-sample-the-bayesian-posterior" class="nav-link" data-scroll-target="#pgas-sample-the-bayesian-posterior">7. PGAS — sample the Bayesian posterior</a>
-  <ul class="collapse">
-  <li><a href="#the-gibbs-sweep" id="toc-the-gibbs-sweep" class="nav-link" data-scroll-target="#the-gibbs-sweep">The Gibbs sweep</a></li>
-  <li><a href="#trajectory-renewal" id="toc-trajectory-renewal" class="nav-link" data-scroll-target="#trajectory-renewal">Trajectory renewal</a></li>
-  <li><a href="#parallel-tempering" id="toc-parallel-tempering" class="nav-link" data-scroll-target="#parallel-tempering">7.1 Parallel tempering</a></li>
-  </ul></li>
-  <li><a href="#nuts-parameter-proposals-within-pgas" id="toc-nuts-parameter-proposals-within-pgas" class="nav-link" data-scroll-target="#nuts-parameter-proposals-within-pgas">8. NUTS — parameter proposals within PGAS</a>
-  <ul class="collapse">
-  <li><a href="#why-nuts-works-here" id="toc-why-nuts-works-here" class="nav-link" data-scroll-target="#why-nuts-works-here">Why NUTS works here</a></li>
-  <li><a href="#diagnostics" id="toc-diagnostics" class="nav-link" data-scroll-target="#diagnostics">Diagnostics</a></li>
-  </ul></li>
-  <li><a href="#pmmh-the-middle-ground" id="toc-pmmh-the-middle-ground" class="nav-link" data-scroll-target="#pmmh-the-middle-ground">9. PMMH — the middle ground</a></li>
-  <li><a href="#the-fitting-pipeline" id="toc-the-fitting-pipeline" class="nav-link" data-scroll-target="#the-fitting-pipeline">10. The fitting pipeline</a>
-  <ul class="collapse">
-  <li><a href="#scout-find-the-right-basin" id="toc-scout-find-the-right-basin" class="nav-link" data-scroll-target="#scout-find-the-right-basin">Scout: find the right basin</a></li>
-  <li><a href="#refine-converge-within-the-basin" id="toc-refine-converge-within-the-basin" class="nav-link" data-scroll-target="#refine-converge-within-the-basin">Refine: converge within the basin</a></li>
-  <li><a href="#validate-verify-and-characterize-the-mle" id="toc-validate-verify-and-characterize-the-mle" class="nav-link" data-scroll-target="#validate-verify-and-characterize-the-mle">Validate: verify and characterize the MLE</a></li>
-  <li><a href="#pgas-bayesian-posterior" id="toc-pgas-bayesian-posterior" class="nav-link" data-scroll-target="#pgas-bayesian-posterior">PGAS: Bayesian posterior</a></li>
-  <li><a href="#status" id="toc-status" class="nav-link" data-scroll-target="#status">Status</a></li>
-  </ul></li>
-  <li><a href="#diagnostics-reference" id="toc-diagnostics-reference" class="nav-link" data-scroll-target="#diagnostics-reference">11. Diagnostics reference</a>
-  <ul class="collapse">
-  <li><a href="#particle-filter" id="toc-particle-filter" class="nav-link" data-scroll-target="#particle-filter">Particle filter</a></li>
-  <li><a href="#if2" id="toc-if2" class="nav-link" data-scroll-target="#if2">IF2</a></li>
-  <li><a href="#pgas" id="toc-pgas" class="nav-link" data-scroll-target="#pgas">PGAS</a></li>
-  <li><a href="#profile-likelihood" id="toc-profile-likelihood" class="nav-link" data-scroll-target="#profile-likelihood">Profile likelihood</a></li>
-  </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/inference/guide.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/inference/likelihood.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../inference/guide.html">Inference</a></li><li class="breadcrumb-item"><a href="../inference/guide.html"><span class="chapter-title">Inference Guide</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../inference/likelihood.html">Inference</a></li><li class="breadcrumb-item"><a href="../inference/likelihood.html"><span class="chapter-title">Likelihood and the Particle Filter</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Inference Guide</span></h1>
+<h1 class="title"><span class="chapter-title">Likelihood and the Particle Filter</span></h1>
 </div>
 
 
@@ -557,7 +533,7 @@ window.Quarto = {
 <p><span class="math display">\[p(y_{1:T} \mid \theta, \varphi) = \int p(y_{1:T}, x_{0:T} \mid \theta, \varphi) \, dx_{0:T}\]</span></p>
 <p>This integral is over every possible path the epidemic could have taken. For a model with thousands of individuals tracked over hundreds of observation times, it is intractable.</p>
 <p>But the <strong>integrand</strong> — the joint density of data and trajectory — factors into pieces you can reason about:</p>
-<p><span class="math display">\[p(y_{1:T}, x_{0:T} \mid \theta, \varphi) = \underbrace{\prod_{t=1}^{T} p(y_t \mid x_t, \varphi)}\_{\text{observation likelihood}} \cdot \underbrace{\prod_{t=1}^{T} p(x_t \mid x_{t-1}, \theta)}\_{\text{transition likelihood}} \cdot \; p(x_0 \mid \theta)\]</span></p>
+<p><span class="math display">\[p(y_{1:T}, x_{0:T} \mid \theta, \varphi) = \underbrace{\prod_{t=1}^{T} p(y_t \mid x_t, \varphi)}_{\text{observation likelihood}} \cdot \underbrace{\prod_{t=1}^{T} p(x_t \mid x_{t-1}, \theta)}_{\text{transition likelihood}} \cdot \; p(x_0 \mid \theta)\]</span></p>
 <p>Both factors are likelihoods — conditional probabilities viewed as functions of parameters. Together they form the <strong>complete-data likelihood</strong>: the probability of everything you know (data + trajectory) given parameters. The marginal likelihood integrates the transition likelihood over trajectories; the complete-data likelihood doesn’t.</p>
 <p>Two kinds of parameters appear:</p>
 <ul>
@@ -626,12 +602,124 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="why-the-gamma-term-matters">Why the Gamma term matters</h3>
 <p>The overdispersion Gamma factor <span class="math inline">\(p(\gamma_g)\)</span> is part of the transition likelihood. If you evaluate it without the Gamma term, you’re computing <span class="math inline">\(p(\text{flows} \mid \gamma, \theta)\)</span> instead of <span class="math inline">\(p(\text{flows}, \gamma \mid \theta)\)</span>. The complete-data log-likelihood is wrong, and its gradient (used by NUTS) is inconsistent with the value — proposals drift, acceptance rates drop, chains don’t converge.</p>
 <p>This is not a theoretical concern. It’s the root cause of real bugs. The Gamma term is modest in magnitude (often a few log-units per substep) but the gradient effect accumulates across hundreds of substeps.</p>
+</section>
+<section id="choosing-a-backend" class="level3">
+<h3 class="anchored" data-anchor-id="choosing-a-backend">Choosing a backend</h3>
+<p>The backend determines both the simulation mechanics and which inference algorithms are available. The choice matters more than it might seem — each makes a different approximation.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Chain-binomial (Euler-multinomial) — the default for inference
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Use chain-binomial when you plan to fit the model.</strong> It’s the only backend that provides a closed-form transition density, which unlocks PGAS (the most efficient Bayesian algorithm for these models). It also works with IF2 and PMMH.</p>
+<p>The chain-binomial is a discrete-time scheme: at each step <span class="math inline">\(dt\)</span>, rates are converted to probabilities <span class="math inline">\(p = 1 - \exp(-\text{rate} \cdot dt)\)</span> and events are drawn from a multinomial. The multinomial correctly handles <strong>competing risks</strong> — if compartment <span class="math inline">\(I\)</span> has both recovery and death transitions, they compete for the same individuals, and their combined exits can never exceed <span class="math inline">\(I\)</span>. This is guaranteed by construction.</p>
+<p><strong>Overdispersion</strong> (<span class="math inline">\(\sigma^2 &gt; 0\)</span>) enters naturally: the per-capita force of infection is scaled by a Gamma random variable before the probability conversion. Both the multinomial and Gamma terms have closed-form densities, so the full transition likelihood is evaluable. This is what <a href="https://doi.org/10.1098/rsif.2009.0151">He et al.&nbsp;(2010)</a> used for London measles, and it remains the standard in pomp.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Chain-binomial — watch out
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Discretization bias from large <span class="math inline">\(dt\)</span>.</strong> The chain-binomial assumes rates are constant within each step. When compartment sizes change substantially during <span class="math inline">\(dt\)</span> — for instance, <span class="math inline">\(I\)</span> doubling in one day during exponential growth — the rate at the start of the step doesn’t represent the dynamics within it. The approximation error is <span class="math inline">\(O(dt)\)</span> (first-order Euler).</p>
+<p><strong>Rule of thumb:</strong> <span class="math inline">\(dt\)</span> should be small enough that no compartment changes by more than ~10% in a single step. For fast epidemics in small populations (the boarding school at peak: <span class="math inline">\(\Delta I / I \approx 50\%\)</span> per day), use <span class="math inline">\(dt = 0.5\)</span> or smaller. For slower dynamics or large populations, <span class="math inline">\(dt = 1\)</span> is usually fine.</p>
+<p><strong>Jensen’s inequality with overdispersion.</strong> Because the Gamma noise enters <em>before</em> the nonlinear <span class="math inline">\(1 - \exp(\cdot)\)</span> conversion, adding mean-preserving noise to the rate slightly <em>reduces</em> the expected infection probability (§ overdispersion in the <a href="../guide/experiments.html">experiments chapter</a>). This means parameters estimated under an overdispersed model are not directly comparable to parameters from a non-overdispersed model — the model structure and parameters are entangled.</p>
+<p><strong>Computational cost:</strong> <span class="math inline">\(O(G)\)</span> per substep, where <span class="math inline">\(G\)</span> is the number of source groups (transition clusters sharing a source compartment). Much cheaper than Gillespie for large populations. The cost scales with model structure, not with population size.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Gillespie SSA — exact continuous-time simulation
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Use Gillespie when you need an exact stochastic simulation and don’t plan to run PGAS.</strong> (<a href="https://doi.org/10.1021/j100540a008">Gillespie, 1977</a>) Every event (each individual infection, each recovery) is simulated at its exact time — no discretization error, no <span class="math inline">\(dt\)</span> to tune. The result is the “ground truth” stochastic process. It works with IF2 and PMMH for inference.</p>
+<p>Gillespie is the right choice for <strong>small populations</strong> where discrete effects matter (a handful of initial infections, near-extinction dynamics) and for <strong>validation</strong> — comparing Gillespie output against chain-binomial at various <span class="math inline">\(dt\)</span> tells you whether your <span class="math inline">\(dt\)</span> is small enough.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Gillespie — watch out
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Cost scales with event count, not time span.</strong> Each step simulates one event. For a population of <span class="math inline">\(N = 10{,}000\)</span> with <span class="math inline">\(R_0 = 3\)</span>, the total number of events (infections + recoveries) is <span class="math inline">\(\sim 20{,}000\)</span>. For <span class="math inline">\(N = 3.3\)</span> million (London), it’s <span class="math inline">\(\sim 6\)</span> million events per simulation. At <span class="math inline">\(dt = 0.5\)</span>, the chain-binomial handles the same dynamics in ~<span class="math inline">\(2T\)</span> steps regardless of <span class="math inline">\(N\)</span>.</p>
+<p><strong>No closed-form transition density for discretized observations.</strong> Evaluating <span class="math inline">\(p(x_t \mid x_{t-1}, \theta)\)</span> for a Gillespie trajectory between observation times requires tracking every intermediate event — available in principle but not implemented in camdl. This rules out PGAS. For Bayesian inference with Gillespie, use PMMH.</p>
+<p><strong>Overkill for large populations.</strong> When <span class="math inline">\(N\)</span> is large enough that the law of large numbers smooths out individual-level randomness, the exact event-by-event simulation adds precision that no observation model can distinguish. The chain-binomial with <span class="math inline">\(dt = 0.5\)</span> produces statistically indistinguishable results at a fraction of the cost.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Tau-leap — fast approximate simulation
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Use tau-leap for rapid exploration</strong> (<a href="https://doi.org/10.1063/1.2159468">Cao, Gillespie &amp; Petzold, 2006</a>) when you want speed over precision — prior predictive checks, sensitivity sweeps, quick iterations on model structure. Each step draws event counts from independent Poisson distributions, approximating the Gillespie process at discrete time steps.</p>
+<p>Tau-leap is typically the fastest backend, and it works with IF2 and PMMH for inference.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Tau-leap — watch out
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Independent Poisson draws don’t respect competing risks.</strong> Unlike the chain-binomial’s multinomial, tau-leap draws each transition independently. If compartment <span class="math inline">\(I\)</span> has 50 individuals and two exits (recovery, death) each with high probability, the independent Poisson draws can produce <span class="math inline">\(35 + 25 = 60\)</span> total exits from 50 individuals. camdl clamps negative compartments to zero, but this introduces bias — the effective exit rate is lower than intended.</p>
+<p><strong>This bias is worst at epidemic peaks</strong> — exactly when compartments are large, rates are high, and multiple transitions compete. For models with a single exit per compartment (simple SIR where <span class="math inline">\(I\)</span> only has recovery), tau-leap and chain-binomial are nearly equivalent. For models with competing risks (SEIR with I→R and I→D, or overdispersed infection alongside recovery), the chain-binomial is more faithful.</p>
+<p><strong>No PGAS.</strong> Like Gillespie, tau-leap doesn’t provide a transition density suitable for PGAS. Use chain-binomial if you want full Bayesian inference.</p>
+</div>
+</div>
+</div>
 <hr>
 </section>
 </section>
 <section id="three-strategies-for-the-intractable-integral" class="level2">
 <h2 class="anchored" data-anchor-id="three-strategies-for-the-intractable-integral">4. Three strategies for the intractable integral</h2>
-<p>You want <span class="math inline">\(p(y_{1:T} \mid \theta, \varphi)\)</span> but it’s an integral over all trajectories. Three approaches:</p>
+<p>Recall from above that the likelihood of the observed data <span class="math inline">\(p(y_{1:T} \mid
+\theta, \varphi)\)</span> is intractable, since it’s an integral over all possible trajectories. There are three approaches to get around this:</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 31%">
@@ -670,6 +758,115 @@ window.Quarto = {
 </table>
 <p>IF2 and the particle filter only need the observation likelihood (§2) and the ability to simulate forward. They never touch the transition likelihood. PGAS uses both pieces — observation likelihood AND transition likelihood — to evaluate the complete-data log-posterior directly, bypassing the intractable integral entirely.</p>
 <p>PMMH occupies a middle ground: it uses the particle filter’s stochastic estimate of the marginal likelihood as an MCMC acceptance ratio.</p>
+<p>The choice between these strategies is the central decision of the fitting workflow. The callouts below summarize the practical tradeoffs — when each algorithm is the right tool, and what can go wrong.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>IF2 — when to use
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Use IF2 when you want a point estimate (MLE) and work with any backend.</strong> IF2 is the right first step in almost every workflow: it’s fast, requires only forward simulation, and finds the parameter region where the model fits the data. It scales to ~10–15 estimated parameters in standard settings (<a href="https://doi.org/10.18637/jss.v069.i12">King et al., 2016</a>).</p>
+<p><strong>Start here.</strong> Run 8+ chains from dispersed starting points (the scout stage). If chains converge to the same region (<span class="math inline">\(\hat{R} &lt; 1.1\)</span>), you’ve found the MLE. If they find different basins, the likelihood surface is multimodal — examine which basin has the highest validated log-likelihood.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>IF2 — watch out
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>IF2 finds local optima, not global ones.</strong> The cooling schedule contracts the perturbation cloud around whatever basin particles happen to land in. Multistart is mandatory: a single chain gives no convergence guarantee on a multimodal surface. The more parameters you have, the more starts you need.</p>
+<p><strong>Cooling schedule interacts with exploration.</strong> Gentle cooling (<code>cf50</code> ≈ 0.5–0.7) maintains large perturbations longer, allowing particles to jump between basins. Aggressive cooling (<code>cf50</code> ≈ 0.05) converges fast but traps you in the nearest peak. Use gentle cooling for scouting, aggressive for refining.</p>
+<p><strong>The reported log-likelihood is inflated.</strong> IF2’s log-likelihood during optimization includes perturbation noise and is always higher than the true marginal likelihood. Always validate with a clean particle filter (no perturbations) before comparing models or computing profile likelihoods.</p>
+<p><strong>Filtering failure = model failure.</strong> If the PF returns <span class="math inline">\(-\infty\)</span> (all particles get zero weight), the model structure is wrong — no amount of parameter tuning will fix it.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>PGAS — when to use
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Use PGAS when you need full Bayesian uncertainty and your model uses the chain-binomial backend.</strong> PGAS produces posterior samples of <em>both</em> parameters and trajectories — credible intervals, posterior predictive checks, and the full distribution of epidemic histories consistent with the data.</p>
+<p>Because PGAS pairs with NUTS for parameter updates (using exact gradients of the complete-data log-posterior), it handles correlated parameters (<span class="math inline">\(\beta\)</span>–<span class="math inline">\(\gamma\)</span> anticorrelation through <span class="math inline">\(R_0\)</span>) far more efficiently than random-walk proposals. This makes it the preferred algorithm when the chain-binomial backend is available — which is the default for camdl’s target models.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>PGAS — watch out
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-10" class="callout-10-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Low trajectory renewal is the primary failure mode.</strong> After each CSMC sweep, check what fraction of the trajectory substeps changed. If renewal is below ~10%, the reference particle dominates — parameters may appear to mix while the trajectory is frozen. Remedies: more CSMC particles, or parallel tempering to escape local modes.</p>
+<p><strong>Observation frequency matters more than time span.</strong> CSMC difficulty scales with the number of observation times <span class="math inline">\(T\)</span>, not calendar duration. Weekly observations over 15 years (<span class="math inline">\(T \approx 780\)</span>) require substantially more CSMC particles than monthly observations (<span class="math inline">\(T \approx 180\)</span>). The number of CSMC particles must grow roughly proportional to <span class="math inline">\(T\)</span> (<a href="https://doi.org/10.1093/biomet/asx076">Singh et al., 2017</a>).</p>
+<p><strong>The Gibbs coupling problem.</strong> PGAS alternates parameter and trajectory updates. When the two are strongly correlated in the posterior (higher <span class="math inline">\(\beta\)</span> ↔︎ higher-incidence trajectory), neither can move far without the other. Ancestor sampling helps, but for severe coupling, parallel tempering across the likelihood surface is the standard remedy.</p>
+<p><strong>Requires chain-binomial.</strong> This is a hard constraint: if your model needs Gillespie or tau-leap dynamics, PGAS is not available. Use PMMH for Bayesian inference or IF2 for MLE.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-11-contents" aria-controls="callout-11" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>PMMH — when to use
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-11" class="callout-11-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Use PMMH when you need Bayesian inference but can’t evaluate the transition likelihood</strong> — non-chain-binomial backends, or as a cross-validation check against PGAS on the same model. PMMH uses the particle filter’s noisy likelihood estimate in a Metropolis-Hastings ratio, and remarkably, the resulting chain targets the exact posterior despite the noise (<a href="https://doi.org/10.1111/j.1467-9868.2009.00736.x">Andrieu et al., 2010</a>).</p>
+<p>Best suited for models with few parameters (3–6), where the random-walk proposal remains efficient.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-12-contents" aria-controls="callout-12" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>PMMH — watch out
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-12" class="callout-12-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Tune particles so <span class="math inline">\(\text{Var}[\log \hat{p}(y \mid \theta)] \approx 1\)</span>–<span class="math inline">\(3\)</span> at the posterior mode</strong> (<a href="https://doi.org/10.1093/biomet/asu075">Doucet et al., 2015</a>). Too few particles → high variance → the chain gets “stuck” at accidentally high likelihood estimates. Too many → wasted computation. But variance is not constant across parameter space: it typically increases in the posterior tails, so tuning at the mode can produce an artificially concentrated posterior.</p>
+<p><strong>Required particles grow with <span class="math inline">\(T\)</span>.</strong> PF log-likelihood variance grows linearly with the number of observation times. For long time series (<span class="math inline">\(T &gt; 200\)</span>), this can mean thousands of particles per MCMC step — each of which runs a full PF. This makes PMMH expensive for the multi-decade time series common in measles and polio modeling.</p>
+<p><strong>Scales poorly with parameters.</strong> Random-walk proposals require step sizes <span class="math inline">\(\propto d^{-1}\)</span> for <span class="math inline">\(d\)</span> parameters, meaning exploration slows rapidly. Beyond ~6–8 parameters, chains require impractically long runs. PGAS with NUTS avoids this via gradient-informed proposals.</p>
+<p><strong>“More iterations” doesn’t fix “too few particles.”</strong> Mixing time scales <em>exponentially</em> with log-likelihood variance (<a href="https://doi.org/10.1016/j.jeconom.2012.06.004">Pitt et al., 2012</a>). Doubling particles roughly doubles per-iteration cost but can dramatically improve effective samples per unit time. If doubling <span class="math inline">\(N\)</span> more than doubles your ESS, your current <span class="math inline">\(N\)</span> is too small.</p>
+</div>
+</div>
+</div>
 <hr>
 </section>
 <section id="the-particle-filter" class="level2">
@@ -700,305 +897,6 @@ window.Quarto = {
 <p>ESS = <span class="math inline">\(N\)</span> when all weights are equal (data is uninformative or process matches perfectly). ESS = 1 when one particle captures all the weight (data is sharply informative, most trajectories miss).</p>
 <p><strong>What low ESS means:</strong> The observation likelihood (§2) is concentrating weight on a few particles. During epidemic peaks, most simulated trajectories don’t match the case count closely enough. The PF is still unbiased — the surviving particles are correct — but variance is high.</p>
 <p><strong>What to do about it:</strong> More particles (brute force). Or looser observation model: estimate <span class="math inline">\(k\)</span> (NegBin dispersion) rather than fixing it, or add overdispersion (<span class="math inline">\(\sigma^2\)</span>) to increase process noise. Both widen the effective proposal, keeping more particles alive.</p>
-<hr>
-</section>
-</section>
-<section id="if2-find-the-maximum-likelihood-estimate" class="level2">
-<h2 class="anchored" data-anchor-id="if2-find-the-maximum-likelihood-estimate">6. IF2 — find the maximum likelihood estimate</h2>
-<p>Iterated Filtering (Ionides, Bretó &amp; King 2006) finds the MLE <span class="math inline">\(\hat{\theta}, \hat{\varphi}\)</span> without ever evaluating the transition likelihood. It turns the particle filter into an optimizer.</p>
-<section id="how-it-works-1" class="level3">
-<h3 class="anchored" data-anchor-id="how-it-works-1">How it works</h3>
-<p>IF2 runs the particle filter with one modification: each particle carries its own perturbed copy of the parameters. Perturbations are Gaussian on the transformed scale, and their magnitude decreases (“cools”) across iterations.</p>
-<p>In early iterations, large perturbations explore the parameter space. Particles with better parameters (higher observation likelihood weights) survive resampling. In later iterations, small perturbations fine-tune around the emerging optimum.</p>
-<p>This is stochastic gradient ascent on the marginal likelihood surface, mediated by particle selection rather than explicit gradient computation. No transition likelihood evaluation, no gradient — just simulation and weighting.</p>
-</section>
-<section id="multi-chain-diagnostics" class="level3">
-<h3 class="anchored" data-anchor-id="multi-chain-diagnostics">Multi-chain diagnostics</h3>
-<p>Run <span class="math inline">\(K\)</span> chains from different starting points. Compare their MLEs.</p>
-<p><strong><span class="math inline">\(\hat{R}\)</span> (Rhat):</strong> For each parameter, compute the ratio of between-chain to within-chain variance. <span class="math inline">\(\hat{R} &lt; 1.1\)</span>: chains agree (converged to same basin). <span class="math inline">\(\hat{R} &gt; 1.5\)</span>: chains found different optima (multimodal surface or insufficient iterations).</p>
-<p><strong>Log-likelihood spread:</strong> If chains have similar parameters (<span class="math inline">\(\hat{R} \approx 1\)</span>) but different log-likelihoods (spread &gt; 50), the surface is multimodal — chains found different likelihood basins.</p>
-</section>
-<section id="cooling-schedule" class="level3">
-<h3 class="anchored" data-anchor-id="cooling-schedule">Cooling schedule</h3>
-<p>The <code>cooling</code> parameter (called <code>cf50</code> — cooling fraction at 50% of target iterations) controls how fast perturbations decay. Aggressive cooling (0.05) converges fast but may miss basins. Gentle cooling (0.70) explores more but converges slowly. The scout stage uses gentle cooling; refine uses aggressive cooling starting from scout’s best parameters.</p>
-</section>
-<section id="perturbed-vs-true-log-likelihood" class="level3">
-<h3 class="anchored" data-anchor-id="perturbed-vs-true-log-likelihood">Perturbed vs true log-likelihood</h3>
-<p>IF2’s reported log-likelihood includes the perturbation noise — it’s inflated relative to the true marginal likelihood. The validate stage re-evaluates the MLE with a clean particle filter (no perturbations) to get the true <span class="math inline">\(\log \hat{p}(y \mid \hat\theta, \hat\varphi)\)</span>. Profile likelihoods use this true value, not the IF2 value.</p>
-<hr>
-</section>
-</section>
-<section id="pgas-sample-the-bayesian-posterior" class="level2">
-<h2 class="anchored" data-anchor-id="pgas-sample-the-bayesian-posterior">7. PGAS — sample the Bayesian posterior</h2>
-<p>Particle Gibbs with Ancestor Sampling (Lindsten, Jordan &amp; Schön 2014) produces posterior samples of both parameters AND trajectories. It works with the complete-data posterior directly:</p>
-<p><span class="math display">\[\log p(\theta, \varphi \mid x, y) \propto \underbrace{\sum_{t} \log p(y_t \mid x_t, \varphi)}\_{\text{observation (§2)}} + \underbrace{\sum_{t} \log p(x_t \mid x_{t-1}, \theta)}\_{\text{transition (§3)}} + \log p(\theta) + \log p(\varphi)\]</span></p>
-<p>No intractable integral. Every term is evaluable in closed form for chain-binomial models. The <span class="math inline">\(\theta\)</span>/<span class="math inline">\(\varphi\)</span> separation from §1 makes the structure visible: observation parameters <span class="math inline">\(\varphi\)</span> appear only in the first sum, dynamics parameters <span class="math inline">\(\theta\)</span> appear only in the second.</p>
-<section id="the-gibbs-sweep" class="level3">
-<h3 class="anchored" data-anchor-id="the-gibbs-sweep">The Gibbs sweep</h3>
-<p>Each PGAS sweep alternates two updates:</p>
-<ol type="1">
-<li><p><strong>Update parameters given trajectory.</strong> With <span class="math inline">\(x_{0:T}\)</span> fixed, the complete-data log-posterior above is a tractable function of <span class="math inline">\((\theta, \varphi)\)</span>. Use NUTS (§8) to propose new parameter values. Both <span class="math inline">\(\theta\)</span> and <span class="math inline">\(\varphi\)</span> are updated jointly — the separation is conceptual, not operational.</p></li>
-<li><p><strong>Update trajectory given parameters.</strong> With <span class="math inline">\((\theta, \varphi)\)</span> fixed, run Conditional SMC with Ancestor Sampling (CSMC-AS) to draw a new trajectory. This is a particle filter conditioned on the previous trajectory — it explores nearby trajectory space while maintaining the correct stationary distribution.</p></li>
-</ol>
-<p>The CSMC step is the key innovation over standard Gibbs: it updates the entire <span class="math inline">\(T\)</span>-dimensional trajectory in one sweep, avoiding the slow mixing of single-site trajectory updates.</p>
-</section>
-<section id="trajectory-renewal" class="level3">
-<h3 class="anchored" data-anchor-id="trajectory-renewal">Trajectory renewal</h3>
-<p>After CSMC-AS, the new trajectory partially overlaps with the old one. <strong>Trajectory renewal</strong> measures what fraction of substeps changed. High renewal (&gt; 50%) means the trajectory is mixing well — CSMC is exploring new epidemic paths. Low renewal (&lt; 10%) means the trajectory is stuck — the reference particle dominates, and parameter updates are exploring around a fixed epidemic narrative.</p>
-<p>Low renewal is the most common PGAS failure mode. Remedies: more CSMC particles, tempering (§7.1), or reparameterizing to reduce trajectory-parameter correlation.</p>
-</section>
-<section id="parallel-tempering" class="level3">
-<h3 class="anchored" data-anchor-id="parallel-tempering">7.1 Parallel tempering</h3>
-<p>For models with multimodal posterior surfaces (multiple epidemic scenarios consistent with the data), single-chain PGAS can get trapped. Parallel tempering runs multiple chains at different “temperatures” <span class="math inline">\(\beta_k \in [0, 1]\)</span> that flatten the likelihood:</p>
-<p><span class="math display">\[p_{\beta}(\theta, \varphi \mid x, y) \propto p(y \mid x, \theta, \varphi)^{\beta} \cdot p(x \mid \theta) \cdot p(\theta) \cdot p(\varphi)\]</span></p>
-<p>Adjacent chains periodically propose swaps. The cold chain (<span class="math inline">\(\beta = 1\)</span>) targets the true posterior; warm chains (<span class="math inline">\(\beta &lt; 1\)</span>) explore freely.</p>
-<p><strong>Swap rate</strong> between adjacent rungs is the key diagnostic. Below 10%: the temperature ladder is too sparse, chains can’t communicate. Above 50%: the ladder is denser than needed (wasting compute).</p>
-<hr>
-</section>
-</section>
-<section id="nuts-parameter-proposals-within-pgas" class="level2">
-<h2 class="anchored" data-anchor-id="nuts-parameter-proposals-within-pgas">8. NUTS — parameter proposals within PGAS</h2>
-<p>The No-U-Turn Sampler (Hoffman &amp; Gelman 2014) proposes new parameters within each PGAS sweep by simulating Hamiltonian dynamics on the complete-data log-posterior surface.</p>
-<section id="why-nuts-works-here" class="level3">
-<h3 class="anchored" data-anchor-id="why-nuts-works-here">Why NUTS works here</h3>
-<p>The complete-data log-posterior (§7) is a sum of smooth, differentiable terms. The compiler provides exact gradients via source-to-source symbolic differentiation of rate expressions. No finite differences, no autodiff tape — the OCaml compiler emits <code>rate_grad</code> fields in the IR, and the Rust engine evaluates them.</p>
-<p>The gradient decomposes along the §1 factorization:</p>
-<p><span class="math display">\[\nabla_\theta \log p = \sum_t \nabla_\theta \log p(x_t \mid x_{t-1}, \theta) + \nabla_\theta \log p(\theta)\]</span></p>
-<p><span class="math display">\[\nabla_\varphi \log p = \sum_t \nabla_\varphi \log p(y_t \mid x_t, \varphi) + \nabla_\varphi \log p(\varphi)\]</span></p>
-<p>Dynamics gradients come from the transition likelihood (Binomial + Gamma). Observation gradients come from the observation likelihood (NegBin, etc.). These are independent computations — a bug in one doesn’t affect the other, which aids debugging.</p>
-</section>
-<section id="diagnostics" class="level3">
-<h3 class="anchored" data-anchor-id="diagnostics">Diagnostics</h3>
-<p><strong>Divergent transitions:</strong> The leapfrog integrator encountered a region where the posterior surface curves too sharply for the current step size. Usually indicates a poorly conditioned posterior — reparameterize or increase <code>max_treedepth</code>.</p>
-<p><strong>Max tree depth hits:</strong> NUTS builds a binary tree of leapfrog steps until it “turns around.” Hitting the max depth means the trajectory wanted to go further — the posterior has a long, narrow ridge. Increase <code>max_treedepth</code> or improve the mass matrix.</p>
-<p><strong>Mass matrix adaptation:</strong> NUTS uses a diagonal or dense mass matrix to precondition the Hamiltonian. During warmup sweeps, the mass matrix adapts to the posterior marginal variances (diagonal) or covariance (dense). Dense mass matrices handle correlated parameters (<span class="math inline">\(\beta\)</span> and <span class="math inline">\(\gamma\)</span> are often anticorrelated through <span class="math inline">\(R_0 = \beta/\gamma\)</span>) but require more warmup to estimate reliably.</p>
-<hr>
-</section>
-</section>
-<section id="pmmh-the-middle-ground" class="level2">
-<h2 class="anchored" data-anchor-id="pmmh-the-middle-ground">9. PMMH — the middle ground</h2>
-<p>Particle Marginal Metropolis-Hastings (Andrieu, Doucet &amp; Holenstein 2010) uses the particle filter’s likelihood estimate as an MCMC acceptance ratio. It produces posterior samples like PGAS but doesn’t require evaluating the transition likelihood.</p>
-<p>At each MCMC step:</p>
-<ol type="1">
-<li>Propose new parameters <span class="math inline">\((\theta', \varphi')\)</span>.</li>
-<li>Run a particle filter to get <span class="math inline">\(\log \hat{p}(y \mid \theta', \varphi')\)</span>.</li>
-<li>Accept/reject using the Metropolis-Hastings ratio with the PF estimate.</li>
-</ol>
-<p>The remarkable result: despite the PF estimate being noisy, the MCMC chain targets the exact posterior. The noise inflates the rejection rate (more particles → less noise → higher acceptance) but doesn’t introduce bias.</p>
-<p><strong>When to use PMMH over PGAS:</strong> When you can’t evaluate the transition likelihood (non-chain-binomial backends), when the model is simple enough that PF variance is manageable, or when you want posterior samples without implementing CSMC.</p>
-<p><strong>When to prefer PGAS:</strong> For chain-binomial models with many parameters. PGAS evaluates the exact complete-data likelihood (no PF noise), uses NUTS for efficient joint proposals, and produces posterior trajectories as a byproduct. For the models camdl targets — stochastic compartmental models with chain-binomial dynamics — PGAS is almost always the better choice.</p>
-<hr>
-</section>
-<section id="the-fitting-pipeline" class="level2">
-<h2 class="anchored" data-anchor-id="the-fitting-pipeline">10. The fitting pipeline</h2>
-<p>The <code>camdl fit</code> pipeline connects these algorithms into a workflow where each stage feeds the next.</p>
-<section id="scout-find-the-right-basin" class="level3">
-<h3 class="anchored" data-anchor-id="scout-find-the-right-basin">Scout: find the right basin</h3>
-<pre><code>camdl fit scout fit.toml</code></pre>
-<p>IF2 with many chains (8+), gentle cooling, random starts. Goal: find the region of parameter space where the likelihood is highest. Chains that find different basins are expected — that’s the point. The best chain’s parameters and auto-calibrated <code>rw_sd</code> values carry forward.</p>
-</section>
-<section id="refine-converge-within-the-basin" class="level3">
-<h3 class="anchored" data-anchor-id="refine-converge-within-the-basin">Refine: converge within the basin</h3>
-<pre><code>camdl fit refine fit.toml --starts-from scout/</code></pre>
-<p>IF2 with fewer chains (4), aggressive cooling, starting from scout’s best parameters. Goal: precise MLE within the basin scout found. <span class="math inline">\(\hat{R} &lt; 1.05\)</span> for all parameters indicates convergence.</p>
-</section>
-<section id="validate-verify-and-characterize-the-mle" class="level3">
-<h3 class="anchored" data-anchor-id="validate-verify-and-characterize-the-mle">Validate: verify and characterize the MLE</h3>
-<pre><code>camdl fit validate fit.toml --starts-from refine/</code></pre>
-<p>Three things happen:</p>
-<ol type="1">
-<li><strong>True log-likelihood</strong> at the MLE via clean particle filter (no IF2 perturbations).</li>
-<li><strong>Profile likelihoods</strong> for each estimated parameter — 1D slices through the likelihood surface. Profiles that don’t curve indicate unidentifiable parameters.</li>
-<li><strong>ESS diagnostic</strong> — if ESS at the MLE is low, the observation model may be misspecified.</li>
-</ol>
-</section>
-<section id="pgas-bayesian-posterior" class="level3">
-<h3 class="anchored" data-anchor-id="pgas-bayesian-posterior">PGAS: Bayesian posterior</h3>
-<pre><code>camdl fit pgas fit.toml --starts-from validate/</code></pre>
-<p>PGAS starting from the MLE. Produces posterior samples of parameters and (optionally) trajectories. The MLE from validate provides a good initial trajectory and mass matrix starting point.</p>
-</section>
-<section id="status" class="level3">
-<h3 class="anchored" data-anchor-id="status">Status</h3>
-<pre><code>camdl fit status fit.toml</code></pre>
-<p>Colored summary of all stages: completion, convergence, staleness.</p>
-<hr>
-</section>
-</section>
-<section id="diagnostics-reference" class="level2">
-<h2 class="anchored" data-anchor-id="diagnostics-reference">11. Diagnostics reference</h2>
-<section id="particle-filter" class="level3">
-<h3 class="anchored" data-anchor-id="particle-filter">Particle filter</h3>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 19%">
-<col style="width: 13%">
-<col style="width: 13%">
-<col style="width: 52%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Diagnostic</th>
-<th>Healthy</th>
-<th>Warning</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>ESS (per-obs)</td>
-<td>&gt; 50% of N</td>
-<td>10-50%</td>
-<td>More particles or looser obs model</td>
-</tr>
-<tr class="even">
-<td>ESS at MLE</td>
-<td>mean &gt; 50%</td>
-<td>mean &lt; 30%</td>
-<td>Estimate <span class="math inline">\(\sigma^2\)</span> or <span class="math inline">\(k\)</span></td>
-</tr>
-<tr class="odd">
-<td>Log-likelihood</td>
-<td>finite</td>
-<td><span class="math inline">\(-\infty\)</span></td>
-<td>Check starting values, model structure</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="if2" class="level3">
-<h3 class="anchored" data-anchor-id="if2">IF2</h3>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 27%">
-<col style="width: 8%">
-<col style="width: 21%">
-<col style="width: 42%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Diagnostic</th>
-<th>Healthy</th>
-<th>Warning</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><span class="math inline">\(\hat{R}\)</span></td>
-<td>&lt; 1.05</td>
-<td>1.1–1.5</td>
-<td>More iterations</td>
-</tr>
-<tr class="even">
-<td><span class="math inline">\(\hat{R}\)</span></td>
-<td>—</td>
-<td>&gt; 1.5 + LL spread</td>
-<td>Multimodal surface, more chains</td>
-</tr>
-<tr class="odd">
-<td>Logit position <span class="math inline">\(\|z\|\)</span></td>
-<td>&lt; 2</td>
-<td>&gt; 3</td>
-<td>Widen bounds or change transform</td>
-</tr>
-<tr class="even">
-<td>Cooling at 2/3 iters</td>
-<td>&gt; 1%</td>
-<td>&lt; 1%</td>
-<td>Fewer iterations or milder cooling</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="pgas" class="level3">
-<h3 class="anchored" data-anchor-id="pgas">PGAS</h3>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 24%">
-<col style="width: 18%">
-<col style="width: 16%">
-<col style="width: 40%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Diagnostic</th>
-<th>Healthy</th>
-<th>Warning</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Trajectory renewal</td>
-<td>&gt; 30%</td>
-<td>&lt; 10%</td>
-<td>More CSMC particles or tempering</td>
-</tr>
-<tr class="even">
-<td>NUTS divergences</td>
-<td>0</td>
-<td>any</td>
-<td>Reduce step size, reparameterize</td>
-</tr>
-<tr class="odd">
-<td>NUTS max tree depth</td>
-<td>&lt; 20% of sweeps</td>
-<td>&gt; 50%</td>
-<td>Increase max_treedepth</td>
-</tr>
-<tr class="even">
-<td>Tempering swap rate</td>
-<td>20-50%</td>
-<td>&lt; 10%</td>
-<td>Denser temperature ladder</td>
-</tr>
-<tr class="odd">
-<td>Acceptance rate</td>
-<td>15-50%</td>
-<td>&lt; 5% or &gt; 80%</td>
-<td>Adjust proposal SD</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="profile-likelihood" class="level3">
-<h3 class="anchored" data-anchor-id="profile-likelihood">Profile likelihood</h3>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 14%">
-<col style="width: 52%">
-<col style="width: 32%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Shape</th>
-<th>Interpretation</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Clear parabola</td>
-<td>Well-identified, CI from <span class="math inline">\(\Delta\text{LL} = 1.92\)</span></td>
-<td>None needed</td>
-</tr>
-<tr class="even">
-<td>Flat</td>
-<td>Parameter not identifiable from this data</td>
-<td>Fix it or add informative prior</td>
-</tr>
-<tr class="odd">
-<td>Asymmetric</td>
-<td>Identifiable but skewed posterior expected</td>
-<td>PGAS will capture the asymmetry</td>
-</tr>
-<tr class="even">
-<td>Multiple peaks</td>
-<td>Multimodal — CI from profile is unreliable</td>
-<td>PGAS with tempering</td>
-</tr>
-</tbody>
-</table>
 
 
 </section>
@@ -1420,19 +1318,33 @@ window.Quarto = {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../language/data-spec.html" class="pagination-link" aria-label="Data Model">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Data Model</span></span>
+      <a href="../boarding-school-sir-clean/model_comparison.html" class="pagination-link" aria-label="Model Comparison">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Model Comparison</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../inference/pipeline.html" class="pagination-link" aria-label="Fitting Pipeline">
-        <span class="nav-page-text"><span class="chapter-title">Fitting Pipeline</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../inference/algorithms.html" class="pagination-link" aria-label="Algorithms: IF2, PGAS, and PMMH">
+        <span class="nav-page-text"><span class="chapter-title">Algorithms: IF2, PGAS, and PMMH</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Vince Buffalo. Supported by the Institute for Disease Modeling, Bill &amp; Melinda Gates Foundation.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/inference/likelihood.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>License: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p>
+</div>
+  </div>
+</footer>
+<script src="cli-copy.js"></script>
 
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/inference/guide.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer></body></html>
+</body></html>

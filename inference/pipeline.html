@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Fitting Pipeline – camdl</title>
+<title>The Fitting Pipeline – camdl</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -33,8 +33,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../inference/debugging.html" rel="next">
-<link href="../inference/guide.html" rel="prev">
+<link href="../inference/diagnostics.html" rel="next">
+<link href="../inference/algorithms.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -46,9 +46,9 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fed1e424e7663f8fd56c914262044006.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-938acf6e507da7d9619c7b382e848435.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-fed1e424e7663f8fd56c914262044006.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-7834fc316dc47462563faadba97a63a5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -77,6 +77,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -251,7 +280,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../inference/guide.html">Inference</a></li><li class="breadcrumb-item"><a href="../inference/pipeline.html"><span class="chapter-title">Fitting Pipeline</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../inference/likelihood.html">Inference</a></li><li class="breadcrumb-item"><a href="../inference/pipeline.html"><span class="chapter-title">The Fitting Pipeline</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -282,7 +311,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">camdl</span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What is camdl?</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -301,12 +330,22 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guide/experiments.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simulation and Experiments</span></a>
+  <a href="../guide/experiments.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Uncertainty, Priors, and Simulation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guide/fitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
+  <a href="../guide/scenarios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scenarios, Interventions, and Sweeps</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../boarding-school-sir-clean/report.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../boarding-school-sir-clean/model_comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
   </div>
 </li>
       </ul>
@@ -314,7 +353,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">Language</span></a>
+ <span class="menu-text">Inference</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -322,33 +361,22 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../language/spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Language Specification</span></a>
+  <a href="../inference/likelihood.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Likelihood and the Particle Filter</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../language/data-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Model</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text">Inference</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../inference/guide.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference Guide</span></a>
+  <a href="../inference/algorithms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Algorithms: IF2, PGAS, and PMMH</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../inference/pipeline.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Fitting Pipeline</span></a>
+  <a href="../inference/pipeline.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">The Fitting Pipeline</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/diagnostics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diagnostics Reference</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -360,13 +388,13 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
  <span class="menu-text">Vignettes</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../vignettes/he2010.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">He et al.&nbsp;(2010) Measles</span></a>
@@ -396,13 +424,23 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
  <span class="menu-text">Reference</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Language Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/data-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Model</span></a>
+  </div>
+</li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/features.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">User Features</span></a>
@@ -435,16 +473,26 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#scout-find-the-right-basin" id="toc-scout-find-the-right-basin" class="nav-link active" data-scroll-target="#scout-find-the-right-basin">Scout: find the right basin</a></li>
+  <li><a href="#refine-converge-within-the-basin" id="toc-refine-converge-within-the-basin" class="nav-link" data-scroll-target="#refine-converge-within-the-basin">Refine: converge within the basin</a></li>
+  <li><a href="#validate-verify-and-characterize-the-mle" id="toc-validate-verify-and-characterize-the-mle" class="nav-link" data-scroll-target="#validate-verify-and-characterize-the-mle">Validate: verify and characterize the MLE</a></li>
+  <li><a href="#pgas-bayesian-posterior" id="toc-pgas-bayesian-posterior" class="nav-link" data-scroll-target="#pgas-bayesian-posterior">PGAS: Bayesian posterior</a></li>
+  <li><a href="#status" id="toc-status" class="nav-link" data-scroll-target="#status">Status</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/inference/pipeline.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../inference/guide.html">Inference</a></li><li class="breadcrumb-item"><a href="../inference/pipeline.html"><span class="chapter-title">Fitting Pipeline</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../inference/likelihood.html">Inference</a></li><li class="breadcrumb-item"><a href="../inference/pipeline.html"><span class="chapter-title">The Fitting Pipeline</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Fitting Pipeline</span></h1>
+<h1 class="title"><span class="chapter-title">The Fitting Pipeline</span></h1>
 </div>
 
 
@@ -461,9 +509,39 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><em>Coming soon.</em> The operational workflow for fitting a model: scout (IF2 with random starts), refine (PGAS+NUTS from best scout), validate (held-out data, posterior predictive checks).</p>
+<p>The <code>camdl fit</code> pipeline connects the <a href="../inference/algorithms.html">inference algorithms</a> into a workflow where each stage feeds the next.</p>
+<section id="scout-find-the-right-basin" class="level3">
+<h3 class="anchored" data-anchor-id="scout-find-the-right-basin">Scout: find the right basin</h3>
+<pre><code>camdl fit scout fit.toml</code></pre>
+<p>IF2 with many chains (8+), gentle cooling, random starts. Goal: find the region of parameter space where the likelihood is highest. Chains that find different basins are expected — that’s the point. The best chain’s parameters and auto-calibrated <code>rw_sd</code> values carry forward.</p>
+</section>
+<section id="refine-converge-within-the-basin" class="level3">
+<h3 class="anchored" data-anchor-id="refine-converge-within-the-basin">Refine: converge within the basin</h3>
+<pre><code>camdl fit refine fit.toml --starts-from scout/</code></pre>
+<p>IF2 with fewer chains (4), aggressive cooling, starting from scout’s best parameters. Goal: precise MLE within the basin scout found. <span class="math inline">\(\hat{R} &lt; 1.05\)</span> for all parameters indicates convergence.</p>
+</section>
+<section id="validate-verify-and-characterize-the-mle" class="level3">
+<h3 class="anchored" data-anchor-id="validate-verify-and-characterize-the-mle">Validate: verify and characterize the MLE</h3>
+<pre><code>camdl fit validate fit.toml --starts-from refine/</code></pre>
+<p>Three things happen:</p>
+<ol type="1">
+<li><strong>True log-likelihood</strong> at the MLE via clean particle filter (no IF2 perturbations).</li>
+<li><strong>Profile likelihoods</strong> for each estimated parameter — 1D slices through the likelihood surface. Profiles that don’t curve indicate unidentifiable parameters.</li>
+<li><strong>ESS diagnostic</strong> — if ESS at the MLE is low, the observation model may be misspecified.</li>
+</ol>
+</section>
+<section id="pgas-bayesian-posterior" class="level3">
+<h3 class="anchored" data-anchor-id="pgas-bayesian-posterior">PGAS: Bayesian posterior</h3>
+<pre><code>camdl fit pgas fit.toml --starts-from validate/</code></pre>
+<p>PGAS starting from the MLE. Produces posterior samples of parameters and (optionally) trajectories. The MLE from validate provides a good initial trajectory and mass matrix starting point.</p>
+</section>
+<section id="status" class="level3">
+<h3 class="anchored" data-anchor-id="status">Status</h3>
+<pre><code>camdl fit status fit.toml</code></pre>
+<p>Colored summary of all stages: completion, convergence, staleness.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -881,19 +959,33 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../inference/guide.html" class="pagination-link" aria-label="Inference Guide">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Inference Guide</span></span>
+      <a href="../inference/algorithms.html" class="pagination-link" aria-label="Algorithms: IF2, PGAS, and PMMH">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Algorithms: IF2, PGAS, and PMMH</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../inference/debugging.html" class="pagination-link" aria-label="Debugging">
-        <span class="nav-page-text"><span class="chapter-title">Debugging</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../inference/diagnostics.html" class="pagination-link" aria-label="Diagnostics Reference">
+        <span class="nav-page-text"><span class="chapter-title">Diagnostics Reference</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Vince Buffalo. Supported by the Institute for Disease Modeling, Bill &amp; Melinda Gates Foundation.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/inference/pipeline.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>License: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p>
+</div>
+  </div>
+</footer>
+<script src="cli-copy.js"></script>
 
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/inference/pipeline.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer></body></html>
+</body></html>

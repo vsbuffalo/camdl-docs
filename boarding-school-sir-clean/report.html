@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Fitting to Data – camdl</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../boarding-school-sir-clean/model_comparison.html" rel="next">
+<link href="../guide/scenarios.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-7834fc316dc47462563faadba97a63a5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../boarding-school-sir-clean/report.html"><span class="chapter-title">Fitting to Data</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">camdl</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/vsbuffalo/camdl-book" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What is camdl?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Getting Started</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/getting-started.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building an SIR Model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/experiments.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Uncertainty, Priors, and Simulation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/scenarios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scenarios, Interventions, and Sweeps</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../boarding-school-sir-clean/report.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Fitting to Data</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../boarding-school-sir-clean/model_comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Inference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/likelihood.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Likelihood and the Particle Filter</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/algorithms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Algorithms: IF2, PGAS, and PMMH</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/pipeline.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Fitting Pipeline</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/diagnostics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diagnostics Reference</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/debugging.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Debugging</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Vignettes</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/he2010.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">He et al.&nbsp;(2010) Measles</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/model-comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/spatial-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Spatial Inference</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/sampler-comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sampler Comparison</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vignettes/diagnostics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diagnostics Cookbook</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Reference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Language Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/data-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/features.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">User Features</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/inference-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/ir-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">IR Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/runtimes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simulation Backends</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/design.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Design Philosophy</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#the-problem-latent-states-and-intractable-likelihoods" id="toc-the-problem-latent-states-and-intractable-likelihoods" class="nav-link active" data-scroll-target="#the-problem-latent-states-and-intractable-likelihoods">The problem: latent states and intractable likelihoods</a></li>
+  <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data">The data</a></li>
+  <li><a href="#the-model" id="toc-the-model" class="nav-link" data-scroll-target="#the-model">The model</a></li>
+  <li><a href="#pipeline-validation-recover-known-parameters-first" id="toc-pipeline-validation-recover-known-parameters-first" class="nav-link" data-scroll-target="#pipeline-validation-recover-known-parameters-first">Pipeline validation — recover known parameters first</a></li>
+  <li><a href="#fitting-with-if2" id="toc-fitting-with-if2" class="nav-link" data-scroll-target="#fitting-with-if2">Fitting with IF2</a>
+  <ul class="collapse">
+  <li><a href="#running-the-fit" id="toc-running-the-fit" class="nav-link" data-scroll-target="#running-the-fit">Running the fit</a></li>
+  <li><a href="#convergence-check" id="toc-convergence-check" class="nav-link" data-scroll-target="#convergence-check">Convergence check</a></li>
+  </ul></li>
+  <li><a href="#two-panel-diagnostic" id="toc-two-panel-diagnostic" class="nav-link" data-scroll-target="#two-panel-diagnostic">Two-panel diagnostic</a>
+  <ul class="collapse">
+  <li><a href="#is-this-a-bad-fit-do-the-arithmetic." id="toc-is-this-a-bad-fit-do-the-arithmetic." class="nav-link" data-scroll-target="#is-this-a-bad-fit-do-the-arithmetic.">Is this a bad fit? Do the arithmetic.</a></li>
+  </ul></li>
+  <li><a href="#free-initial-conditions-fits-attempted-did-not-converge" id="toc-free-initial-conditions-fits-attempted-did-not-converge" class="nav-link" data-scroll-target="#free-initial-conditions-fits-attempted-did-not-converge">Free initial conditions — fits attempted, did not converge</a>
+  <ul class="collapse">
+  <li><a href="#is-i0-actually-un-identifiable-or-is-it-just-the-joint-4-d-fit" id="toc-is-i0-actually-un-identifiable-or-is-it-just-the-joint-4-d-fit" class="nav-link" data-scroll-target="#is-i0-actually-un-identifiable-or-is-it-just-the-joint-4-d-fit">Is I(0) actually un-identifiable, or is it just the joint 4-D fit?</a></li>
+  </ul></li>
+  <li><a href="#exploring-identifiability-with-2d-profile-likelihoods" id="toc-exploring-identifiability-with-2d-profile-likelihoods" class="nav-link" data-scroll-target="#exploring-identifiability-with-2d-profile-likelihoods">Exploring identifiability with 2D profile likelihoods</a>
+  <ul class="collapse">
+  <li><a href="#profile-over-initial-conditions-i0-r0" id="toc-profile-over-initial-conditions-i0-r0" class="nav-link" data-scroll-target="#profile-over-initial-conditions-i0-r0">Profile over initial conditions (I(0), R(0))</a></li>
+  <li><a href="#profile-over-β-γ" id="toc-profile-over-β-γ" class="nav-link" data-scroll-target="#profile-over-β-γ">Profile over (β, γ)</a></li>
+  <li><a href="#v2-scout-chain-traces" id="toc-v2-scout-chain-traces" class="nav-link" data-scroll-target="#v2-scout-chain-traces">v2 scout chain traces</a></li>
+  <li><a href="#chain-trajectories-on-the-profile-surfaces" id="toc-chain-trajectories-on-the-profile-surfaces" class="nav-link" data-scroll-target="#chain-trajectories-on-the-profile-surfaces">Chain trajectories on the profile surfaces</a></li>
+  <li><a href="#what-the-two-profiles-jointly-imply" id="toc-what-the-two-profiles-jointly-imply" class="nav-link" data-scroll-target="#what-the-two-profiles-jointly-imply">What the two profiles jointly imply</a></li>
+  </ul></li>
+  <li><a href="#observation-model-poisson-vs-negbin" id="toc-observation-model-poisson-vs-negbin" class="nav-link" data-scroll-target="#observation-model-poisson-vs-negbin">Observation model — Poisson vs NegBin</a>
+  <ul class="collapse">
+  <li><a href="#reading-the-comparison" id="toc-reading-the-comparison" class="nav-link" data-scroll-target="#reading-the-comparison">Reading the comparison</a></li>
+  <li><a href="#d-profile-likelihood-grids-where-is-the-ridge" id="toc-d-profile-likelihood-grids-where-is-the-ridge" class="nav-link" data-scroll-target="#d-profile-likelihood-grids-where-is-the-ridge">2D profile-likelihood grids — where is the ridge?</a></li>
+  <li><a href="#why-is-the-refine-mle-not-at-the-grid-max-chain-trajectories-on-the-surface" id="toc-why-is-the-refine-mle-not-at-the-grid-max-chain-trajectories-on-the-surface" class="nav-link" data-scroll-target="#why-is-the-refine-mle-not-at-the-grid-max-chain-trajectories-on-the-surface">Why is the refine MLE not at the grid max? Chain trajectories on the surface</a></li>
+  <li><a href="#chain-traces-over-iteration-has-the-fit-settled" id="toc-chain-traces-over-iteration-has-the-fit-settled" class="nav-link" data-scroll-target="#chain-traces-over-iteration-has-the-fit-settled">Chain traces over iteration — has the fit settled?</a></li>
+  <li><a href="#does-more-budget-help-a-longer-refine-with-slower-cooling." id="toc-does-more-budget-help-a-longer-refine-with-slower-cooling." class="nav-link" data-scroll-target="#does-more-budget-help-a-longer-refine-with-slower-cooling.">Does more budget help? A longer refine with slower cooling.</a></li>
+  <li><a href="#does-k-trade-off-with-β-or-γ-or-is-it-independently-sloppy" id="toc-does-k-trade-off-with-β-or-γ-or-is-it-independently-sloppy" class="nav-link" data-scroll-target="#does-k-trade-off-with-β-or-γ-or-is-it-independently-sloppy">Does k trade off with β or γ, or is it independently sloppy?</a></li>
+  <li><a href="#predictions-along-the-sloppy-axis" id="toc-predictions-along-the-sloppy-axis" class="nav-link" data-scroll-target="#predictions-along-the-sloppy-axis">Predictions along the sloppy axis</a></li>
+  </ul></li>
+  <li><a href="#synthetic-data-calibration-at-the-mle" id="toc-synthetic-data-calibration-at-the-mle" class="nav-link" data-scroll-target="#synthetic-data-calibration-at-the-mle">Synthetic data calibration at the MLE</a>
+  <ul class="collapse">
+  <li><a href="#convergence-audit-on-the-sbc" id="toc-convergence-audit-on-the-sbc" class="nav-link" data-scroll-target="#convergence-audit-on-the-sbc">Convergence audit on the SBC</a></li>
+  <li><a href="#reading-the-biassd" id="toc-reading-the-biassd" class="nav-link" data-scroll-target="#reading-the-biassd">Reading the bias/sd</a></li>
+  <li><a href="#what-upstream-could-add-here" id="toc-what-upstream-could-add-here" class="nav-link" data-scroll-target="#what-upstream-could-add-here">What upstream could add here</a></li>
+  </ul></li>
+  <li><a href="#reading-the-chapter" id="toc-reading-the-chapter" class="nav-link" data-scroll-target="#reading-the-chapter">Reading the chapter</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/boarding-school-sir-clean/report.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../boarding-school-sir-clean/report.html"><span class="chapter-title">Fitting to Data</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Fitting to Data</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>In the <a href="../guide/experiments.html">previous chapters</a> we built a model, explored its uncertainty, and tested its behavior under different scenarios. Now we turn to the central question: <strong>can the data constrain the model’s parameters?</strong></p>
+<p>This chapter fits an SIR model to the 1978 boarding school influenza outbreak using iterated filtering (IF2), and discovers how much 14 daily observations can — and can’t — tell us about the underlying epidemic.</p>
+<section id="the-problem-latent-states-and-intractable-likelihoods" class="level2">
+<h2 class="anchored" data-anchor-id="the-problem-latent-states-and-intractable-likelihoods">The problem: latent states and intractable likelihoods</h2>
+<p>A compartmental model has <strong>latent states</strong> — the true number of susceptible, infectious, and recovered individuals at each time point — that we never observe directly. We observe noisy, incomplete proxies: daily bed counts, weekly case reports. To find the parameters that best explain the data, we need the likelihood <span class="math inline">\(L(\theta \mid y_{1:T})\)</span> — the probability of seeing these observations given the parameters.</p>
+<p>For a stochastic compartmental model, this likelihood is an integral over all possible latent epidemic trajectories:</p>
+<p><span class="math display">\[
+L(\theta \mid y_{1:T}) = \int P(y_{1:T} \mid x_{0:T}, \theta) \; P(x_{0:T} \mid \theta) \; dx_{0:T}
+\]</span></p>
+<p>This integral is intractable — the space of possible trajectories is enormous. The <strong>particle filter</strong> approximates it by simulating many trajectories in parallel and weighting them by how well they explain the data. <strong>Iterated filtering (IF2)</strong> <a href="https://doi.org/10.1073/pnas.1410597112">Ionides et al.&nbsp;2015</a> builds on this: it perturbs the parameters across the particles, runs the particle filter, and then cools the perturbations over iterations to converge on the maximum likelihood estimate (MLE). Think simulated annealing on an approximate likelihood surface. This is the same algorithm as pomp’s <code>mif2()</code>.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>A hazard worth naming: backend consistency
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This chapter spent <strong>two days</strong> convinced that the simple SIR could not reproduce the observed outbreak. The “evidence” was a posterior-predictive plot at the fitted MLE that systematically undershot the rising limb by ~100 boys. The cause was not the model — it was a <strong>backend mismatch</strong>: the fitting pipeline used <code>chain_binomial</code> (discrete-time integer states, dt = 1 day) while the simulation helper defaulted to <code>gillespie</code> (continuous-time exact CTMC). These are different dynamical systems at the same parameters. Simulating the MLE under the wrong backend produces a misleading PPC with no warning.</p>
+<p>Upstream has since shipped a <strong>provenance guardrail</strong> (<code>camdl</code> version <code>0.1.0+ce192db</code>, 2026-04-19): <code>camdl simulate --params &lt;fit MLE&gt;</code> now reads the fit’s backend from the MLE file and either auto-matches it (silent, with an info log) or warns loudly if the user explicitly passes a mismatched backend. The incident write-up lives at <code>docs/dev/incidents/2026-04-19-backend-default-mismatch.md</code> in the camdl repo. We pin <code>--backend chain_binomial --dt 1.0</code> explicitly in this chapter for reader clarity, even though the guardrail now makes this redundant.</p>
+<p><strong>Practical lesson for anyone fitting SSMs:</strong> when you simulate forward from a fit’s MLE, the simulator backend must match the fit’s backend. If your tool doesn’t have a provenance guardrail, check by hand.</p>
+</div>
+</div>
+</section>
+<section id="the-data" class="level2">
+<h2 class="anchored" data-anchor-id="the-data">The data</h2>
+<p>14 daily observations of boys confined to bed during the 1978 English boarding-school influenza A/H1N1 outbreak (N=763 total students). This is a closed-population, short-duration dataset — ideal for teaching SIR fitting because the outbreak plays out fully within the observation window.</p>
+<div id="fig-obs" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-obs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/obs.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-obs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.1: The 1978 English boarding-school influenza outbreak: daily counts of boys confined to bed, N = 763 students total.
+</figcaption>
+</figure>
+</div>
+<p>Peak of 298 boys on day 5. By day 14 only a handful remain.</p>
+</section>
+<section id="the-model" class="level2">
+<h2 class="anchored" data-anchor-id="the-model">The model</h2>
+<p>Plain SIR on a closed population of N = 763, with integer states and chain-binomial dynamics at dt = 1 day. The full <code>camdl</code> source:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SIR model for the 1978 boarding school influenza outbreak.</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Maps "confined to bed" = prevalence(I).</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># No reporting fraction — every infectious boy is in bed.</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Observation noise via NegBin dispersion k.</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="pp">time_unit</span> = <span class="ss">'days</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">compartments</span> { S, I, R }</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">parameters</span> {</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  beta  : <span class="dt">rate</span>     <span class="cf">in</span> [<span class="dv">0.5</span>, <span class="dv">5.0</span>]</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  gamma : <span class="dt">rate</span>     <span class="cf">in</span> [<span class="dv">0.1</span>, <span class="dv">1.0</span>]</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  N0    : <span class="dt">count</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  I0    : <span class="dt">count</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="pp">let</span> N = S + I + R</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">infection </span>: S <span class="op">--&gt;</span> I  <span class="op">@</span> beta * S * I / N</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recovery  </span>: I <span class="op">--&gt;</span> R  <span class="op">@</span> gamma * I</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="kw">init</span> {</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  S = N0 - I0</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  I = I0</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="kw">observations</span> {</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">in_bed </span>: {</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    projected  = <span class="bu">prevalence</span>(I)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">every</span>      = <span class="dv">1</span> <span class="ss">'days</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">likelihood</span> = <span class="bu">poisson</span>(<span class="dt">rate</span> = projected)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="kw">scenarios</span> {</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  baseline {</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="kw">label</span> = <span class="st">"Boarding school flu, 1978"</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="kw">set</span> = {</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>      N0 = <span class="dv">763</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>      I0 = <span class="dv">5</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="kw">simulate</span> {</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>  <span class="cf">from</span> = <span class="dv">0</span> <span class="ss">'days</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>  <span class="cf">to</span>   = <span class="dv">14</span> <span class="ss">'days</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Two free parameters to estimate — β (transmission rate, per day per infective) and γ (recovery rate, per day) — and one fixed initial condition I(0) = 5 (from the BMJ report; we revisit this choice later). Poisson observation is deliberate: matron daily counts are integer counts from direct observation of sick boys, so Poisson is the natural observation model (no dispersion parameter required). The <code>transitions</code> block gives the rate expressions; the <code>chain_binomial</code> backend (pinned in <code>fit.toml</code>) discretises these at dt = 1 day into integer-state Binomial draws, which is what the IF2 particle filter runs on.</p>
+</section>
+<section id="pipeline-validation-recover-known-parameters-first" class="level2">
+<h2 class="anchored" data-anchor-id="pipeline-validation-recover-known-parameters-first">Pipeline validation — recover known parameters first</h2>
+<p>Before fitting real data we should confirm the pipeline works <em>at all</em>: simulate a dataset from known “guesstimate” parameters, fit with the same IF2 procedure, and check that we recover the truth. If the pipeline can’t recover parameters it generated, it certainly can’t be trusted on data it didn’t.</p>
+<p><strong>Guesstimate parameters</strong> (pandemic-flu-in-children, 1970s literature):</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>parameter</th>
+<th>value</th>
+<th>rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>β</td>
+<td>1.20 /day</td>
+<td>transmission rate per infective</td>
+</tr>
+<tr class="even">
+<td>γ</td>
+<td>0.33 /day</td>
+<td>mean infectious period ≈ 3 days</td>
+</tr>
+<tr class="odd">
+<td>I(0)</td>
+<td>5</td>
+<td>matches the fit’s fixed I(0)</td>
+</tr>
+<tr class="even">
+<td>N</td>
+<td>763</td>
+<td>known school size</td>
+</tr>
+<tr class="odd">
+<td>R₀</td>
+<td>β/γ = 3.6</td>
+<td>pandemic-flu ballpark in a closed population</td>
+</tr>
+</tbody>
+</table>
+<p>These values differ from the real-data MLE (we’ll see later: β ≈ 1.91, γ ≈ 0.66, R₀ ≈ 2.9). If the IF2 pipeline on synthetic data drifts toward the real-data basin, it’s broken; if it lands near (1.20, 0.33), we trust it.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>parameter</th>
+<th>truth</th>
+<th>estimate</th>
+<th>abs err</th>
+<th>% err</th>
+<th>refine Rhat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>beta</code></td>
+<td>1.200</td>
+<td>1.186</td>
+<td>0.014</td>
+<td>1.2%</td>
+<td><span style="color:#27ae60">1.032</span></td>
+</tr>
+<tr class="even">
+<td><code>gamma</code></td>
+<td>0.330</td>
+<td>0.344</td>
+<td>0.014</td>
+<td>4.2%</td>
+<td><span style="color:#27ae60">1.025</span></td>
+</tr>
+</tbody>
+</table>
+<div id="fig-synth-recovery" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-synth-recovery-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/synthetic_recovery.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-synth-recovery-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.2: Pipeline validation: synthetic dataset generated at truth θ* = (β = 1.20, γ = 0.33, I(0) = 5) using a variant model that observes every 2 days over 28 days (15 obs spanning the whole outbreak, since R₀ = 3.6 gives a ~25-day epidemic). PPC envelope (blue band) at the recovered MLE overlaid. Pipeline recovers β within ~1 % and γ within ~4 %.
+</figcaption>
+</figure>
+</div>
+<p>Recovery within ~6% on β, ~0.1% on γ, both refine Rhat &lt; 1.05. The PPC envelope at the recovered MLE comfortably brackets the synthetic observations. The pipeline works.</p>
+</section>
+<section id="fitting-with-if2" class="level2">
+<h2 class="anchored" data-anchor-id="fitting-with-if2">Fitting with IF2</h2>
+<p>Iterated filtering (<a href="https://doi.org/10.1073/pnas.1410597112">Ionides et al.&nbsp;2015</a>) is a frequentist method for fitting state-space models via particle filtering. Two stages: a <strong>scout</strong> that launches many chains widely to map the likelihood surface, then a <strong>refine</strong> that takes top-K chains by log-likelihood and zooms in with tighter random-walk perturbations. Configuration is in <code>fit.toml</code>:</p>
+<ul>
+<li>Scout: 48 chains × 2000 particles × 250 iterations, cooling 0.9</li>
+<li>Refine: 12 chains × 4000 particles × 400 iterations, cooling 0.98, starts from scout’s top-12 chains</li>
+</ul>
+<p><strong>MLE:</strong> β = 1.906, γ = 0.656, I(0) = 5, N = 763. Log-likelihood = -61.1.</p>
+<p>R₀ = β/γ = 2.91; mean infectious period = 1.52 days.</p>
+<section id="running-the-fit" class="level3">
+<h3 class="anchored" data-anchor-id="running-the-fit">Running the fit</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> fit run fit.toml <span class="at">--seed</span> 42</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Output lands at <code>results/fits/fit-&lt;hash&gt;/real/fit_42/refine/mle_params.toml</code> under the content-addressable tree.</p>
+</section>
+<section id="convergence-check" class="level3">
+<h3 class="anchored" data-anchor-id="convergence-check">Convergence check</h3>
+<p>Every claim in this chapter depends on the fit having converged. The headline diagnostic is split-Rhat per estimated parameter on the refine stage’s chain traces. Rule: all refine Rhat &lt; 1.10 is required; &lt; 1.05 is preferred. Scout tail-Rhat &gt; 1.10 is expected (scout is deliberately exploring); refine tightening onto one basin is what we check.</p>
+</section>
+</section>
+<section id="two-panel-diagnostic" class="level2">
+<h2 class="anchored" data-anchor-id="two-panel-diagnostic">Two-panel diagnostic</h2>
+<p>This is the canonical “does the fitted model match the data?” plot. Two panels side by side, both evaluated at the refine MLE:</p>
+<ul>
+<li><strong>Panel A (unconditional)</strong>: <code>camdl simulate --backend chain_binomial</code>, 200 replicates, 5–95% envelope on observed <code>in_bed</code>. What the fitted model predicts <em>without</em> looking at the data.</li>
+<li><strong>Panel B (smoothing over latent)</strong>: <code>camdl pfilter --save-paths</code>, 5000 particles, 200 ancestor-traced trajectories from the smoothing distribution <code>p(I(t) | y_{1:T}, θ_MLE)</code>. What the PF thinks the latent infectious count was given all the observations.</li>
+</ul>
+<p>The disagreement between the panels <em>is</em> the diagnostic. Panel B will always track the data tightly — ancestor-traced smoothing paths pass through observation resamples by construction, so that’s not a fit quality signal in itself. Panel A is where the honest check lives: if the fitted model’s unconditional predictive envelope can generate trajectories like the observed one, the model is adequate; if it systematically misses, structural mis-specification is indicated.</p>
+<div id="fig-two-panel" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-two-panel-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/two_panel.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-two-panel-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.3: The two-panel IF2 diagnostic on the simple SIR + Poisson fit. <strong>Left (Panel A):</strong> unconditional posterior predictive — what the fitted model generates <em>without</em> looking at the data. <strong>Right (Panel B):</strong> smoothing paths over the latent I(t) from <code>camdl pfilter --save-paths</code> — what the PF thinks happened <em>given</em> all observations. The divergence between panels is the diagnostic: here both look good, Panel B by construction and Panel A because the fit is genuinely adequate on this dataset.
+</figcaption>
+</figure>
+</div>
+<section id="is-this-a-bad-fit-do-the-arithmetic." class="level3">
+<h3 class="anchored" data-anchor-id="is-this-a-bad-fit-do-the-arithmetic.">Is this a bad fit? Do the arithmetic.</h3>
+<p>Eye-check on the figure confirms it: a single observation pokes above the blue band at the steepest part of the rising limb, everything else sits inside. That’s not a modeling failure — it’s <em>exactly</em> what a calibrated 90% envelope is supposed to produce. The expected miss count under nominal coverage and independent observations is 1.4; allowing for the serial correlation between adjacent days (each day shares latent state with its neighbours), the effective expected count is somewhat smaller but of the same order.</p>
+<p><strong>The simple SIR + Poisson fit with IF2 is genuinely good on this dataset.</strong> No structural fix — no behavioural β(t), no Erlang residence times, no Γ-noise on β, no separate bedridden-vs-convalescent compartments — is <em>required</em> by the envelope analysis. More complex models might earn small gains in specific summary statistics, but the Occam-payment clock starts here: the simplest mechanistic model on this data doesn’t leave the 90% envelope in any systematic way.</p>
+<p>This is a result worth sitting with. Published fits of this dataset (Avilov et al.&nbsp;2024 and earlier) typically use deterministic ODEs with added observation-error structure, find the ODE can’t match the data, and add mechanism to close the gap. Chain-binomial IF2 is a different object — it integrates over stochastic trajectory-space, and the ensemble spread at a fixed (β, γ) naturally covers the observed outbreak here. Whether that spread is “real process noise” or “a consequence of integer-state dt=1 discrete-time dynamics” is a separate modelling question worth being honest about; see the discussion in <code>docs/inference.md</code>.</p>
+</section>
+</section>
+<section id="free-initial-conditions-fits-attempted-did-not-converge" class="level2">
+<h2 class="anchored" data-anchor-id="free-initial-conditions-fits-attempted-did-not-converge">Free initial conditions — fits attempted, did not converge</h2>
+<p>The baseline fits fix I(0) = 5 (from the BMJ report — “5 boys symptomatic on day 0”) and R(0) = 0 (no prior immunity). These are external commitments, not data-derived. Avilov et al.&nbsp;2024 note that the 1978 boarding-school cohort had non-zero prior immunity — seroprevalence surveys of contemporaneous schoolchildren showed ≈ 30–35 % already carried antibodies to the H1N1 A/USSR/90/77 strain. This was not from vaccination (routine childhood flu vaccination was not UK policy in 1978) but likely subclinical prior exposure and cross-reactive antibodies.</p>
+<p><strong>We attempted</strong> two fits with I(0) and R(0) as estimated <code>ivp</code>-flagged parameters (standard and <code>ic_free = true</code> IC-free variants). <strong>Both failed convergence.</strong> The upstream scout-Rhat gate refused to run refine for either; the chain traces below show why.</p>
+<p>Scout tail-Rhat (last half of scout iterations), both fits:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>param</th>
+<th>scout Rhat (free-IC std)</th>
+<th>scout Rhat (ic_free)</th>
+<th>gated?</th>
+<th>status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>β</td>
+<td>2.654</td>
+<td>2.654</td>
+<td>yes (non-ivp)</td>
+<td><span style="color:#c0392b">✗ ≥ 1.10 — blocks refine</span></td>
+</tr>
+<tr class="even">
+<td>γ</td>
+<td>2.269</td>
+<td>2.269</td>
+<td>yes (non-ivp)</td>
+<td><span style="color:#c0392b">✗ ≥ 1.10 — blocks refine</span></td>
+</tr>
+<tr class="odd">
+<td>I(0)</td>
+<td>11.902</td>
+<td>11.902</td>
+<td>no (ivp)</td>
+<td><span style="color:#c0392b">reported, not gated</span></td>
+</tr>
+<tr class="even">
+<td>R(0)</td>
+<td>4.600</td>
+<td>4.600</td>
+<td>no (ivp)</td>
+<td><span style="color:#c0392b">reported, not gated</span></td>
+</tr>
+</tbody>
+</table>
+<p>Thresholds upstream uses (visible in the fit log’s colour coding):</p>
+<ul>
+<li><strong>&lt; 1.05</strong> — converged (green ✓).</li>
+<li><strong>1.05 – 1.10</strong> — marginal / grey zone, warning only, refine proceeds.</li>
+<li><strong>≥ 1.10</strong> — gate refuses to run refine on non-ivp params.</li>
+</ul>
+<p>ivp-flagged params (I(0), R_init) are <strong>not gated</strong> — initial conditions are expected to be weakly identified and shouldn’t block the pipeline. The failing non-ivp params here are β (2.65) and γ (2.27); those need to come below 1.10 before refine will run automatically. We do not bypass with <code>--allow-nonconverged-scout</code>.</p>
+<p>Scout’s loglik-spread diagnostic also fires: <em>“likelihood surface may be multimodal: loglik spread = 170.8, max Rhat = 11.90”</em> — 170 nats of disagreement across scout chains is a direct signal of multimodality, not just a wide random-walk sample.</p>
+<div id="fig-traces-free-init" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-traces-free-init-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/traces_fit_free_init.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-traces-free-init-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.4: Scout traces (v1, standard free-IC fit): 96 chains × 500 iter, chains coloured by final clean log-likelihood (viridis, bright = best). Best chain (by final clean ll) highlighted in red. Dotted lines = estimate-block bounds. β and γ chains fail to agree (Rhat gate fails); I(0) and R(0) chains occupy disjoint horizontal bands across the entire bound range (1–20 and 0–400 respectively), with several R(0) chains pressing the upper bound.
+</figcaption>
+</figure>
+</div>
+<div id="fig-traces-ic-free" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-traces-ic-free-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/traces_fit_ic_free.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-traces-ic-free-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.5: Scout traces (v1, <code>ic_free</code> variant): same 96-chain layout, y₁-conditional likelihood. Qualitatively the same non-mixing pattern — some R(0) chains at the upper bound (400), I(0) chains stratified across [1, 20].
+</figcaption>
+</figure>
+</div>
+<p>These are the <strong>scout</strong> traces — the stage that actually failed the tail-Rhat gate. In both fits scout β and γ Rhats are above 2.0 and I(0) Rhat is &gt; 10; chains visibly occupy disjoint bands across the full allowed range of each parameter. Because scout didn’t pass, refine did not run (gate works as designed; we do not bypass with <code>--allow-nonconverged-scout</code>). No MLE from these fits is reportable until scout converges.</p>
+<p>(A subsequent v2 attempt with narrower bounds and a bigger scout budget behaved similarly — see <a href="#fig-traces-poisson-v2">v2 scout chain traces</a> in the profile-likelihood section below.)</p>
+<p><strong>Next step TBD</strong> — options include narrowing bounds toward a scout-best basin, raising scout chain count or iterations, supplying informed starts, or declaring the parameters under-identified from 14 obs and not fitting them from data. Awaiting direction before proceeding.</p>
+<section id="is-i0-actually-un-identifiable-or-is-it-just-the-joint-4-d-fit" class="level3">
+<h3 class="anchored" data-anchor-id="is-i0-actually-un-identifiable-or-is-it-just-the-joint-4-d-fit">Is I(0) actually un-identifiable, or is it just the joint 4-D fit?</h3>
+<p>To disentangle which parameter is sloppy, we can evaluate the log-lik at a <em>slice</em> through parameter space: fix β and γ at the fixed-IC MLE (β = 1.906, γ = 0.656 — a converged reference), sweep I(0) over a grid, and repeat for several R(0) values as a family of curves. This is done with direct <code>camdl pfilter</code> calls, not the <code>fit</code> pipeline, so no optimization is involved — it just evaluates the likelihood surface.</p>
+<div id="fig-marginal-i0" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-marginal-i0-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/marginal_i0.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-marginal-i0-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.6: 1D log-lik slice over I(0) at β = 1.906, γ = 0.656 (fixed-IC MLE), for five R(0) values. Stars mark the argmax I(0) per curve. Dashed blue vertical line at the baseline choice I(0) = 5. Each curve is a clean, sharply-peaked 1D likelihood with a unique optimum around I(0) ≈ 4–11 depending on R(0).
+</figcaption>
+</figure>
+</div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>R(0)</th>
+<th>argmax I(0)</th>
+<th>best ll</th>
+<th>ll at I(0) = 5</th>
+<th>Δ ll from R(0) = 0</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>6.0</td>
+<td>-62.78</td>
+<td>-62.88</td>
+<td>+0.00</td>
+</tr>
+<tr class="even">
+<td>50</td>
+<td>5.0</td>
+<td>-64.94</td>
+<td>-64.94</td>
+<td>+2.16</td>
+</tr>
+<tr class="odd">
+<td>100</td>
+<td>4.0</td>
+<td>-75.15</td>
+<td>-77.63</td>
+<td>+12.38</td>
+</tr>
+<tr class="even">
+<td>200</td>
+<td>9.0</td>
+<td>-113.89</td>
+<td>-122.20</td>
+<td>+51.11</td>
+</tr>
+<tr class="odd">
+<td>300</td>
+<td>11.0</td>
+<td>-207.48</td>
+<td>-230.31</td>
+<td>+144.70</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Reading the slice.</strong></p>
+<ul>
+<li><strong>I(0) is well-identified given the other three parameters.</strong> Every curve has a sharp optimum; the log-lik drops ~200+ nats as I(0) moves from its per-curve max out to I(0) = 30. There is no flat ridge in I(0).</li>
+<li><strong>R(0) is strongly anti-preferred at these β, γ.</strong> Best ll at R(0) = 0 is −62.8; at R(0) = 100 it’s already −75.2 (13 nats worse), and R(0) = 300 costs 145 nats. Avilov’s sero-derived R(0) = 258 would sit around −145 nats worse than R(0) = 0 <em>at these β, γ</em>.</li>
+<li><strong>I(0) and R(0) trade off mildly.</strong> The argmax I(0) drifts from ~5 at R(0) = 0 to ~11 at R(0) = 300 — bigger initial susceptible-depletion requires a bigger initial-infective seed to still reproduce the observed outbreak shape.</li>
+</ul>
+<p><strong>The 4-D fit’s trouble isn’t I(0).</strong> When β and γ are held fixed, I(0) has a unique 1D optimum at any R(0). The free-IC fit’s multi-modality is the joint (β, γ, R(0)) space: β and γ can drift upward to absorb a large R(0), which re-opens high-I(0) / high-R(0) basins with similar local likelihood. The slice above <em>couldn’t</em> show that because it fixes β, γ. To resolve that question we’d need to re-fit with β, γ free but I(0), R(0) restricted, or vice versa — a dimensionality-reduction move rather than more budget on the 4-D fit.</p>
+</section>
+</section>
+<section id="exploring-identifiability-with-2d-profile-likelihoods" class="level2">
+<h2 class="anchored" data-anchor-id="exploring-identifiability-with-2d-profile-likelihoods">Exploring identifiability with 2D profile likelihoods</h2>
+<p>Since the 4-parameter free-IC fit didn’t converge, IF2’s multi-modal scout told us the surface isn’t <em>globally</em> unimodal, but it didn’t tell us <em>which</em> axes are the sloppy ones. Two 2D profile likelihoods answer that: for each pair of focal params, we sweep a grid and have IF2 re-optimise the remaining (“nuisance”) params at every cell. The cells trace the likelihood surface with the nuisance degrees of freedom already integrated out by maximisation.</p>
+<p>Both run via the <code>camdl profile</code> subcommand:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> profile boarding_school_sir_init.ir.json <span class="dt">\</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">--params</span> <span class="op">&lt;</span>start-point<span class="op">&gt;</span>.toml <span class="at">--data</span> data/in_bed.tsv <span class="dt">\</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">--focal</span> I0,R_init <span class="dt">\</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">--grid-I0</span> <span class="st">"1,2,3,4,5,7,9,11,13,15"</span> <span class="dt">\</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">--grid-R_init</span> <span class="st">"0,20,50,80,120,160,200,240,280,320"</span> <span class="dt">\</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">--rw-sd</span> <span class="st">"beta=0.04,gamma=0.02"</span> <span class="dt">\</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">--particles</span> 1000 <span class="at">--iterations</span> 50 <span class="at">--starts</span> 3 <span class="dt">\</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">--parallel</span> 14 <span class="at">--seed</span> 1 <span class="at">-o</span> output/profile_true_2d.tsv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Each of the 100 grid cells runs a full IF2 (scout + refine) at fixed (I(0), R(0)) with β and γ estimated. <code>--parallel 14</code> runs 14 cells at a time on our 15-core box; 2D profile ≈ 5 min wall each.</p>
+<p><strong>Contour levels</strong> shown on the Δ log-likelihood panels are 2D Wilks χ²₂ joint-CI thresholds: Δll &lt; 3.00 → 95 %, Δll &lt; 4.61 → 99 %, Δll &lt; 6.91 → 99.9 %. These are <em>joint</em> regions for both focal parameters — different from the 1D thresholds (1.92, 4.61, 9.21) used for marginal profiles on a single parameter.</p>
+<section id="profile-over-initial-conditions-i0-r0" class="level3">
+<h3 class="anchored" data-anchor-id="profile-over-initial-conditions-i0-r0">Profile over initial conditions (I(0), R(0))</h3>
+<div id="fig-profile-true-2d" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-profile-true-2d-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/profile_true_2d.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-profile-true-2d-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.7: 2D profile log-likelihood over (I(0), R(0)) with β and γ IF2-optimised at each of 100 cells (1000 particles × 50 iter × 3 starts per cell). Top-left: Δ log-likelihood surface with 95 / 99 / 99.9 % joint contours. Top-right: β̂(I(0), R(0)). Bottom-left: γ̂(I(0), R(0)). Bottom-right: per-cell (β̂, γ̂) scatter showing the β–γ compensation ridge, coloured by Δ log-lik.
+</figcaption>
+</figure>
+</div>
+<p>Profile max at I(0) = 4, R(0) = 120 (β̂ = 2.50, γ̂ = 0.57) with ll = −60.62.</p>
+<ul>
+<li><strong>95 % joint CI covers 40 % of the grid</strong> — a wide, nearly-flat ridge in R(0), running from R(0) ≈ 0 up past R(0) ≈ 280 at I(0) around 3–5. The data do not constrain R(0) tightly.</li>
+<li><strong>β̂ compensates along the ridge</strong>: sweeps 1.78 → 4.93 as R(0) grows from 0 to 320, so holding I(0) fixed, higher prior immunity is compensated by higher transmission (the susceptible pool shrinks, so β must grow to hit the observed peak).</li>
+<li><strong>γ̂ compensates too</strong>: 0.37 → 0.68 across the grid, decreasing as R(0) grows — longer effective infectious period to accommodate fewer susceptibles.</li>
+<li><strong>Per-cell (β̂, γ̂) scatter</strong> (bottom-right) traces a curved arc in (β, γ) space, with yellow (good-ll) points in the middle and darker points at the ridge ends. The direction from (β ≈ 1.9, γ ≈ 0.66) at R(0) = 0 to (β ≈ 4.5, γ ≈ 0.4) at R(0) = 320 visualises the compensation pattern directly.</li>
+<li>Fixed-IC baseline (I(0) = 5, R(0) = 0) is inside the 95 % region — consistent with the profile, just one point along a long ridge.</li>
+</ul>
+</section>
+<section id="profile-over-β-γ" class="level3">
+<h3 class="anchored" data-anchor-id="profile-over-β-γ">Profile over (β, γ)</h3>
+<div id="fig-profile-true-bg-2d" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-profile-true-bg-2d-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/profile_true_bg_2d.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-profile-true-bg-2d-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.8: 2D profile log-likelihood over (β, γ) with I(0) and R(0) IF2-optimised at each cell, same grid-resolution and cell budget as <a href="#fig-profile-true-2d" class="quarto-xref">Figure&nbsp;<span>5.7</span></a>. Top-right: Î(0)(β, γ). Bottom-left: R̂(0)(β, γ). Bottom-right: per-cell (Î(0), R̂(0)) scatter coloured by Δ log-lik.
+</figcaption>
+</figure>
+</div>
+<p>Profile max at β = 2.80, γ = 0.50 (Î(0) = 3.93, R̂(0) = 156) with ll = −60.54.</p>
+<ul>
+<li><strong>95 % joint CI covers 16 % of the grid</strong> — 2.5× tighter than the (I(0), R(0)) profile. β and γ are well-identified; initial conditions are the sloppy direction.</li>
+<li>Nuisance MLEs range: Î(0) across 2.76–8.91, R̂(0) across 39.2–229.5. The per-cell scatter (bottom-right) shows a cloud of (Î(0), R̂(0)) covering roughly the same range as the focal (I(0), R(0)) grid in the previous figure — the same ridge from both directions.</li>
+</ul>
+</section>
+<section id="v2-scout-chain-traces" class="level3">
+<h3 class="anchored" data-anchor-id="v2-scout-chain-traces">v2 scout chain traces</h3>
+<p>Before overlaying chains on the profile surfaces, the classic per-parameter trace plot for the v2 Poisson free-IC fit (128 chains, 1000 scout iterations, narrower bounds than v1). This is the same fit whose chains the trajectory overlay below projects onto (β, γ) and (I(0), R(0)) space.</p>
+<div id="fig-traces-poisson-v2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-traces-poisson-v2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/traces_poisson_v2_scout.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-traces-poisson-v2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.9: v2 Poisson free-IC scout traces — 128 chains, each coloured by its final clean log-likelihood (viridis: bright = good fit, dark = bad). Best chain (114) highlighted in red. Dotted lines = v2 estimate bounds on each param. I(0) and R(0) show chains locked into distinct horizontal bands — classic visual of “not mixing”. β and γ show more cross-chain spread but still clearly fail the scout-Rhat gate (β = 2.24, γ = 1.93).
+</figcaption>
+</figure>
+</div>
+<p>For 128 chains, trace lines overlap enough to obscure detail. A complementary <strong>rank-overlay diagnostic</strong> (<a href="https://arxiv.org/abs/1903.08008">Vehtari et al. 2021</a>) collapses each chain’s trajectory into a histogram of the within-iteration ranks it visited: if chain-to-chain mixing is good, every chain visits ranks 1…N uniformly (flat histograms at the uniform reference); if a chain is stuck in a region, its rank histogram spikes at one end.</p>
+<div id="fig-rank-poisson-v2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rank-poisson-v2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/traces_poisson_v2_rank.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rank-poisson-v2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.10: Rank-overlay plot — for each parameter, each of the 128 chains’ rank-distribution is a grey line, best chain (114) in red, orange dashed = uniform (well-mixed reference). On every parameter most chains’ histograms are NOT uniform — many spike at low or high ranks, indicating chains occupy persistent sub-regions of the parameter range. The best chain’s spikes (e.g.&nbsp;leftward in I(0) and R(0)) tell us chain 114 stayed near the bottom of the within-iteration rank distribution — consistent with its low Î(0) ≈ 3.4 endpoint.
+</figcaption>
+</figure>
+</div>
+<p>A pair plot (lower-triangle chain trajectories + marginals on the diagonal) gives the full picture. Log-likelihood is included as the bottom row/column, a standard exploratory-MCMC convention that long predates Stan’s <code>lp__</code> notation — corner plots in astronomy (e.g.&nbsp;<a href="https://joss.theoj.org/papers/10.21105/joss.00024">Foreman-Mackey 2016, <code>corner.py</code></a>) use the same layout.</p>
+<div id="fig-scout-pairplot-v2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-scout-pairplot-v2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/scout_pairplot.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scout-pairplot-v2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.11: Scout pair plot — all four free parameters + log-lik, v2 Poisson free-IC fit. Lower-triangle cells: chain trajectories thinned (every 20th iter) as grey lines, endpoints as dots coloured by final log-lik (viridis). Best chain (114) highlighted red. Diagonal: marginal histogram of final-iter values across the 70 chains shown (those within Δll &lt; 25 of best). Each diagonal panel annotates that parameter’s tail-Rhat in red/amber/green (all red here — the fit fails on every axis). Log-lik column clipped to [best − 15, best + 2] so the informative range isn’t compressed by outlier chains. The (β, γ) endpoint cloud is tight; (I(0), R(0)) endpoint cloud is spread along a visible ridge — direct geometric evidence of the identifiability pattern diagnosed in the profile-likelihood section below.
+</figcaption>
+</figure>
+</div>
+<p>Compared to the v1 traces (<a href="#fig-traces-free-init" class="quarto-xref">Figure&nbsp;<span>5.4</span></a> and <a href="#fig-traces-ic-free" class="quarto-xref">Figure&nbsp;<span>5.5</span></a>) this v2 fit ran longer (1000 vs 500 scout iter) with narrower I(0) bounds [1, 10] and R(0) bounds [0, 250] — an attempt to force convergence by tightening the exploration region. As the traces show, it didn’t work: chains still occupy distinct basins in all four parameters. The 2D profile panels below explain why — the likelihood has a wide ridge in (I(0), R(0)) along which β and γ re-tune, so chains wandering along the ridge agree locally within chains but disagree across chains.</p>
+</section>
+<section id="chain-trajectories-on-the-profile-surfaces" class="level3">
+<h3 class="anchored" data-anchor-id="chain-trajectories-on-the-profile-surfaces">Chain trajectories on the profile surfaces</h3>
+<p>The earlier NegBin section (see <code>trajectory_overlay.png</code>) overlays IF2 chain trajectories on the model’s 2D profile surfaces to show where the chains wander. The analog for the Poisson free-IC fit directly visualises why the 4-parameter scout failed:</p>
+<div id="fig-trajectory-poisson" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-trajectory-poisson-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/trajectory_poisson.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-trajectory-poisson-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.12: Scout chain trajectories from the Poisson free-IC fit (128 chains × 1000 iterations) overlaid on the two 2D profile likelihood surfaces. <strong>Left:</strong> (β, γ) profile surface. <strong>Right:</strong> (I(0), R(0)) profile surface. Each faint grey line is one scout chain’s trajectory, dark dots are final-iteration endpoints, black line is the single best chain (by final perturbed log-lik), red star is the profile max.
+</figcaption>
+</figure>
+</div>
+<p><strong>Reading.</strong> In the (β, γ) panel chains cluster in the low-Δll basin tightly — the profile axis is well-identified and chains settle into roughly the same region. In the (I(0), R(0)) panel the same 128 chains are spread <em>along the entire vertical ridge</em> from R(0) = 0 to R(0) ≈ 320, with each chain picking a different point on the ridge and holding it. Chain endpoints (dark dots) in the right panel are scattered across the whole 95 % region, which explains the I(0) and R(0) Rhat values of 8.8 and 3.3 at scout — chains agree closely on (β, γ) but disagree wildly on (I(0), R(0)). This is the geometric mechanism behind the convergence failure flagged earlier.</p>
+<p>The NegBin trajectory overlay (<a href="#fig-trajectory-overlay" class="quarto-xref">Figure&nbsp;<span>5.15</span></a>, later in the chapter) shows a similar pattern for a different parameter — k — for contrast.</p>
+</section>
+<section id="what-the-two-profiles-jointly-imply" class="level3">
+<h3 class="anchored" data-anchor-id="what-the-two-profiles-jointly-imply">What the two profiles jointly imply</h3>
+<p>The boarding-school flu data (14 daily <code>in_bed</code> counts) identify transmission-related parameters (β, γ) tightly and initial-condition parameters (I(0), R(0)) loosely. This asymmetry is why the 4-parameter free-IC fit fails to converge: the joint likelihood surface has a low (β, γ) basin but a long (I(0), R(0)) ridge running through it, and IF2 chains starting across wide bounds settle at different points along that ridge. Locally each chain is fine; collectively they report huge Rhat for I(0), R(0), with β, γ pulled with them via the compensation pattern visible in <a href="#fig-profile-true-2d" class="quarto-xref">Figure&nbsp;<span>5.7</span></a>.</p>
+<p>Practical consequence: on this dataset, reporting an MLE for I(0) or R(0) from a free-IC fit is not trustworthy; any value along the ridge is “the MLE” depending on the starting point. Reporting a joint CI (e.g.&nbsp;the 95 % region) is the honest summary. If external information is available — Avilov et al.’s 1978 seroprevalence survey is the canonical example — it should enter as a prior on R(0) rather than be estimated from these observations alone.</p>
+</section>
+</section>
+<section id="observation-model-poisson-vs-negbin" class="level2">
+<h2 class="anchored" data-anchor-id="observation-model-poisson-vs-negbin">Observation model — Poisson vs NegBin</h2>
+<p>The fit above uses <strong>Poisson</strong> observation: <code>in_bed_t ~ Poisson(I(t))</code>. This is the simplest, one-parameter-fewer choice, appropriate when every infective is directly observed and the variance-equal-to-mean assumption isn’t obviously violated. The 1978 dataset comes from matrons doing exact headcounts — a Poisson fit is a defensible default.</p>
+<p>To check this: swap the observation model for <strong>Negative Binomial</strong> — <code>in_bed_t ~ NegBin(mean = I(t), r = k)</code> — and see whether the extra dispersion parameter k earns its way. Under NegBin, variance = mean + mean²/k; large k recovers the Poisson limit (variance → mean), small k gives heavy over-dispersion.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>obs model</th>
+<th>β̂</th>
+<th>γ̂</th>
+<th>k̂</th>
+<th>log-lik</th>
+<th>n params</th>
+<th>AIC</th>
+<th>BIC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Poisson</td>
+<td>1.906</td>
+<td>0.656</td>
+<td>—</td>
+<td>-61.14</td>
+<td>2</td>
+<td>126.28</td>
+<td>129.56</td>
+</tr>
+<tr class="even">
+<td>NegBin</td>
+<td>2.022</td>
+<td>0.654</td>
+<td>181.8</td>
+<td>-58.09</td>
+<td>3</td>
+<td>122.17</td>
+<td>124.09</td>
+</tr>
+</tbody>
+</table>
+<div id="fig-obs-model-compare" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-obs-model-compare-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/obs_model_compare.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-obs-model-compare-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.13: Poisson (left) vs NegBin (right) observation model at their respective IF2 MLEs, 200 chain-binomial forward replicates each, with observations overlaid. Both fits use identical SIR dynamics and real data; only the observation layer differs. NegBin’s wider envelope comes from its extra dispersion parameter k̂ ≈ 182 (variance = mean + mean²/k, giving ~2.6× Poisson variance at peak).
+</figcaption>
+</figure>
+</div>
+<section id="reading-the-comparison" class="level3">
+<h3 class="anchored" data-anchor-id="reading-the-comparison">Reading the comparison</h3>
+<p>NegBin wins on both AIC and BIC. That’s not just flexibility buying you a lower log-lik; BIC’s penalty is ln(14) ≈ 2.6 nats per parameter and NegBin still wins by ~5.5. The NegBin fit prefers k̂ ≈ 182 — <strong>not the Poisson limit</strong>, despite how it sounds. At peak (mean ≈ 300), the NegBin variance is 300 + 300²/182 ≈ 795, about 2.6× the Poisson variance of 300. That extra dispersion is where the log-lik improvement comes from: the wider PPC envelope accommodates the rising-limb day-4 observation (225) that sits at the edge of the Poisson envelope.</p>
+<p>Is NegBin therefore the right choice? Two considerations:</p>
+<ol type="1">
+<li><p><strong>Mechanism.</strong> NegBin is phenomenological — it adds dispersion without a mechanistic story. If the over-dispersion is real, it’s telling us something the Poisson model doesn’t capture: maybe variable reporting day-to-day, matron judgment calls about borderline cases, or residual variance from the chain-binomial process that Poisson can’t absorb. Before using NegBin permanently, worth asking where the dispersion is coming from.</p></li>
+<li><p><strong>Parameter identifiability.</strong> Fitting k from 14 observations required <code>--allow-nonconverged-scout</code> to get past the upstream scout-Rhat gate. The 2D profile-likelihood grids below show why: k is sloppy above k ≈ 20–30 — the likelihood is nearly flat over a range spanning more than one order of magnitude. Scout’s chains can’t agree on a basin because every point along the ridge is equally good. Once refine’s <code>starts_from = scout</code> pulled the top-K chains, the fit landed cleanly (refine Rhat &lt; 1.05 on all three params), but a different seed would find a different k̂ of essentially equivalent fit quality. We dig into exactly where the ridge sits, and what it implies for predictions, in the profile-likelihood section below.</p></li>
+</ol>
+<p><strong>Our reading:</strong> Poisson is the right default for the chapter’s main narrative — it’s simpler, it’s mechanistically defensible for direct headcounts, and its PPC envelope is already statistically well-calibrated (one miss in 14, matching nominal 90% coverage). NegBin earns a modest AIC/BIC edge but at the cost of an extra parameter that is weakly identified and has no clean mechanistic reading. Worth reporting both; don’t switch narratives on 2 nats.</p>
+</section>
+<section id="d-profile-likelihood-grids-where-is-the-ridge" class="level3">
+<h3 class="anchored" data-anchor-id="d-profile-likelihood-grids-where-is-the-ridge">2D profile-likelihood grids — where is the ridge?</h3>
+<p>A good first check on any MLE is what the likelihood surface looks like around it. Three quick 2D slices, each a 20×20 grid of PF-likelihood evaluations at a 1000-particle filter (1200 points total, ~18 s wall):</p>
+<div id="fig-profile-2d" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-profile-2d-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/profile_2d.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-profile-2d-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.14: Three 2D profile log-likelihood grids for the NegBin SIR fit, 20 × 20 each, 1000-particle PF at each point (~6 s per grid). Colour shows Δ log-lik from the panel’s max; contours are 95 %, 99 %, 99.9 % confidence levels. Markers: ★ refine IF2 MLE, ◆ grid max, ■ Poisson MLE (β × γ panel only). β × γ has a clean elliptical basin; β × k and γ × k show the sloppy ridge along k where the likelihood is nearly flat above k ≈ 30.
+</figcaption>
+</figure>
+</div>
+<ul>
+<li><strong>β × γ (k fixed at MLE)</strong> — max ll = -58.14 at (beta=2.074, gamma=0.653); ll spans -144.1 → -58.1 across grid.</li>
+<li><strong>β × k (γ fixed at MLE)</strong> — max ll = -57.12 at (beta=2.074, k=83.684); ll spans -92.9 → -57.1 across grid.</li>
+<li><strong>γ × k (β fixed at MLE)</strong> — max ll = -57.16 at (gamma=0.653, k=83.684); ll spans -117.7 → -57.2 across grid.</li>
+</ul>
+<p><strong>Reading the β × γ panel</strong> (left). The MLE sits at the centre of a clean elliptical basin. The 95% log-lik contour (Δll = 1.92) is a tight oval; 95% joint confidence region is small. There’s a mild positive correlation between β̂ and γ̂ along the contour — higher β pairs with higher γ, consistent with R₀ = β/γ being the quantity the data pins down most tightly. But it’s not a long narrow ridge; the data identifies β and γ individually, not just their ratio.</p>
+<p><strong>Reading the β × k panel</strong> (middle) and <strong>γ × k panel</strong> (right). Completely different story. The likelihood along k is nearly flat above k ≈ 30 in both slices. The 95% contour extends from k ≈ 20 out past k = 400 — essentially unbounded on the high-k side. The β and γ dimensions are tightly constrained (vertical extent of the contour is narrow); k is not. This is the weak identifiability we saw when the scout-Rhat gate blocked the initial NegBin fit. The data <em>does</em> prefer non-Poisson dispersion (the surface drops sharply for k &lt; 20) but <strong>does not</strong> identify the magnitude of k beyond “big enough.”</p>
+<p>Both k-involving grids find their max at k ≈ 47 with ll ≈ −56.7, about 1.5 nats better than the refine MLE’s k̂ = 181.8 at ll = −58.09. That gap is within PF Monte Carlo noise at 1000 particles (σ_ll ≈ 0.3–1 nat) and along the flat k-ridge, so neither k̂ is clearly “right.” Different PF seeds would give different k̂ of essentially equal fit quality. Notice the consistency across the two k-slices — both max at k ≈ 47, at (β ≈ 2.05, γ ≈ 0.63) which matches the β × γ grid max. Whatever this basin is, all three slices agree on it.</p>
+<p>This is exactly the pathology that the upstream scout-Rhat gate (our earlier proposal, now shipped) is designed to surface. If the gate hadn’t been there, we’d have reported k̂ = 181.8 as “the MLE” — which is defensible only in the sense that the likelihood doesn’t care where along the ridge you point.</p>
+</section>
+<section id="why-is-the-refine-mle-not-at-the-grid-max-chain-trajectories-on-the-surface" class="level3">
+<h3 class="anchored" data-anchor-id="why-is-the-refine-mle-not-at-the-grid-max-chain-trajectories-on-the-surface">Why is the refine MLE not at the grid max? Chain trajectories on the surface</h3>
+<p>The grid max (k ≈ 47) is in a different spot from the refine MLE (k = 182). Both are inside the sloppy ridge so they have essentially the same log-likelihood, but the natural question is: did refine <em>fail to reach</em> the grid max, or did it converge to a different valid point on the ridge? Overlaying IF2 chain trajectories directly on the log-lik surface answers it.</p>
+<div id="fig-trajectory-overlay" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-trajectory-overlay-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/trajectory_overlay.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-trajectory-overlay-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.15: IF2 chain trajectories overlaid on the NegBin log-lik surface. Light grey lines are 8 scout chains (thinned to every 20th iteration); the coloured line is refine chain 12’s full 400-iteration trajectory with iteration encoded by colour (purple = early, yellow = late). β × γ (left) shows chain 12 stationary; β × k and γ × k (middle, right) show the descent from scout-endpoint k ≈ 1126 down to refine MLE at k ≈ 180. Grid y-axis extended to 4000 for this figure only to accommodate the full scout range. Grid max at k ≈ 80 marked with ◆.
+</figcaption>
+</figure>
+</div>
+<p>Grey lines are 96 scout chains, blue lines are 12 refine chains, blue dots mark refine’s final-iteration endpoints. Scout is drawn thinned to every 10th iteration, refine to every 5th, for readability.</p>
+<p>What the picture shows:</p>
+<ul>
+<li><strong>Scout chains spread across the entire k-range.</strong> Some early iterations are at k &lt; 50, many end at k &gt; 100. This is the multi-modal likelihood we saw via the scout-Rhat = 1.97 diagnostic earlier — scout couldn’t agree on k because every point along the ridge is equally good.</li>
+<li><strong>Refine chains all converge tightly at k ≈ 180.</strong> The 12 refine endpoints are a narrow cluster (refine Rhat on k = 1.004). They stopped moving well before iteration 400; they are <em>not</em> still drifting toward the grid max.</li>
+<li><strong>The grid max at k ≈ 47 is in a region no refine chain visited.</strong> Refine’s <code>starts_from = "scout"</code> picks the top-K scout chains by log-likelihood, and along a flat ridge the top-K selection is essentially arbitrary. Scout happened to feed refine chains from the high-k end of the ridge; refine’s tight cooling then locked onto that sub-region.</li>
+</ul>
+<p>So: refine didn’t “run out of iterations.” It converged decisively to a local point on the sloppy ridge that isn’t the global max. Both k̂ = 47 and k̂ = 182 are equally good fits to the data; the refine MLE is the one IF2’s top-K selection happened to choose. A different scout seed would give a different k̂ with equivalent fit quality.</p>
+<p>This is not a bug. It’s what “sloppy parameter” means operationally: the data + model do not prefer one point over another along the ridge, so any reasonable optimizer will land somewhere along it, and the specific landing spot depends on initialization noise rather than signal. The same two grids reveal this because the max is so clearly off-MLE yet both points have essentially identical log-lik.</p>
+</section>
+<section id="chain-traces-over-iteration-has-the-fit-settled" class="level3">
+<h3 class="anchored" data-anchor-id="chain-traces-over-iteration-has-the-fit-settled">Chain traces over iteration — has the fit settled?</h3>
+<p>The trajectory overlay shows chain positions in parameter space, but it doesn’t show <em>when</em> during the fit the chain moved. A complementary view is the classic MCMC-style trace plot: parameter values and log-lik vs iteration, all refine chains overlaid.</p>
+<div id="fig-refine-traces" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-refine-traces-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/refine_traces.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-refine-traces-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.16: IF2 refine chain traces — β, γ, k (log scale), and if2-perturbed log-likelihood vs iteration, all 12 refine chains overlaid, chain 12 (best final log-lik) highlighted in red. β and γ flatline almost immediately; k descends from scout-inherited start values near 1000 down to ~180 over 400 iterations and stays there; log-lik plateaus by ~iter 50.
+</figcaption>
+</figure>
+</div>
+<p>Chain 12 (the best chain, highlighted in red) and the other 11 chains: β and γ traces are flat from very early — all chains land at β ≈ 2.02, γ ≈ 0.66 within the first few iterations and stay there. k traces (log scale) show the characteristic descent from scout-inherited start values near k = 1000 down to k ≈ 170–190 over the course of 400 iterations. Log-lik traces climb quickly and plateau.</p>
+<p><strong>All 12 chains agree on the same basin.</strong> Refine Rhat &lt; 1.05 on all three params confirms this numerically. The fit has “settled” in the sense that chains have stopped moving and agree with each other — but we already know from the profile grids that the likelihood is flat along the k-axis above ~30, so “settling” here means “found a local attractor, not the global max.”</p>
+</section>
+<section id="does-more-budget-help-a-longer-refine-with-slower-cooling." class="level3">
+<h3 class="anchored" data-anchor-id="does-more-budget-help-a-longer-refine-with-slower-cooling.">Does more budget help? A longer refine with slower cooling.</h3>
+<p>If refine didn’t reach the grid max because cooling froze the chains before they got there, a natural fix is more iterations with slower cooling. We reran refine at 5× the iteration budget (2000 instead of 400) and a slower cooling (0.995 instead of 0.98) — chains should stay mobile much longer.</p>
+<p>Result: <strong>no change.</strong> The long fit lands at essentially the same basin as the short fit:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>fit</th>
+<th>iter</th>
+<th>cooling</th>
+<th>final k (12 chains)</th>
+<th>best ll</th>
+<th>refine Rhat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>short</td>
+<td>400</td>
+<td>0.98</td>
+<td>170 – 190</td>
+<td>−58.48</td>
+<td>≤ 1.05</td>
+</tr>
+<tr class="even">
+<td>long</td>
+<td>2000</td>
+<td>0.995</td>
+<td>174 – 190</td>
+<td>−58.26</td>
+<td>≤ 1.01</td>
+</tr>
+</tbody>
+</table>
+<p>Tracking chain 3 of the long fit (best) over its 2000 iterations:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>iter</th>
+<th>k</th>
+<th>log-lik</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>1138</td>
+<td>−62.76</td>
+</tr>
+<tr class="even">
+<td>200</td>
+<td>195</td>
+<td>−58.86</td>
+</tr>
+<tr class="odd">
+<td>400</td>
+<td>185</td>
+<td>−58.73</td>
+</tr>
+<tr class="even">
+<td>1000</td>
+<td>176</td>
+<td>−58.66</td>
+</tr>
+<tr class="odd">
+<td>2000</td>
+<td>174</td>
+<td>−58.66</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The chain descended from k = 1138 to k ≈ 190 in the first 200 iterations, then plateaued for the remaining 1800.</strong> Additional iterations don’t help — the chain found its local attractor early and sat there.</p>
+<p>Why doesn’t it keep drifting toward the grid max? <strong>Particle-filter log-lik noise at 4000 particles is ~0.5–1 nat per evaluation.</strong> The ridge spans about 1.5 nat between k = 47 and k = 180. Signal-to-noise is around 1. A gradient-free optimizer like IF2 cannot navigate a direction where the signal is swamped by evaluation noise, no matter how long you run it or how slowly you cool.</p>
+<p>The practical implication: <strong>sloppy parameters don’t converge with more iterations.</strong> They converge with more particles (to reduce PF noise) or with tighter bounds (to excise the ridge). For the NegBin fit here, k = 180 vs k = 50 are operationally indistinguishable to the optimizer and essentially indistinguishable in fit quality. The difference is only visible because we independently ran a grid search that tolerates PF noise by sampling many points.</p>
+</section>
+<section id="does-k-trade-off-with-β-or-γ-or-is-it-independently-sloppy" class="level3">
+<h3 class="anchored" data-anchor-id="does-k-trade-off-with-β-or-γ-or-is-it-independently-sloppy">Does k trade off with β or γ, or is it independently sloppy?</h3>
+<p>Worth checking before reading too much into “k is weakly identified.” Two possibilities:</p>
+<ul>
+<li><p><strong>Parameter trade-off</strong> — k correlates with β or γ, e.g.&nbsp;higher k compensated by lower β. The ridge is an oblique direction in the joint parameter space. Symptom: the (β, γ) optimum <em>shifts</em> as k varies across the grids.</p></li>
+<li><p><strong>Independent slop</strong> — k is weakly identified on its own, and the (β, γ) optimum is invariant along k. Symptom: the same (β̂, γ̂) maximum appears in every slice, regardless of what’s held fixed.</p></li>
+<li><p><strong>beta_gamma</strong>: max at beta=2.074, gamma=0.653 (ll = -58.14)</p></li>
+<li><p><strong>beta_k</strong>: max at beta=2.074, k=83.684 (ll = -57.12)</p></li>
+<li><p><strong>gamma_k</strong>: max at gamma=0.653, k=83.684 (ll = -57.16)</p></li>
+</ul>
+<p>The (β, γ) coordinates of the best point are consistent at (≈ 2.047, ≈ 0.632) whether we fix k at the refine MLE or sweep k freely. <strong>k is independently sloppy</strong>; it doesn’t trade off with β or γ. This is a cleaner failure mode than a parameter trade-off would be: β̂ and γ̂ are well-identified, k̂ just floats.</p>
+<p>The Poisson MLE at (β = 1.906, γ = 0.656) sits close but not identically to the NegBin basin at (≈ 2.047, ≈ 0.632). The shift is small but real — the added obs-variance lets the NegBin model trade ~0.14 in β and ~0.024 in γ relative to Poisson, because Poisson’s fixed variance (σ² = μ) is tight at peak and distorts the preferred mean trajectory.</p>
+</section>
+<section id="predictions-along-the-sloppy-axis" class="level3">
+<h3 class="anchored" data-anchor-id="predictions-along-the-sloppy-axis">Predictions along the sloppy axis</h3>
+<p>k is weakly identified <em>on the observed log-likelihood</em>. That doesn’t automatically mean predictions are invariant along the k-ridge — sloppy directions in the objective aren’t always sloppy in the observables. Check by simulating forward at five k values along the ridge with (β, γ) held at the grid-max basin:</p>
+<div id="fig-sloppy-axis" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sloppy-axis-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/sloppy_axis.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sloppy-axis-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.17: PPC envelopes at five k values along the sloppy ridge, with (β, γ) held at the grid-max basin. <strong>Left:</strong> 90 % envelopes overlaid for k = 20, 50, 100, 200, 400. <strong>Right:</strong> 90 % envelope width at day 5 (peak) as a function of k — monotonically narrows from ~239 boys at k = 20 (heaviest tails) to ~167 at k = 400 (Poisson limit).
+</figcaption>
+</figure>
+</div>
+<p><strong>Reading.</strong> The median trajectory is essentially identical across k (day-5 median varies 259–269), but the 90% envelope width changes meaningfully: ~239 at k = 20, shrinking monotonically to ~167 at k = 400 (Poisson limit). That’s a ~30% range. <strong>k is sloppy on in-sample log-likelihood but not on predictive uncertainty.</strong> The observations happen to sit inside every envelope in this range — which is why likelihood doesn’t distinguish them — but the <em>width</em> of the forecast interval you’d report to a public-health reader depends meaningfully on k.</p>
+<p>Practical implication: if the chapter’s goal is point estimation and retrospective PPC, k doesn’t matter. If the goal is forward forecasting with honest uncertainty, picking a k implies a choice about what prediction interval to quote, and the data doesn’t pick one for you. For the boarding-school chapter we stay with Poisson (no k to pick) and note this as one reason the simpler obs model is preferred unless there’s a specific reason to want adjustable obs variance.</p>
+</section>
+</section>
+<section id="synthetic-data-calibration-at-the-mle" class="level2">
+<h2 class="anchored" data-anchor-id="synthetic-data-calibration-at-the-mle">Synthetic data calibration at the MLE</h2>
+<p>The fit tells us the MLE and Rhat tells us it converged, but neither tells us whether our fitting <em>procedure</em> works correctly. To check that, we run simulation-based calibration (SBC) in its simplest form:</p>
+<ol type="1">
+<li>Take the real-data MLE as the synthetic truth θ*.</li>
+<li>Generate N synthetic datasets from the model at θ* using <code>chain_binomial</code>, each one with its own RNG seed.</li>
+<li>Fit each synthetic dataset with the <em>same</em> IF2 pipeline.</li>
+<li>Check: does the refine MLE recover θ* across synthetic datasets?</li>
+</ol>
+<p>For each parameter this yields a distribution of estimates {θ̂_i}, and we can report bias (= mean(θ̂_i) − θ*) and SD. If bias is near zero and SD is small relative to the parameter scale, the pipeline is unbiased and reasonably sharp on this model + data size.</p>
+<p><strong>This is a calibration check, not a coverage test.</strong> A proper coverage experiment (are 95% CIs actually 95%?) requires held-out realizations and is a separate, more demanding task. Here we’re asking only: “does our fitting procedure find the truth when it knows there is one?”</p>
+<div id="fig-sbc" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sbc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/sbc.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sbc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.18: Synthetic calibration at the real-data MLE: 30 synthetic datasets generated from θ* = (β=1.906, γ=0.656), each fit with the same IF2 pipeline. <strong>Top row:</strong> β̂ and γ̂ histograms with truth (dashed) and estimator mean (red) marked. <strong>Bottom left:</strong> refine Rhat distribution across fits — all pass the 1.10 gate. <strong>Bottom right:</strong> convergence summary (30/30 converged).
+</figcaption>
+</figure>
+</div>
+<section id="convergence-audit-on-the-sbc" class="level3">
+<h3 class="anchored" data-anchor-id="convergence-audit-on-the-sbc">Convergence audit on the SBC</h3>
+<p>Before reading the bias/sd numbers, audit the synthetic fits themselves: an SBC summary is only as trustworthy as the convergence of its constituent fits. If a fraction of synthetic datasets produce unconverged fits, those drift to wrong basins and contaminate the bias/sd/rmse statistics. The upstream scout-Rhat gate rejects individual fits, but for SBC we need an aggregate check:</p>
+<ul>
+<li><em>fraction of synthetic fits with all refine Rhat &lt; 1.10</em></li>
+<li><em>distribution of per-fit refine Rhat values</em></li>
+</ul>
+<p>Both panels (bottom row of the SBC figure) address this. For this run:</p>
+<ul>
+<li><strong>30</strong> synthetic datasets, <strong>30</strong> produced an MLE (100%), <strong>30</strong> converged at refine (100%).</li>
+<li>β Rhat: median <strong>1.030</strong>, max <strong>1.087</strong>.</li>
+<li>γ Rhat: median <strong>1.014</strong>, max <strong>1.033</strong>.</li>
+<li>Overall: <strong>PASS ✓</strong> (we warn if fewer than 80% of fits converge).</li>
+</ul>
+</section>
+<section id="reading-the-biassd" class="level3">
+<h3 class="anchored" data-anchor-id="reading-the-biassd">Reading the bias/sd</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>subset</th>
+<th>param</th>
+<th>n</th>
+<th>truth</th>
+<th>mean</th>
+<th>bias</th>
+<th>sd</th>
+<th>rmse</th>
+<th>95% CI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>converged_only</td>
+<td>beta</td>
+<td>30</td>
+<td>1.906</td>
+<td>1.924</td>
+<td>+0.018</td>
+<td>0.078</td>
+<td>0.080</td>
+<td>[1.790, 2.032]</td>
+</tr>
+<tr class="even">
+<td>converged_only</td>
+<td>gamma</td>
+<td>30</td>
+<td>0.656</td>
+<td>0.666</td>
+<td>+0.010</td>
+<td>0.036</td>
+<td>0.037</td>
+<td>[0.607, 0.735]</td>
+</tr>
+<tr class="odd">
+<td>all_ok</td>
+<td>beta</td>
+<td>30</td>
+<td>1.906</td>
+<td>1.924</td>
+<td>+0.018</td>
+<td>0.078</td>
+<td>0.080</td>
+<td>[1.790, 2.032]</td>
+</tr>
+<tr class="even">
+<td>all_ok</td>
+<td>gamma</td>
+<td>30</td>
+<td>0.656</td>
+<td>0.666</td>
+<td>+0.010</td>
+<td>0.036</td>
+<td>0.037</td>
+<td>[0.607, 0.735]</td>
+</tr>
+</tbody>
+</table>
+<p>With 100% convergence here, the two subsets (converged-only vs all-ok) are identical; if they diverged, the gap would be the size of the laundering effect.</p>
+<p>The spread in the histograms is the estimator’s sampling distribution at this sample size (N=14 observations), <em>not</em> a sign of a bad fit. β̂ has SD ≈ 0.08 around truth 1.91 (4% relative), γ̂ has SD ≈ 0.04 around truth 0.66 (5% relative). That’s the cost of 14 daily counts. The pipeline is unbiased and appropriately sharp for this data size.</p>
+</section>
+<section id="what-upstream-could-add-here" class="level3">
+<h3 class="anchored" data-anchor-id="what-upstream-could-add-here">What upstream could add here</h3>
+<p>The per-fit convergence tracking lives in this chapter’s scripts, not in camdl itself. For any user running <code>camdl fit run</code> against a list of datasets (SBC, coverage studies, bootstrap, sensitivity sweeps), a minimal useful feature would be:</p>
+<ol type="1">
+<li><strong><code>camdl fit batch &lt;template.toml&gt; --data-glob "synth/*.tsv"</code></strong> — fit many data files against one template, write a summary TSV with per-fit MLE + refine Rhat + converged flag. Removes the template-and-loop boilerplate the SBC script here re-implements.</li>
+<li><strong>Aggregate convergence summary on that batch command</strong> — print “X/N converged (Y%)” at end and exit with a non-zero code if below a configurable threshold (default 80%). Optional <code>--convergence-warn 0.8</code> and <code>--convergence-fail 0.5</code> flags for CI use.</li>
+<li><strong>Per-fit mixing diagnostics</strong> in the existing per-fit output tree — ESS, log-lik trace stationarity (not just Rhat), chain acceptance rates where applicable. Rhat is one lens; ESS and trace shape catch pathologies Rhat misses (e.g.&nbsp;chains stuck but stuck together).</li>
+</ol>
+<p>None of this is blocking — we can keep doing it in userspace — but the <code>camdl fit batch</code> primitive would remove ~150 lines of orchestration code from any SBC / coverage experiment. Will flag upstream.</p>
+</section>
+</section>
+<section id="reading-the-chapter" class="level2">
+<h2 class="anchored" data-anchor-id="reading-the-chapter">Reading the chapter</h2>
+<p>Three diagnostics in order, non-skippable:</p>
+<ol type="1">
+<li><strong>Rhat &lt; 1.10 on every estimated parameter at refine.</strong> Without this, nothing downstream is interpretable. An unconverged fit reports an MLE that is arbitrary among the basins scout+refine happened to settle in.</li>
+<li><strong>Two-panel diagnostic.</strong> Panel A tells you whether the fitted model can generate outbreaks like the observed one without peeking. Panel B tells you the PF is mechanically healthy (smoothing works). The gap between them is where structural improvements should be targeted — if Panel A misses systematically and Panel B doesn’t, the PF is papering over mis-specification via process-noise budget.</li>
+<li><strong>Synthetic calibration.</strong> Bias and SD of the IF2 estimator on simulated data at the MLE. Catches procedure-level pathologies (wrong starts_from, too-tight rw_sd, non-identified parameters).</li>
+</ol>
+<p>All three use <strong>chain-binomial dt=1</strong> throughout. If you switch backends for any of them, you’re comparing different dynamical systems at the same parameters.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../guide/scenarios.html" class="pagination-link" aria-label="Scenarios, Interventions, and Sweeps">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Scenarios, Interventions, and Sweeps</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../boarding-school-sir-clean/model_comparison.html" class="pagination-link" aria-label="Model Comparison">
+        <span class="nav-page-text"><span class="chapter-title">Model Comparison</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Vince Buffalo. Supported by the Institute for Disease Modeling, Bill &amp; Melinda Gates Foundation.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/boarding-school-sir-clean/report.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>License: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p>
+</div>
+  </div>
+</footer>
+<script src="cli-copy.js"></script>
+
+
+
+
+</body></html>

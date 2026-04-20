@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Simulation and Experiments – camdl</title>
+<title>Uncertainty, Priors, and Simulation – camdl</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -23,17 +23,52 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../guide/fitting.html" rel="next">
+<link href="../guide/scenarios.html" rel="next">
 <link href="../guide/getting-started.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -46,9 +81,9 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fed1e424e7663f8fd56c914262044006.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-938acf6e507da7d9619c7b382e848435.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-fed1e424e7663f8fd56c914262044006.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-7834fc316dc47462563faadba97a63a5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -76,6 +111,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -280,7 +318,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/experiments.html"><span class="chapter-title">Simulation and Experiments</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/experiments.html"><span class="chapter-title">Uncertainty, Priors, and Simulation</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -311,7 +349,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">camdl</span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What is camdl?</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -330,12 +368,22 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guide/experiments.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Simulation and Experiments</span></a>
+  <a href="../guide/experiments.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Uncertainty, Priors, and Simulation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guide/fitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
+  <a href="../guide/scenarios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scenarios, Interventions, and Sweeps</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../boarding-school-sir-clean/report.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../boarding-school-sir-clean/model_comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
   </div>
 </li>
       </ul>
@@ -343,7 +391,7 @@ window.Quarto = {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">Language</span></a>
+ <span class="menu-text">Inference</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -351,33 +399,22 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../language/spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Language Specification</span></a>
+  <a href="../inference/likelihood.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Likelihood and the Particle Filter</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../language/data-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Model</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text">Inference</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../inference/guide.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference Guide</span></a>
+  <a href="../inference/algorithms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Algorithms: IF2, PGAS, and PMMH</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../inference/pipeline.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting Pipeline</span></a>
+  <a href="../inference/pipeline.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Fitting Pipeline</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/diagnostics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diagnostics Reference</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -389,13 +426,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
  <span class="menu-text">Vignettes</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../vignettes/he2010.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">He et al.&nbsp;(2010) Measles</span></a>
@@ -425,13 +462,23 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
  <span class="menu-text">Reference</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Language Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/data-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Model</span></a>
+  </div>
+</li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/features.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">User Features</span></a>
@@ -469,11 +516,13 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#interventions-time-varying-actions" id="toc-interventions-time-varying-actions" class="nav-link active" data-scroll-target="#interventions-time-varying-actions">Interventions — time-varying actions</a></li>
-  <li><a href="#scenarios-as-counterfactuals" id="toc-scenarios-as-counterfactuals" class="nav-link" data-scroll-target="#scenarios-as-counterfactuals">Scenarios as counterfactuals</a></li>
-  <li><a href="#the-experiment-system" id="toc-the-experiment-system" class="nav-link" data-scroll-target="#the-experiment-system">The experiment system</a></li>
-  <li><a href="#parameter-sweeps" id="toc-parameter-sweeps" class="nav-link" data-scroll-target="#parameter-sweeps">Parameter sweeps</a></li>
-  <li><a href="#visualizing-uncertainty" id="toc-visualizing-uncertainty" class="nav-link" data-scroll-target="#visualizing-uncertainty">Visualizing uncertainty</a></li>
+  <li><a href="#priors-simulating-from-beliefs-alone" id="toc-priors-simulating-from-beliefs-alone" class="nav-link active" data-scroll-target="#priors-simulating-from-beliefs-alone">Priors — simulating from beliefs alone</a>
+  <ul class="collapse">
+  <li><a href="#prior-predictive-checks" id="toc-prior-predictive-checks" class="nav-link" data-scroll-target="#prior-predictive-checks">Prior predictive checks</a></li>
+  <li><a href="#from-toy-model-to-real-data" id="toc-from-toy-model-to-real-data" class="nav-link" data-scroll-target="#from-toy-model-to-real-data">From toy model to real data</a></li>
+  </ul></li>
+  <li><a href="#process-uncertainty-why-one-trajectory-is-never-enough" id="toc-process-uncertainty-why-one-trajectory-is-never-enough" class="nav-link" data-scroll-target="#process-uncertainty-why-one-trajectory-is-never-enough">Process uncertainty — why one trajectory is never enough</a></li>
+  <li><a href="#the-observation-process-what-the-data-actually-looks-like" id="toc-the-observation-process-what-the-data-actually-looks-like" class="nav-link" data-scroll-target="#the-observation-process-what-the-data-actually-looks-like">The observation process — what the data actually looks like</a></li>
   <li><a href="#whats-next" id="toc-whats-next" class="nav-link" data-scroll-target="#whats-next">What’s next</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/experiments.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
@@ -482,9 +531,9 @@ window.Quarto = {
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/experiments.html"><span class="chapter-title">Simulation and Experiments</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/experiments.html"><span class="chapter-title">Uncertainty, Priors, and Simulation</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Simulation and Experiments</span></h1>
+<h1 class="title"><span class="chapter-title">Uncertainty, Priors, and Simulation</span></h1>
 </div>
 
 
@@ -501,44 +550,598 @@ window.Quarto = {
 </header>
 
 
-<p><em>Coming soon.</em> This chapter extends the SIR model from the previous chapter with interventions and counterfactual scenarios, then introduces camdl’s experiment system for systematic simulation studies.</p>
-<section id="interventions-time-varying-actions" class="level2">
-<h2 class="anchored" data-anchor-id="interventions-time-varying-actions">Interventions — time-varying actions</h2>
-<p>The SIR model from <a href="../guide/getting-started.html">Getting Started</a> has fixed parameters: <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\gamma\)</span> don’t change over the course of the epidemic. But real epidemics are shaped by policy responses — vaccination campaigns, school closures, quarantine orders — that alter transmission at specific times.</p>
-<p>camdl’s <code>interventions</code> block declares these actions directly in the model. Interventions are <strong>off by default</strong> and activated through scenarios or the command line, so the same model file can represent both the uncontrolled epidemic and the intervention counterfactual.</p>
-<!-- TODO: extend SIR to SIRV with a pulse vaccination intervention -->
-<!-- TODO: show `transfer(fraction = ..., from = S, to = V) at [...]` syntax -->
-<!-- TODO: recurring schedule with `every = 30 'days` -->
+<p>Before we fit a model to data, we need to understand what it does. Model building is not a pipeline where you write the equations, press “fit,” and read off the answer. It is a <em>dialogue</em> between you, the model, the data, and the decisions the model informs — a bargaining process over model complexity, the data available to constrain it, and the consequences of different intervention strategies. At each stage, you’re asking a specific question and using simulation to answer it.</p>
+<p>Two kinds of uncertainty run through this entire workflow:</p>
+<ul>
+<li><p><strong>Parameter uncertainty</strong> — we don’t know the “true” parameters. (The scare quotes are deliberate: epidemiological parameters are effective summaries of complex processes, not fixed properties of nature.) The transmission parameter <span class="math inline">\(\beta\)</span> might be 0.3 or 0.5, and the epidemic looks very different in each case. This uncertainty shrinks when we fit the model to data, but never disappears entirely.</p></li>
+<li><p><strong>Process uncertainty</strong> — even if we knew every parameter exactly, the epidemic is a stochastic process. Run the same model with the same parameters twice and you get different trajectories. This uncertainty is intrinsic to the system and cannot be reduced by collecting more data.</p></li>
+</ul>
+<p>A single simulation trajectory ignores both. When a decision-maker asks “should we vaccinate?” the answer depends on the <em>distribution</em> of outcomes under both sources of uncertainty, not on one arbitrary simulated future. Carrying both kinds of uncertainty forward — from model specification through simulation to the eventual policy comparison — is what separates rigorous analysis from storytelling with curves.</p>
+<p>The example files for this chapter are in <a href="https://github.com/vsbuffalo/camdl-book/tree/main/examples/experiments"><code>examples/experiments/</code></a>.</p>
+<section id="priors-simulating-from-beliefs-alone" class="level2">
+<h2 class="anchored" data-anchor-id="priors-simulating-from-beliefs-alone">Priors — simulating from beliefs alone</h2>
+<p>We don’t need data to start learning about our model; in fact we <em>should not</em> bring data into the picture until we’ve interrogated and explored how the model interacts with our current or <em>prior</em> beliefs. The first step is to encode our prior beliefs about the parameters directly in the model file. It may seem strange to bring our beliefs explicitly into a scientific model, in light of the notion that science is “objective” and “data-driven.” But the reality is that (1) every model is built on a foundation of many assumptions and beliefs, and (2) we implicitly encode “flat” or “uniform” priors for model parameters when we simply state the parameter bounds, or state parameters live on a logscale. These implicit priors can seem neutral and objective, but are actually quite strong, and can have a large influence on model inference and the conclusions we draw from it.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>“Flat” priors are not uninformative
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>A long tradition in Bayesian statistics has shown that uniform or “vague” priors carry more information than they appear to. <a href="https://global.oup.com/academic/product/theory-of-probability-9780198503682">Jeffreys (1961)</a> first demonstrated that flat priors are not invariant under reparameterization — a uniform prior on <span class="math inline">\(\beta\)</span> is not uniform on <span class="math inline">\(\log \beta\)</span>, so the choice of parameterization smuggles in information. <a href="https://doi.org/10.1017/CBO9780511790423">Jaynes (2003)</a> developed this further, arguing that maximum entropy is the principled baseline precisely because uniform priors on arbitrary scales are not “uninformative.” More recently, <a href="https://sites.stat.columbia.edu/gelman/research/published/taumain.pdf">Gelman (2006)</a> showed that common “vague” prior specifications (like <span class="math inline">\(\text{InverseGamma}(\epsilon, \epsilon)\)</span> for variance parameters) are in fact highly informative, and <a href="https://doi.org/10.3150/16-BEJ868">Gelman et al.&nbsp;(2017)</a> argued that a prior can only be understood in the context of the likelihood it will interact with — there is no prior that is unconditionally “uninformative.”</p>
+<p>With enough data, the prior’s influence vanishes — the posterior concentrates around the maximum likelihood estimate regardless of the prior (the <a href="https://en.wikipedia.org/wiki/Bernstein%E2%80%93von_Mises_theorem">Bernstein–von Mises theorem</a>). So this isn’t about priors dominating the analysis forever. It’s about the regime where priors matter most: when data is scarce — early in an outbreak, with a novel pathogen, or under limited surveillance. In those settings, which are exactly when decisions are most urgent, encoding domain knowledge through thoughtful priors can mean the difference between useful model-informed decisions and misleading ones.</p>
+</div>
+</div>
+</div>
+<p>Recall the parameters block from <a href="../guide/getting-started.html">Building an SIR Model</a>; these had no priors — just types and bounds. Yet these encode substantive “flat” beliefs: <code>beta</code> is a rate between 0.05 and 1.0, <code>gamma</code> is a rate between 0.01 and 0.5. These bounds rule out certain epidemics. But bounds are coarse; they say “not impossible,” not “what I actually believe”. Usually we have more specific beliefs about parameters values, just based on the context of the infectious disease and transmission processes. Putting this prior information into the model file makes it visible and explicit. But more importantly, it <em>concentrates</em> our beliefs into a smaller region of plausible parameter space, which greatly improves how well inference works.</p>
+<p>camdl lets you attach a prior distribution directly to the parameter declaration using the <code>~</code> operator — standard “distributed as” notation from Bayesian modeling:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">parameters</span> {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  beta  : <span class="dt">rate</span>         <span class="cf">in</span> [<span class="dv">0.05</span>, <span class="dv">1.0</span>]  ~ log_normal(mu = -<span class="dv">1.0</span>, sigma = <span class="dv">0.5</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  gamma : <span class="dt">rate</span>         <span class="cf">in</span> [<span class="dv">0.01</span>, <span class="dv">0.5</span>]  ~ half_normal(sigma = <span class="dv">0.5</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  rho   : <span class="dt">probability</span>  <span class="cf">in</span> [<span class="dv">0.1</span>, <span class="dv">0.9</span>]   ~ beta(alpha = <span class="dv">2.0</span>, beta = <span class="dv">5.0</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  k     : <span class="dt">positive</span>     <span class="cf">in</span> [<span class="dv">1.0</span>, <span class="dv">100.0</span>] ~ half_normal(sigma = <span class="dv">10.0</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  N0    : <span class="dt">count</span>                         <span class="co"># no prior — fixed externally</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  I0    : <span class="dt">count</span>                         <span class="co"># no prior — fixed externally</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Each line now reads as a complete belief statement: <code>beta</code> is a rate, plausible between 0.05 and 1.0, with a log-normal prior centered around <span class="math inline">\(e^{-1} \approx
+0.37\)</span>. The type, bounds, and prior are all visible at the declaration — a reader doesn’t need to look anywhere else to understand what the modeler believes about this parameter.</p>
+<p>In camdl, model priors always optional. Parameters without priors are structural constants we may treat as known or fixed (population size, initial seed count) supplied via <code>--params</code> (and held fixed during inference). Models without any priors are valid for simulation, but they are doing so either at fixed parameter values or with implicit “flat” priors, which can lead to misleading inference and predictions when data is scarce.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Supported prior distributions
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 43%">
+<col style="width: 37%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Distribution</th>
+<th>Syntax</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>log_normal</code></td>
+<td><code>~ log_normal(mu = M, sigma = S)</code></td>
+<td>mu, sigma on the <strong>log</strong> scale</td>
+</tr>
+<tr class="even">
+<td><code>normal</code></td>
+<td><code>~ normal(mu = M, sigma = S)</code></td>
+<td>mean, standard deviation</td>
+</tr>
+<tr class="odd">
+<td><code>half_normal</code></td>
+<td><code>~ half_normal(sigma = S)</code></td>
+<td>folded normal, support <span class="math inline">\([0,\infty)\)</span></td>
+</tr>
+<tr class="even">
+<td><code>beta</code></td>
+<td><code>~ beta(alpha = A, beta = B)</code></td>
+<td>shape parameters</td>
+</tr>
+<tr class="odd">
+<td><code>gamma</code></td>
+<td><code>~ gamma(shape = K, rate = R)</code></td>
+<td>rate parameterization (not scale)</td>
+</tr>
+<tr class="even">
+<td><code>exponential</code></td>
+<td><code>~ exponential(rate = R)</code></td>
+<td>rate = 1/mean</td>
+</tr>
+<tr class="odd">
+<td><code>uniform</code></td>
+<td><code>~ uniform(lower = L, upper = U)</code></td>
+<td>explicit uniform</td>
+</tr>
+</tbody>
+</table>
+<p>All arguments are named (keyword), never positional. Arguments must be compile-time constants — arithmetic like <code>mu = log(0.3)</code> is fine.</p>
+</div>
+</div>
+</div>
+<section id="prior-predictive-checks" class="level3">
+<h3 class="anchored" data-anchor-id="prior-predictive-checks">Prior predictive checks</h3>
+<p>Encoding priors in the model enables the first step of the model building dialogue: carrying our prior, highly-uncertain beliefs forward into simulation <em>without any data</em>. A <strong>prior predictive check</strong> draws parameter values from the prior, simulates the model at each draw, and examines the resulting distribution of outcomes. If the prior predictive distribution includes absurd epidemics — infecting the entire population in three days, or producing no infections at all — that’s an early warning that the model is misspecified or our beliefs need revision. This check is only possible if we encode our beliefs as priors in the model; without them, there is nothing to simulate from.</p>
+<p>To see this concretely, consider our toy SIR with uniform priors — the “I have no idea” starting point:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">parameters</span> {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  beta  : <span class="dt">rate</span>  <span class="cf">in</span> [<span class="dv">0.05</span>, <span class="dv">1.0</span>]  ~ uniform(lower = <span class="dv">0.05</span>, upper = <span class="dv">1.0</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  gamma : <span class="dt">rate</span>  <span class="cf">in</span> [<span class="dv">0.01</span>, <span class="dv">0.5</span>]  ~ uniform(lower = <span class="dv">0.01</span>, upper = <span class="dv">0.5</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="0041b15b" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate sir_uniform_priors.camdl --params params.toml --seed 42 --draws prior -n 200 --scenario baseline</code></summary><pre><code>generated 200 prior draws from model IR (4 sampled + 2 fixed params)
+200 draws = 200 runs
+# camdl 0.1.0+bb91e86 (2026-04-20)
+replicate   draw    t   S   I   R   flow_infection  flow_recovery
+1   1   0   9990    10  0   0   0
+1   1   1   9980    12  8   10  8
+1   1   2   9968    19  13  12  5
+1   1   3   9950    30  20  18  7
+...</code></pre></details>
+</div>
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate sir_priors.camdl --params params.toml --seed 42 --draws prior -n 200 --scenario baseline</code></summary><pre><code>generated 200 prior draws from model IR (4 sampled + 2 fixed params)
+200 draws = 200 runs
+# camdl 0.1.0+bb91e86 (2026-04-20)
+replicate   draw    t   S   I   R   flow_infection  flow_recovery
+1   1   0   9990    10  0   0   0
+1   1   1   9980    15  5   10  5
+1   1   2   9971    21  8   9   3
+1   1   3   9947    41  12  24  4
+...</code></pre></details>
+</div>
+</div>
+<div id="cell-fig-prior-predictive-comparison" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Plotting code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> prior_uniform.partition_by([<span class="st">"replicate"</span>, <span class="st">"draw"</span>]):</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    ax1.plot(d[<span class="st">"t"</span>], d[<span class="st">"I"</span>], color<span class="op">=</span><span class="st">"#cc3333"</span>, alpha<span class="op">=</span><span class="fl">0.08</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>ax1.set_title(<span class="st">"Uniform priors"</span>, fontsize<span class="op">=</span><span class="dv">11</span>, color<span class="op">=</span>GREY)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">"Time (days)"</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">"Infected individuals"</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>ax1.set_xlim(<span class="dv">0</span>, <span class="dv">80</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>ax1.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> prior_lognormal.partition_by([<span class="st">"replicate"</span>, <span class="st">"draw"</span>]):</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    ax2.plot(d[<span class="st">"t"</span>], d[<span class="st">"I"</span>], color<span class="op">=</span><span class="st">"#3366cc"</span>, alpha<span class="op">=</span><span class="fl">0.08</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>ax2.set_title(<span class="st">"Log-normal priors"</span>, fontsize<span class="op">=</span><span class="dv">11</span>, color<span class="op">=</span>GREY)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">"Time (days)"</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>ax2.set_xlim(<span class="dv">0</span>, <span class="dv">80</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>ax2.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-prior-predictive-comparison" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-prior-predictive-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="experiments_files/figure-html/fig-prior-predictive-comparison-output-1.png" width="1480" height="504" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-prior-predictive-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.1: Prior predictive checks under two levels of prior informativeness (200 draws each). <strong>Left:</strong> uniform priors on β and γ — every value in the bounds is equally likely. <strong>Right:</strong> log-normal priors centered on plausible values. Both are simulated on the same toy SIR (N = 10,000). The uniform prior produces epidemics ranging from nothing to 8,000+ simultaneous infections; the log-normal prior concentrates mass in a more plausible range, but is still broad.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="cell-fig-prior-r0" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Plotting code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">42</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>n_r0 <span class="op">=</span> <span class="dv">10_000</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Uniform: beta ~ U(0.05, 1.0), gamma ~ U(0.01, 0.5)</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>beta_u <span class="op">=</span> rng.uniform(<span class="fl">0.05</span>, <span class="fl">1.0</span>, n_r0)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>gamma_u <span class="op">=</span> rng.uniform(<span class="fl">0.01</span>, <span class="fl">0.5</span>, n_r0)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>r0_uniform <span class="op">=</span> beta_u <span class="op">/</span> gamma_u</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Log-normal: beta ~ LN(-1.0, 0.5), gamma ~ LN(-2.0, 0.5) — no bounds clipping</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>beta_ln <span class="op">=</span> np.exp(rng.normal(<span class="op">-</span><span class="fl">1.0</span>, <span class="fl">0.5</span>, n_r0))</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>gamma_ln <span class="op">=</span> np.exp(rng.normal(<span class="op">-</span><span class="fl">2.0</span>, <span class="fl">0.5</span>, n_r0))</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>r0_lognormal <span class="op">=</span> beta_ln <span class="op">/</span> gamma_ln</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Total infections from prior predictive simulation</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>summ_u <span class="op">=</span> prior_summary(prior_uniform)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>summ_ln <span class="op">=</span> prior_summary(prior_lognormal)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.5</span>))</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Left: R0 distributions (log scale)</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>bins_r0 <span class="op">=</span> np.logspace(np.log10(<span class="fl">0.1</span>), np.log10(<span class="dv">200</span>), <span class="dv">60</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>ax1.hist(r0_uniform, bins<span class="op">=</span>bins_r0, alpha<span class="op">=</span><span class="fl">0.5</span>, color<span class="op">=</span><span class="st">"#cc3333"</span>,</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>         edgecolor<span class="op">=</span><span class="st">"none"</span>, label<span class="op">=</span><span class="ss">f"Uniform (median </span><span class="sc">{</span>np<span class="sc">.</span>median(r0_uniform)<span class="sc">:.1f}</span><span class="ss">)"</span>, density<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>ax1.hist(r0_lognormal, bins<span class="op">=</span>bins_r0, alpha<span class="op">=</span><span class="fl">0.5</span>, color<span class="op">=</span><span class="st">"#3366cc"</span>,</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>         edgecolor<span class="op">=</span><span class="st">"none"</span>, label<span class="op">=</span><span class="ss">f"Log-normal (median </span><span class="sc">{</span>np<span class="sc">.</span>median(r0_lognormal)<span class="sc">:.1f}</span><span class="ss">)"</span>, density<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>ax1.set_xscale(<span class="st">"log"</span>)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>ax1.axvline(<span class="fl">1.0</span>, color<span class="op">=</span>GREY, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">"Implied $R_0 = </span><span class="ch">\\</span><span class="st">beta / </span><span class="ch">\\</span><span class="st">gamma$"</span>)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">"Density"</span>)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>ax1.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>ax1.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Right: total infections (decision-relevant outcome)</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>ti_u <span class="op">=</span> summ_u[<span class="st">"total_infections"</span>].to_numpy()</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>ti_ln <span class="op">=</span> summ_ln[<span class="st">"total_infections"</span>].to_numpy()</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>bins_ti <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="bu">max</span>(ti_u.<span class="bu">max</span>(), ti_ln.<span class="bu">max</span>()) <span class="op">*</span> <span class="fl">1.05</span>, <span class="dv">35</span>)</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>ax2.hist(ti_u, bins<span class="op">=</span>bins_ti, alpha<span class="op">=</span><span class="fl">0.5</span>, color<span class="op">=</span><span class="st">"#cc3333"</span>,</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>         edgecolor<span class="op">=</span><span class="st">"none"</span>, label<span class="op">=</span><span class="st">"Uniform"</span>, density<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>ax2.hist(ti_ln, bins<span class="op">=</span>bins_ti, alpha<span class="op">=</span><span class="fl">0.5</span>, color<span class="op">=</span><span class="st">"#3366cc"</span>,</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>         edgecolor<span class="op">=</span><span class="st">"none"</span>, label<span class="op">=</span><span class="st">"Log-normal"</span>, density<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">"Total infections (of 10,000)"</span>)</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">"Density"</span>)</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>ax2.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>ax2.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-prior-r0" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-prior-r0-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="experiments_files/figure-html/fig-prior-r0-output-1.png" width="1480" height="500" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-prior-r0-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.2: Implied R₀ and total infections under two priors. <strong>Left:</strong> R₀ = β/γ on a log scale (10,000 draws). The uniform prior spreads mass across two orders of magnitude — R₀ values of 50+ are not negligible. The log-normal prior concentrates around R₀ ≈ 3. The dotted line marks R₀ = 1 (epidemic threshold). <strong>Right:</strong> total infections from the prior predictive simulations (200 draws). The uniform prior produces everything from zero infections to total saturation; the log-normal prior concentrates in a narrower, more plausible range.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 45%">
+<col style="width: 46%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Prior</th>
+<th>Peak infected (median, 95% range)</th>
+<th>Total infections (median, 95% range)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Uniform</td>
+<td>1798 (10–8624)</td>
+<td>8246 (5–9990)</td>
+</tr>
+<tr class="even">
+<td>Log-normal</td>
+<td>2754 (10–6127)</td>
+<td>9120 (12–9987)</td>
+</tr>
+</tbody>
+</table>
+<p>The uniform prior says every value of <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\gamma\)</span> within the bounds is equally likely. This sounds “uninformative” but it’s actually a strong statement: it implies that <span class="math inline">\(R_0 = \beta / \gamma\)</span> values of 50+ are just as plausible as <span class="math inline">\(R_0 = 2\)</span> (the log scale in the left panel makes this visible). Look at what this does to the <em>implied distribution of outcomes</em> in the right panel. The spike at zero total infections is the uniform prior telling you there is substantial probability that the epidemic doesn’t happen at all — because a large fraction of the <span class="math inline">\((\beta, \gamma)\)</span> draws produce <span class="math inline">\(R_0 &lt; 1\)</span>. If you’re modeling an outbreak that observably infected 500 people, putting 20–30% of your prior mass on “no epidemic” is not uncertainty — it’s incoherence. Your other beliefs (that flu is transmissible, that this is a boarding school, that an outbreak clearly occurred) are <em>mathematically incompatible</em> with the fizzle-out probability implied by uniform priors. The prior predictive makes this visible before you’ve touched any data.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Coherence and the Dutch book
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>The idea that beliefs must be internally consistent has deep roots. <a href="https://doi.org/10.1017/S0305004100011621">Ramsey (1926)</a> argued that a rational agent’s degrees of belief must obey the probability axioms — otherwise an adversary can construct a set of bets (a “Dutch book”) that guarantee the agent loses money regardless of the outcome. <a href="https://doi.org/10.1007/BF02938457">De Finetti (1937)</a> formalized this: incoherent probabilities are operationally exploitable.</p>
+<p>What does this have to do with priors on <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\gamma\)</span>? The prior predictive is a <em>coherence audit</em>. Your prior over parameters <em>implies</em> a prior over outcomes — including the probability of epidemic fizzle-out. If you say “I’m uniform over (<span class="math inline">\(\beta\)</span>, <span class="math inline">\(\gamma\)</span>)” while simultaneously believing “an epidemic is underway,” those two beliefs are incoherent: the first assigns ~25% probability to an event the second considers near-impossible. A Dutch book exists against you. The prior predictive makes this visible by computing the implied outcome distribution and letting you check it against your other knowledge before the data ever enters the picture.</p>
+</div>
+</div>
+</div>
+<p>The log-normal prior concentrates mass around more realistic values (median <span class="math inline">\(\beta \approx 0.37\)</span>, median <span class="math inline">\(\gamma \approx 0.14\)</span>, implying <span class="math inline">\(R_0 \approx 2.7\)</span>) but is still quite broad — the 95% range of outcomes spans an order of magnitude. This is the “I think it’s flu-like but I’m not very sure” prior. Better, but still too vague to be useful for a specific setting.</p>
 </section>
-<section id="scenarios-as-counterfactuals" class="level2">
-<h2 class="anchored" data-anchor-id="scenarios-as-counterfactuals">Scenarios as counterfactuals</h2>
-<p>In <a href="../guide/getting-started.html">Getting Started</a> we used scenarios as named parameter presets. With interventions, scenarios become counterfactual comparisons: “what would have happened if we had (or hadn’t) intervened?”</p>
-<!-- TODO: baseline vs. with_vaccination scenario -->
-<!-- TODO: `--enable` / `--disable` CLI flags -->
-<!-- TODO: scenario `set` and `scale` for parameter overrides -->
+<section id="from-toy-model-to-real-data" class="level3">
+<h3 class="anchored" data-anchor-id="from-toy-model-to-real-data">From toy model to real data</h3>
+<p>The prior predictive tells us something important: even our log-normal priors produce a wide range of outcomes. In practice, we’d know more — the pathogen, the population, the clinical picture. A boarding school flu outbreak in January is not a novel pathogen in a megacity.</p>
+<p>Let’s ground the rest of this chapter in a real dataset: the <a href="http://alun.math.ncsu.edu/wp-content/uploads/sites/2/2017/01/influenza_78.pdf">1978 English boarding school influenza outbreak</a> (Anonymous, 1978, <em>BMJ</em> 1:578). This is literally the textbook SIR example — 763 boys at a boarding school in North England, 512 of whom were confined to bed with H1N1 influenza over 14 days in January 1978. The data is daily prevalence: how many boys were in bed each day.</p>
+<div id="cell-fig-boarding-school-data" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Plotting code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">3.5</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>ax.bar(flu_data[<span class="st">"day"</span>], flu_data[<span class="st">"in_bed"</span>], width<span class="op">=</span><span class="fl">0.8</span>, color<span class="op">=</span><span class="st">"#cc3333"</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>       alpha<span class="op">=</span><span class="fl">0.7</span>, edgecolor<span class="op">=</span><span class="st">"none"</span>, label<span class="op">=</span><span class="st">"Confined to bed"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>ax.bar(flu_data[<span class="st">"day"</span>], flu_data[<span class="st">"convalescent"</span>], width<span class="op">=</span><span class="fl">0.8</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>       bottom<span class="op">=</span>flu_data[<span class="st">"in_bed"</span>], color<span class="op">=</span><span class="st">"#f4a460"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>       edgecolor<span class="op">=</span><span class="st">"none"</span>, label<span class="op">=</span><span class="st">"Convalescent"</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Day of outbreak"</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Number of boys"</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">13.5</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-boarding-school-data" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-boarding-school-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="experiments_files/figure-html/fig-boarding-school-data-output-1.png" width="1030" height="504" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-boarding-school-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.3: The 1978 boarding school influenza outbreak. Daily prevalence (number of boys confined to bed) over 14 days. 512 of 763 boys were eventually infected — a 67% attack rate.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Now we can write an SIR model with <em>informed</em> priors — beliefs that reflect what was known about influenza in 1978. By then, decades of epidemiological study had established that influenza R0 typically falls between 1.5 and 4 (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4169819/">Biggerstaff et al., 2014</a>), with an infectious period of 2–5 days. In a boarding school with communal dining and dormitories, the reporting fraction (proportion confined to bed) would be high. These are genuine prior beliefs — not arbitrary numbers, but the accumulated knowledge of the field.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">parameters</span> {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  beta  : <span class="dt">rate</span>         <span class="cf">in</span> [<span class="dv">0.1</span>, <span class="dv">5.0</span>]   ~ log_normal(mu = log(<span class="dv">2.0</span>), sigma = <span class="dv">0.5</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  gamma : <span class="dt">rate</span>         <span class="cf">in</span> [<span class="dv">0.1</span>, <span class="dv">1.0</span>]   ~ log_normal(mu = log(<span class="dv">0.4</span>), sigma = <span class="dv">0.3</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  N0    : <span class="dt">count</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  I0    : <span class="dt">count</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  rho   : <span class="dt">probability</span>  <span class="cf">in</span> [<span class="dv">0.5</span>, <span class="dv">1.0</span>]   ~ beta(alpha = <span class="dv">5.0</span>, beta = <span class="dv">2.0</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  k     : <span class="dt">positive</span>     <span class="cf">in</span> [<span class="dv">1.0</span>, <span class="dv">100.0</span>] ~ half_normal(sigma = <span class="dv">10.0</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The log-normal on <code>beta</code> centers around 2.0 (giving R0 ≈ 5 with gamma ≈ 0.4 — high for flu, but a boarding school is a high-contact setting). The log-normal on <code>gamma</code> centers around 0.4 (infectious period ≈ 2.5 days). The beta prior on <code>rho</code> is skewed toward high values — in a boarding school, sick boys were conspicuous.</p>
+<div id="7491f314" class="cell" data-execution_count="8">
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate boarding_school.camdl --params boarding_school_params.toml --seed 42 --draws prior -n 200 --scenario baseline</code></summary><pre><code>warning: prior for 'rho' placed 12.3% mass outside declared bounds (28 rejected / 200 accepted). Consider widening bounds or tightening the prior.
+generated 200 prior draws from model IR (4 sampled + 2 fixed params)
+200 draws = 200 runs
+# camdl 0.1.0+bb91e86 (2026-04-20)
+replicate   draw    t   S   I   R   flow_infection  flow_recovery
+1   1   0   762 1   0   0   0
+1   1   1   759 3   1   3   1
+1   1   2   749 12  2   10  1
+1   1   3   702 58  3   47  1
+...</code></pre></details>
+</div>
+</div>
+<div id="cell-fig-boarding-school-prior-pred" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Plotting code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">3.5</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, d <span class="kw">in</span> <span class="bu">enumerate</span>(bs_prior.partition_by([<span class="st">"replicate"</span>, <span class="st">"draw"</span>])):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    ax.plot(d[<span class="st">"t"</span>], d[<span class="st">"I"</span>], color<span class="op">=</span><span class="st">"#cc3333"</span>, alpha<span class="op">=</span><span class="fl">0.1</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Overlay the real data</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>ax.scatter(flu_data[<span class="st">"day"</span>], flu_data[<span class="st">"in_bed"</span>], color<span class="op">=</span><span class="st">"black"</span>, s<span class="op">=</span><span class="dv">30</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>           zorder<span class="op">=</span><span class="dv">5</span>, label<span class="op">=</span><span class="st">"Observed (1978 data)"</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Day of outbreak"</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Infected / confined to bed"</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">14.5</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-boarding-school-prior-pred" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-boarding-school-prior-pred-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="experiments_files/figure-html/fig-boarding-school-prior-pred-output-1.png" width="1030" height="504" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-boarding-school-prior-pred-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.4: Prior predictive check for the boarding school model with informed influenza priors (200 draws). Compare to the vague-prior SIR above — the informed priors produce epidemics concentrated in the plausible range: peaks of 100–400 over 5–15 days, consistent with what we’d expect from flu in a school of 763.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The contrast with the vague-prior SIR is striking. Informed priors produce epidemics that look like flu in a school — peaks in the hundreds, durations of 1–2 weeks. The real data (black dots) falls within the prior predictive envelope, which is exactly what we want: our beliefs are consistent with the observed outbreak. If the data had fallen outside the envelope, we’d know our priors were wrong before even attempting inference.</p>
+<div id="cell-fig-boarding-school-prior-summary" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Plotting code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>rng_bs <span class="op">=</span> np.random.default_rng(<span class="dv">42</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>n_bs <span class="op">=</span> <span class="dv">10_000</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Boarding school priors: beta ~ LN(log(2.0), 0.5), gamma ~ LN(log(0.4), 0.3)</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>beta_bs <span class="op">=</span> np.exp(rng_bs.normal(np.log(<span class="fl">2.0</span>), <span class="fl">0.5</span>, n_bs))</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>gamma_bs <span class="op">=</span> np.exp(rng_bs.normal(np.log(<span class="fl">0.4</span>), <span class="fl">0.3</span>, n_bs))</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>r0_bs <span class="op">=</span> beta_bs <span class="op">/</span> gamma_bs</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>bs_summ <span class="op">=</span> prior_summary(bs_prior)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.5</span>))</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Left: R0</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>bins_r0 <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">25</span>, <span class="dv">50</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>ax1.hist(r0_bs, bins<span class="op">=</span>bins_r0, alpha<span class="op">=</span><span class="fl">0.6</span>, color<span class="op">=</span><span class="st">"#cc3333"</span>, edgecolor<span class="op">=</span><span class="st">"none"</span>, density<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>ax1.axvline(np.median(r0_bs), color<span class="op">=</span><span class="st">"#cc3333"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, alpha<span class="op">=</span><span class="fl">0.7</span>,</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>            label<span class="op">=</span><span class="ss">f"Median R₀ = </span><span class="sc">{</span>np<span class="sc">.</span>median(r0_bs)<span class="sc">:.1f}</span><span class="ss">"</span>)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>ax1.axvline(<span class="fl">1.0</span>, color<span class="op">=</span>GREY, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">"Implied $R_0 = </span><span class="ch">\\</span><span class="st">beta / </span><span class="ch">\\</span><span class="st">gamma$"</span>)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">"Density"</span>)</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>ax1.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>ax1.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Right: total infections</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>ti_bs <span class="op">=</span> bs_summ[<span class="st">"total_infections"</span>].to_numpy()</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>bins_ti <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">763</span>, <span class="dv">35</span>)</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>ax2.hist(ti_bs, bins<span class="op">=</span>bins_ti, alpha<span class="op">=</span><span class="fl">0.6</span>, color<span class="op">=</span><span class="st">"#cc3333"</span>, edgecolor<span class="op">=</span><span class="st">"none"</span>)</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>ax2.axvline(<span class="dv">512</span>, color<span class="op">=</span><span class="st">"black"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, label<span class="op">=</span><span class="st">"Observed (512)"</span>)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">"Total infections (of 763)"</span>)</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">"Frequency"</span>)</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>ax2.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>ax2.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-boarding-school-prior-summary" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-boarding-school-prior-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="experiments_files/figure-html/fig-boarding-school-prior-summary-output-1.png" width="1480" height="502" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-boarding-school-prior-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.5: Implied R₀ and total attack size under the informed boarding school priors. <strong>Left:</strong> R₀ = β/γ concentrates around 3–8, consistent with influenza in a high-contact setting (dashed line: median). <strong>Right:</strong> the stochastic model either fizzles (spike near zero — the index case recovers before transmitting) or produces a large outbreak. Most successful epidemics reach near-saturation; the observed 512 infections (dashed line) falls below this, foreshadowing that inference will pull the effective R₀ down from the prior median.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
-<section id="the-experiment-system" class="level2">
-<h2 class="anchored" data-anchor-id="the-experiment-system">The experiment system</h2>
-<p>Running five seeds by hand is fine for a tutorial. Running a 3-scenario × 1000-replicate study with parameter sweeps is not. camdl’s experiment system manages this: you write a TOML manifest declaring the scenarios, seeds, and parameter variations, and <code>camdl experiment run</code> executes them in parallel with content-addressable caching.</p>
-<!-- TODO: write experiment TOML manifest for the SIRV model -->
-<!-- TODO: `camdl experiment run`, `status`, `summarize` -->
-<!-- TODO: visualize scenario comparison (cases averted, peak reduction) -->
 </section>
-<section id="parameter-sweeps" class="level2">
-<h2 class="anchored" data-anchor-id="parameter-sweeps">Parameter sweeps</h2>
-<!-- TODO: [sweep] block with linspace/logspace -->
-<!-- TODO: sensitivity of peak timing to beta -->
+<section id="process-uncertainty-why-one-trajectory-is-never-enough" class="level2">
+<h2 class="anchored" data-anchor-id="process-uncertainty-why-one-trajectory-is-never-enough">Process uncertainty — why one trajectory is never enough</h2>
+<p>Even with informed priors, fixing the parameters and running the model produces different trajectories each time. With the boarding school model at the textbook SIR parameters (<span class="math inline">\(\beta = 1.66\)</span>, <span class="math inline">\(\gamma = 0.44\)</span>):</p>
+<div id="51624cf5" class="cell" data-execution_count="11">
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate boarding_school.camdl --params boarding_school_params.toml --seed 7 --replicates 200</code></summary><pre><code>200 replicates = 200 runs
+# camdl 0.1.0+bb91e86 (2026-04-20)
+replicate   t   S   I   R   flow_infection  flow_recovery
+1   0   762 1   0   0   0
+1   1   759 4   0   3   0
+1   2   754 8   1   5   1
+1   3   734 26  3   20  2
+...</code></pre></details>
+</div>
+</div>
+<div id="cell-fig-process-uncertainty" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Plotting code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.5</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Left: spaghetti plot with one highlighted</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, d <span class="kw">in</span> <span class="bu">enumerate</span>(bs_multi.partition_by(<span class="st">"replicate"</span>)):</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    ax1.plot(d[<span class="st">"t"</span>], d[<span class="st">"I"</span>], color<span class="op">=</span><span class="st">"#cccccc"</span>, alpha<span class="op">=</span><span class="fl">0.3</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Highlight a representative trajectory (not a stochastic fade-out)</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>rep_peaks <span class="op">=</span> bs_multi.group_by(<span class="st">"replicate"</span>).agg(pl.col(<span class="st">"I"</span>).<span class="bu">max</span>().alias(<span class="st">"peak_I"</span>))</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>best_rep <span class="op">=</span> rep_peaks.<span class="bu">filter</span>(pl.col(<span class="st">"peak_I"</span>) <span class="op">&gt;</span> <span class="dv">100</span>).sort(</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    (pl.col(<span class="st">"peak_I"</span>) <span class="op">-</span> <span class="dv">298</span>).<span class="bu">abs</span>()</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>).head(<span class="dv">1</span>)[<span class="st">"replicate"</span>][<span class="dv">0</span>]</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>one <span class="op">=</span> bs_multi.<span class="bu">filter</span>(pl.col(<span class="st">"replicate"</span>) <span class="op">==</span> best_rep)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>ax1.plot(one[<span class="st">"t"</span>], one[<span class="st">"I"</span>], color<span class="op">=</span><span class="st">"#cc3333"</span>, linewidth<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="st">"One realization"</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Overlay real data</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>ax1.scatter(flu_data[<span class="st">"day"</span>], flu_data[<span class="st">"in_bed"</span>], color<span class="op">=</span><span class="st">"black"</span>, s<span class="op">=</span><span class="dv">30</span>,</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>            zorder<span class="op">=</span><span class="dv">5</span>, label<span class="op">=</span><span class="st">"1978 data"</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">"Day of outbreak"</span>)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">"Infected / confined to bed"</span>)</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>ax1.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>ax1.set_xlim(<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">14.5</span>)</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>ax1.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Right: peak distribution</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>peaks <span class="op">=</span> (</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    bs_multi.group_by(<span class="st">"replicate"</span>)</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    .agg(pl.col(<span class="st">"I"</span>).<span class="bu">max</span>().alias(<span class="st">"peak_I"</span>))</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>)[<span class="st">"peak_I"</span>].to_numpy()</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>ax2.hist(peaks, bins<span class="op">=</span><span class="dv">30</span>, color<span class="op">=</span><span class="st">"#cc3333"</span>, alpha<span class="op">=</span><span class="fl">0.6</span>, edgecolor<span class="op">=</span><span class="st">"none"</span>)</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>ax2.axvline(<span class="dv">298</span>, color<span class="op">=</span><span class="st">"black"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, label<span class="op">=</span><span class="st">"Observed peak (298)"</span>)</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">"Peak infected count"</span>)</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">"Frequency"</span>)</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>ax2.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>ax2.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-process-uncertainty" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-process-uncertainty-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="experiments_files/figure-html/fig-process-uncertainty-output-1.png" width="1480" height="504" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-process-uncertainty-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.6: Process uncertainty in the boarding school SIR (200 replicates, identical parameters). <strong>Left:</strong> individual trajectories (grey) with one highlighted (red) and real data overlaid (black dots). <strong>Right:</strong> distribution of peak infected counts. Even with known parameters, outcomes vary — and some outbreaks fail to take off entirely (the cluster near zero).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>This is <strong>process uncertainty</strong>: even with the same parameters, the stochastic dynamics produce different outcomes each time. The grey spaghetti shows the range — most epidemics peak between 250 and 350 infected, but the timing and exact shape vary. Some outbreaks (the flat lines near zero) fail to take off entirely: with only one initial infection, there’s a real chance the index case recovers before transmitting. The observed peak of 298 (dashed line) falls squarely within the distribution — the model is consistent with the data at these parameters.</p>
+<p>Notice how tight the process uncertainty is compared to the prior predictive spread. With 763 people, the law of large numbers is already working — the epidemic is “large enough” that individual-level stochasticity averages out. In smaller populations or with more heterogeneous contact patterns, process uncertainty would be much wider. In practice, transmission rates also fluctuate day-to-day due to environmental factors (school schedules, weather, gatherings). camdl supports this via <code>overdispersed()</code>, following <a href="https://doi.org/10.1098/rsif.2009.0151">He et al.&nbsp;(2010)</a> — we’ll use it in the <a href="../vignettes/he2010.html">He et al.&nbsp;vignette</a>.</p>
+<p>Remember: we haven’t fit to data yet. The parameters here (<span class="math inline">\(\beta =
+1.66\)</span>, <span class="math inline">\(\gamma = 0.44\)</span>) are textbook values from the literature, not posterior estimates. The 1978 data (black dots) is overlaid for orientation — to check that the model <em>can</em> produce trajectories consistent with reality at these values. Actual parameter estimation comes in <a href="fitting.qmd">Fitting to Data</a>.</p>
 </section>
-<section id="visualizing-uncertainty" class="level2">
-<h2 class="anchored" data-anchor-id="visualizing-uncertainty">Visualizing uncertainty</h2>
-<!-- TODO: replicate fans / ribbon plots for scenario comparison -->
-<!-- TODO: distribution of peak size, final size across replicates -->
+<section id="the-observation-process-what-the-data-actually-looks-like" class="level2">
+<h2 class="anchored" data-anchor-id="the-observation-process-what-the-data-actually-looks-like">The observation process — what the data actually looks like</h2>
+<p>Everything so far has shown the <em>true</em> infected count <span class="math inline">\(I(t)\)</span> — the model’s internal state. We introduced the observation model in <a href="../guide/getting-started.html">Building an SIR Model</a>: the pipeline of reporting fraction <span class="math inline">\(\rho\)</span> and negative binomial noise that stands between the true epidemic and your data. That chapter used <code>incidence(infection)</code> — accumulated new cases per observation window. The boarding school model uses <code>prevalence(I)</code> instead, because the data is a daily bed count: how many boys are confined <em>right now</em>, not how many became infected since last week.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">observations</span> {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">in_bed </span>: {</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    projected  = <span class="bu">prevalence</span>(I)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">every</span>      = <span class="dv">1</span> <span class="ss">'days</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">likelihood</span> = <span class="bu">neg_binomial</span>(mean = rho * projected, r = k)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The observation process adds a third layer of uncertainty on top of parameter and process uncertainty. The <code>--obs</code> flag generates synthetic observations from this model:</p>
+<div id="e03b1485" class="cell" data-execution_count="13">
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate boarding_school.camdl --params boarding_school_params.toml --seed 7 --scenario baseline --seed 100 --obs /var/folders/mp/j_ybkq8j72ndvhfm_1msdj1c0000gn/T/tmpnfriu18d/obs.tsv</code></summary><pre><code>observations written to /var/folders/mp/j_ybkq8j72ndvhfm_1msdj1c0000gn/T/tmpnfriu18d/obs.tsv
+# camdl 0.1.0+bb91e86 (2026-04-20)
+t   S   I   R   flow_infection  flow_recovery
+0   762 1   0   0   0
+1   761 2   0   1   0
+2   758 5   0   3   0
+3   749 12  2   9   2
+...</code></pre></details>
+</div>
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ camdl simulate boarding_school.camdl --params boarding_school_params.toml --seed 7 --scenario baseline</code></summary><pre><code># camdl 0.1.0+bb91e86 (2026-04-20)
+t   S   I   R   flow_infection  flow_recovery
+0   762 1   0   0   0
+1   759 4   0   3   0
+2   754 8   1   5   1
+3   734 26  3   20  2
+...</code></pre></details>
+</div>
+</div>
+<div id="cell-fig-observation-process" class="cell" data-execution_count="14">
+<details class="code-fold">
+<summary>Plotting code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.5</span>))</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Left: one trajectory + multiple observation draws</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>ax1.plot(bs_traj_ref[<span class="st">"t"</span>], bs_traj_ref[<span class="st">"I"</span>], color<span class="op">=</span><span class="st">"#cc3333"</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>         linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">"True $I(t)$"</span>, zorder<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>ax1.plot(bs_traj_ref[<span class="st">"t"</span>], bs_traj_ref[<span class="st">"I"</span>] <span class="op">*</span> <span class="fl">0.9</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>         color<span class="op">=</span><span class="st">"#cc3333"</span>, linewidth<span class="op">=</span><span class="dv">1</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>         label<span class="op">=</span><span class="st">"$</span><span class="ch">\\</span><span class="st">rho </span><span class="ch">\\</span><span class="st">cdot I(t)$"</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> odf <span class="kw">in</span> obs_draws:</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    ax1.scatter(odf[<span class="st">"time"</span>], odf[<span class="st">"in_bed"</span>], color<span class="op">=</span><span class="st">"#888888"</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>                s<span class="op">=</span><span class="dv">12</span>, alpha<span class="op">=</span><span class="fl">0.3</span>, zorder<span class="op">=</span><span class="dv">2</span>, edgecolors<span class="op">=</span><span class="st">"none"</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>ax1.scatter(flu_data[<span class="st">"day"</span>], flu_data[<span class="st">"in_bed"</span>], color<span class="op">=</span><span class="st">"black"</span>,</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>            s<span class="op">=</span><span class="dv">30</span>, zorder<span class="op">=</span><span class="dv">5</span>, label<span class="op">=</span><span class="st">"1978 data"</span>)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">"Day of outbreak"</span>)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">"Count"</span>)</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>ax1.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">"upper right"</span>)</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>ax1.set_xlim(<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">14.5</span>)</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>ax1.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Right: full uncertainty picture</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>ribbon(ax2, bs_multi, <span class="st">"I"</span>, <span class="st">"#cc3333"</span>, <span class="st">"Process uncertainty"</span>)</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>ax2.plot(bs_traj_ref[<span class="st">"t"</span>], bs_traj_ref[<span class="st">"I"</span>], color<span class="op">=</span><span class="st">"#cc3333"</span>,</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>         linewidth<span class="op">=</span><span class="fl">1.5</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> odf <span class="kw">in</span> obs_draws[:<span class="dv">5</span>]:</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    ax2.scatter(odf[<span class="st">"time"</span>], odf[<span class="st">"in_bed"</span>], color<span class="op">=</span><span class="st">"#888888"</span>,</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>                s<span class="op">=</span><span class="dv">12</span>, alpha<span class="op">=</span><span class="fl">0.4</span>, zorder<span class="op">=</span><span class="dv">2</span>, edgecolors<span class="op">=</span><span class="st">"none"</span>)</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>ax2.scatter(flu_data[<span class="st">"day"</span>], flu_data[<span class="st">"in_bed"</span>], color<span class="op">=</span><span class="st">"black"</span>,</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>            s<span class="op">=</span><span class="dv">30</span>, zorder<span class="op">=</span><span class="dv">5</span>, label<span class="op">=</span><span class="st">"1978 data"</span>)</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">"Day of outbreak"</span>)</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">"Count"</span>)</span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>ax2.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">"upper right"</span>)</span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>ax2.set_xlim(<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">14.5</span>)</span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>ax2.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-observation-process" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-observation-process-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="experiments_files/figure-html/fig-observation-process-output-1.png" width="1480" height="504" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-observation-process-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.7: The observation process adds noise on top of the true trajectory. <strong>Left:</strong> the true infected count (red line) and 20 independent observation draws (grey dots) from the same underlying trajectory, each drawn from NegBin(mean = ρI, k = 10) with ρ = 0.9. The observations scatter around 90% of the true value. <strong>Right:</strong> the full uncertainty picture. The ribbon shows process uncertainty (200 stochastic replicates), the red line is one trajectory, and grey dots are observations from that trajectory. The gap between ribbon and dots is what inference must bridge.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The left panel makes the observation process concrete. The red line is the true <span class="math inline">\(I(t)\)</span> — the model’s internal state. The dashed line is <span class="math inline">\(\rho
+\cdot I(t)\)</span>, the expected observation. The grey dots are 20 independent draws from the negative binomial observation model: each is what a hypothetical dataset <em>could</em> look like from this one epidemic. The real 1978 data (black dots) is one such realization.</p>
+<p>The right panel puts it all together. The ribbon captures process uncertainty (many stochastic epidemics from the same parameters). The red line is one realization. The grey dots are observations from that realization. Inference must work backwards from a single set of noisy observations to recover both the process trajectory and the underlying parameters — bridging all three layers of uncertainty simultaneously.</p>
 </section>
 <section id="whats-next" class="level2">
 <h2 class="anchored" data-anchor-id="whats-next">What’s next</h2>
-<ul>
-<li><a href="../guide/fitting.html">Fitting to Data</a> — given real (or synthetic) observations, recover the parameters that generated them.</li>
-</ul>
+<p>The three layers of uncertainty — parameter, process, and observation — are the foundation everything else builds on. In the <a href="../guide/scenarios.html">next chapter</a>, we’ll put them to work: interventions that modify the model mid-simulation, scenarios that package counterfactual comparisons, parameter sweeps that test robustness, and a batch system that manages it all reproducibly.</p>
 
 
 </section>
@@ -964,14 +1567,28 @@ window.Quarto = {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../guide/fitting.html" class="pagination-link" aria-label="Fitting to Data">
-        <span class="nav-page-text"><span class="chapter-title">Fitting to Data</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../guide/scenarios.html" class="pagination-link" aria-label="Scenarios, Interventions, and Sweeps">
+        <span class="nav-page-text"><span class="chapter-title">Scenarios, Interventions, and Sweeps</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Vince Buffalo. Supported by the Institute for Disease Modeling, Bill &amp; Melinda Gates Foundation.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/experiments.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>License: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p>
+</div>
+  </div>
+</footer>
+<script src="cli-copy.js"></script>
 
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/experiments.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer></body></html>
+</body></html>

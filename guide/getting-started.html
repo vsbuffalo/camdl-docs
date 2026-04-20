@@ -61,7 +61,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -81,9 +81,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fed1e424e7663f8fd56c914262044006.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-938acf6e507da7d9619c7b382e848435.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-fed1e424e7663f8fd56c914262044006.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-7834fc316dc47462563faadba97a63a5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -111,6 +111,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -346,7 +349,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">camdl</span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What is camdl?</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -365,12 +368,22 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guide/experiments.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simulation and Experiments</span></a>
+  <a href="../guide/experiments.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Uncertainty, Priors, and Simulation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guide/fitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
+  <a href="../guide/scenarios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scenarios, Interventions, and Sweeps</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../boarding-school-sir-clean/report.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../boarding-school-sir-clean/model_comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
   </div>
 </li>
       </ul>
@@ -378,7 +391,7 @@ window.Quarto = {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">Language</span></a>
+ <span class="menu-text">Inference</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -386,33 +399,22 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../language/spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Language Specification</span></a>
+  <a href="../inference/likelihood.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Likelihood and the Particle Filter</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../language/data-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Model</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text">Inference</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../inference/guide.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference Guide</span></a>
+  <a href="../inference/algorithms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Algorithms: IF2, PGAS, and PMMH</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../inference/pipeline.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting Pipeline</span></a>
+  <a href="../inference/pipeline.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Fitting Pipeline</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/diagnostics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diagnostics Reference</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -424,13 +426,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
  <span class="menu-text">Vignettes</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../vignettes/he2010.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">He et al.&nbsp;(2010) Measles</span></a>
@@ -460,13 +462,23 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
  <span class="menu-text">Reference</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Language Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/data-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Model</span></a>
+  </div>
+</li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/features.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">User Features</span></a>
@@ -511,22 +523,13 @@ window.Quarto = {
   <li><a href="#bounds" id="toc-bounds" class="nav-link" data-scroll-target="#bounds">Bounds</a></li>
   <li><a href="#unit-literals" id="toc-unit-literals" class="nav-link" data-scroll-target="#unit-literals">Unit literals</a></li>
   </ul></li>
-  <li><a href="#transitions-what-happens" id="toc-transitions-what-happens" class="nav-link" data-scroll-target="#transitions-what-happens">Transitions — what happens</a>
-  <ul class="collapse">
-  <li><a href="#propensity-not-rate" id="toc-propensity-not-rate" class="nav-link" data-scroll-target="#propensity-not-rate">Propensity, not rate</a></li>
-  </ul></li>
+  <li><a href="#transitions-what-happens" id="toc-transitions-what-happens" class="nav-link" data-scroll-target="#transitions-what-happens">Transitions — what happens</a></li>
   <li><a href="#let-bindings-names-for-expressions" id="toc-let-bindings-names-for-expressions" class="nav-link" data-scroll-target="#let-bindings-names-for-expressions">Let bindings — names for expressions</a></li>
   <li><a href="#initial-conditions" id="toc-initial-conditions" class="nav-link" data-scroll-target="#initial-conditions">Initial conditions</a></li>
-  <li><a href="#running-the-model" id="toc-running-the-model" class="nav-link" data-scroll-target="#running-the-model">Running the model</a>
-  <ul class="collapse">
-  <li><a href="#params-file" id="toc-params-file" class="nav-link" data-scroll-target="#params-file">Params file</a></li>
-  <li><a href="#cli-overrides" id="toc-cli-overrides" class="nav-link" data-scroll-target="#cli-overrides">CLI overrides</a></li>
-  <li><a href="#output" id="toc-output" class="nav-link" data-scroll-target="#output">Output</a></li>
-  <li><a href="#seeds-and-stochasticity" id="toc-seeds-and-stochasticity" class="nav-link" data-scroll-target="#seeds-and-stochasticity">Seeds and stochasticity</a></li>
-  </ul></li>
-  <li><a href="#scenarios-named-presets-for-simulation" id="toc-scenarios-named-presets-for-simulation" class="nav-link" data-scroll-target="#scenarios-named-presets-for-simulation">Scenarios — named presets for simulation</a></li>
+  <li><a href="#running-the-model" id="toc-running-the-model" class="nav-link" data-scroll-target="#running-the-model">Running the model</a></li>
   <li><a href="#observations-connecting-your-model-to-data" id="toc-observations-connecting-your-model-to-data" class="nav-link" data-scroll-target="#observations-connecting-your-model-to-data">Observations — connecting your model to data</a></li>
   <li><a href="#the-complete-first-model" id="toc-the-complete-first-model" class="nav-link" data-scroll-target="#the-complete-first-model">The complete first model</a></li>
+  <li><a href="#a-glimpse-of-whats-ahead" id="toc-a-glimpse-of-whats-ahead" class="nav-link" data-scroll-target="#a-glimpse-of-whats-ahead">A glimpse of what’s ahead</a></li>
   <li><a href="#whats-next" id="toc-whats-next" class="nav-link" data-scroll-target="#whats-next">What’s next</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/getting-started.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
@@ -596,9 +599,29 @@ window.Quarto = {
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
-<p>That’s the complete camdl code for an SIR model! Let’s run it, then walk through what each piece does. In your terminal, create a file <code>sir.camdl</code> and paste the code above into it. Then, run the model with some parameters:</p>
+<p>That’s the complete camdl code for an SIR model! Let’s run it, then walk through what each piece does.</p>
 <section id="run-it-see-it" class="level2">
 <h2 class="anchored" data-anchor-id="run-it-see-it">Run it, see it</h2>
+<p>The full model and parameter files for this chapter are in <a href="https://github.com/vsbuffalo/camdl-book/tree/main/examples/getting-started"><code>examples/getting-started/</code></a>. Clone the book repo and <code>cd</code> into that directory to follow along.</p>
+<p>Running <code>camdl simulate</code> without arguments shows the help — a quick reference for what’s available:</p>
+<div id="4326dbc8" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl simulate</span>
+<span style="font-weight:bold">camdl simulate — forward simulation</span>
+
+Usage:  camdl simulate MODEL [OPTIONS]
+
+Examples:
+
+  <span style="opacity:0.6"># Basic simulation, output to stdout</span>
+  camdl simulate sir.camdl --params p.toml --seed 42
+
+  <span style="opacity:0.6"># With a named scenario</span>
+  camdl simulate sir.camdl --params p.toml --scenario with_sia --seed 42
+  ...</code></pre>
+</div>
+</div>
+<p>Don’t worry about the advanced flags yet — we’ll use most of them through this guide. For now, the basic invocation:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> simulate sir.camdl <span class="dt">\</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--param</span> beta=0.4 <span class="at">--param</span> gamma=0.15 <span class="dt">\</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--param</span> N0=10000 <span class="at">--param</span> I0=10 <span class="dt">\</span></span>
@@ -626,78 +649,78 @@ window.Quarto = {
 <tr class="even">
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">9986</td>
-<td style="text-align: right;">11</td>
-<td style="text-align: right;">3</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">5</td>
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">3</td>
+<td style="text-align: right;">5</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">9972</td>
-<td style="text-align: right;">24</td>
+<td style="text-align: right;">9982</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">8</td>
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">14</td>
-<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">9960</td>
-<td style="text-align: right;">31</td>
-<td style="text-align: right;">9</td>
-<td style="text-align: right;">12</td>
+<td style="text-align: right;">9977</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">10</td>
 <td style="text-align: right;">5</td>
+<td style="text-align: right;">2</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">9949</td>
-<td style="text-align: right;">38</td>
-<td style="text-align: right;">13</td>
-<td style="text-align: right;">11</td>
-<td style="text-align: right;">4</td>
+<td style="text-align: right;">9968</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">2</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">9928</td>
-<td style="text-align: right;">52</td>
-<td style="text-align: right;">20</td>
+<td style="text-align: right;">9963</td>
 <td style="text-align: right;">21</td>
-<td style="text-align: right;">7</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">4</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">6</td>
-<td style="text-align: right;">9914</td>
-<td style="text-align: right;">55</td>
-<td style="text-align: right;">31</td>
-<td style="text-align: right;">14</td>
-<td style="text-align: right;">11</td>
+<td style="text-align: right;">9954</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">3</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">7</td>
-<td style="text-align: right;">9883</td>
-<td style="text-align: right;">78</td>
-<td style="text-align: right;">39</td>
-<td style="text-align: right;">31</td>
-<td style="text-align: right;">8</td>
+<td style="text-align: right;">9945</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">4</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">9854</td>
-<td style="text-align: right;">94</td>
-<td style="text-align: right;">52</td>
-<td style="text-align: right;">29</td>
-<td style="text-align: right;">13</td>
+<td style="text-align: right;">9934</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">28</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">5</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">9800</td>
-<td style="text-align: right;">137</td>
-<td style="text-align: right;">63</td>
-<td style="text-align: right;">54</td>
-<td style="text-align: right;">11</td>
+<td style="text-align: right;">9922</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">5</td>
 </tr>
 </tbody>
 </table>
-<div id="cell-fig-sir-single" class="cell" data-execution_count="3">
+<div id="cell-fig-sir-single" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Plotting code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
@@ -739,11 +762,23 @@ Figure&nbsp;2.1: A single stochastic SIR trajectory. S declines as infection spr
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <p>A camdl model separates the model <em>structure</em> (compartments, transitions, observation process) from the model <em>parameterization</em> (the specific numeric values that govern its behavior). The <code>parameters</code> block declares what the model’s degrees of freedom are — the knobs you turn. By design, camdl does not support default values in the <code>parameters</code> block. You always supply parameter values externally, either through a TOML file or at the command line. This keeps the model definition clean: the <code>.camdl</code> file says <em>what</em> the model is, not what any particular run of it looks like.</p>
-<p>This is an intentional design choice borrowed from the <a href="https://mc-stan.org/">Stan</a> ecosystem’s philosophy. As <a href="https://betanalpha.github.io/assets/case_studies/principled_bayesian_workflow.html">Betancourt (2018)</a> puts it:</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Why no default parameter values?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is an intentional design choice inspired by the <a href="https://mc-stan.org/">Stan</a> ecosystem’s philosophy. As <a href="https://betanalpha.github.io/assets/case_studies/principled_bayesian_workflow.html">Betancourt (2018)</a> puts it:</p>
 <blockquote class="blockquote">
 <p>[Principled modeling choices are] informed by sincere and careful deliberation, in contrast to choices informed by unquestioned defaults that have ossified into convention.</p>
 </blockquote>
 <p>Default parameters in scientific software create implicit assumptions that silently propagate when models are shared, adapted, or applied to new pathogens. Stan’s developers learned this the hard way from <a href="https://www.mrc-bsu.cam.ac.uk/software/bugs/">BUGS</a> and <a href="https://mcmc-jags.sourceforge.io/">JAGS</a>, where example models used vague priors like <code>dnorm(0, 0.001)</code> that users cargo-culted without understanding their implications (<a href="https://sites.stat.columbia.edu/gelman/research/published/taumain.pdf">Gelman, 2006</a>; <a href="https://doi.org/10.18637/jss.v076.i01">Carpenter et al., 2017</a>). When camdl refuses to simulate without a value for <span class="math inline">\(\gamma\)</span>, it’s forcing a choice you’d have to make anyway — and making that choice visible to anyone who reads the model.</p>
+</div>
+</div>
 <p>Every parameter in camdl has a <strong>type</strong> that says what kind of quantity it is. These <em>parameter types</em> serve two purposes: they document the mathematical and scientific meaning of the parameter (e.g., it helps readers understand and better intuit a model if they can see that <code>beta</code> is a <code>rate</code> and <code>rho</code> is a <code>probability</code>), and the type tells the compiler what values are correct versus incorrect. For example, a <code>rate</code> can’t be negative, a probability can’t be 1.5, and a count can’t be 3.7.</p>
 <p>The compiler enforces these constraints, and during inference, camdl uses these parameter types to choose the right parameter transform (log for rates, logit for probabilities) so the sampler explores an unconstrained space while the model always sees valid values.</p>
 <p>Here is a parameter block with types:</p>
@@ -799,10 +834,10 @@ Table&nbsp;2.1: Parameter types and their domains.
 </div>
 </figure>
 </div>
-<p>You’ll see more on why this matters in <a href="../guide/fitting.html">Fitting to Data</a>; getting the types right means camdl can fit your model without you having to think about parameter transforms — the compiler naturally knows what is best to use as a result of the parameter you declare.</p>
+<p>You’ll see more on why this matters in <a href="fitting.qmd">Fitting to Data</a>; getting the types right means camdl can fit your model without you having to think about parameter transforms — the compiler naturally knows what is best to use as a result of the parameter you declare.</p>
 <section id="bounds" class="level3">
 <h3 class="anchored" data-anchor-id="bounds">Bounds</h3>
-<p>Types constrain the domain; <strong>bounds</strong> narrow it further for a specific model. <code>beta : rate</code> means “non-negative.” Adding <code>in [0.01, 2.0]</code> means “non-negative, and for this model we only consider values between 0.01 and 2.0.” Often you have scientific knowledge that rules out certain parameter values, and adding bounds helps the compiler and inference algorithms focus on the relevant region of parameter space (which can greatly improve model fitting performance). Bounds also serve as documentation for readers, showing the range of plausible values, in much the same way that parameter types do.</p>
+<p>Types constrain the domain; <strong>bounds</strong> narrow it further for a specific model. <code>beta : rate</code> means “non-negative.” Adding <code>in [0.01, 2.0]</code> means “non-negative, and for this model we only consider values between 0.01 and 2.0.” Often you have scientific knowledge that rules out certain parameter values (e.g.&nbsp;the common cold does not have an <span class="math inline">\(R_0 = 100\)</span>), and adding bounds helps the compiler and inference algorithms focus on the relevant region of parameter space (which can <em>greatly</em> improve model fitting performance). Bounds also serve as documentation for readers, showing the range of plausible values, in much the same way that parameter types do.</p>
 <p>Here is an example of parameters with bounds:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">parameters</span> {</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  beta  : <span class="dt">rate</span>  <span class="cf">in</span> [<span class="dv">0.01</span>, <span class="dv">2.0</span>]</span>
@@ -853,9 +888,17 @@ Table&nbsp;2.1: Parameter types and their domains.
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recovery  </span>: I <span class="op">--&gt;</span> R  <span class="op">@</span> gamma * I</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The syntax of camdl is designed to make these expressions easy to read and understand — especially useful as models get longer and more complex. We can read each line as a sentence: “an infection event moves individuals from S to I at propensity <span class="math inline">\(\beta S I / N\)</span>”; “a recovery event moves individuals from I to R at propensity <span class="math inline">\(\gamma I\)</span>.”</p>
-<section id="propensity-not-rate" class="level3">
-<h3 class="anchored" data-anchor-id="propensity-not-rate">Propensity, not rate</h3>
-<p>This is the most important concept in camdl. The expression after <code>@</code> is the <strong>propensity</strong> — the total expected number of events per unit time across the entire population. It is <em>not</em> the per-capita rate.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Propensity, not rate
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The expression after <code>@</code> is the <strong>propensity</strong> — the total expected number of events per unit time across the entire population. It is <em>not</em> the per-capita rate.</p>
 <div id="tbl-propensity" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-propensity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -895,9 +938,9 @@ Table&nbsp;2.2: Decomposing propensities into per-capita rates and populations a
 </div>
 </figure>
 </div>
-<p>camdl never silently multiplies by a population count (an explicit design philosophy of camdl is that in scientific model building, <em>explicit is safer, and thus better, than implicit</em>). You write the multiplication explicitly. This eliminates a common source of modeling bugs: ambiguity about whether a “rate” is per-capita or total.</p>
-<p>Some frameworks have you specify per-capita rates and the engine multiplies by the source population internally. In camdl, what you write is what you get. The <code>@</code> expression <em>is</em> the propensity.</p>
-</section>
+<p>camdl never silently multiplies by a population count — <em>explicit is safer than implicit</em>. You write the multiplication yourself. This eliminates a common source of modeling bugs: ambiguity about whether a “rate” is per-capita or total. Some frameworks have you specify per-capita rates and the engine multiplies by the source population internally. In camdl, what you write is what you get. The <code>@</code> expression <em>is</em> the propensity.</p>
+</div>
+</div>
 </section>
 <section id="let-bindings-names-for-expressions" class="level2">
 <h2 class="anchored" data-anchor-id="let-bindings-names-for-expressions">Let bindings — names for expressions</h2>
@@ -936,31 +979,164 @@ Table&nbsp;2.2: Decomposing propensities into per-capita rates and populations a
 </section>
 <section id="running-the-model" class="level2">
 <h2 class="anchored" data-anchor-id="running-the-model">Running the model</h2>
-<p>As noted above, camdl requires all parameters to be supplied externally. There are two ways to do this.</p>
-<section id="params-file" class="level3">
-<h3 class="anchored" data-anchor-id="params-file">Params file</h3>
+<p>To simulate, you need to supply every parameter declared in the model. camdl will not guess — omit one and you get a clear error listing what’s missing. The simplest approach is a <a href="https://en.wikipedia.org/wiki/TOML">TOML</a> file:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># params.toml</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="dt">beta</span>  <span class="op">=</span> <span class="fl">0.4</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="dt">gamma</span> <span class="op">=</span> <span class="fl">0.15</span></span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="dt">N0</span>    <span class="op">=</span> <span class="dv">10000</span></span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="dt">I0</span>    <span class="op">=</span> <span class="dv">10</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> simulate sir.camdl <span class="at">--params</span> params.toml <span class="at">--seed</span> 42</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="cli-overrides" class="level3">
-<h3 class="anchored" data-anchor-id="cli-overrides">CLI overrides</h3>
+<p>You can override individual values at the command line with <code>--param</code>:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> simulate sir.camdl <span class="at">--params</span> params.toml <span class="at">--param</span> beta=0.6 <span class="at">--seed</span> 42</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>--param</code> overrides the file. Useful for quick sweeps.</p>
-</section>
-<section id="output" class="level3">
-<h3 class="anchored" data-anchor-id="output">Output</h3>
-<p>camdl writes TSV to stdout. Columns are time, compartment populations, and flow accumulators. Pipe it wherever you want:</p>
+<p><code>--param</code> takes precedence over the file. Typos are caught immediately — <code>--param bta=0.6</code> produces an error listing the available parameter names.</p>
+<p>For complex workflows you can <strong>stack</strong> multiple <code>--params</code> files (later files override earlier ones), and <code>--param</code> overrides everything. This layering is useful when you have a base parameter set and want to swap in regional or pathogen-specific values without editing the original file.</p>
+<p>To see exactly what values will be used without running a simulation, use <code>--dry-run</code>:</p>
+<div id="f0ba8683" class="cell" data-execution_count="5">
+<div class="cell-output cell-output-display">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl simulate sir.camdl --params params.toml --param beta=0.6 --seed 42 --dry-run</span>
+<span style="opacity:0.7"><span style="font-weight:bold">camdl simulate (dry run)</span>
+
+  <span style="opacity:0.6">model:</span> sir.camdl
+  <span style="opacity:0.6">backend:</span> chain_binomial
+  <span style="opacity:0.6">dt:</span> 1
+  <span style="opacity:0.6">seed:</span> 42
+  <span style="opacity:0.6">scenario:</span> (baseline)
+
+Parameters (6):
+  I0    =     <span style="font-weight:bold">10</span>  <span style="opacity:0.6">params.toml</span>
+  N0    =  <span style="font-weight:bold">10000</span>  <span style="opacity:0.6">params.toml</span>
+  beta  = <span style="font-weight:bold">0.600000</span>  <span style="opacity:0.6">--param (was 0.400000 in params.toml)</span>
+  gamma = <span style="font-weight:bold">0.150000</span>  <span style="opacity:0.6">params.toml</span>
+  k     =     <span style="font-weight:bold">10</span>  <span style="opacity:0.6">params.toml</span>
+  rho   = <span style="font-weight:bold">0.600000</span>  <span style="opacity:0.6">params.toml</span></span></code></pre>
+</div>
+</div>
+<p>Every parameter shows its final value and where it came from. When a value was overridden, you can see both the new value and what it replaced — here, <code>beta</code> was 0.4 in <code>params.toml</code> but overridden to 0.6 by <code>--param</code>.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Parameter precedence and error handling
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>camdl’s parameter resolution is designed to prevent silent mistakes:</p>
+<ul>
+<li><strong>Missing parameters</strong> are a hard error. The error message lists exactly which parameters are missing.</li>
+<li><strong>Unknown parameters</strong> (typos like <code>bta</code> instead of <code>beta</code>) are a hard error in both <code>--param</code> and <code>--params</code> files, with a list of valid names.</li>
+<li><strong>Precedence</strong> follows a simple rule: later sources override earlier ones. <code>--params</code> files are applied left-to-right, and <code>--param</code> flags override everything.</li>
+<li><strong><code>--dry-run</code></strong> resolves the full parameter vector and shows provenance without running any simulation — useful for verifying complex setups before committing to a long batch run.</li>
+</ul>
+</div>
+</div>
+</div>
+<p>Output is TSV on stdout — time, compartment populations, and flow accumulators. Pipe it wherever you want:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> simulate sir.camdl <span class="at">--params</span> params.toml <span class="at">--seed</span> 42 <span class="op">&gt;</span> output.tsv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="seeds-and-stochasticity" class="level3">
-<h3 class="anchored" data-anchor-id="seeds-and-stochasticity">Seeds and stochasticity</h3>
-<p>Every run is stochastic. Different seeds give different trajectories. Run 5 seeds and overlay the curves:</p>
+<p>Every run is stochastic — different seeds give different trajectories. Run 5 replicates and overlay the curves:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> simulate sir.camdl <span class="at">--params</span> params.toml <span class="at">--seed</span> 42 <span class="at">--replicates</span> 5</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="cell-fig-sir-multi-seed" class="cell" data-execution_count="5">
+<p>With <code>--replicates</code>, camdl derives independent seeds from the base seed, runs multiple simulations, and stacks the results on top of each other in the output TSV, with an additional <code>replicate</code> column to distinguish them. The resulting file looks like:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">replicate</th>
+<th style="text-align: right;">t</th>
+<th style="text-align: right;">S</th>
+<th style="text-align: right;">I</th>
+<th style="text-align: right;">R</th>
+<th style="text-align: right;">flow_infection</th>
+<th style="text-align: right;">flow_recovery</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">9990</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">9986</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">9982</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">9977</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">9968</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">9963</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">9954</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">9945</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">…</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+</tbody>
+</table>
+<p>Each replicate is a full independent trajectory. Overlaying them shows the range of stochastic outcomes under the same parameters:</p>
+<div id="cell-fig-sir-multi-seed" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Plotting code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
@@ -993,114 +1169,96 @@ Figure&nbsp;2.2: Five stochastic SIR trajectories from different seeds. Same par
 </div>
 </div>
 </div>
-<p>This is the stochastic process from §1 of the <a href="../inference/guide.html">inference guide</a>. The latent state you never observe directly.</p>
-</section>
-</section>
-<section id="scenarios-named-presets-for-simulation" class="level2">
-<h2 class="anchored" data-anchor-id="scenarios-named-presets-for-simulation">Scenarios — named presets for simulation</h2>
-<p>In epidemiological modeling, we often want to simulate under <em>counterfactual scenarios</em> that differ in their parameters from some baseline situation (i.e. the status quo under no interventions). For example, we might want to compare how peak infection incidence would differ if school closure policy reduced transmission in younger age groups.</p>
-<p>In camdl, named parameter presets and modifications for baseline and various scenarios are defined in the <code>scenarios</code> block. Note that earlier, we said that camdl does not support default parameter values, and it seems like having a scenario with a preset parameters contradicts this. However, it is important to clarify the difference here, as it reveals camdl’s intentional design to avoid common mistakes with default parameters, yet still provide the convenience of named parameter sets for simulation.</p>
-<p>The distinction is that the <code>parameters</code> block defines the model’s degrees of freedom — the knobs you turn to specify a particular run of the model, and that <em>may be the focus of estimation or inference</em> from observed data. Importantly, when a user runs a simulation without specifying a scenario, camdl will error out and ask the user to specify parameters explicitly through the file or command line argument, rather than silently falling back to any defaults. Moreover, if a user does not provide all parameters, they will get an error, which forces them to make explicit choices about the parameters for that simulation run. This design choice is intentional to prevent modeling mistakes that can arise from implicit defaults.</p>
-<p>But, sometimes a researcher will want to package a set preset parameters together within the <code>.camdl</code> model file under a named scenario for teaching purposes or reproducibility. These can be defined in the <code>scenarios</code> block, which is separated from the <code>parameters</code> so that no silent, accidental fallback to a default parameter can occur without the user explicitly selecting a scenario. For example, we can define a “baseline” scenario (there is nothing special about this name, it’s just convention):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">scenarios</span> {</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  baseline {</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">label</span> = <span class="st">"SIR with moderate transmission"</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">set</span> = { beta = <span class="dv">0.4</span>, gamma = <span class="dv">0.15</span>, N0 = <span class="dv">10_000</span>, I0 = <span class="dv">10</span> }</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>and then simulate under it with the <code>--scenario</code> argument,</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> simulate sir.camdl <span class="at">--scenario</span> baseline <span class="at">--seed</span> 42</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>There’s no silent fallback: omit <code>--scenario</code> and camdl demands <code>--params</code> or <code>--param</code> as before. Moreover, all scenarios are deliberately walled off from inference; the fitting pipeline ignores them entirely, drawing its parameters from the fit configuration file instead (and parameters fixed during inference must be explicitly stated as such). Scenarios are for reproducible simulation; inference has its own explicit parameter specification.</p>
-<p>Scenarios become much more powerful when combined with interventions and counterfactual comparisons; we will cover those in a later chapter.</p>
+<p>This is the stochastic process from §1 of the <a href="../inference/likelihood.html">inference guide</a>. The latent state you never observe directly.</p>
 </section>
 <section id="observations-connecting-your-model-to-data" class="level2">
 <h2 class="anchored" data-anchor-id="observations-connecting-your-model-to-data">Observations — connecting your model to data</h2>
 <p>So far, the model describes how an epidemic unfolds. But we don’t observe the S, I, and R trajectories directly. What we actually get from a surveillance system is noisy, delayed, and incomplete: weekly case reports where only a fraction of infections are caught, and the counts bounce around from week to week even when the underlying epidemic is smooth. The <code>observations</code> block describes this measurement process — the pipeline that stands between the true epidemic and your data.</p>
 <p>In our SIR model, the true number of infections each week is tracked by <code>incidence(infection)</code> — the flow accumulator counting S → I events since the last observation time. But surveillance systems don’t report every infection. A fraction <span class="math inline">\(\rho\)</span> of cases are reported, and the counts are overdispersed — some weeks more cases are caught than expected, some weeks fewer. The <code>neg_binomial</code> likelihood captures both effects: the mean is <span class="math inline">\(\rho\)</span> times the true incidence, and the dispersion parameter <span class="math inline">\(k\)</span> controls how noisy the observations are around that mean.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">parameters</span> {</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  rho : <span class="dt">probability</span>  <span class="cf">in</span> [<span class="dv">0.1</span>, <span class="dv">0.9</span>]    <span class="co"># reporting fraction</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  k   : <span class="dt">positive</span>     <span class="cf">in</span> [<span class="dv">1.0</span>, <span class="dv">100.0</span>]  <span class="co"># NegBin dispersion</span></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="kw">observations</span> {</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">weekly_cases </span>: {</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    projected  = <span class="bu">incidence</span>(infection)</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">every</span>      = <span class="dv">7</span> <span class="ss">'days</span></span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">likelihood</span> = <span class="bu">neg_binomial</span>(mean = rho * projected, r = k)</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">parameters</span> {</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  rho : <span class="dt">probability</span>  <span class="cf">in</span> [<span class="dv">0.1</span>, <span class="dv">0.9</span>]    <span class="co"># reporting fraction</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  k   : <span class="dt">positive</span>     <span class="cf">in</span> [<span class="dv">1.0</span>, <span class="dv">100.0</span>]  <span class="co"># NegBin dispersion</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="kw">observations</span> {</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">weekly_cases </span>: {</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    projected  = <span class="bu">incidence</span>(infection)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">every</span>      = <span class="dv">7</span> <span class="ss">'days</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">likelihood</span> = <span class="bu">neg_binomial</span>(mean = rho * projected, r = k)</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>To see this pipeline in action, generate synthetic observations alongside the trajectory with the <code>--obs</code> flag:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> simulate sir.camdl <span class="at">--params</span> params.toml <span class="at">--seed</span> 42 <span class="at">--obs</span> cases.tsv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> simulate sir.camdl <span class="at">--params</span> params.toml <span class="at">--seed</span> 42 <span class="at">--obs</span> cases.tsv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This runs the same stochastic simulation and then draws from the <code>neg_binomial</code> likelihood at each observation time, writing the synthetic data to <code>cases.tsv</code>. The trajectory output is unchanged — the observation RNG is seeded independently, so adding <code>--obs</code> produces byte-identical trajectories.</p>
 <p>The three-layer plot below shows exactly what this pipeline does to the signal. The light grey bars are the true daily infections — what actually happened in the simulation. The stepped blue line is the expected weekly report after applying the reporting fraction <span class="math inline">\(\rho\)</span> (here 0.6, so 60% of cases are reported). The black dots are the synthetic observations generated by <code>--obs</code> — negative binomial draws around that expected value, with dispersion <span class="math inline">\(k = 10\)</span>. This is the information loss that inference must invert.</p>
-<div id="cell-fig-sir-obs" class="cell" data-execution_count="6">
+<div id="cell-fig-sir-obs" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Plotting code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate synthetic observations from the observation model</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>_, obs_df <span class="op">=</span> run_sim(seed<span class="op">=</span><span class="dv">42</span>, obs<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Daily new infections (flow_infection is already per-step)</span></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>daily_infections <span class="op">=</span> df[<span class="st">"flow_infection"</span>]</span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Aggregate to weekly</span></span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>weeks <span class="op">=</span> (df[<span class="st">"t"</span>] <span class="op">//</span> <span class="dv">7</span>).cast(pl.Int64)</span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>weekly <span class="op">=</span> (</span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    df.with_columns(daily_infections.alias(<span class="st">"new_infections"</span>), weeks.alias(<span class="st">"week"</span>))</span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    .group_by(<span class="st">"week"</span>)</span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    .agg(pl.col(<span class="st">"new_infections"</span>).<span class="bu">sum</span>())</span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>    .sort(<span class="st">"week"</span>)</span>
-<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>week_starts <span class="op">=</span> weekly[<span class="st">"week"</span>].to_numpy() <span class="op">*</span> <span class="dv">7</span></span>
-<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Expected reports (rho from params.toml)</span></span>
-<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>rho <span class="op">=</span> <span class="fl">0.6</span></span>
-<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>true_weekly <span class="op">=</span> weekly[<span class="st">"new_infections"</span>].to_numpy().astype(<span class="bu">float</span>)</span>
-<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>expected <span class="op">=</span> rho <span class="op">*</span> true_weekly</span>
-<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Observed counts from camdl --obs (NegBin draws from the observation model)</span></span>
-<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop the t=0 row (before the first observation window completes)</span></span>
-<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>obs_df <span class="op">=</span> obs_df.<span class="bu">filter</span>(pl.col(<span class="st">"time"</span>) <span class="op">&gt;</span> <span class="dv">0</span>)</span>
-<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>observed <span class="op">=</span> obs_df[<span class="st">"weekly_cases"</span>].to_numpy()</span>
-<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>obs_times <span class="op">=</span> obs_df[<span class="st">"time"</span>].to_numpy()</span>
-<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>fig, (ax_daily, ax_weekly) <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">5</span>),</span>
-<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>    height_ratios<span class="op">=</span>[<span class="dv">1</span>, <span class="dv">2</span>], sharex<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Top panel: true daily incidence ──</span></span>
-<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a>ax_daily.bar(df[<span class="st">"t"</span>], daily_infections, width<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">"#cccccc"</span>,</span>
-<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>             edgecolor<span class="op">=</span><span class="st">"none"</span>)</span>
-<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a>ax_daily.set_ylabel(<span class="st">"Daily infections"</span>)</span>
-<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>ax_daily.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
-<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Bottom panel: weekly pipeline ──</span></span>
-<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Layer 1: true weekly totals</span></span>
-<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a>ax_weekly.bar(week_starts <span class="op">+</span> <span class="fl">3.5</span>, true_weekly, width<span class="op">=</span><span class="dv">6</span>, color<span class="op">=</span><span class="st">"#cccccc"</span>,</span>
-<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a>              edgecolor<span class="op">=</span><span class="st">"none"</span>, label<span class="op">=</span><span class="st">"True weekly total"</span>, zorder<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a><span class="co"># Layer 2: expected weekly reports (stepped)</span></span>
-<span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(weekly)):</span>
-<span id="cb23-48"><a href="#cb23-48" aria-hidden="true" tabindex="-1"></a>    x0 <span class="op">=</span> week_starts[i]</span>
-<span id="cb23-49"><a href="#cb23-49" aria-hidden="true" tabindex="-1"></a>    x1 <span class="op">=</span> x0 <span class="op">+</span> <span class="dv">7</span></span>
-<span id="cb23-50"><a href="#cb23-50" aria-hidden="true" tabindex="-1"></a>    ax_weekly.plot([x0, x1], [expected[i], expected[i]], color<span class="op">=</span><span class="st">"#3366cc"</span>,</span>
-<span id="cb23-51"><a href="#cb23-51" aria-hidden="true" tabindex="-1"></a>                   linewidth<span class="op">=</span><span class="fl">1.5</span>, alpha<span class="op">=</span><span class="fl">0.7</span>,</span>
-<span id="cb23-52"><a href="#cb23-52" aria-hidden="true" tabindex="-1"></a>                   label<span class="op">=</span><span class="st">"Expected reports (ρ × weekly)"</span> <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="va">None</span>,</span>
-<span id="cb23-53"><a href="#cb23-53" aria-hidden="true" tabindex="-1"></a>                   zorder<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb23-54"><a href="#cb23-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-55"><a href="#cb23-55" aria-hidden="true" tabindex="-1"></a><span class="co"># Layer 3: observed draws from camdl --obs</span></span>
-<span id="cb23-56"><a href="#cb23-56" aria-hidden="true" tabindex="-1"></a>ax_weekly.scatter(obs_times <span class="op">-</span> <span class="fl">3.5</span>, observed, color<span class="op">=</span><span class="st">"black"</span>, s<span class="op">=</span><span class="dv">25</span>, zorder<span class="op">=</span><span class="dv">3</span>,</span>
-<span id="cb23-57"><a href="#cb23-57" aria-hidden="true" tabindex="-1"></a>                  label<span class="op">=</span><span class="st">"Observed (NegBin draws)"</span>)</span>
-<span id="cb23-58"><a href="#cb23-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-59"><a href="#cb23-59" aria-hidden="true" tabindex="-1"></a>ax_weekly.set_xlabel(<span class="st">"Time (days)"</span>)</span>
-<span id="cb23-60"><a href="#cb23-60" aria-hidden="true" tabindex="-1"></a>ax_weekly.set_ylabel(<span class="st">"Weekly infections"</span>)</span>
-<span id="cb23-61"><a href="#cb23-61" aria-hidden="true" tabindex="-1"></a>ax_weekly.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb23-62"><a href="#cb23-62" aria-hidden="true" tabindex="-1"></a>ax_weekly.set_xlim(<span class="dv">0</span>, df[<span class="st">"t"</span>].<span class="bu">max</span>())</span>
-<span id="cb23-63"><a href="#cb23-63" aria-hidden="true" tabindex="-1"></a>ax_weekly.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
-<span id="cb23-64"><a href="#cb23-64" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb23-65"><a href="#cb23-65" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate synthetic observations from the observation model</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>_, obs_df <span class="op">=</span> run_sim(seed<span class="op">=</span><span class="dv">42</span>, obs<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Daily new infections (flow_infection is already per-step)</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>daily_infections <span class="op">=</span> df[<span class="st">"flow_infection"</span>]</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Aggregate to weekly</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>weeks <span class="op">=</span> (df[<span class="st">"t"</span>] <span class="op">//</span> <span class="dv">7</span>).cast(pl.Int64)</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>weekly <span class="op">=</span> (</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    df.with_columns(daily_infections.alias(<span class="st">"new_infections"</span>), weeks.alias(<span class="st">"week"</span>))</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    .group_by(<span class="st">"week"</span>)</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    .agg(pl.col(<span class="st">"new_infections"</span>).<span class="bu">sum</span>())</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    .sort(<span class="st">"week"</span>)</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>week_starts <span class="op">=</span> weekly[<span class="st">"week"</span>].to_numpy() <span class="op">*</span> <span class="dv">7</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Expected reports (rho from params.toml)</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>rho <span class="op">=</span> <span class="fl">0.6</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>true_weekly <span class="op">=</span> weekly[<span class="st">"new_infections"</span>].to_numpy().astype(<span class="bu">float</span>)</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>expected <span class="op">=</span> rho <span class="op">*</span> true_weekly</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Observed counts from camdl --obs (NegBin draws from the observation model)</span></span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop the t=0 row (before the first observation window completes)</span></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>obs_df <span class="op">=</span> obs_df.<span class="bu">filter</span>(pl.col(<span class="st">"time"</span>) <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>observed <span class="op">=</span> obs_df[<span class="st">"weekly_cases"</span>].to_numpy()</span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>obs_times <span class="op">=</span> obs_df[<span class="st">"time"</span>].to_numpy()</span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>fig, (ax_daily, ax_weekly) <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">5</span>),</span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>    height_ratios<span class="op">=</span>[<span class="dv">1</span>, <span class="dv">2</span>], sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Top panel: true daily incidence ──</span></span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>ax_daily.bar(df[<span class="st">"t"</span>], daily_infections, width<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">"#cccccc"</span>,</span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>             edgecolor<span class="op">=</span><span class="st">"none"</span>)</span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>ax_daily.set_ylabel(<span class="st">"Daily infections"</span>)</span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>ax_daily.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Bottom panel: weekly pipeline ──</span></span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Layer 1: true weekly totals</span></span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a>ax_weekly.bar(week_starts <span class="op">+</span> <span class="fl">3.5</span>, true_weekly, width<span class="op">=</span><span class="dv">6</span>, color<span class="op">=</span><span class="st">"#cccccc"</span>,</span>
+<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a>              edgecolor<span class="op">=</span><span class="st">"none"</span>, label<span class="op">=</span><span class="st">"True weekly total"</span>, zorder<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a><span class="co"># Layer 2: expected weekly reports (stepped)</span></span>
+<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(weekly)):</span>
+<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a>    x0 <span class="op">=</span> week_starts[i]</span>
+<span id="cb21-49"><a href="#cb21-49" aria-hidden="true" tabindex="-1"></a>    x1 <span class="op">=</span> x0 <span class="op">+</span> <span class="dv">7</span></span>
+<span id="cb21-50"><a href="#cb21-50" aria-hidden="true" tabindex="-1"></a>    ax_weekly.plot([x0, x1], [expected[i], expected[i]], color<span class="op">=</span><span class="st">"#3366cc"</span>,</span>
+<span id="cb21-51"><a href="#cb21-51" aria-hidden="true" tabindex="-1"></a>                   linewidth<span class="op">=</span><span class="fl">1.5</span>, alpha<span class="op">=</span><span class="fl">0.7</span>,</span>
+<span id="cb21-52"><a href="#cb21-52" aria-hidden="true" tabindex="-1"></a>                   label<span class="op">=</span><span class="st">"Expected reports (ρ × weekly)"</span> <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="va">None</span>,</span>
+<span id="cb21-53"><a href="#cb21-53" aria-hidden="true" tabindex="-1"></a>                   zorder<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb21-54"><a href="#cb21-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-55"><a href="#cb21-55" aria-hidden="true" tabindex="-1"></a><span class="co"># Layer 3: observed draws from camdl --obs</span></span>
+<span id="cb21-56"><a href="#cb21-56" aria-hidden="true" tabindex="-1"></a>ax_weekly.scatter(obs_times <span class="op">-</span> <span class="fl">3.5</span>, observed, color<span class="op">=</span><span class="st">"black"</span>, s<span class="op">=</span><span class="dv">25</span>, zorder<span class="op">=</span><span class="dv">3</span>,</span>
+<span id="cb21-57"><a href="#cb21-57" aria-hidden="true" tabindex="-1"></a>                  label<span class="op">=</span><span class="st">"Observed (NegBin draws)"</span>)</span>
+<span id="cb21-58"><a href="#cb21-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-59"><a href="#cb21-59" aria-hidden="true" tabindex="-1"></a>ax_weekly.set_xlabel(<span class="st">"Time (days)"</span>)</span>
+<span id="cb21-60"><a href="#cb21-60" aria-hidden="true" tabindex="-1"></a>ax_weekly.set_ylabel(<span class="st">"Weekly infections"</span>)</span>
+<span id="cb21-61"><a href="#cb21-61" aria-hidden="true" tabindex="-1"></a>ax_weekly.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb21-62"><a href="#cb21-62" aria-hidden="true" tabindex="-1"></a>ax_weekly.set_xlim(<span class="dv">0</span>, df[<span class="st">"t"</span>].<span class="bu">max</span>())</span>
+<span id="cb21-63"><a href="#cb21-63" aria-hidden="true" tabindex="-1"></a>ax_weekly.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb21-64"><a href="#cb21-64" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb21-65"><a href="#cb21-65" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-sir-obs" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -1116,55 +1274,76 @@ Figure&nbsp;2.3: The observation pipeline. <strong>Top:</strong> true daily infe
 </div>
 </div>
 <p>camdl supports multiple observation streams in a single model — for example, weekly case counts from one surveillance system and wastewater viral load from another. Each stream gets its own name, accumulator, and likelihood. We’ll see examples of this in later chapters.</p>
-<p>This is the observation pipeline that inference must invert. Given only the black dots, the fitting algorithms in <a href="../guide/fitting.html">Fitting to Data</a> will try to recover <span class="math inline">\(\beta\)</span>, <span class="math inline">\(\gamma\)</span>, and <span class="math inline">\(\rho\)</span>.</p>
+<p>This is the observation pipeline that inference must invert. Given only the black dots, the fitting algorithms in <a href="fitting.qmd">Fitting to Data</a> will try to recover <span class="math inline">\(\beta\)</span>, <span class="math inline">\(\gamma\)</span>, and <span class="math inline">\(\rho\)</span>.</p>
 </section>
 <section id="the-complete-first-model" class="level2">
 <h2 class="anchored" data-anchor-id="the-complete-first-model">The complete first model</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="pp">time_unit</span> = <span class="ss">'days</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="kw">compartments</span> { S, I, R }</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="kw">parameters</span> {</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  beta  : <span class="dt">rate</span>         <span class="cf">in</span> [<span class="dv">0.05</span>, <span class="dv">1.0</span>]</span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  gamma : <span class="dt">rate</span>         <span class="cf">in</span> [<span class="dv">0.01</span>, <span class="dv">0.5</span>]</span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  N0    : <span class="dt">count</span></span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  I0    : <span class="dt">count</span></span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  rho   : <span class="dt">probability</span>  <span class="cf">in</span> [<span class="dv">0.1</span>, <span class="dv">0.9</span>]</span>
-<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>  k     : <span class="dt">positive</span>     <span class="cf">in</span> [<span class="dv">1.0</span>, <span class="dv">100.0</span>]</span>
-<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="pp">let</span> N = S + I + R</span>
-<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
-<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">infection </span>: S <span class="op">--&gt;</span> I  <span class="op">@</span> beta * S * I / N</span>
-<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recovery  </span>: I <span class="op">--&gt;</span> R  <span class="op">@</span> gamma * I</span>
-<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a><span class="kw">init</span> {</span>
-<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>  S = N0 - I0</span>
-<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>  I = I0</span>
-<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a><span class="kw">observations</span> {</span>
-<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">weekly_cases </span>: {</span>
-<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>    projected  = <span class="bu">incidence</span>(infection)</span>
-<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">every</span>      = <span class="dv">7</span> <span class="ss">'days</span></span>
-<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">likelihood</span> = <span class="bu">neg_binomial</span>(mean = rho * projected, r = k)</span>
-<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a><span class="kw">simulate</span> {</span>
-<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>  <span class="cf">from</span> = <span class="dv">0</span> <span class="ss">'days</span></span>
-<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>  <span class="cf">to</span>   = <span class="dv">80</span> <span class="ss">'days</span></span>
-<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>30 lines. A stochastic SIR with typed parameters and a statistical observation model. In the next chapter, you’ll generate synthetic data from this model and fit it.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="pp">time_unit</span> = <span class="ss">'days</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="kw">compartments</span> { S, I, R }</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="kw">parameters</span> {</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  beta  : <span class="dt">rate</span>         <span class="cf">in</span> [<span class="dv">0.05</span>, <span class="dv">1.0</span>]</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  gamma : <span class="dt">rate</span>         <span class="cf">in</span> [<span class="dv">0.01</span>, <span class="dv">0.5</span>]</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  N0    : <span class="dt">count</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  I0    : <span class="dt">count</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>  rho   : <span class="dt">probability</span>  <span class="cf">in</span> [<span class="dv">0.1</span>, <span class="dv">0.9</span>]</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  k     : <span class="dt">positive</span>     <span class="cf">in</span> [<span class="dv">1.0</span>, <span class="dv">100.0</span>]</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="pp">let</span> N = S + I + R</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">infection </span>: S <span class="op">--&gt;</span> I  <span class="op">@</span> beta * S * I / N</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recovery  </span>: I <span class="op">--&gt;</span> R  <span class="op">@</span> gamma * I</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="kw">init</span> {</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>  S = N0 - I0</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>  I = I0</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a><span class="kw">observations</span> {</span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">weekly_cases </span>: {</span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>    projected  = <span class="bu">incidence</span>(infection)</span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">every</span>      = <span class="dv">7</span> <span class="ss">'days</span></span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">likelihood</span> = <span class="bu">neg_binomial</span>(mean = rho * projected, r = k)</span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a><span class="kw">simulate</span> {</span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>  <span class="cf">from</span> = <span class="dv">0</span> <span class="ss">'days</span></span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>  <span class="cf">to</span>   = <span class="dv">80</span> <span class="ss">'days</span></span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>30 lines. A stochastic SIR with typed parameters and a statistical observation model. This is the <code>sir.camdl</code> in <a href="https://github.com/vsbuffalo/camdl-book/tree/main/examples/getting-started"><code>examples/getting-started/</code></a>, along with <code>params.toml</code>.</p>
+</section>
+<section id="a-glimpse-of-whats-ahead" class="level2">
+<h2 class="anchored" data-anchor-id="a-glimpse-of-whats-ahead">A glimpse of what’s ahead</h2>
+<p>The SIR is the simplest possible compartmental model — one pathogen, one population, no age structure. Real models need to stratify by age, spatial patch, risk group, or all three. In camdl, this is a few extra lines:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  age = [child, adult, elderly]</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="pp">stratify</span>(<span class="cf">by</span> = age)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  C : age × age = external(<span class="st">"contact_matrix.csv"</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">infection[a in age] </span>: S[a] <span class="op">--&gt;</span> I[a]</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">@</span> beta * S[a] * <span class="bu">sum</span>(b <span class="cf">in</span> age, C[a, b] * I[b] / N[b])</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recovery[a in age]  </span>: I[a] <span class="op">--&gt;</span> R[a]  <span class="op">@</span> gamma * I[a]</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>stratify(by = age)</code> expands every compartment — <code>S</code> becomes <code>S[child]</code>, <code>S[adult]</code>, <code>S[elderly]</code>. Transitions are indexed over the dimension. The contact matrix <code>C</code> governs who infects whom. The compiler checks that all dimensions align, that the contact matrix is the right shape, and that no index is misspelled. This is the same SIR — just with age groups — and the compiler does all the bookkeeping.</p>
+<p>We’ll cover dimensions, spatial patches, and contact matrices in a later chapter. For now, the next step is learning to ask “what if?” — comparing scenarios, running experiments, and checking whether your model’s assumptions produce plausible epidemics.</p>
 </section>
 <section id="whats-next" class="level2">
 <h2 class="anchored" data-anchor-id="whats-next">What’s next</h2>
 <ul>
-<li><a href="../guide/experiments.html">Simulation and Experiments</a> — interventions, counterfactual scenarios, and the experiment system.</li>
-<li><a href="../guide/fitting.html">Fitting to Data</a> — generate synthetic data and recover parameters with IF2 and PGAS+NUTS.</li>
-<li>Later: dimensions and stratification add age groups, spatial patches, and contact matrices.</li>
+<li><a href="../guide/experiments.html">Uncertainty, Priors, Simulation, and Experiments</a> — prior predictive checks, process uncertainty, and the observation model.</li>
+<li><a href="../guide/scenarios.html">Scenarios, Interventions, and Sweeps</a> — counterfactual comparisons, parameter sweeps, and the batch system.</li>
+<li><a href="fitting.qmd">Fitting to Data</a> — recover parameters with IF2 and PGAS+NUTS.</li>
 </ul>
 
 
@@ -1586,19 +1765,33 @@ Figure&nbsp;2.3: The observation pipeline. <strong>Top:</strong> true daily infe
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../index.html" class="pagination-link" aria-label="camdl">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">camdl</span></span>
+      <a href="../index.html" class="pagination-link" aria-label="What is camdl?">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">What is camdl?</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../guide/experiments.html" class="pagination-link" aria-label="Simulation and Experiments">
-        <span class="nav-page-text"><span class="chapter-title">Simulation and Experiments</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../guide/experiments.html" class="pagination-link" aria-label="Uncertainty, Priors, and Simulation">
+        <span class="nav-page-text"><span class="chapter-title">Uncertainty, Priors, and Simulation</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Vince Buffalo. Supported by the Institute for Disease Modeling, Bill &amp; Melinda Gates Foundation.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/getting-started.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>License: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p>
+</div>
+  </div>
+</footer>
+<script src="cli-copy.js"></script>
 
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/getting-started.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer></body></html>
+</body></html>
