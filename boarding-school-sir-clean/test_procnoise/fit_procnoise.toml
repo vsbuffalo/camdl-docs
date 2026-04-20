@@ -1,0 +1,39 @@
+[model]
+camdl = "boarding_school_sir_procnoise.ir.json"
+output_dir = "results/procnoise"
+scenario = "baseline"
+
+[data.observations]
+in_bed = "../data/in_bed.tsv"
+
+[config]
+backend = "chain_binomial"
+dt = 1.0
+
+[estimate]
+# Bounds narrowed to the scout's best basin after first-pass scout
+# (β–σ_se ridge; best chains clustered at β≈2.7, σ≈0.37)
+beta     = { bounds = [2.0, 3.5],   start = 2.7 }
+gamma    = { bounds = [0.5, 0.9],   start = 0.70 }
+sigma_se = { bounds = [0.05, 1.0],  start = 0.37 }
+
+[fixed]
+N0 = 763
+I0 = 5
+
+[stages.scout]
+method     = "if2"
+chains     = 64
+particles  = 2000
+iterations = 400
+cooling    = 0.9
+rw_sd      = { beta = 0.03, gamma = 0.02, sigma_se = 0.05 }
+
+[stages.refine]
+method      = "if2"
+chains      = 12
+particles   = 4000
+iterations  = 400
+cooling     = 0.98
+starts_from = "scout"
+rw_sd       = { beta = 0.02, gamma = 0.02, sigma_se = 0.04 }

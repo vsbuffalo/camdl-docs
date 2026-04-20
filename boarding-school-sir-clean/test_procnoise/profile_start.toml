@@ -1,0 +1,6 @@
+# Starting point for 2D (β, σ_se) profile — γ estimated per cell
+beta = 2.7
+gamma = 0.7
+sigma_se = 0.35
+N0 = 763
+I0 = 5

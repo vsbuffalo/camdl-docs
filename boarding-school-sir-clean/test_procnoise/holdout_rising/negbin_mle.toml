@@ -1,0 +1,6 @@
+# NegBin MLE from 1D k profile on train (days 0-3). Profile max at k=300.
+beta = 2.254949
+gamma = 0.764056
+k = 300
+N0 = 763
+I0 = 5

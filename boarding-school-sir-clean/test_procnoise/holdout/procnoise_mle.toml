@@ -1,0 +1,7 @@
+# Process-noise MLE from 1D σ_se profile on training data (days 0-7).
+# Profile max at σ_se=0.05 (ll=-33.38); using the profile MLE row.
+beta = 2.279274
+gamma = 0.746564
+sigma_se = 0.05
+N0 = 763
+I0 = 5

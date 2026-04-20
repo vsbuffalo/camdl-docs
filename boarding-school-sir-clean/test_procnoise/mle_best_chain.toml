@@ -1,0 +1,10 @@
+# procnoise best-chain params (scout, not Rhat-converged — see README)
+beta = 2.746349
+gamma = 0.691518
+sigma_se = 0.326238
+N0 = 763
+I0 = 5
+[provenance]
+backend = "chain_binomial"
+dt = 1.0
+model = "boarding_school_sir_procnoise.ir.json"

@@ -1,0 +1,34 @@
+# Poisson-obs SIR, trained on days 0-7, validated on days 8-13 holdout.
+[model]
+camdl = "../../boarding_school_sir.ir.json"
+output_dir = "results/poisson_holdout"
+scenario = "baseline"
+
+[data.observations]
+in_bed = "train.tsv"
+[config]
+backend = "chain_binomial"
+dt = 1.0
+
+[estimate]
+beta  = { bounds = [0.5, 5.0], start = 1.9 }
+gamma = { bounds = [0.1, 1.0], start = 0.65 }
+
+[fixed]
+N0 = 763
+I0 = 5
+
+[stages.scout]
+method     = "if2"
+chains     = 48
+particles  = 2000
+iterations = 250
+cooling    = 0.9
+
+[stages.refine]
+method      = "if2"
+chains      = 12
+particles   = 4000
+iterations  = 400
+cooling     = 0.98
+starts_from = "scout"
