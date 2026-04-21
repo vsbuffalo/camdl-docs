@@ -1,0 +1,546 @@
+---
+title: "Model Comparison"
+execute:
+  echo: false
+---
+
+```{python}
+#| echo: false
+#| output: false
+import subprocess, io, os, sys, re, json, glob
+from pathlib import Path
+import polars as pl
+import numpy as np
+import matplotlib.pyplot as plt, matplotlib as mpl
+from IPython.display import Markdown, HTML
+from matplotlib.ticker import MaxNLocator
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname("__file__"), "../..")))
+from _lib.cli import run_cli, ansi_to_html
+
+ROOT = Path(".")
+PREQ = ROOT/"test_procnoise/preq"      # where the *.json traces live
+FIG  = ROOT/"figures"; FIG.mkdir(exist_ok=True)
+
+GREY = "#555555"
+mpl.rcParams.update({
+    "figure.dpi": 150, "font.size": 10,
+    "axes.edgecolor": GREY, "axes.labelcolor": GREY,
+    "xtick.color": GREY, "ytick.color": GREY, "text.color": GREY,
+})
+
+def run_cli_md(cmd, echo=None, cwd=None):
+    """Run `cmd`; display the command + render its stdout as rendered markdown
+    (for `camdl compare --format md` and similar). Stderr still shown raw."""
+    result = subprocess.run(cmd, capture_output=True, text=True, shell=True, cwd=cwd)
+    echo = echo or cmd
+    parts = [f'<div class="cli-run-md"><code>$ {echo}</code></div>']
+    if result.stderr.strip():
+        parts.append(
+            f'<pre class="ansi-output"><code>'
+            f'{ansi_to_html(result.stderr.rstrip())}</code></pre>'
+        )
+    display(HTML("\n".join(parts)))
+    display(Markdown(result.stdout))
+```
+
+This chapter compares three observation / process-noise models for the 1978
+boarding-school influenza outbreak. It uses `camdl`'s v1 prequential-evaluation
+framework end-to-end: `camdl pfilter --save-prequential` to record one-step-ahead
+predictive traces for each model's MLE, then `camdl compare` to produce the
+publication table. No Python glue for the model-comparison table itself — the
+tool ships the mechanism. We add Python only for one time-resolved diagnostic
+plot that reads the traces' JSON directly.
+
+The three candidates, all built on the same chain-binomial SIR:
+
+1. **Poisson observation** — $y_t \sim \text{Poisson}(I_t)$. Two estimated
+   parameters, $\beta$ and $\gamma$.
+2. **Negative-binomial observation** — $y_t \sim \text{NegBin}(I_t, k)$.
+   Three parameters; $k$ widens observation error.
+3. **Poisson observation + process noise on $\beta$** — using camdl's
+   `overdispersed(rate, sigma_se)` primitive (He, Ionides & King 2010).
+   Three parameters; extra variance lives in the dynamics, not in the counting.
+
+## What we'll compute and why
+
+The goal is to say *which story the data prefers* — and mean it. Three questions
+in sequence:
+
+- **Does penalised in-sample likelihood (AIC/BIC) suffice?** No, and the failure
+  is instructive.
+- **Does a single train/test split suffice?** Also no, and the failure has a
+  different cause.
+- **Does prequential scoring with a proper scoring rule succeed?** Yes, with
+  diagnostics we can actually read.
+
+## AIC and BIC — the textbook answer
+
+```{python}
+#| echo: false
+#| output: asis
+ll = {"Poisson": -61.14, "NegBin": -58.09, "Procnoise": -56.39}
+kp = {"Poisson": 2,      "NegBin": 3,      "Procnoise": 3}
+n = 14
+rows = [(m, kp[m], ll[m], 2*kp[m] - 2*ll[m], kp[m]*np.log(n) - 2*ll[m]) for m in ll]
+print("| model | k | log-lik | AIC | BIC |")
+print("|---|---|---|---|---|")
+best_aic = min(r[3] for r in rows); best_bic = min(r[4] for r in rows)
+for m, kk, L, aic, bic in rows:
+    print(f"| {m} | {kk} | {L:.2f} | "
+          f"{'**'+f'{aic:.2f}'+'**' if aic==best_aic else f'{aic:.2f}'} | "
+          f"{'**'+f'{bic:.2f}'+'**' if bic==best_bic else f'{bic:.2f}'} |")
+```
+
+AIC and BIC both pick procnoise on the full-data fits, but they only see
+**in-sample** fit; they cannot detect overfitting. The failure mode we'll now
+demonstrate: a model that overfits training data will win on AIC/BIC at some
+holdout cuts while losing badly out-of-sample.
+
+## Windowed holdout — and why one cut isn't enough
+
+Fit on days 0–7, score on days 8–13:
+
+```{python}
+#| echo: false
+#| output: asis
+r = [("Poisson", 2, -35.83, -22.66),
+     ("NegBin",  3, -32.95, -24.80),
+     ("Procnoise", 3, -33.35, -22.41)]
+print("| model | k | train ll (n=8) | train AIC | **holdout ll (n=6)** |")
+print("|---|---|---|---|---|")
+for m,kk,tr,ho in r:
+    print(f"| {m} | {kk} | {tr:.2f} | {2*kk-2*tr:.2f} | **{ho:.2f}** |")
+```
+
+**Train AIC picks NegBin; holdout ll picks procnoise, and NegBin finishes
+*last*.** NegBin overfits the training noise and generalizes worst.
+
+Repeat with the cut at day 3 (train on days 0–3, holdout 4–13):
+
+```{python}
+#| echo: false
+#| output: asis
+r = [("Poisson",2,-11.98,-108.89),("NegBin",3,-11.94,-54.66),("Procnoise",3,-12.14,-81.65)]
+print("| model | k | train ll (n=4) | **holdout ll (n=10)** |")
+print("|---|---|---|---|")
+for m,kk,tr,ho in r:
+    print(f"| {m} | {kk} | {tr:.2f} | **{ho:.2f}** |")
+```
+
+Now **NegBin wins by 27 nats** — but only because four training points don't
+identify $(\beta, \gamma)$, and the three models' MLEs land at different points
+on an essentially flat likelihood surface. Train ll's agree to within 0.2 nats;
+the 54-nat holdout gap is dictated by which lucky $\gamma$ each model happened
+to settle on.
+
+Two holdout cuts, two rankings. A single scalar from a single split cannot
+tell you that the result is artefact-dominated. This is why we want a
+principled, symmetric, time-respecting score.
+
+See `figures/holdout_comparison.png` and `figures/holdout_rising_comparison.png`
+for the bar-chart versions of both experiments.
+
+## Prequential scoring — Dawid's decomposition
+
+For observations $y_{1:T}$, the joint log-likelihood factorizes as
+
+$$
+\log p(y_{1:T}) \;=\; \sum_{t=0}^{T-1} \log p(y_{t+1} \mid y_{1:t}).
+$$
+
+Each term is a forecast made using only the past (Dawid 1984). For a
+state-space model at plug-in MLE $\hat\theta$, the bootstrap particle filter
+computes these terms by construction — the "incremental log-likelihood" at
+each assimilation step is exactly
+$\log \hat p(y_{t+1} \mid y_{1:t}, \hat\theta)$. So prequential scoring is
+essentially free: one `pfilter` run per model, no refitting.
+
+As of v1 (`camdl` ≥ 0.1.0+e53046a) this pipeline is first-class. `camdl pfilter
+--save-prequential NAME` records the trace at `NAME.json` (full typed trace
+with per-particle predictive samples) and `NAME.tsv` (scalar per-step scores).
+`camdl compare` reads those JSON files and emits the publication table.
+
+### Step 1 — record a prequential trace for each model
+
+```{python}
+#| echo: false
+#| output: asis
+poi_mle = "results/fits/fit-6bb88d20/real/fit_42/refine/mle_params.toml"
+nb_mle  = "results/fits/fit_negbin-60da4f72/real/fit_42/refine/mle_params.toml"
+pc_mle  = "test_procnoise/preq/procnoise_mle.toml"
+
+display(run_cli(
+    f"camdl pfilter boarding_school_sir.ir.json "
+    f"--params {poi_mle} --data data/in_bed.tsv "
+    f"--particles 5000 --seed 1 "
+    f"--save-prequential test_procnoise/preq/poisson",
+    echo="camdl pfilter boarding_school_sir.ir.json --params <poisson MLE> --data data/in_bed.tsv --particles 5000 --seed 1 --save-prequential preq/poisson",
+))
+display(run_cli(
+    f"camdl pfilter boarding_school_sir_negbin.ir.json "
+    f"--params {nb_mle} --data data/in_bed.tsv "
+    f"--particles 5000 --seed 1 "
+    f"--save-prequential test_procnoise/preq/negbin",
+    echo="camdl pfilter boarding_school_sir_negbin.ir.json --params <negbin MLE> --data data/in_bed.tsv --particles 5000 --seed 1 --save-prequential preq/negbin",
+))
+display(run_cli(
+    f"camdl pfilter test_procnoise/boarding_school_sir_procnoise.ir.json "
+    f"--params {pc_mle} --data data/in_bed.tsv "
+    f"--particles 5000 --seed 1 "
+    f"--save-prequential test_procnoise/preq/procnoise",
+    echo="camdl pfilter boarding_school_sir_procnoise.ir.json --params <procnoise profile MLE> --data data/in_bed.tsv --particles 5000 --seed 1 --save-prequential preq/procnoise",
+))
+```
+
+Each invocation reports the total elpd, mean CRPS, and PIT 90% coverage as a
+sanity line. The TSV is per-step scalars (`t, y_obs, log_score, crps, pit,
+ess`); the JSON contains the full typed trace including per-particle
+predictive samples at each step.
+
+### Step 2 — the model-comparison table
+
+```{python}
+#| echo: false
+#| output: asis
+display(run_cli(
+    "camdl compare test_procnoise/preq/poisson.json "
+    "test_procnoise/preq/negbin.json test_procnoise/preq/procnoise.json",
+    echo="camdl compare preq/poisson.json preq/negbin.json preq/procnoise.json",
+))
+```
+
+That's the tool doing the work, unmediated. `T_score = 14` matches across all
+three models (no $t_0$ burn-in here; see the caveat below).
+
+::: {.callout-note collapse="true"}
+## Column definitions
+
+- **model**: label derived from the JSON filename.
+- **T_score**: number of scored time steps (observation windows). Must
+  match across models for a fair comparison — the tool refuses if they
+  differ (override: `--allow-mismatched-horizon`).
+- **elpd**: expected log pointwise predictive density — the sum of
+  one-step-ahead log predictive scores across all $T$ steps.
+  Higher (less negative) is better. This is the prequential analogue of
+  leave-one-out cross-validation: each step is predicted using only
+  past data, so elpd rewards models that generalize, not just fit.
+- **Δelpd**: difference in elpd from the baseline model (auto-selected
+  as the highest-elpd model, marked `[baseline]`). Negative means worse
+  than baseline.
+- **E_T**: the e-value — `exp(Δelpd)`, interpretable as the final
+  wealth of a $1 bettor wagering on this model against the baseline at
+  each time step. `E_T = 0.002` means the baseline is overwhelmingly
+  favored (equivalently, betting *on* the baseline against this model
+  yields $1/0.002 = $500). `E_T` near 1 means the models are
+  indistinguishable. Unlike se(Δ), the e-value doesn't rely on a CLT
+  approximation over $T$ steps, so it remains valid for short series.
+- **se(Δ)**: standard error of Δelpd, computed as the standard error of
+  the *paired* per-step log-score differences. A |Δ| < 2 × se(Δ) means
+  the difference is within sampling noise — the models are
+  indistinguishable on this data.
+- **crps**: mean Continuous Ranked Probability Score across steps.
+  Lower is better. CRPS is in the same units as the observations (here:
+  boys in bed per day), making it directly interpretable. It is also
+  more robust than log score to outlier steps.
+- **PIT_90**: proportion of observations falling within the model's
+  central 90% predictive interval (probability integral transform
+  coverage). Nominal is 0.90 — values well below indicate
+  overconfidence (intervals too narrow); values above indicate
+  overdispersion.
+:::
+
+**Reading the table:**
+
+- **Procnoise wins on elpd** by ~2 nats over NegBin, ~6 over Poisson. Poisson's
+  `se(Δ) = 5.93` is huge because one day dominates the difference (see §Step 3).
+- **The E_T column makes this concrete.** Poisson's `E_T = 0.002` means a
+  bettor wagering on procnoise against Poisson would turn $1 into ~$400
+  over the 14 observation days. NegBin's `E_T = 0.145` is moderate —
+  the evidence favors procnoise but isn't overwhelming in just 14 steps.
+- **Mean CRPS is in units of observations** (boys in bed): procnoise is 1.1–1.3
+  boys/day better than the competitors, which is interpretable in a way log-lik
+  is not.
+- **PIT coverage** tells you the models are roughly well-calibrated at the 90%
+  level (0.71 / 0.79 / 0.86; nominal 0.90). Poisson is the most overconfident,
+  consistent with its tight-observation-likelihood assumption.
+
+**Same table via `--format md`** — the command's stdout is markdown source
+(drop it directly into a paper); the rendered version is shown below:
+
+```{python}
+#| echo: false
+#| output: asis
+run_cli_md(
+    "camdl compare test_procnoise/preq/poisson.json "
+    "test_procnoise/preq/negbin.json test_procnoise/preq/procnoise.json --format md",
+    echo="camdl compare preq/*.json --format md",
+)
+```
+
+**And the JSON**, which is the plotting contract:
+
+```{python}
+#| echo: false
+#| output: asis
+display(run_cli(
+    "camdl compare test_procnoise/preq/poisson.json "
+    "test_procnoise/preq/negbin.json test_procnoise/preq/procnoise.json --format json",
+    echo="camdl compare preq/*.json --format json",
+    max_lines=24,
+))
+```
+
+### Step 3 — the per-day story (Python reading the JSON traces)
+
+The compare table gives scalars; the per-step structure tells us *where* the
+models differentiate. This is the one part that stays in Python because it's
+presentation, not computation. The JSON traces have everything we need.
+
+```{python}
+#| echo: false
+import json
+models = [
+    ("Poisson",   PREQ/"poisson.json",   "#bdc3c7"),
+    ("NegBin",    PREQ/"negbin.json",    "#3498db"),
+    ("Procnoise", PREQ/"procnoise.json", "#e67e22"),
+]
+traces = {}
+for name, path, color in models:
+    with open(path) as f:
+        j = json.load(f)
+    steps = j["steps"]
+    traces[name] = dict(
+        color=color,
+        t=[s["t"] for s in steps],
+        y=[s["y_obs"] for s in steps],
+        log_score=[s["log_score"] for s in steps],
+        crps=[s["crps"] for s in steps],
+        ess=[s["ess"] for s in steps],
+    )
+
+obs = pl.read_csv(ROOT/"data/in_bed.tsv", separator="\t")
+
+fig = plt.figure(figsize=(14.5, 6.4))
+gs = fig.add_gridspec(2, 6, height_ratios=[1, 1], hspace=0.45, wspace=1.1, right=0.86)
+axA = fig.add_subplot(gs[0, 0:2])
+axB = fig.add_subplot(gs[0, 2:4])
+axC = fig.add_subplot(gs[0, 4:6])
+axD = fig.add_subplot(gs[1, 0:3])
+axE = fig.add_subplot(gs[1, 3:6])
+
+axA.plot(obs["time"], obs["in_bed"], "o-", color="black", linewidth=1.2,
+         clip_on=False, zorder=5)
+axA.fill_between(obs["time"], 0, obs["in_bed"], alpha=0.08, color="black")
+axA.set_xlabel("day"); axA.set_ylabel("boys in bed")
+axA.set_title("Observed outbreak", fontsize=10, pad=4)
+axA.set_ylim(bottom=0); axA.margins(x=0)
+axA.spines[["top","right"]].set_visible(False)
+
+for name, d in traces.items():
+    axB.plot(d["t"], d["log_score"], "-o", color=d["color"], linewidth=1.4,
+             markersize=5, markerfacecolor="white", markeredgewidth=1.2,
+             markeredgecolor=d["color"])
+axB.axhline(0, color="#555", linewidth=0.5)
+axB.set_xlabel("day t"); axB.set_ylabel(r"$\log\,\hat p(y_t \mid y_{1:t-1})$")
+axB.set_title("Per-day log score\n(higher = better)", fontsize=10, pad=4)
+axB.spines[["top","right"]].set_visible(False)
+
+for name, d in traces.items():
+    axC.plot(d["t"], d["ess"], "-o", color=d["color"], linewidth=1.4,
+             markersize=5, markerfacecolor="white", markeredgewidth=1.2,
+             markeredgecolor=d["color"])
+axC.axhline(500, color="#c0392b", linestyle=":", linewidth=1.0)
+axC.set_xlabel("day t"); axC.set_ylabel("effective sample size")
+axC.set_title("PF effective sample size per step\n(low ESS = log-score unstable)",
+              fontsize=10, pad=4)
+axC.spines[["top","right"]].set_visible(False)
+
+for name, d in traces.items():
+    ll_cum = np.cumsum(d["log_score"])
+    axD.plot(d["t"], ll_cum, "-o", color=d["color"], linewidth=1.6,
+             markersize=5, markerfacecolor="white", markeredgewidth=1.2,
+             markeredgecolor=d["color"])
+axD.set_xlabel("day t"); axD.set_ylabel("cumulative prequential log-lik")
+axD.set_title("Cumulative one-step-ahead log score (Dawid decomposition)",
+              fontsize=10, pad=4)
+axD.spines[["top","right"]].set_visible(False)
+
+totals = np.array([sum(d["log_score"]) for d in traces.values()])
+names  = list(traces.keys())
+colors = [d["color"] for d in traces.values()]
+axE.bar(range(3), totals, color=colors)
+axE.set_xticks(range(3))
+axE.set_xticklabels([n.replace(" + ","\n+ ") for n in names], fontsize=9)
+axE.set_ylabel("prequential log-lik")
+axE.set_title("Total prequential score (higher = better)", fontsize=10, pad=4)
+pad = (totals.max()-totals.min())*0.15 + 0.5
+axE.set_ylim(totals.min()-pad*1.2, totals.max()+pad*1.5)
+for i,v in enumerate(totals): axE.text(i, v+pad*0.15, f"{v:.2f}", ha="center", fontsize=9)
+best = int(np.argmax(totals))
+axE.scatter([best],[totals[best]+pad*0.9], marker="*", s=200,
+            color="red", edgecolor="white", linewidth=0.8, zorder=5)
+axE.spines[["top","right"]].set_visible(False)
+
+for ax in (axA, axB, axC, axD): ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+handles, labels = [], []
+for name, d in traces.items():
+    h, = plt.plot([], [], "-o", color=d["color"], linewidth=1.6, markersize=6,
+                   markerfacecolor="white", markeredgewidth=1.3, markeredgecolor=d["color"])
+    handles.append(h); labels.append(name)
+thr, = plt.plot([], [], color="#c0392b", linestyle=":", linewidth=1.0)
+handles.append(thr); labels.append("ESS = 500 (10%)")
+fig.legend(handles, labels, frameon=False, fontsize=9.5, loc="center left",
+           bbox_to_anchor=(0.87, 0.5))
+fig.suptitle("Prequential model comparison — one-step-ahead predictive scoring (Dawid 1984)",
+             fontsize=11.5, y=1.00)
+fig.savefig(FIG/"preq_comparison.png", bbox_inches="tight")
+plt.close(fig)
+```
+
+![Prequential comparison rendered from the three JSON traces. Top-row middle:
+per-day log score — day 4 (the outbreak's acceleration) dominates the Δelpd
+between models. Top-row right: PF effective sample size per step — Poisson's
+collapses to ~20 on day 4, a direct indicator of model mis-specification.
+Bottom-left: cumulative prequential log-lik over time, whose final heights
+equal the bar-chart on the bottom-right.](figures/preq_comparison.png){#fig-preq}
+
+**What the figure adds that the `compare` table can't:** day 4 — the
+outbreak's acceleration from 76 to 225 cases — carries essentially all the
+model-discrimination. Other days score within ~0.3 nats across models.
+Poisson's PF collapses to ESS ≈ 20 on day 4 (99.6% depletion), a mechanical
+warning that the data has moved somewhere Poisson's state space does not
+want to be. NegBin widens the obs error enough to survive; procnoise lets
+the trajectory itself jitter via $\sigma_{se}$ and assigns the observed
+acceleration real probability mass without needing cartoonish observation
+bars.
+
+## A deliberate caveat about $t_0$
+
+The comparison above has $t_0 = 0$ — every day is scored, including the first
+few where the filter is still seeded by the prior. The v1 proposal
+([§7.1](prequential-proposal.md#71-api-surface)) defaults $t_0$ to a
+model-structure heuristic with a warning, and offers
+`--compute-t0-threshold` as an opt-in identifiability sweep.
+
+For this chapter's comparison we deliberately score from $t=0$ because:
+- The three models share identical priors and initial conditions, so
+  prior-dominated early scores are the *same* across models and don't bias Δelpd.
+- PF effective sample size is high at $t=0$ across all three (5000 by
+  definition), so Monte-Carlo noise isn't amplified.
+- In the worked example of the v1 proposal ($t_0 = 5$), the ranking is the
+  same; scoring from $t=0$ here gives the reader more per-day structure to
+  look at.
+
+For a publication comparison, the right move is
+`--compute-t0-threshold` — that's the Tier-1 discipline, where a user-supplied
+$t_0$ below the computed identifiability threshold errors. v1 warns; v2 makes
+the sweep default once incremental-IF2 caching lands.
+
+::: {.callout-note collapse="true"}
+## Why two scoring columns — and why the tool doesn't combine them
+
+The table reports both elpd (log score) and mean CRPS because they
+measure different things and `camdl compare` refuses to combine them
+into a single headline ranking.
+
+**Log score** rewards predictive density concentrated at the observed
+point. It has a multiplicative structure: differences in elpd are
+log-likelihood-ratios, so `exp(Δelpd)` is the e-value / Bayes factor
+(the E_T column). This is what makes the testing-by-betting
+interpretation, Bayesian updating, and the "nats of evidence" scale
+coherent. Log score is measured in nats.
+
+**CRPS** rewards calibrated CDFs overall — it integrates the squared
+difference between the predictive CDF and the empirical CDF across
+all thresholds. It is measured in the units of the observations
+(here: boys in bed per day). CRPS has no ratio interpretation:
+`exp(ΔCRPS)` is not a likelihood ratio, not a probability, not an
+e-value — it's meaningless.
+
+Because they live in different units (nats vs. cases/day), any combined
+ranking would require an exchange rate — equal-weight z-scoring, rank
+aggregation, or similar — and that is a methodological choice, not a
+measurement. The tool does not make that choice on your behalf.
+
+**When they agree,** the ranking is robust. **When they disagree,** the
+disagreement is itself diagnostic: typically the log-score winner has a
+sharper predictive that is well-calibrated at the observed points, while
+the CRPS winner is more diffuse but covers tails better.
+
+**Which metric you trust more depends on what you'll do with the
+model.** If the model feeds a Bayesian decision pipeline — posterior
+parameter estimates, likelihood-ratio tests, evidence synthesis — then
+log score is the natural loss, because it directly measures the quality
+of the predictive density that those downstream methods consume. If the
+model produces interval forecasts for operational use — epidemic
+thresholds, resource planning, forecasting hub submissions — then CRPS
+matters more, because it evaluates the full predictive CDF that
+generates those intervals. The scoring rule should match the loss
+function of the decision the model is serving. Different proper scoring
+rules correspond to different loss functions (Gneiting 2011, "Making
+and evaluating point forecasts," *JASA*); aggregating them requires a
+decision-theoretic commitment that belongs to the analyst, not the tool.
+
+On this dataset, elpd and CRPS agree: procnoise wins both. That
+agreement is the strong version of the result.
+:::
+
+## The final converging answer
+
+| metric | Poisson | NegBin | Procnoise | winner |
+|---|---|---|---|---|
+| full-data AIC       | 126.28     | 122.18     | **118.78** | Procnoise |
+| full-data BIC       | 127.56     | 124.09     | **120.70** | Procnoise |
+| falling-edge holdout ll | $-58.49$  | $-57.75$  | **$-55.76$** | Procnoise |
+| **prequential elpd** (camdl compare) | $-62.44$ | $-58.42$ | **$-56.47$** | Procnoise |
+| prequential mean CRPS | 14.15  | 13.95  | **12.83** | Procnoise |
+| PIT 90% coverage | 0.71 | 0.79 | **0.86** | Procnoise (closest to nominal 0.90) |
+
+Four metrics, four rankings, one answer. **Process noise on $\beta$ is a better
+model than either Poisson or NegBin observation dispersion on this dataset.**
+The margin is modest (~2 nats prequential elpd over NegBin), but it is
+consistent across in-sample, out-of-sample, and time-resolved metrics, and it
+tells a mechanistically coherent story: the extra variance lives in the
+dynamics, not in the counting.
+
+## What camdl's v1 prequential release makes easy vs hard
+
+**Easy now:**
+
+- One `pfilter` call per model produces the full typed prequential trace,
+  including per-particle predictive samples.
+- `camdl compare` renders the publication table. Baseline auto-selection by
+  best elpd; paired-per-step Δelpd SE; mean CRPS as a robust complement; PIT
+  90% coverage inline as an overconfidence flag; markdown and JSON output for
+  paper drafts and downstream plotting.
+- Structural-fairness preflight refuses when `T_score` mismatches across
+  models (override: `--allow-mismatched-horizon`).
+
+**Harder / not yet in v1** (see Part II of the proposal):
+
+- Full LFO-PSIS for PMMH / PGAS posteriors (we're plug-in only here).
+- Pseudo-posterior from IF2 chain cloud (we did manual $\sigma_{se}$ profiling
+  instead).
+- Randomized PIT for count data (we use point-estimate PIT).
+- E-process / betting display mode, with a one-line interpretation disclaimer.
+- Anti-pattern detection ($t_0 = 0$ warning, seed-collision refusal).
+- Identifiability-sweep-derived $t_0$ default (we used $t_0=0$ and justified
+  it above; Tier-1 would have checked it).
+
+## References
+
+- **Dawid, A.P. (1984).** "Statistical theory: The prequential approach."
+  *JRSS-A* 147(2): 278–292.
+- **Gneiting, T. & Raftery, A.E. (2007).** "Strictly proper scoring rules,
+  prediction, and estimation." *JASA* 102(477): 359–378.
+- **Bürkner, P.-C., Gabry, J. & Vehtari, A. (2020).** "Approximate leave-future-
+  out cross-validation for Bayesian time series models." *J. Stat. Comput.
+  Simul.* 90: 2499–2523.
+- **He, D., Ionides, E.L. & King, A.A. (2010).** "Plug-and-play inference for
+  disease dynamics." *J. R. Soc. Interface* 7: 271–283.
+- **King, A.A., Nguyen, D. & Ionides, E.L. (2016).** "Statistical inference for
+  partially observed Markov processes via the R package pomp." *JSS* 69: 1–43.
+- **camdl prequential-evaluation proposal**
+  (`docs/dev/proposals/2026-04-20-prequential-evaluation.md`) — this chapter
+  uses Part I ("v1 scope"); Part II items are flagged where relevant.

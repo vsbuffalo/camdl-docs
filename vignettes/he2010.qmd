@@ -44,7 +44,7 @@ def run_sim(model, params=None, seed=42, extra_args=None, cwd=VDIR):
     return pl.read_csv(io.StringIO(tsv), separator="\t")
 ```
 
-The [previous chapters](../boarding-school-sir-clean/report.html) fit an
+The [previous chapters](../guide/fitting-data/report.html) fit an
 SIR model to 14 days of a boarding-school influenza outbreak — a closed
 population, two free parameters, a single epidemic wave. That was the
 simplest interesting inference problem.
@@ -615,7 +615,7 @@ to zero and can only restart via stochastic fluctuation.
 **Process noise** via `overdispersed()` adds Gamma-distributed noise to
 the force of infection. This is the He et al. "environmental stochasticity"
 that we saw outperform NegBin observation noise in the
-[model comparison chapter](../boarding-school-sir-clean/model_comparison.html).
+[model comparison chapter](../guide/fitting-data/model_comparison.html).
 
 **Cohort births** via `events {}` — children enter school once per year,
 creating an annual pulse of new susceptibles.

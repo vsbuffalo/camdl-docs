@@ -23,8 +23,8 @@ book:
         - guide/experiments.qmd
         - guide/scenarios.qmd
         - guide/dimensions.qmd
-        - boarding-school-sir-clean/report.qmd
-        - boarding-school-sir-clean/model_comparison.qmd
+        - guide/fitting-data/report.qmd
+        - guide/fitting-data/model_comparison.qmd
     - part: "Inference"
       chapters:
         - inference/likelihood.qmd
