@@ -1,0 +1,57 @@
+# SIR model for the 1978 English boarding school influenza outbreak.
+#
+# 763 boys, closed population, H1N1 influenza.
+# Data: daily number confined to bed over 14 days.
+#
+# Priors informed by what was known about influenza in 1978:
+#   - R0 for flu typically 1.5–4 (informed by 1918, seasonal estimates)
+#   - Infectious period 2–5 days (clinical observation)
+#   - Reporting/confinement fraction uncertain but high in a boarding school
+
+time_unit = 'days
+
+compartments { S, I, R }
+
+parameters {
+  beta  : rate         in [0.1, 5.0]   ~ log_normal(mu = log(2.0), sigma = 0.5)
+  gamma : rate         in [0.1, 1.0]   ~ log_normal(mu = log(0.4), sigma = 0.3)
+  N0    : count
+  I0    : count
+  rho   : probability  in [0.5, 1.0]   ~ beta(alpha = 5.0, beta = 2.0)
+  k     : positive     in [1.0, 100.0] ~ half_normal(sigma = 10.0)
+}
+
+let N = S + I + R
+
+transitions {
+  infection : S --> I  @ beta * S * I / N
+  recovery  : I --> R  @ gamma * I
+}
+
+init {
+  S = N0 - I0
+  I = I0
+}
+
+observations {
+  in_bed : {
+    projected  = prevalence(I)
+    every      = 1 'days
+    likelihood = neg_binomial(mean = rho * projected, r = k)
+  }
+}
+
+scenarios {
+  baseline {
+    label = "Boarding school flu, 1978"
+    set = {
+      N0 = 763
+      I0 = 1
+    }
+  }
+}
+
+simulate {
+  from = 0 'days
+  to   = 14 'days
+}

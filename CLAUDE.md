@@ -36,6 +36,18 @@ narrative turns out to rest on laundered output. Same rule applies to
 any upstream convergence gate: if a gate refuses, fix the underlying
 problem, do not pass a flag to ignore it.
 
+## No freezing — every cell must execute
+
+Do not use Quarto freeze to paper over rendering failures. Every cell in
+every chapter should execute cleanly on every render. The book's executable
+cells are a critical form of integration testing for the camdl CLI — if a
+cell fails, it means an upstream CLI change broke something, and that needs
+to be fixed (either in the chapter or upstream), not frozen over.
+
+If a cell fails during render, diagnose the root cause rather than restoring
+a stale freeze. Common causes: upstream CLI flag changes (e.g. clap 4
+strictness), renamed subcommands, changed output format.
+
 ## Self-contained chapters
 
 Each `.qmd` chapter should be **self-contained** — all imports, helpers, and

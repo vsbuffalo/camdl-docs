@@ -1,0 +1,8 @@
+beta       = 0.4
+gamma      = 0.15
+N0         = 10000
+I0         = 10
+rho        = 0.6
+k          = 10.0
+vacc_eff   = 0.8
+leaky_susc = 0.0

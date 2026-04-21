@@ -31,7 +31,7 @@ mpl.rcParams.update({
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname("__file__"), "..")))
 from _lib.cli import run_cli
 
-FIT_DIR = "../examples/fitting"
+FIT_DIR = "_archive/fitting_examples"
 
 def run_sim(model, params_file, seed=42, scenario="baseline", extra_args=None, cwd=FIT_DIR):
     cmd = ["camdl", "simulate", model, "--params", params_file,

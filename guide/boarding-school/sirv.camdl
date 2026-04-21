@@ -1,0 +1,71 @@
+time_unit = 'days
+
+compartments { S, I, R, V }
+
+parameters {
+  beta       : rate         in [0.05, 1.0]  ~ log_normal(mu = -1.0, sigma = 0.5)
+  gamma      : rate         in [0.01, 0.5]  ~ half_normal(sigma = 0.5)
+  N0         : count
+  I0         : count
+  rho        : probability  in [0.1, 0.9]   ~ beta(alpha = 2.0, beta = 5.0)
+  k          : positive     in [1.0, 100.0] ~ half_normal(sigma = 10.0)
+  vacc_eff   : probability  in [0.5, 1.0]
+  leaky_susc : probability  in [0.0, 1.0]
+}
+
+let N = S + I + R + V
+
+transitions {
+  infection   : S --> I  @ beta * S * I / N
+  infection_v : V --> I  @ beta * leaky_susc * V * I / N
+  recovery    : I --> R  @ gamma * I
+}
+
+interventions {
+  vaccination : transfer(fraction = vacc_eff, from = S, to = V) at [15]
+}
+
+init {
+  S = N0 - I0
+  I = I0
+}
+
+observations {
+  weekly_cases : {
+    projected  = incidence(infection)
+    every      = 7 'days
+    likelihood = neg_binomial(mean = rho * projected, r = k)
+  }
+}
+
+scenarios {
+  baseline {
+    label = "No intervention"
+    set = {
+      beta       = 0.4
+      gamma      = 0.15
+      N0         = 10_000
+      I0         = 10
+      rho        = 0.6
+      k          = 10.0
+      vacc_eff   = 0.8
+      leaky_susc = 0.0
+    }
+  }
+  with_vaccination {
+    extends = baseline
+    label = "All-or-nothing vaccination at day 15"
+    enable = [vaccination]
+  }
+  with_leaky_vaccination {
+    extends = baseline
+    label = "Leaky vaccination at day 15"
+    enable = [vaccination]
+    set = { leaky_susc = 0.3 }
+  }
+}
+
+simulate {
+  from = 0 'days
+  to   = 120 'days
+}

@@ -437,16 +437,54 @@ For a publication comparison, the right move is
 $t_0$ below the computed identifiability threshold errors. v1 warns; v2 makes
 the sweep default once incremental-IF2 caching lands.
 
-## Why no CRPS-weighted ranking yet?
+::: {.callout-note collapse="true"}
+## Why two scoring columns — and why the tool doesn't combine them
 
-The table reports mean CRPS alongside elpd, but does not currently offer a
-CRPS-based baseline selection. That is because CRPS is not *ratio-natural* the
-way log score is — there's no clean testing-by-betting interpretation, and the
-units differ between log score and CRPS so arbitrating ties between them
-requires a rule the tool intentionally doesn't pick for you. Report both, make
-the call. If the two disagree sharply on a future comparison, that's a
-*diagnostic* (typically: one model is sharp-but-miscalibrated in the tails),
-not a tie-breaking problem.
+The table reports both elpd (log score) and mean CRPS because they
+measure different things and `camdl compare` refuses to combine them
+into a single headline ranking.
+
+**Log score** rewards predictive density concentrated at the observed
+point. It has a multiplicative structure: differences in elpd are
+log-likelihood-ratios, so `exp(Δelpd)` is the e-value / Bayes factor
+(the E_T column). This is what makes the testing-by-betting
+interpretation, Bayesian updating, and the "nats of evidence" scale
+coherent. Log score is measured in nats.
+
+**CRPS** rewards calibrated CDFs overall — it integrates the squared
+difference between the predictive CDF and the empirical CDF across
+all thresholds. It is measured in the units of the observations
+(here: boys in bed per day). CRPS has no ratio interpretation:
+`exp(ΔCRPS)` is not a likelihood ratio, not a probability, not an
+e-value — it's meaningless.
+
+Because they live in different units (nats vs. cases/day), any combined
+ranking would require an exchange rate — equal-weight z-scoring, rank
+aggregation, or similar — and that is a methodological choice, not a
+measurement. The tool does not make that choice on your behalf.
+
+**When they agree,** the ranking is robust. **When they disagree,** the
+disagreement is itself diagnostic: typically the log-score winner has a
+sharper predictive that is well-calibrated at the observed points, while
+the CRPS winner is more diffuse but covers tails better.
+
+**Which metric you trust more depends on what you'll do with the
+model.** If the model feeds a Bayesian decision pipeline — posterior
+parameter estimates, likelihood-ratio tests, evidence synthesis — then
+log score is the natural loss, because it directly measures the quality
+of the predictive density that those downstream methods consume. If the
+model produces interval forecasts for operational use — epidemic
+thresholds, resource planning, forecasting hub submissions — then CRPS
+matters more, because it evaluates the full predictive CDF that
+generates those intervals. The scoring rule should match the loss
+function of the decision the model is serving. Different proper scoring
+rules correspond to different loss functions (Gneiting 2011, "Making
+and evaluating point forecasts," *JASA*); aggregating them requires a
+decision-theoretic commitment that belongs to the analyst, not the tool.
+
+On this dataset, elpd and CRPS agree: procnoise wins both. That
+agreement is the strong version of the result.
+:::
 
 ## The final converging answer
 

@@ -28,7 +28,7 @@ mpl.rcParams.update({
     "legend.edgecolor": GREY,
 })
 
-EXAMPLE_DIR = "../examples/experiments"
+EXAMPLE_DIR = "boarding-school"
 MODEL = f"{EXAMPLE_DIR}/sirv.camdl"
 PARAMS = f"{EXAMPLE_DIR}/params.toml"
 BS_MODEL = f"{EXAMPLE_DIR}/boarding_school.camdl"
@@ -53,7 +53,7 @@ def run_sim(model=MODEL, params=PARAMS, seed=42, extra_args=None, obs=False, sce
     tsv = "\n".join(l for l in lines if not l.startswith("#"))
     traj = pl.read_csv(io.StringIO(tsv), separator="\t")
     if show:
-        display_cmd = " ".join(cmd).replace(EXAMPLE_DIR + "/", "").replace("../examples/getting-started/", "")
+        display_cmd = " ".join(cmd).replace(EXAMPLE_DIR + "/", "").replace("getting-started/", "")
         preview_lines = [l for l in lines if l.strip()][:6]
         preview = "\n".join(preview_lines)
         stderr_info = result.stderr.strip()
@@ -531,8 +531,8 @@ sweep_path = os.path.join(EXAMPLE_DIR, "sweep.toml")
 with open(sweep_path, "w") as f:
     f.write(sweep_toml)
 display(run_cli(
-    f"cd {EXAMPLE_DIR} && camdl simulate batch sweep.toml --dry-run",
-    echo="camdl simulate batch sweep.toml --dry-run"
+    f"cd {EXAMPLE_DIR} && camdl batch run sweep.toml --dry-run",
+    echo="camdl batch run sweep.toml --dry-run"
 ))
 ```
 
@@ -552,24 +552,24 @@ for f in ["sirv.camdl", "params.toml", "sweep.toml"]:
     shutil.copy(os.path.join(EXAMPLE_DIR, f), batch_dir)
 
 batch_result = subprocess.run(
-    ["camdl", "simulate", "batch", "sweep.toml"],
+    ["camdl", "batch", "run", "sweep.toml"],
     cwd=batch_dir, capture_output=True, text=True, check=True
 )
 _batch_html = _ansi_to_html(batch_result.stderr.rstrip())
 display(HTML(
     f'<details class="cli-run">'
-    f'<summary><code>$ camdl simulate batch sweep.toml</code></summary>'
+    f'<summary><code>$ camdl batch run sweep.toml</code></summary>'
     f'<pre class="ansi-output"><code>{_batch_html}</code></pre>'
     f'</details>'
 ))
 
 # Read manifest and all trajectories
-with open(os.path.join(batch_dir, "output", "manifest.json")) as f:
+with open(os.path.join(batch_dir, "output", "sims", "manifest.json")) as f:
     manifest = json.load(f)
 
 sweep_results = []
 for run in manifest["runs"]:
-    traj_path = os.path.join(batch_dir, "output", "runs", run["run_path"], "traj.tsv")
+    traj_path = os.path.join(batch_dir, "output", "sims", run["run_path"], "traj.tsv")
     traj = pl.read_csv(traj_path, separator="\t")
     peak = traj["I"].max()
     sweep_results.append({
@@ -605,6 +605,17 @@ ax.legend(frameon=False, fontsize=9)
 ax.spines[["top", "right"]].set_visible(False)
 plt.tight_layout()
 plt.show()
+```
+
+After a batch completes (or during a long run), `camdl batch status`
+shows what's done:
+
+```{python}
+#| echo: false
+display(run_cli(
+    f"cd {batch_dir} && camdl batch status sweep.toml",
+    echo="camdl batch status sweep.toml"
+))
 ```
 
 The sweep reveals that vaccination consistently reduces the peak across

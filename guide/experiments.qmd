@@ -30,7 +30,7 @@ mpl.rcParams.update({
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname("__file__"), "..")))
 from _lib.cli import run_cli
 
-EXAMPLE_DIR = "../examples/experiments"
+EXAMPLE_DIR = "boarding-school"
 MODEL = f"{EXAMPLE_DIR}/sirv.camdl"
 PARAMS = f"{EXAMPLE_DIR}/params.toml"
 
@@ -54,7 +54,7 @@ def run_sim(model=MODEL, params=PARAMS, seed=42, extra_args=None, obs=False, sce
     traj = pl.read_csv(io.StringIO(tsv), separator="\t")
     if show:
         # Build a human-readable command (strip paths for readability)
-        display_cmd = " ".join(cmd).replace(EXAMPLE_DIR + "/", "").replace("../examples/getting-started/", "")
+        display_cmd = " ".join(cmd).replace(EXAMPLE_DIR + "/", "").replace("getting-started/", "")
         # Show first few lines of output as preview
         preview_lines = [l for l in lines if l.strip()][:6]
         preview = "\n".join(preview_lines)
@@ -125,7 +125,7 @@ comparison — is what separates rigorous analysis from storytelling
 with curves.
 
 The example files for this chapter are in
-[`examples/experiments/`](https://github.com/vsbuffalo/camdl-book/tree/main/examples/experiments).
+[`guide/boarding-school/`](https://github.com/vsbuffalo/camdl-book/tree/main/guide/boarding-school).
 
 
 ## Priors — simulating from beliefs alone
@@ -260,8 +260,8 @@ parameters {
 ```{python}
 #| echo: false
 SIR_UNIFORM = f"{EXAMPLE_DIR}/sir_uniform_priors.camdl"
-SIR_LOGNORMAL = "../examples/getting-started/sir_priors.camdl"
-SIR_PARAMS = "../examples/getting-started/params.toml"
+SIR_LOGNORMAL = "getting-started/sir_priors.camdl"
+SIR_PARAMS = "getting-started/params.toml"
 n_prior = 200
 
 prior_uniform = run_sim(model=SIR_UNIFORM, seed=42, params=SIR_PARAMS,

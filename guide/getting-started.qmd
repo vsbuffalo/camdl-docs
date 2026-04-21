@@ -30,7 +30,7 @@ import re
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname("__file__"), "..")))
 from _lib.cli import run_cli
 
-EXAMPLE_DIR = "../examples/getting-started"
+EXAMPLE_DIR = "getting-started"
 MODEL = f"{EXAMPLE_DIR}/sir.camdl"
 PARAMS = f"{EXAMPLE_DIR}/params.toml"
 
@@ -140,11 +140,23 @@ init {
 That's the complete camdl code for an SIR model! Let's run it, then walk
 through what each piece does.
 
+::: {.callout-tip}
+## This is deliberately simple
+
+The SIR model here treats everyone as identical — one population, no age
+groups, no spatial structure. Real models need more: age-stratified
+contact matrices, spatial patches loaded from census data, partial
+stratification for vaccination status. camdl supports all of this through
+its [dimension and table system](dimensions.qmd), with compiler-checked
+type safety on every index. Start here to learn the syntax; the
+complexity scales when you need it.
+:::
+
 
 ## Run it, see it
 
 The full model and parameter files for this chapter are in
-[`examples/getting-started/`](https://github.com/vsbuffalo/camdl-book/tree/main/examples/getting-started).
+[`guide/getting-started/`](https://github.com/vsbuffalo/camdl-book/tree/main/guide/getting-started).
 Clone the book repo and `cd` into that directory to follow along.
 
 Running `camdl simulate` without arguments shows the help — a quick
@@ -836,7 +848,7 @@ simulate {
 
 30 lines. A stochastic SIR with typed parameters and a statistical
 observation model. This is the `sir.camdl` in
-[`examples/getting-started/`](https://github.com/vsbuffalo/camdl-book/tree/main/examples/getting-started),
+[`guide/getting-started/`](https://github.com/vsbuffalo/camdl-book/tree/main/guide/getting-started),
 along with `params.toml`.
 
 

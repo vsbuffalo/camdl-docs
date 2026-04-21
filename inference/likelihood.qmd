@@ -52,6 +52,29 @@ these two pieces.
 
 ![The observation pipeline: latent incidence is aggregated, thinned by reporting probability ρ, and corrupted by observation noise. Inference tries to invert this pipeline.](figures/generated/observation_pipeline.svg)
 
+::: {.callout-note}
+## Log-likelihoods are measured in nats
+
+Throughout this book, log-likelihoods use the natural logarithm
+(base $e$), so the unit is the **nat** — the natural unit of
+information. A difference of 1 nat between two models means one
+assigns $e \approx 2.72$ times higher probability to the data. A
+difference of 3 nats is a factor of ~20; 5 nats is ~150×.
+
+The nat scale is universal across all likelihood-based comparisons
+in camdl: IF2 log-likelihoods, PGAS posterior densities, elpd in
+model comparison, and the E_T e-value column (`exp(Δelpd)` converts
+nats back to a probability ratio). When you see "the log-likelihood
+improved by 2 nats," that means the better model assigns ~7× higher
+probability to the observed data. When the improvement is 0.5 nats,
+it's only ~1.6× — probably noise.
+
+(Information theorists use bits (log₂); Bayesians and physicists
+use nats (ln). The choice is a constant factor: 1 nat ≈ 1.44 bits.
+camdl uses nats because $\ln$ is what falls out of the math
+naturally.)
+:::
+
 ---
 
 ## 2. Observation likelihood — the piece you can always evaluate
@@ -164,6 +187,49 @@ effect accumulates across hundreds of substeps.
 The backend determines both the simulation mechanics and which inference
 algorithms are available. The choice matters more than it might seem —
 each makes a different approximation.
+
+::: {.callout-note collapse="true"}
+## What is "chain-binomial" and how does it relate to Euler-multinomial?
+
+The names reflect historical accident more than structural difference.
+The **chain-binomial** model (Reed & Frost, taught at Johns Hopkins in
+the 1920s–30s; published by Abbey 1952; systematized in Bailey 1975)
+discretizes an epidemic into generations: at each step, $I_{t+1} \mid
+S_t, I_t \sim \text{Binomial}(S_t, 1 - q^{I_t})$. "Chain" because
+it's a Markov chain; "binomial" because each transition is a binomial
+draw.
+
+The **Euler-multinomial** (Bretó et al. 2009; He et al. 2010)
+generalizes this to continuous-time models with competing exits — an $I$
+individual can recover, die, or be reported — discretized at step size
+$\Delta t$. The exits are multinomial rather than binomial, with
+probabilities derived from the competing hazards: $p_j = (\lambda_j /
+\lambda_{\text{tot}})(1 - e^{-\lambda_{\text{tot}} \Delta t})$.
+Chain-binomial is the special case with one exit per compartment and
+$\Delta t$ equal to one generation.
+
+Both are finite-population stochastic models where each time step is a
+joint draw of how many individuals move along which edge, conditional on
+current compartment sizes. The transition kernel is a composition of
+independent individual-level draws — which is why the density is
+closed-form and why particle-filter-based inference works.
+
+For readers with a population genetics background: the structure is the
+same as a Wright-Fisher model with multiple allelic classes. Replace
+"allele frequency" with "compartment fraction," replace "selection
+coefficient" with "force of infection minus recovery," and the
+transition kernel is the same multinomial-conditional-on-current-state
+object. The identifiability geometry is similar too: in Wright-Fisher,
+$N_e$ and selection $s$ are partially confounded from a single-locus
+trajectory; in stochastic SIR, $R_0$ and reporting rate $\rho$ have the
+same issue on a single outbreak — you observe $\rho R_0$-like
+combinations cleanly but need additional structure to separate them.
+Both are cases where a single realization of a finite-population Markov
+chain under-determines the generator. The key biological difference is
+the depletion-of-susceptibles nonlinearity: $S$ decreases monotonically
+during an outbreak, making the drift strongly state-dependent in a way
+neutral genetics doesn't see.
+:::
 
 ::: {.callout-tip collapse="false"}
 ## Chain-binomial (Euler-multinomial) — the default for inference

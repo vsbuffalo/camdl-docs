@@ -1,0 +1,103 @@
+# Boarding school SIR with intervention compartments.
+#
+# Adds V (vaccinated) and Q (quarantine/isolation) to the basic SIR.
+# Interventions are off by default; scenarios enable them.
+#
+# Teaching example: "What if we could apply modern tools
+# to the 1978 boarding school outbreak?"
+
+time_unit = 'days
+
+compartments { S, I, R, Q, V }
+
+parameters {
+  beta      : rate        in [0.1, 5.0]
+  gamma     : rate        in [0.1, 1.0]
+  N0        : count
+  I0        : count
+  rho       : probability in [0.5, 1.0]
+  k         : positive    in [1.0, 100.0]
+  vacc_frac : probability
+  isol_frac : probability
+}
+
+let N = S + I + R + Q + V
+
+transitions {
+  infection  : S --> I  @ beta * S * I / N
+  recovery   : I --> R  @ gamma * I
+  recovery_q : Q --> R  @ gamma * Q
+}
+
+init {
+  S = N0 - I0
+  I = I0
+}
+
+interventions {
+  # Pre-epidemic vaccination: move fraction of S to V at day 1
+  vaccination : transfer(fraction = vacc_frac, from = S, to = V) at [1]
+
+  # Reactive isolation: daily move fraction of I to Q starting day 4
+  isolation : transfer(fraction = isol_frac, from = I, to = Q) {
+    every = 1 'days
+    from  = 4 'days
+    until = 14 'days
+  }
+}
+
+observations {
+  in_bed : {
+    projected  = prevalence(I)
+    every      = 1 'days
+    likelihood = neg_binomial(mean = rho * projected, r = k)
+  }
+}
+
+scenarios {
+  baseline {
+    label = "No intervention"
+    set = {
+      N0        = 763
+      I0        = 1
+      vacc_frac = 0.0
+      isol_frac = 0.0
+    }
+  }
+
+  isolation_only {
+    extends = baseline
+    label = "Reactive isolation at day 4"
+    enable = [isolation]
+    set = { isol_frac = 0.5 }
+  }
+
+  vaccination_low {
+    extends = baseline
+    label = "Vaccination (40% coverage × 70% VE)"
+    enable = [vaccination]
+    set = { vacc_frac = 0.28 }
+  }
+
+  vaccination_high {
+    extends = baseline
+    label = "Vaccination (80% coverage × 70% VE)"
+    enable = [vaccination]
+    set = { vacc_frac = 0.56 }
+  }
+
+  combined {
+    extends = baseline
+    label = "Vaccination (60%) + isolation"
+    enable = [vaccination, isolation]
+    set = {
+      vacc_frac = 0.42
+      isol_frac = 0.5
+    }
+  }
+}
+
+simulate {
+  from = 0 'days
+  to   = 14 'days
+}
