@@ -1,0 +1,7 @@
+district	district	weight
+kano_dala	borno_maiduguri	0.002
+kano_dala	oyo_ibadan	0.001
+borno_maiduguri	kano_dala	0.002
+lagos_ikeja	oyo_ibadan	0.005
+oyo_ibadan	lagos_ikeja	0.005
+oyo_ibadan	kano_dala	0.001

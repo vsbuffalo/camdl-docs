@@ -1,0 +1,215 @@
+---
+title: "Malaria: Sub-National Tailoring Model"
+draft: true
+execute:
+  echo: false
+---
+
+```{python}
+#| output: false
+import subprocess, os, sys, io
+import polars as pl
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+sys.path.insert(0, os.path.join(os.getcwd(), ".."))
+from _lib.cli import run_cli
+
+GREY = "#888888"
+mpl.rcParams.update({
+    "figure.facecolor": "none",
+    "axes.facecolor": "none",
+    "savefig.facecolor": "none",
+    "figure.dpi": 150,
+    "font.size": 11,
+    "text.color": GREY,
+    "axes.labelcolor": GREY,
+    "xtick.color": GREY,
+    "ytick.color": GREY,
+})
+
+MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath("__file__")), "malaria")
+
+def simulate(model, params_override=None, seed=42):
+    """Run camdl simulate and return polars DataFrame."""
+    cmd = f"camdl simulate {model} --scenario baseline --seed {seed}"
+    if params_override:
+        for k, v in params_override.items():
+            cmd += f" --param {k}={v}"
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=MODEL_DIR)
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr)
+    return pl.read_csv(io.StringIO(result.stdout), separator="\t", comment_prefix="#")
+```
+
+This vignette builds a malaria transmission model for sub-national
+tailoring — the operational use case where district-level data
+(populations, endemicity, intervention coverage) drives model
+calibration and scenario analysis. The model exercises most of camdl's
+dimension and table features in a realistic epidemiological context.
+
+## Model structure
+
+The model uses a Ross-Macdonald reduced form (no explicit mosquito
+compartments) with a clinical/asymptomatic infection split:
+
+```
+S → E → D → T → P → S    (clinical: detected, treated, prophylaxis)
+         ↘ A → S           (asymptomatic: undetected, slow clearance)
+```
+
+- **D** (clinical disease): symptomatic, seeks treatment. This is the
+  observed quantity — confirmed cases at health facilities.
+- **A** (asymptomatic): low-density parasitemia, not seeking care.
+  The large asymptomatic reservoir sustains transmission between
+  seasonal peaks.
+- **T** (on treatment): ACT course (~3 days).
+- **P** (prophylactic protection): post-ACT lumefantrine prophylaxis
+  (~28 days).
+
+The fraction progressing to clinical vs. asymptomatic infection is
+**age-dependent** — younger children have less acquired immunity and
+a higher clinical fraction. This is the central age-structure effect
+in malaria epidemiology.
+
+## Dimensions and data
+
+The model is stratified by **district** (4 Nigerian LGAs, data-derived)
+and **age** (under-5, 5–15, over-15):
+
+```{python}
+display(run_cli(
+    f"camdl inspect {MODEL_DIR}/malaria_snt.camdl",
+    echo="camdl inspect malaria_snt.camdl",
+    collapse=False
+))
+```
+
+6 base compartments × 4 districts × 3 age groups = 72 expanded
+compartments. 10 transition templates expand to 172 transitions.
+
+### External data tables
+
+District populations and spatial connectivity are loaded from TSV files.
+The age-dependent clinical fraction uses a parameterized inline table:
+
+```{python}
+display(run_cli(
+    f"camdl inspect {MODEL_DIR}/malaria_snt.camdl --tables",
+    echo="camdl inspect malaria_snt.camdl --tables",
+    collapse=False
+))
+```
+
+The `pop` table is joint `district × age` — 12 entries from the
+population file. The `adj` matrix is sparse (only 6 of 16 district
+pairs are connected). The `phi_clin` table holds parameter references
+(`phi_u5`, `phi_5_15`, `phi_adult`) resolved at runtime — the clinical
+fraction is estimable during inference.
+
+## The model source
+
+```{.camdl filename="malaria/malaria_snt.camdl"}
+{{< include malaria/malaria_snt.camdl >}}
+```
+
+## Prior predictive check
+
+To assess whether the model produces plausible dynamics under
+reasonable priors, we sample parameters from their prior ranges and
+simulate multiple trajectories. The key question: does the model
+produce endemic equilibria with seasonal oscillations and realistic
+prevalence levels?
+
+```{python}
+#| fig-cap: "Prior predictive: infection prevalence (D + A as % of population) and monthly new clinical cases by district. 10 draws with varied R₀ and seasonality."
+#| label: fig-prior-predictive
+#| fig-height: 8
+np.random.seed(12)
+n_draws = 10
+
+districts = ["kano_dala", "borno_maiduguri", "lagos_ikeja", "oyo_ibadan"]
+district_labels = ["Kano (Dala)", "Borno (Maiduguri)", "Lagos (Ikeja)", "Oyo (Ibadan)"]
+r0_means = {"kano_dala": 6.0, "borno_maiduguri": 4.5, "lagos_ikeja": 2.0, "oyo_ibadan": 5.0}
+colors = ["#e74c3c", "#3498db", "#2ecc71", "#f39c12"]
+
+fig, axes = plt.subplots(4, 2, figsize=(10, 10), sharex=True)
+
+for draw in range(n_draws):
+    overrides = {}
+    for d in districts:
+        r0 = np.random.lognormal(np.log(r0_means[d]), 0.3)
+        overrides[f"R0_{d}"] = f"{r0:.2f}"
+    overrides["alpha"] = f"{np.random.uniform(0.2, 0.7):.2f}"
+    overrides["phi_season"] = f"{np.random.uniform(200, 280):.0f}"
+    overrides["phi_u5"] = f"{np.random.uniform(0.5, 0.85):.2f}"
+    overrides["rho_tx"] = f"{np.random.uniform(0.3, 0.7):.2f}"
+
+    try:
+        df = simulate("malaria_snt.camdl", overrides, seed=42 + draw)
+    except RuntimeError:
+        continue
+
+    t_years = df["t"] / 365
+
+    for i, (d, label) in enumerate(zip(districts, district_labels)):
+        # Prevalence: (D + A) / N as percentage
+        d_cols = [c for c in df.columns if c.startswith(f"D_{d}_")]
+        a_cols = [c for c in df.columns if c.startswith(f"A_{d}_")]
+        all_comps = [c for c in df.columns
+                     if any(c.startswith(f"{comp}_{d}_") for comp in ["S","E","D","A","T","P"])]
+        total_inf = df.select(d_cols).sum_horizontal() + df.select(a_cols).sum_horizontal()
+        total_N = df.select(all_comps).sum_horizontal()
+        prevalence = 100 * total_inf / total_N
+
+        axes[i, 0].plot(t_years, prevalence, alpha=0.3, color=colors[i], linewidth=0.8)
+
+        # Monthly new clinical cases (sum flow_progression_clin per 30 days)
+        flow_cols = [c for c in df.columns if c.startswith(f"flow_progression_clin_{d}_")]
+        daily_clin = df.select(flow_cols).sum_horizontal()
+        # Rolling 30-day sum for monthly incidence
+        monthly = daily_clin.rolling_sum(window_size=30)
+        axes[i, 1].plot(t_years, monthly, alpha=0.3, color=colors[i], linewidth=0.8)
+
+for i, (d, label) in enumerate(zip(districts, district_labels)):
+    axes[i, 0].set_ylabel("Prevalence (%)")
+    axes[i, 0].set_title(f"{label} — prevalence", fontsize=10, color=GREY)
+    axes[i, 0].spines[["top", "right"]].set_visible(False)
+
+    axes[i, 1].set_ylabel("Monthly cases")
+    axes[i, 1].set_title(f"{label} — clinical incidence", fontsize=10, color=GREY)
+    axes[i, 1].spines[["top", "right"]].set_visible(False)
+
+axes[3, 0].set_xlabel("Years")
+axes[3, 1].set_xlabel("Years")
+plt.tight_layout()
+plt.show()
+```
+
+The left column shows infection prevalence (D + A as a fraction of the
+total population) — the key calibration target in malaria modeling,
+corresponding to *Pf*PR measured in cross-sectional surveys. Kano
+reaches ~75% prevalence (consistent with holoendemic settings),
+Lagos stays low (~2–5%), and the other districts are intermediate.
+The right column shows monthly new clinical cases — the quantity
+observed at health facilities. Seasonal oscillations from the
+sinusoidal forcing are visible in the incidence, with peaks
+corresponding to the rainy season (day ~240, late August).
+
+## Features exercised
+
+This model tests the following camdl features in combination:
+
+| Feature | Usage in this model |
+|---------|-------------------|
+| Data-derived dimensions | `district = read("data/...", column = "district")` |
+| Joint multi-dim table | `pop : district × age = read(...)` |
+| Sparse 2D table | `adj : district × district = read(..., default = 0.0)` |
+| Parameterized inline table | `phi_clin : age = [phi_u5, phi_5_15, phi_adult]` |
+| Indexed parameters | `R0[district]`, `I0[district]` |
+| Sinusoidal forcing | `seasonal : sinusoidal { ... }` |
+| `c in compartments` | Death transitions across all 6 compartments |
+| Spatial coupling with `sum()` | `sum(q in district, adj[d,q] * I_eff[q] / N_total[q])` |
+| `let` with nested sums | `I_eff[d] = sum(a in age, D[d,a] + c_A * A[d,a])` |
+| Derived beta from R0 | `let beta[d] = R0[d] * gamma_A` |

@@ -22,18 +22,17 @@ book:
         - guide/getting-started.qmd
         - guide/experiments.qmd
         - guide/scenarios.qmd
+        - guide/dimensions.qmd
         - boarding-school-sir-clean/report.qmd
         - boarding-school-sir-clean/model_comparison.qmd
     - part: "Inference"
       chapters:
         - inference/likelihood.qmd
         - inference/algorithms.qmd
-        - inference/pipeline.qmd
-        - inference/diagnostics.qmd
-        - inference/debugging.qmd
     - part: "Vignettes"
       chapters:
         - vignettes/he2010.qmd
+        - vignettes/malaria.qmd
         - vignettes/model-comparison.qmd
         - vignettes/spatial-inference.qmd
         - vignettes/sampler-comparison.qmd

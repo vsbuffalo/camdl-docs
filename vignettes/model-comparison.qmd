@@ -1,5 +1,6 @@
 ---
 title: "Model Comparison"
+draft: true
 ---
 
 *Coming soon.* Age-structured vs. unstratified models: when misspecification

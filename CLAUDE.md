@@ -44,6 +44,12 @@ dependencies on other chapters having been rendered first. If a chapter
 genuinely can't be self-contained (shared state, sequential render order),
 flag it to Vince rather than silently coupling files.
 
+## Local preview
+
+- Tailscale hostname: `thuja`
+- Serve locally with `python3 -m http.server 8787 --directory _site`
+- Preview URL: `http://thuja:8787/`
+
 ## General
 
 - Upstream first — see the user's global memory.

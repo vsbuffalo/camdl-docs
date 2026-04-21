@@ -1,0 +1,212 @@
+# Sub-national tailoring malaria model
+#
+# Ross-Macdonald reduced form (no explicit mosquito compartments).
+# Clinical vs. asymptomatic infection pathway, age-structured,
+# spatial coupling between districts, seasonal transmission.
+#
+# Structure:
+#   S → E → D → T → P → S    (clinical: detected, treated, prophylaxis)
+#            ↘ A → S           (asymptomatic: undetected, slow clearance)
+#
+# Calibration targets: monthly clinical incidence by district.
+# Key dimensions: district (from data), age (inline).
+
+time_unit = 'days
+
+# ── Compartments ────────────────────────────────────────────────────
+
+compartments { S, E, D, A, T, P }
+
+# D = clinical disease (symptomatic, seeks treatment)
+# A = asymptomatic infection (not seeking care, low-density parasitemia)
+# T = on treatment (ACT, ~3 days)
+# P = prophylactic protection post-ACT (~28 days for lumefantrine)
+
+# ── Dimensions ──────────────────────────────────────────────────────
+
+dimensions {
+  district = read("data/district_age_pop.tsv", column = "district")
+  age      = [under5, age_5_15, over15]
+}
+
+stratify(by = district)
+stratify(by = age)
+
+# ── Parameters ──────────────────────────────────────────────────────
+
+parameters {
+  # Transmission — indexed by district (different endemicity)
+  R0[district]  : positive    in [1.0, 12.0]
+
+  # Progression rates
+  sigma         : rate        in [0.05, 0.2]    # E → D/A  (1/EIP, ~7-14 days)
+  gamma_D       : rate        in [0.1, 0.5]     # D → T    (clinical → treatment, ~3-7 days)
+  gamma_A       : rate        in [0.002, 0.02]  # A → S    (asymptomatic clearance, ~60-300 days)
+  gamma_T       : rate        in [0.2, 0.5]     # T → P    (treatment duration, ~3 days)
+  omega_P       : rate        in [0.02, 0.07]   # P → S    (prophylaxis waning, ~15-40 days)
+
+  # Clinical fraction — age-dependent (immunity increases with age)
+  phi_u5        : probability in [0.5, 0.9]     # fraction clinical, under-5
+  phi_5_15      : probability in [0.2, 0.6]     # fraction clinical, 5-15
+  phi_adult     : probability in [0.05, 0.3]    # fraction clinical, over-15
+
+  # Relative infectiousness of asymptomatics
+  c_A           : probability in [0.1, 0.5]
+
+  # Treatment-seeking probability (of clinical cases)
+  rho_tx        : probability in [0.2, 0.8]
+
+  # Spatial coupling
+  kappa         : rate        in [0.0, 0.01]
+
+  # Seasonality
+  alpha         : probability in [0.1, 0.8]     # seasonal amplitude
+  phi_season    : real        in [0.0, 365.0]   # peak day of year
+
+  # Background demography
+  mu            : rate        in [1e-5, 5e-4]
+
+  # Seeding
+  I0[district]  : count       in [1, 500]
+}
+
+# ── Tables ──────────────────────────────────────────────────────────
+
+tables {
+  pop      : district × age    = read("data/district_age_pop.tsv")
+  adj      : district × district = read("data/spatial_adj.tsv", default = 0.0)
+
+  # Age-dependent clinical fraction
+  phi_clin : age               = [phi_u5, phi_5_15, phi_adult]
+}
+
+# ── Derived quantities ──────────────────────────────────────────────
+
+let N[d in district, a in age] = S[d,a] + E[d,a] + D[d,a] + A[d,a] + T[d,a] + P[d,a]
+let N_total[d in district]     = sum(a in age, N[d, a])
+
+# Total infectious pressure per district (clinical + weighted asymptomatic)
+let I_eff[d in district] = sum(a in age, D[d, a] + c_A * A[d, a])
+
+# District-specific beta from R0 via next-generation matrix.
+# Mean infectious duration weighted by clinical fraction and infectiousness:
+#   D_bar ≈ phi_avg/gamma_D + (1-phi_avg)*c_A/gamma_A
+# where phi_avg is an effective average clinical fraction across ages.
+# We use phi_5_15 as a population-weighted midpoint (~40% of infections).
+# R0 = beta * D_bar, so beta = R0 / D_bar.
+let D_bar = phi_5_15 / gamma_D + (1 - phi_5_15) * c_A / gamma_A
+let beta[d in district] = R0[d] / D_bar
+
+# ── Forcing ─────────────────────────────────────────────────────────
+
+forcing {
+  seasonal : sinusoidal {
+    amplitude = alpha
+    period    = 365.0
+    phase     = phi_season
+    baseline  = 1.0
+  }
+}
+
+# ── Transitions ─────────────────────────────────────────────────────
+
+transitions {
+  # Infection: local + spatial importation, seasonal forcing
+  infection[d in district, a in age] : S[d, a] --> E[d, a]
+    @ beta[d] * seasonal(t) * S[d, a] * (
+        I_eff[d] / N_total[d]
+      + kappa * sum(q in district, adj[d, q] * I_eff[q] / N_total[q])
+      )
+
+  # Progression: split into clinical (D) vs asymptomatic (A) by age
+  progression_clin[d in district, a in age] : E[d, a] --> D[d, a]
+    @ sigma * phi_clin[a] * E[d, a]
+
+  progression_asymp[d in district, a in age] : E[d, a] --> A[d, a]
+    @ sigma * (1 - phi_clin[a]) * E[d, a]
+
+  # Clinical pathway: D → T → P → S
+  treatment[d in district, a in age] : D[d, a] --> T[d, a]
+    @ gamma_D * rho_tx * D[d, a]
+
+  # Untreated clinical cases recover like asymptomatics
+  recovery_untreated[d in district, a in age] : D[d, a] --> S[d, a]
+    @ gamma_D * (1 - rho_tx) * D[d, a]
+
+  treatment_complete[d in district, a in age] : T[d, a] --> P[d, a]
+    @ gamma_T * T[d, a]
+
+  prophylaxis_waning[d in district, a in age] : P[d, a] --> S[d, a]
+    @ omega_P * P[d, a]
+
+  # Asymptomatic clearance
+  recovery_asymp[d in district, a in age] : A[d, a] --> S[d, a]
+    @ gamma_A * A[d, a]
+
+  # Demography (all compartments)
+  death[c in compartments, d in district, a in age] : c[d, a] -->
+    @ mu * c[d, a]
+
+  birth[d in district] : --> S[d, under5]
+    @ mu * N_total[d]
+}
+
+# ── Initial conditions ──────────────────────────────────────────────
+
+init {
+  S[d in district, a in age] = pop[d, a]
+  D[kano_dala, under5]       = I0[kano_dala]
+  D[borno_maiduguri, under5] = I0[borno_maiduguri]
+  D[lagos_ikeja, under5]     = I0[lagos_ikeja]
+  D[oyo_ibadan, under5]      = I0[oyo_ibadan]
+}
+
+simulate {
+  from = 0 'days
+  to   = 3 'years
+}
+
+scenarios {
+  baseline {
+    label = "endemic baseline (prior midpoints)"
+    set = {
+      # District-specific R0 (north higher, Lagos low)
+      R0[kano_dala]       = 6.0
+      R0[borno_maiduguri] = 4.5
+      R0[lagos_ikeja]     = 2.0
+      R0[oyo_ibadan]      = 5.0
+
+      # Progression
+      sigma    = 0.1       # 10-day EIP
+      gamma_D  = 0.25      # 4-day clinical duration
+      gamma_A  = 0.005     # 200-day asymptomatic clearance
+      gamma_T  = 0.33      # 3-day treatment
+      omega_P  = 0.036     # 28-day prophylaxis
+
+      # Age-dependent clinical fraction
+      phi_u5     = 0.7
+      phi_5_15   = 0.4
+      phi_adult  = 0.15
+
+      # Infectiousness and care-seeking
+      c_A    = 0.25
+      rho_tx = 0.5
+
+      # Spatial coupling
+      kappa = 0.003
+
+      # Seasonality (peak at day 240 ≈ late August, rainy season)
+      alpha      = 0.5
+      phi_season = 240.0
+
+      # Demography
+      mu = 0.000045     # ~60-year life expectancy
+
+      # Seeding (must be large enough for stochastic takeoff)
+      I0[kano_dala]       = 500
+      I0[borno_maiduguri] = 300
+      I0[lagos_ikeja]     = 100
+      I0[oyo_ibadan]      = 400
+    }
+  }
+}

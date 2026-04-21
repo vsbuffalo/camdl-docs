@@ -1,5 +1,6 @@
 ---
 title: "Diagnostics Cookbook"
+draft: true
 ---
 
 *Coming soon.* Recipes for common diagnostic tasks: trace plot interpretation,

@@ -1,5 +1,6 @@
 ---
 title: "Spatial Inference"
+draft: true
 ---
 
 *Coming soon.* Fitting a 5-patch spatial model: the R0–kappa ridge, basin

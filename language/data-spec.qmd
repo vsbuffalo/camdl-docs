@@ -70,7 +70,7 @@ and which are values (everything remaining).
 
 A table declaration maps CSV structure to DSL objects:
 
-```
+```camdl
 name : dim₁ × dim₂ × ... = read("file.tsv")
 ```
 
@@ -104,7 +104,7 @@ tables {
 
 The type says 2 dimensions. The CSV has 3 columns:
 
-```
+```camdl
 Column 1 (src)    → first patch dimension
 Column 2 (dst)    → second patch dimension
 Column 3 (weight) → table value

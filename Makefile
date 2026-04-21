@@ -1,5 +1,6 @@
 CAMDL_REPO ?= ../camdl
 REMOTE     := vincebuffalo:apps/vincebuffalo/camdl/docs
+REMOTE_BOOK := vincebuffalo:apps/vincebuffalo/camdl/book
 SITE       := _site
 
 SPECS := \
@@ -33,6 +34,7 @@ preview:
 
 deploy: render
 	rsync -avz --delete $(SITE)/ $(REMOTE)
+	rsync -avz --delete $(SITE)/ $(REMOTE_BOOK)
 
 clean:
 	rm -rf $(SITE) .quarto

@@ -595,7 +595,7 @@ bs_multi = run_sim(model=BS_MODEL, params=BS_PARAMS, seed=7,
 #| code-fold: true
 #| code-summary: "Plotting code"
 #| label: fig-process-uncertainty
-#| fig-cap: "Process uncertainty in the boarding school SIR (200 replicates, identical parameters). **Left:** individual trajectories (grey) with one highlighted (red) and real data overlaid (black dots). **Right:** distribution of peak infected counts. Even with known parameters, outcomes vary — and some outbreaks fail to take off entirely (the cluster near zero)."
+#| fig-cap: "Process uncertainty in the boarding school SIR (200 replicates, identical parameters). **Left:** individual trajectories (grey) with one highlighted (red) and real data overlaid (black dots). These are textbook parameters, not fitted values — exact alignment with data is not expected. **Right:** distribution of peak infected counts. Even with known parameters, outcomes vary — some outbreaks fail to take off (cluster near zero), and peak timing shifts by several days across realizations."
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3.5))
 
 # Left: spaghetti plot with one highlighted
@@ -643,11 +643,15 @@ transmitting. The observed peak of 298 (dashed line) falls squarely
 within the distribution — the model is consistent with the data at
 these parameters.
 
-Notice how tight the process uncertainty is compared to the prior
-predictive spread. With 763 people, the law of large numbers is already
-working — the epidemic is "large enough" that individual-level
-stochasticity averages out. In smaller populations or with more
-heterogeneous contact patterns, process uncertainty would be much wider.
+Notice how the process uncertainty here is structured: the peak
+*magnitude* is fairly tight (roughly 250–380 infected, compared to the
+prior predictive spread of 0–500+), but the peak *timing* shifts by
+several days across realizations. This is a known property of stochastic
+SIR — the variance in peak timing scales with the time the epidemic
+spends near the exponential-growth phase, where small differences in
+early transmission compound. With 763 people, the law of large numbers
+constrains peak size, but timing remains noisy.
+
 In practice, transmission rates also fluctuate day-to-day due to
 environmental factors (school schedules, weather, gatherings). camdl
 supports this via `overdispersed()`, following
@@ -694,9 +698,8 @@ observations from this model:
 n_obs_draws = 20
 obs_draws = []
 for s in range(n_obs_draws):
-    _, obs_df = run_sim(model=BS_MODEL, params=BS_PARAMS, seed=7,
+    _, obs_df = run_sim(model=BS_MODEL, params=BS_PARAMS, seed=s + 100,
                         obs=True, scenario="baseline",
-                        extra_args=["--seed", str(s + 100)],
                         show=(s == 0))  # show CLI for first draw only
     obs_df = obs_df.with_columns(pl.lit(s).alias("draw"))
     obs_draws.append(obs_df)
