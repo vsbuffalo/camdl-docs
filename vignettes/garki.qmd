@@ -1,0 +1,302 @@
+---
+title: "The Garki Model: Immunity and Superinfection"
+draft: true
+execute:
+  echo: false
+---
+
+```{python}
+#| output: false
+import subprocess, os, sys, io
+import polars as pl
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+sys.path.insert(0, os.path.join(os.getcwd(), ".."))
+from _lib.cli import run_cli
+
+GREY = "#888888"
+mpl.rcParams.update({
+    "figure.facecolor": "none",
+    "axes.facecolor": "none",
+    "savefig.facecolor": "none",
+    "figure.dpi": 150,
+    "font.size": 11,
+    "text.color": GREY,
+    "axes.labelcolor": GREY,
+    "xtick.color": GREY,
+    "ytick.color": GREY,
+})
+
+MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath("__file__")), "garki")
+MODEL = os.path.join(MODEL_DIR, "garki.camdl")
+
+def simulate(params_override=None, seed=42):
+    cmd = f"camdl simulate {MODEL} --scenario baseline --seed {seed}"
+    if params_override:
+        for k, v in params_override.items():
+            cmd += f" --param {k}={v}"
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr)
+    return pl.read_csv(io.StringIO(result.stdout), separator="\t", comment_prefix="#")
+
+def sum_cols(df, prefix, idx=None):
+    """Sum columns starting with prefix across age strata."""
+    cols = [c for c in df.columns if c.startswith(f"{prefix}_")]
+    if not cols:
+        return df[prefix] if prefix in df.columns else None
+    if idx is not None:
+        return df.select(cols).sum_horizontal()[idx]
+    return df.select(cols).sum_horizontal()
+```
+
+This vignette implements the Garki malaria model (Dietz, Molineaux &
+Thomas 1974) — the first comprehensive mathematical model of malaria
+transmission, developed from longitudinal data collected in Garki
+District, northern Nigeria. The model distinguishes patent
+(microscopy-positive) from sub-patent infection, and non-immune from
+immune hosts, producing a 7-compartment human model coupled to a
+Ross-Macdonald vector component.
+
+The Garki model is historically significant: it was the first to
+formally model acquired immunity to malaria and its interaction with
+superinfection, and its parameter estimates informed WHO malaria
+control strategy for decades. It exercises camdl's partial
+stratification (age structure on humans only, not vectors), multi-state
+immunity dynamics, and the full vector-host transmission machinery.
+
+## Model structure
+
+The human population moves through seven states organized into two
+tracks — non-immune and immune:
+
+```
+Non-immune track:     x1 → x2 → x3 → x4 ─→ y1
+(first infection)    (sus) (pre) (pat) (sub)  ↓ (immunity acquired)
+                                              ↓
+Immune track:         y1 → y2 → y3 → y1      ↓
+(reinfection)       (sus) (pre) (pat)         ↓
+                      ↑                       ↓
+                      └── waning (slow) ──── x1
+```
+
+- **x1**: susceptible, non-immune
+- **x2**: pre-patent (infected, below microscopy detection)
+- **x3**: patent (microscopy-positive, infectious to mosquitoes)
+- **x4**: sub-patent, recovering (clearing parasites, developing immunity)
+- **y1**: immune, susceptible to reinfection
+- **y2**: immune, reinfected, pre-patent
+- **y3**: immune, reinfected, patent
+
+The vector component is standard Ross-Macdonald: S_v → E_v → I_v with
+constant recruitment. Humans are age-stratified (under-5, 5–15, over-15);
+vectors are not — using camdl's partial stratification:
+
+```camdl
+stratify(by = age, only = [x1, x2, x3, x4, y1, y2, y3])
+```
+
+## The model
+
+```{.camdl filename="garki/garki.camdl" code-line-numbers="true"}
+{{< include garki/garki.camdl >}}
+```
+
+```{python}
+display(run_cli(
+    f"camdl inspect {MODEL}",
+    echo="camdl inspect garki.camdl",
+    collapse=False
+))
+```
+
+10 base compartments × 3 age groups = 24 expanded (7 human × 3 ages +
+3 vector unstratified). 14 transition templates → 30 expanded.
+
+## Forward simulation
+
+```{python}
+#| fig-cap: "Garki model forward simulation over 3 years. **Top**: human compartment dynamics — patent infections (x3+y3, red) dominate at endemic equilibrium while the immune pool (y1, green) builds slowly. **Middle**: age-stratified patent prevalence. **Bottom**: vector dynamics."
+#| label: fig-forward-sim
+#| fig-height: 9
+traj = simulate(seed=42)
+
+fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
+
+t_years = traj["t"] / 365
+
+# Top: aggregate human dynamics
+x1 = sum_cols(traj, "x1"); x2 = sum_cols(traj, "x2")
+x3 = sum_cols(traj, "x3"); x4 = sum_cols(traj, "x4")
+y1 = sum_cols(traj, "y1"); y2 = sum_cols(traj, "y2")
+y3 = sum_cols(traj, "y3")
+patent = x3 + y3
+
+ax1.fill_between(t_years, 0, x1, alpha=0.3, color="#3498db", label="x1 (naive susceptible)")
+ax1.fill_between(t_years, 0, patent, alpha=0.5, color="#e74c3c", label="x3+y3 (patent)")
+ax1.plot(t_years, y1, color="#2ecc71", linewidth=1.5, label="y1 (immune susceptible)")
+ax1.plot(t_years, x4, color="#f39c12", linewidth=1, alpha=0.7, label="x4 (sub-patent)")
+ax1.set_ylabel("Count")
+ax1.set_title("Human compartment dynamics (all ages)", fontsize=11, color=GREY)
+ax1.legend(frameon=False, fontsize=8, ncol=2)
+ax1.spines[["top", "right"]].set_visible(False)
+
+# Middle: age-stratified patent prevalence
+ages = ["under5", "age_5_15", "over15"]
+age_labels = ["Under 5", "5–15", "Over 15"]
+age_colors = ["#e74c3c", "#f39c12", "#3498db"]
+for age, label, color in zip(ages, age_labels, age_colors):
+    x3_age = traj[f"x3_{age}"] if f"x3_{age}" in traj.columns else 0
+    y3_age = traj[f"y3_{age}"] if f"y3_{age}" in traj.columns else 0
+    h_age = sum(traj[f"{c}_{age}"] for c in ["x1","x2","x3","x4","y1","y2","y3"])
+    prev = (x3_age + y3_age) / h_age
+    ax2.plot(t_years, prev * 100, color=color, linewidth=1.2, label=label)
+ax2.set_ylabel("Patent prevalence (%)")
+ax2.set_title("Age-stratified patent prevalence", fontsize=11, color=GREY)
+ax2.legend(frameon=False, fontsize=8)
+ax2.spines[["top", "right"]].set_visible(False)
+
+# Bottom: vector dynamics
+ax3.plot(t_years, traj["S_v"], color="#3498db", alpha=0.7, label="S_v")
+ax3.plot(t_years, traj["E_v"], color="#f39c12", alpha=0.7, label="E_v")
+ax3.plot(t_years, traj["I_v"], color="#e74c3c", alpha=0.7, label="I_v")
+ax3.set_ylabel("Vector count")
+ax3.set_xlabel("Years")
+ax3.set_title("Vector dynamics", fontsize=11, color=GREY)
+ax3.legend(frameon=False, fontsize=8)
+ax3.spines[["top", "right"]].set_visible(False)
+
+plt.tight_layout()
+plt.show()
+```
+
+The model reaches endemic equilibrium within ~6 months. At
+equilibrium, ~73% of the human population is in the patent state
+(x3 + y3) — consistent with holoendemic transmission settings like
+Garki district. The immune pool (y1) builds over the first year as
+individuals cycle through infection → recovery → immunity.
+
+The age-stratified prevalence panel shows all three age groups
+converging to similar equilibrium levels, because the model currently
+uses the same force of infection for all ages. In the original
+Garki data, younger children had higher prevalence (less acquired
+immunity) — adding age-dependent immunity parameters would reproduce
+this.
+
+## Prior predictive check
+
+```{python}
+#| fig-cap: "Prior predictive: total patent prevalence under 15 parameter draws with varied transmission and immunity parameters."
+#| label: fig-prior-predictive
+#| fig-height: 4
+np.random.seed(17)
+n_draws = 15
+
+fig, ax = plt.subplots(figsize=(10, 3.5))
+
+for draw in range(n_draws):
+    overrides = {
+        "a": f"{np.random.uniform(0.2, 0.8):.2f}",
+        "b_h": f"{np.random.uniform(0.1, 0.5):.2f}",
+        "b_v": f"{np.random.uniform(0.05, 0.3):.2f}",
+        "r1": f"{np.random.uniform(0.005, 0.05):.4f}",
+        "delta": f"{np.random.uniform(0.005, 0.03):.4f}",
+        "M0": f"{np.random.choice([15000, 20000, 25000, 35000])}",
+    }
+    try:
+        df = simulate(overrides, seed=42 + draw)
+    except RuntimeError:
+        continue
+    x3 = sum_cols(df, "x3"); y3 = sum_cols(df, "y3")
+    h_total = sum(sum_cols(df, c) for c in ["x1","x2","x3","x4","y1","y2","y3"])
+    prev = (x3 + y3) / h_total
+    ax.plot(df["t"] / 365, prev * 100, alpha=0.4, linewidth=0.8, color="#e74c3c")
+
+ax.set_xlabel("Years")
+ax.set_ylabel("Patent prevalence (%)")
+ax.set_ylim(-2, 102)
+ax.spines[["top", "right"]].set_visible(False)
+plt.tight_layout()
+plt.show()
+```
+
+## Immunity dynamics
+
+The distinctive feature of the Garki model is the immunity cycle.
+The plot below tracks the flow of individuals through the non-immune
+and immune tracks over time:
+
+```{python}
+#| fig-cap: "Immunity dynamics: fraction of the human population in each immunity state over 3 years. The immune pool (y1+y2+y3) grows as individuals cycle through infection and recovery, eventually reaching ~15% of the population at equilibrium."
+#| label: fig-immunity
+#| fig-height: 4
+traj = simulate(seed=42)
+t_years = traj["t"] / 365
+
+h_total = sum(sum_cols(traj, c) for c in ["x1","x2","x3","x4","y1","y2","y3"])
+frac_naive = sum_cols(traj, "x1") / h_total
+frac_nonimm_inf = (sum_cols(traj, "x2") + sum_cols(traj, "x3") + sum_cols(traj, "x4")) / h_total
+frac_immune_sus = sum_cols(traj, "y1") / h_total
+frac_immune_inf = (sum_cols(traj, "y2") + sum_cols(traj, "y3")) / h_total
+
+fig, ax = plt.subplots(figsize=(10, 3.5))
+ax.stackplot(t_years,
+    frac_naive * 100,
+    frac_nonimm_inf * 100,
+    frac_immune_sus * 100,
+    frac_immune_inf * 100,
+    labels=["x1: naive susceptible",
+            "x2+x3+x4: non-immune\ninfected/recovering",
+            "y1: immune susceptible",
+            "y2+y3: immune infected"],
+    colors=["#3498db", "#e74c3c", "#2ecc71", "#f39c12"],
+    alpha=0.7)
+ax.set_xlabel("Years")
+ax.set_ylabel("Fraction of population (%)")
+ax.set_ylim(0, 100)
+ax.legend(frameon=False, fontsize=8, loc="center left",
+          bbox_to_anchor=(1.02, 0.5))
+ax.spines[["top", "right"]].set_visible(False)
+plt.tight_layout(rect=[0, 0, 0.72, 1])
+plt.show()
+```
+
+## Features exercised
+
+| Feature | Usage |
+|---------|-------|
+| Partial stratification | `stratify(by = age, only = [x1..y3])` — humans age-stratified, vectors not |
+| 7-state immunity model | Non-immune → immune tracks with waning |
+| Multi-species dynamics | Coupled human-vector transmission |
+| `let` with cross-compartment sums | `I_patent_total`, `H_total`, `lambda_h`, `lambda_v` |
+| Parameterized age table | `age_frac : age = [0.18, 0.27, 0.55]` |
+| Inflow/outflow transitions | Mosquito birth/death maintaining constant M |
+
+::: {.callout-tip}
+## Arithmetic projections in observations
+
+The Garki observable — total patent prevalence across both immunity
+tracks — is expressed as a direct arithmetic expression in the
+`projected` field:
+
+```camdl
+slide_positivity : {
+  projected = (x3 + y3) / H_total
+  every     = 1 'weeks
+  likelihood = diagnostic_test(
+    base = binomial(n = N_tested, p = projected),
+    sens = rho_sens, spec = rho_spec
+  )
+}
+```
+
+`prevalence(X)` and `incidence(T)` are sugar for the common
+single-compartment/transition case. When the observable is a
+composite — a sum, ratio, or scaled combination of compartments —
+you write the arithmetic directly. The compiler emits it as a
+`DerivedExpr` projection, evaluated at each observation time against
+the current state. Combined with `diagnostic_test` for imperfect
+microscopy, the observation block reads like the survey protocol.
+:::

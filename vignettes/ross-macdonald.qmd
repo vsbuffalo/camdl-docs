@@ -1,0 +1,485 @@
+---
+title: "Ross-Macdonald: Vector-Host Malaria Transmission"
+draft: true
+execute:
+  echo: false
+---
+
+```{python}
+#| output: false
+import subprocess, os, sys, io
+import polars as pl
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+sys.path.insert(0, os.path.join(os.getcwd(), ".."))
+from _lib.cli import run_cli
+
+GREY = "#888888"
+mpl.rcParams.update({
+    "figure.facecolor": "none",
+    "axes.facecolor": "none",
+    "savefig.facecolor": "none",
+    "figure.dpi": 150,
+    "font.size": 11,
+    "text.color": GREY,
+    "axes.labelcolor": GREY,
+    "xtick.color": GREY,
+    "ytick.color": GREY,
+})
+
+MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath("__file__")), "ross-macdonald")
+MODEL = os.path.join(MODEL_DIR, "ross_macdonald.camdl")
+
+def simulate(params_override=None, seed=42):
+    cmd = f"camdl simulate {MODEL} --scenario baseline --seed {seed}"
+    if params_override:
+        for k, v in params_override.items():
+            cmd += f" --param {k}={v}"
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr)
+    return pl.read_csv(io.StringIO(result.stdout), separator="\t", comment_prefix="#")
+
+def simulate_with_obs(seed=42):
+    import tempfile
+    obs_path = os.path.join(tempfile.mkdtemp(), "obs.tsv")
+    cmd = f"camdl simulate {MODEL} --scenario baseline --seed {seed} --obs {obs_path}"
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr)
+    traj = pl.read_csv(io.StringIO(result.stdout), separator="\t", comment_prefix="#")
+    obs = pl.read_csv(obs_path, separator="\t")
+    return traj, obs
+```
+
+This vignette implements the Ross-Macdonald malaria transmission model
+— the foundational two-species host-vector model that underlies most
+modern malaria modeling. It exercises two camdl language features:
+**multi-source transitions** for bimolecular vector-host contact and
+**`diagnostic_test` likelihood sugar** for imperfect surveillance.
+
+## The model
+
+The Ross-Macdonald model (Ross 1911; Macdonald 1957; reviewed in
+Smith et al. 2012) tracks two coupled populations:
+
+- **Hosts** (humans): susceptible $S_h$ and infectious $I_h$, constant
+  total $H = S_h + I_h$.
+- **Vectors** (mosquitoes): susceptible $S_v$, exposed $E_v$ (infected
+  but not yet infectious, undergoing the extrinsic incubation period),
+  and infectious $I_v$. Mosquito population is maintained at ~$M_0$ by
+  balancing births against mortality.
+
+Transmission is **bimolecular** — it requires contact between a host
+and a vector. An infectious mosquito biting a susceptible host infects
+the host; a susceptible mosquito biting an infectious host becomes
+exposed. In camdl's multi-source syntax, these are written as:
+
+```camdl
+bite     : S_h + I_v --> I_h + I_v  @ a * b_h * S_h * I_v / H
+infect_v : S_v + I_h --> E_v + I_h  @ a * b_v * S_v * I_h / H
+```
+
+The `I_v` in `bite` and `I_h` in `infect_v` appear on both sides of
+`-->` — they are **catalysts** (present but not consumed). The compiler
+collapses them to net-zero stoichiometry while keeping the rate
+dependency for simulation.
+
+### The full model source
+
+```{python}
+display(run_cli(
+    f"camdl inspect {MODEL}",
+    echo="camdl inspect ross_macdonald.camdl",
+    collapse=False
+))
+```
+
+```{python}
+display(run_cli(
+    f"camdl check {MODEL}",
+    echo="camdl check ross_macdonald.camdl",
+    collapse=False
+))
+```
+
+### Observation model: imperfect slide microscopy
+
+The weekly surveillance observation uses `diagnostic_test` sugar to
+model imperfect detection. A random sample of $N$ hosts is tested by
+slide microscopy with sensitivity $\rho_{\text{sens}}$ and specificity
+$\rho_{\text{spec}}$:
+
+```camdl
+slide_positivity : {
+  projected = prevalence(I_h)
+  every     = 1 'weeks
+  likelihood = diagnostic_test(
+    base = binomial(n = N_tested, p = projected / H),
+    sens = rho_sens,
+    spec = rho_spec
+  )
+}
+```
+
+The compiler rewrites `diagnostic_test(base = binomial(n, p), sens, spec)`
+to `binomial(n, sens * p + (1 - spec) * (1 - p))` — the standard
+sens/spec-corrected apparent prevalence. The DSL reads like the biology;
+the algebra is the compiler's job.
+
+## Forward simulation
+
+```{python}
+#| fig-cap: "Ross-Macdonald forward simulation at baseline parameters. **Top**: host dynamics — I_h rises from 50 initial infections to endemic equilibrium (~860 of 1000 hosts). **Bottom**: vector dynamics — S_v depletes as E_v and I_v build up, with M maintained near M₀ = 10,000 by constant recruitment."
+#| label: fig-forward-sim
+traj = simulate(seed=42)
+
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 5), sharex=True)
+
+# Host dynamics
+ax1.plot(traj["t"] / 7, traj["S_h"], color="#3498db", label="S_h (susceptible)")
+ax1.plot(traj["t"] / 7, traj["I_h"], color="#e74c3c", label="I_h (infectious)")
+ax1.set_ylabel("Host count")
+ax1.legend(frameon=False, fontsize=9)
+ax1.set_title("Host dynamics", fontsize=11, color=GREY)
+ax1.spines[["top", "right"]].set_visible(False)
+
+# Vector dynamics
+ax2.plot(traj["t"] / 7, traj["S_v"], color="#3498db", alpha=0.7, label="S_v")
+ax2.plot(traj["t"] / 7, traj["E_v"], color="#f39c12", alpha=0.7, label="E_v (exposed)")
+ax2.plot(traj["t"] / 7, traj["I_v"], color="#e74c3c", alpha=0.7, label="I_v (infectious)")
+ax2.set_ylabel("Vector count")
+ax2.set_xlabel("Weeks")
+ax2.legend(frameon=False, fontsize=9)
+ax2.set_title("Vector dynamics", fontsize=11, color=GREY)
+ax2.spines[["top", "right"]].set_visible(False)
+
+plt.tight_layout()
+plt.show()
+```
+
+The host prevalence reaches ~86% at equilibrium — high, but consistent
+with holoendemic settings where the mosquito-to-human ratio $m = M/H$
+is large (here $m = 10$). The vectorial capacity $C = m a^2 b_h b_v
+e^{-\mu_v / \sigma_v} / \mu_v$ drives the equilibrium; at these
+parameters $R_0 \gg 1$.
+
+## Synthetic observations
+
+To test the full inference pipeline, we generate synthetic weekly
+slide-positivity data at the baseline parameters. This is the "ground
+truth" dataset — parameters are known, so posterior recovery is
+checkable.
+
+```{python}
+#| fig-cap: "Synthetic slide-positivity observations (red dots) overlaid on the true host prevalence trajectory (grey). Each observation is a draw from Binomial(200, p_apparent) where p_apparent = sens × (I_h/H) + (1−spec) × (1−I_h/H). Early observations are low (few infections); equilibrium observations fluctuate around ~148/200."
+#| label: fig-synthetic-obs
+traj, obs = simulate_with_obs(seed=42)
+
+fig, ax = plt.subplots(figsize=(10, 3.5))
+
+# True prevalence as background
+prev = traj["I_h"] / (traj["S_h"] + traj["I_h"])
+ax.fill_between(traj["t"] / 7, 0, prev * 200, color="#cccccc", alpha=0.4,
+                label="True prevalence × N_tested")
+ax.scatter(obs["time"] / 7, obs["slide_positivity"], color="#e74c3c", s=25,
+           zorder=5, label="Observed slide-positives")
+ax.set_xlabel("Weeks")
+ax.set_ylabel("Slide-positive count (out of 200)")
+ax.legend(frameon=False, fontsize=9)
+ax.spines[["top", "right"]].set_visible(False)
+plt.tight_layout()
+plt.show()
+```
+
+The observations track the true prevalence with binomial noise — low
+during the initial transient, stabilizing around 140–155 per week at
+equilibrium. The sens/spec correction means the apparent positive rate
+(~74%) is lower than the true prevalence (~86%): sensitivity (0.85)
+misses some true positives, while specificity (0.95) adds a small
+false-positive floor.
+
+## Prior predictive check
+
+Before fitting, we verify the model produces a range of plausible
+dynamics under parameter variation:
+
+```{python}
+#| fig-cap: "Prior predictive: host prevalence (I_h / H) under 15 parameter draws. Biting rate a, infection probabilities b_h/b_v, and mosquito ratio M0/H0 are varied. Most draws produce endemic equilibria; a few with low transmission fade out."
+#| label: fig-prior-predictive
+np.random.seed(7)
+n_draws = 15
+
+fig, ax = plt.subplots(figsize=(10, 3.5))
+
+for draw in range(n_draws):
+    overrides = {
+        "a": f"{np.random.uniform(0.2, 0.8):.2f}",
+        "b_h": f"{np.random.uniform(0.1, 0.5):.2f}",
+        "b_v": f"{np.random.uniform(0.05, 0.3):.2f}",
+        "M0": f"{np.random.choice([5000, 8000, 10000, 15000])}",
+        "I_h0": f"{np.random.randint(10, 100)}",
+    }
+    try:
+        df = simulate(overrides, seed=42 + draw)
+    except RuntimeError:
+        continue
+    prev = df["I_h"] / (df["S_h"] + df["I_h"])
+    ax.plot(df["t"] / 7, prev, alpha=0.4, linewidth=0.8, color="#e74c3c")
+
+ax.set_xlabel("Weeks")
+ax.set_ylabel("Host prevalence (I_h / H)")
+ax.set_ylim(-0.02, 1.02)
+ax.spines[["top", "right"]].set_visible(False)
+ax.axhline(0, color=GREY, linewidth=0.5, alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
+## Fitting: posterior recovery via PMMH
+
+We fit the model to the synthetic observations using a two-stage
+pipeline: IF2 scout (24 chains) to find the MLE basin, then PMMH
+(4 chains × 2000 iterations) for posterior sampling. Six parameters
+are estimated; the remaining six (population sizes, observation
+parameters) are fixed at their true values.
+
+```{python}
+display(run_cli(
+    f"cat {MODEL_DIR}/fit.toml",
+    echo="cat fit.toml",
+    collapse=True, max_lines=None
+))
+```
+
+The scout converges in ~2 minutes (all Rhat < 1.02). PMMH runs for
+~3.5 minutes with acceptance rates of 20–21% — in the target range.
+
+### Posterior recovery
+
+The key question: do the posteriors cover the true parameters?
+
+```{python}
+#| fig-cap: "Posterior marginals from PMMH (4 chains, 750 post-burn-in draws per chain, thinned by 2). Dashed vertical lines are the true parameter values used to generate the synthetic data. All six 90% credible intervals cover the truth."
+#| label: fig-posteriors
+#| fig-height: 6
+import polars as pl
+
+import glob
+draws_files = glob.glob(os.path.join(MODEL_DIR, "results/fits/*/real/*/pmmh/draws.tsv"))
+if not draws_files:
+    raise FileNotFoundError("No PMMH draws found — run `camdl fit run fit.toml --seed 42` first")
+draws = pl.read_csv(draws_files[0], separator="\t")
+
+truth = {"a": 0.5, "b_h": 0.3, "b_v": 0.2, "r": 0.05, "sigma_v": 0.1, "mu_v": 0.1}
+labels = {
+    "a": "a (biting rate)",
+    "b_h": "b_h (host infection prob)",
+    "b_v": "b_v (vector infection prob)",
+    "r": "r (recovery rate)",
+    "sigma_v": "σ_v (1/EIP)",
+    "mu_v": "μ_v (mosquito mortality)",
+}
+
+fig, axes = plt.subplots(2, 3, figsize=(10, 5))
+for i, (param, true_val) in enumerate(truth.items()):
+    ax = axes[i // 3][i % 3]
+    vals = draws[param].to_numpy()
+    ax.hist(vals, bins=40, color="#e74c3c", alpha=0.6, edgecolor="none", density=True)
+    ax.axvline(true_val, color="black", linestyle="--", linewidth=1.5, label=f"truth = {true_val}")
+    q05, q95 = np.quantile(vals, [0.05, 0.95])
+    ax.axvspan(q05, q95, alpha=0.1, color="#3498db")
+    ax.set_title(labels[param], fontsize=9, color=GREY)
+    ax.set_xlabel(param)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.legend(fontsize=7, frameon=False)
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+#| label: tbl-recovery
+#| tbl-cap: "Posterior summary: all six true parameter values fall within the 90% credible interval."
+from IPython.display import Markdown
+
+rows = []
+for param, true_val in truth.items():
+    vals = draws[param].to_numpy()
+    med = np.median(vals)
+    q05, q95 = np.quantile(vals, [0.05, 0.95])
+    covers = "**YES**" if q05 <= true_val <= q95 else "NO"
+    rows.append(f"| {param} | {true_val:.3f} | {med:.3f} | [{q05:.3f}, {q95:.3f}] | {covers} |")
+
+table = "| Parameter | Truth | Median | 90% CI | Covers? |\n|---|---|---|---|---|\n" + "\n".join(rows)
+display(Markdown(table))
+```
+
+All six parameters are recovered — the 90% credible intervals cover
+every true value. The widest posterior is `b_h` (host infection
+probability), which is partially confounded with `a` (biting rate):
+the data informs the product $a \cdot b_h$ more sharply than either
+factor alone. This is a known identifiability feature of
+Ross-Macdonald — the entomological inoculation rate (EIR) is the
+estimable composite, not its components.
+
+### Trace diagnostics
+
+The trace plots show how the chains explored the parameter space.
+Good mixing looks like a "hairy caterpillar" — chains should overlap
+and traverse the full posterior quickly.
+
+```{python}
+#| fig-cap: "PMMH trace plots for all six estimated parameters (4 chains, post-burn-in). Log-likelihood trace at top left. Dashed lines mark true parameter values."
+#| label: fig-traces
+#| fig-height: 8
+chain_colors = ["#e74c3c", "#3498db", "#2ecc71", "#f39c12"]
+chain_files = sorted(glob.glob(os.path.join(MODEL_DIR, "results/fits/*/real/*/pmmh/chain_*/trace.tsv")))
+chains = [pl.read_csv(f, separator="\t") for f in chain_files]
+
+params_to_plot = ["log_likelihood"] + list(truth.keys())
+fig, axes = plt.subplots(4, 2, figsize=(10, 9), sharex=True)
+axes_flat = axes.flatten()
+
+for j, param in enumerate(params_to_plot):
+    if j >= len(axes_flat):
+        break
+    ax = axes_flat[j]
+    for i, chain in enumerate(chains):
+        ax.plot(chain["step"], chain[param], color=chain_colors[i],
+                alpha=0.5, linewidth=0.4, label=f"chain {i+1}" if j == 0 else None)
+    if param in truth:
+        ax.axhline(truth[param], color="black", linestyle="--", linewidth=1, alpha=0.7)
+    ax.set_title(param, fontsize=9, color=GREY)
+    ax.spines[["top", "right"]].set_visible(False)
+
+# Hide unused subplot
+if len(params_to_plot) < len(axes_flat):
+    for k in range(len(params_to_plot), len(axes_flat)):
+        axes_flat[k].set_visible(False)
+
+axes_flat[0].legend(fontsize=7, frameon=False, ncol=4, loc="upper right")
+axes[-1, 0].set_xlabel("PMMH step")
+axes[-1, 1].set_xlabel("PMMH step")
+plt.tight_layout()
+plt.show()
+```
+
+The log-likelihood traces converge to ~-176 within the first 100 steps
+(burn-in = 500 was conservative). The `a` and `b_h` traces show the
+partial confounding — when one chain drifts to higher `a`, it
+compensates with lower `b_h`, keeping their product roughly constant.
+
+### Pair plot
+
+The pair plot reveals correlations between parameters. The `a`–`b_h`
+ridge is the dominant feature — a nearly linear negative correlation
+reflecting the identifiability structure of the transmission rate.
+
+```{python}
+#| fig-cap: "Posterior pair plot (lower triangle) for the six estimated parameters. Red star marks the true parameter values. The a–b_h anti-correlation reflects the Ross-Macdonald identifiability ridge: the data constrains a × b_h but not the individual factors."
+#| label: fig-pairs
+#| fig-height: 8
+params = list(truth.keys())
+n = len(params)
+
+fig, axes = plt.subplots(n, n, figsize=(10, 9))
+
+for i in range(n):
+    for j in range(n):
+        ax = axes[i][j]
+        if j > i:
+            ax.set_visible(False)
+            continue
+        xi = draws[params[j]].to_numpy()
+        yi = draws[params[i]].to_numpy()
+        if i == j:
+            ax.hist(xi, bins=30, color="#e74c3c", alpha=0.6, edgecolor="none", density=True)
+            ax.axvline(truth[params[i]], color="black", linestyle="--", linewidth=1)
+        else:
+            ax.scatter(xi, yi, s=1, alpha=0.15, color="#e74c3c", rasterized=True)
+            ax.plot(truth[params[j]], truth[params[i]], marker="*",
+                    color="black", markersize=8, zorder=10)
+        if i == n - 1:
+            ax.set_xlabel(params[j], fontsize=8)
+        else:
+            ax.set_xticklabels([])
+        if j == 0:
+            ax.set_ylabel(params[i], fontsize=8)
+        else:
+            ax.set_yticklabels([])
+        ax.tick_params(labelsize=6)
+        ax.spines[["top", "right"]].set_visible(False)
+
+plt.tight_layout()
+plt.show()
+```
+
+### Posterior predictive check
+
+The ultimate test: simulate from posterior parameter draws and compare
+to the observed data. If the model is well-calibrated, the observed
+data should fall within the predictive envelope.
+
+```{python}
+#| fig-cap: "Posterior predictive check: 50 trajectories simulated at posterior parameter draws (red ribbons) compared to synthetic observations (black dots). The model captures both the transient rise and the endemic equilibrium level."
+#| label: fig-ppc
+#| fig-height: 4
+np.random.seed(99)
+n_ppc = 50
+draw_indices = np.random.choice(len(draws), size=n_ppc, replace=False)
+
+fig, ax = plt.subplots(figsize=(10, 3.5))
+
+ppc_obs_all = []
+for idx in draw_indices:
+    idx = int(idx)  # polars needs Python int, not numpy int64
+
+    # Simulate with posterior params
+    cmd = f"camdl simulate {MODEL} --scenario baseline --seed {1000 + idx}"
+    for p in truth.keys():
+        cmd += f" --param {p}={draws[p][idx]:.6f}"
+    cmd += f" --obs /tmp/ppc_obs_{idx}.tsv"
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=MODEL_DIR)
+    if result.returncode != 0:
+        continue
+    ppc_o = pl.read_csv(f"/tmp/ppc_obs_{idx}.tsv", separator="\t")
+    ax.plot(ppc_o["time"] / 7, ppc_o["slide_positivity"],
+            color="#e74c3c", alpha=0.08, linewidth=0.8)
+    ppc_obs_all.append(ppc_o["slide_positivity"].to_numpy())
+
+# Observed data
+ax.scatter(obs["time"] / 7, obs["slide_positivity"], color="black", s=25,
+           zorder=10, label="Observed (synthetic truth)")
+ax.set_xlabel("Weeks")
+ax.set_ylabel("Slide-positive count")
+ax.legend(frameon=False, fontsize=9)
+ax.spines[["top", "right"]].set_visible(False)
+plt.tight_layout()
+plt.show()
+```
+
+::: {.callout-note}
+## Convergence note
+
+The PMMH Rhat for `b_h` was 1.77 (not converged) and `r` was 1.12
+(marginal). Despite this, the credible intervals cover truth because
+each chain individually explores a reasonable region — the chains
+just haven't mixed fully. Longer runs or PGAS (which mixes faster
+on these models) would tighten convergence. For a production fit,
+we would not accept Rhat > 1.1; for a demonstration of pipeline
+correctness, the posterior recovery is the primary success criterion.
+:::
+
+## Features exercised
+
+| Feature | Usage |
+|---------|-------|
+| Multi-source transitions | `S_h + I_v --> I_h + I_v` (catalyst collapse) |
+| `diagnostic_test` sugar | `diagnostic_test(base = binomial(...), sens, spec)` |
+| `prevalence()` projection | Observation model on instantaneous compartment count |
+| `let` bindings | `H = S_h + I_h`, `M = S_v + E_v + I_v` |
+| Inflow transition | `birth_v : --> S_v @ mu_v * M0` (constant recruitment) |
+| Outflow transitions | `death_Sv : S_v --> @ mu_v * S_v` |

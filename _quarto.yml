@@ -33,6 +33,8 @@ book:
       chapters:
         - vignettes/he2010.qmd
         - vignettes/malaria.qmd
+        - vignettes/ross-macdonald.qmd
+        - vignettes/garki.qmd
         - vignettes/model-comparison.qmd
         - vignettes/spatial-inference.qmd
         - vignettes/sampler-comparison.qmd
