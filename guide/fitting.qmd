@@ -31,7 +31,7 @@ mpl.rcParams.update({
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname("__file__"), "..")))
 from _lib.cli import run_cli
 
-FIT_DIR = "../examples/fitting"
+FIT_DIR = "_archive/fitting_examples"
 
 def run_sim(model, params_file, seed=42, scenario="baseline", extra_args=None, cwd=FIT_DIR):
     cmd = ["camdl", "simulate", model, "--params", params_file,
@@ -366,12 +366,20 @@ With the pipeline validated, we fit the 1978 boarding school data:
 ```{python}
 #| echo: false
 display(run_cli(
-    f"cd {FIT_DIR} && camdl fit run fit_sir.toml --seed 42",
-    echo="camdl fit run fit_sir.toml --seed 42",
+    f"cd {FIT_DIR} && camdl fit run fit_sir.toml --seed 42 "
+    f"--label \"boarding school, default priors\"",
+    echo="camdl fit run fit_sir.toml --seed 42 \\\n"
+         "    --label \"boarding school, default priors\"",
     cwd=FIT_DIR,
     max_lines=35
 ))
 ```
+
+`--label "<short text>"` attaches a human-readable name to the fit,
+visible in `camdl fit list` and `camdl fit table` output (see
+[Tracking fit iterations: labels](#tracking-fit-iterations-labels)
+at the end of this chapter). It's optional but cheap — 30 seconds
+at run time saves "which fit was the default-priors one?" later.
 
 The MLE parameters:
 
@@ -477,8 +485,10 @@ We run PGAS+NUTS with:
 ```{python}
 #| echo: false
 display(run_cli(
-    f"cd {FIT_DIR} && camdl fit run fit_sir_pgas_informed.toml --seed 42",
-    echo="camdl fit run fit_sir_pgas_informed.toml --seed 42",
+    f"cd {FIT_DIR} && camdl fit run fit_sir_pgas_informed.toml --seed 42 "
+    f"--label \"PGAS posterior, log-normal R0 prior\"",
+    echo="camdl fit run fit_sir_pgas_informed.toml --seed 42 \\\n"
+         "    --label \"PGAS posterior, log-normal R0 prior\"",
     cwd=FIT_DIR,
     max_lines=20
 ))
@@ -977,6 +987,76 @@ compensate. The tradeoff is fundamental: with 14 observations, you
 can't precisely estimate both the rate and the shape of the epidemic
 curve simultaneously.
 
+
+## Tracking fit iterations: labels
+
+Real model-building iterates. You'll widen bounds after seeing scout
+chains drift, free a parameter that the data turns out to identify
+after all, swap a uniform prior for a log-normal once you accept it
+isn't truly uninformative (see the chapter on priors). Each
+variation produces a **separate fit directory**, content-addressed
+by the model IR + fit.toml + data hashes:
+
+```
+results/fits/
+  fit_sir-04ab12cd/    # default priors
+  fit_sir-1f3c45ee/    # uniform priors
+  fit_sir-2a8b7901/    # log-normal R0 prior
+  ...
+```
+
+The 8-character hash makes each variation unique on disk, but
+hashes are unreadable. **Attach a short label at fit time so future-
+you can tell the variations apart at a glance.** Pass `--label
+"<short description>"`:
+
+```bash
+$ camdl fit run fit_sir.toml --seed 42 \
+      --label "default priors, scout-only"
+
+$ camdl fit run fit_sir_uniform.toml --seed 42 \
+      --label "uniform priors on beta, gamma"
+
+$ camdl fit run fit_sir_pgas_informed.toml --seed 42 \
+      --label "log-normal R0 prior, PGAS posterior"
+```
+
+Labels are 1–64 characters: letters, digits, spaces, commas, dot,
+underscore, hyphen. Two fits may share a label — it's an
+annotation, not a key. The label is persisted in
+`<fit_dir>/run.json` under `kind.label`.
+
+`camdl fit table results/fits/` surfaces the label as the second
+column, and `<unlabelled>` (dimmed) for any fit that didn't get
+one:
+
+```
+fit_id    label                              stem      method  converged   best_ll    R0    age
+04ab12cd  default priors, scout-only         fit_sir   if2     ✓          -19.2      1.51   3d
+1f3c45ee  uniform priors on beta, gamma      fit_sir   if2     ✓          -19.4      1.49   3d
+2a8b7901  log-normal R0 prior, PGAS posterior fit_sir  pgas    R̂ ok       —          1.50   1d
+```
+
+If you forget to label a fit at run time, `camdl fit label <hash>
+"<text>"` adds or updates the label post-hoc:
+
+```bash
+$ camdl fit label 04ab12cd "default priors, scout-only (rerun)"
+```
+
+Pass any 8+-character hash prefix; an ambiguous prefix errors with
+a hint. Labels can also be filtered with glob patterns:
+`fit table --label-pattern "default*"` shows only fits whose label
+starts with "default". When the unlabelled-fits count exceeds a
+threshold (default 5; configure via the `CAMDL_UNLABELED_THRESHOLD`
+env var), `fit list` and `fit table` print a stderr nudge with the
+label-the-rest-of-them commands. Set `CAMDL_UNLABELED_THRESHOLD=0`
+to disable the nudge.
+
+The pattern that pays off: label every fit, even the ones you think
+are throwaway. The 30 seconds at run time saves an afternoon of
+"which fit was the one with the tightened gamma bounds?" later.
+See [`docs/dev/proposals/2026-04-28-fit-experiment-management.md`](https://github.com/vsbuffalo/camdl/blob/main/docs/dev/proposals/2026-04-28-fit-experiment-management.md) for the full design rationale.
 
 ## What's next
 

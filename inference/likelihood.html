@@ -34,7 +34,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
 <link href="../inference/algorithms.html" rel="next">
-<link href="../boarding-school-sir-clean/model_comparison.html" rel="prev">
+<link href="../guide/fitting-data/model_comparison.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -46,9 +46,9 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-7834fc316dc47462563faadba97a63a5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-b981944dac36b7fff9ce3ceeec90f8de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-73b7f00512812729446172a063b47ee0.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-b981944dac36b7fff9ce3ceeec90f8de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -340,12 +340,17 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../boarding-school-sir-clean/report.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
+  <a href="../guide/dimensions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Dimensions and Stratification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../boarding-school-sir-clean/model_comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
+  <a href="../guide/fitting-data/report.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/fitting-data/model_comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
   </div>
 </li>
       </ul>
@@ -369,21 +374,6 @@ window.Quarto = {
   <a href="../inference/algorithms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Algorithms: IF2, PGAS, and PMMH</span></a>
   </div>
 </li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../inference/pipeline.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Fitting Pipeline</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../inference/diagnostics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diagnostics Reference</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../inference/debugging.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Debugging</span></a>
-  </div>
-</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -395,31 +385,6 @@ window.Quarto = {
           </a> 
       </div>
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vignettes/he2010.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">He et al.&nbsp;(2010) Measles</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vignettes/model-comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vignettes/spatial-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Spatial Inference</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vignettes/sampler-comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sampler Comparison</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vignettes/diagnostics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diagnostics Cookbook</span></a>
-  </div>
-</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -547,6 +512,21 @@ window.Quarto = {
 <figcaption>The observation pipeline: latent incidence is aggregated, thinned by reporting probability ρ, and corrupted by observation noise. Inference tries to invert this pipeline.</figcaption>
 </figure>
 </div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Log-likelihoods are measured in nats
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Throughout this book, log-likelihoods use the natural logarithm (base <span class="math inline">\(e\)</span>), so the unit is the <strong>nat</strong> — the natural unit of information. A difference of 1 nat between two models means one assigns <span class="math inline">\(e \approx 2.72\)</span> times higher probability to the data. A difference of 3 nats is a factor of ~20; 5 nats is ~150×.</p>
+<p>The nat scale is universal across all likelihood-based comparisons in camdl: IF2 log-likelihoods, PGAS posterior densities, elpd in model comparison, and the E_T e-value column (<code>exp(Δelpd)</code> converts nats back to a probability ratio). When you see “the log-likelihood improved by 2 nats,” that means the better model assigns ~7× higher probability to the observed data. When the improvement is 0.5 nats, it’s only ~1.6× — probably noise.</p>
+<p>(Information theorists use bits (log₂); Bayesians and physicists use nats (ln). The choice is a constant factor: 1 nat ≈ 1.44 bits. camdl uses nats because <span class="math inline">\(\ln\)</span> is what falls out of the math naturally.)</p>
+</div>
+</div>
 <hr>
 </section>
 <section id="observation-likelihood-the-piece-you-can-always-evaluate" class="level2">
@@ -606,40 +586,24 @@ window.Quarto = {
 <section id="choosing-a-backend" class="level3">
 <h3 class="anchored" data-anchor-id="choosing-a-backend">Choosing a backend</h3>
 <p>The backend determines both the simulation mechanics and which inference algorithms are available. The choice matters more than it might seem — each makes a different approximation.</p>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>Chain-binomial (Euler-multinomial) — the default for inference
+<span class="screen-reader-only">Note</span>What is “chain-binomial” and how does it relate to Euler-multinomial?
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-1" class="callout-1-contents callout-collapse collapse show">
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p><strong>Use chain-binomial when you plan to fit the model.</strong> It’s the only backend that provides a closed-form transition density, which unlocks PGAS (the most efficient Bayesian algorithm for these models). It also works with IF2 and PMMH.</p>
-<p>The chain-binomial is a discrete-time scheme: at each step <span class="math inline">\(dt\)</span>, rates are converted to probabilities <span class="math inline">\(p = 1 - \exp(-\text{rate} \cdot dt)\)</span> and events are drawn from a multinomial. The multinomial correctly handles <strong>competing risks</strong> — if compartment <span class="math inline">\(I\)</span> has both recovery and death transitions, they compete for the same individuals, and their combined exits can never exceed <span class="math inline">\(I\)</span>. This is guaranteed by construction.</p>
-<p><strong>Overdispersion</strong> (<span class="math inline">\(\sigma^2 &gt; 0\)</span>) enters naturally: the per-capita force of infection is scaled by a Gamma random variable before the probability conversion. Both the multinomial and Gamma terms have closed-form densities, so the full transition likelihood is evaluable. This is what <a href="https://doi.org/10.1098/rsif.2009.0151">He et al.&nbsp;(2010)</a> used for London measles, and it remains the standard in pomp.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Chain-binomial — watch out
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
-<div class="callout-body-container callout-body">
-<p><strong>Discretization bias from large <span class="math inline">\(dt\)</span>.</strong> The chain-binomial assumes rates are constant within each step. When compartment sizes change substantially during <span class="math inline">\(dt\)</span> — for instance, <span class="math inline">\(I\)</span> doubling in one day during exponential growth — the rate at the start of the step doesn’t represent the dynamics within it. The approximation error is <span class="math inline">\(O(dt)\)</span> (first-order Euler).</p>
-<p><strong>Rule of thumb:</strong> <span class="math inline">\(dt\)</span> should be small enough that no compartment changes by more than ~10% in a single step. For fast epidemics in small populations (the boarding school at peak: <span class="math inline">\(\Delta I / I \approx 50\%\)</span> per day), use <span class="math inline">\(dt = 0.5\)</span> or smaller. For slower dynamics or large populations, <span class="math inline">\(dt = 1\)</span> is usually fine.</p>
-<p><strong>Jensen’s inequality with overdispersion.</strong> Because the Gamma noise enters <em>before</em> the nonlinear <span class="math inline">\(1 - \exp(\cdot)\)</span> conversion, adding mean-preserving noise to the rate slightly <em>reduces</em> the expected infection probability (§ overdispersion in the <a href="../guide/experiments.html">experiments chapter</a>). This means parameters estimated under an overdispersed model are not directly comparable to parameters from a non-overdispersed model — the model structure and parameters are entangled.</p>
-<p><strong>Computational cost:</strong> <span class="math inline">\(O(G)\)</span> per substep, where <span class="math inline">\(G\)</span> is the number of source groups (transition clusters sharing a source compartment). Much cheaper than Gillespie for large populations. The cost scales with model structure, not with population size.</p>
+<p>The names reflect historical accident more than structural difference. The <strong>chain-binomial</strong> model (Reed &amp; Frost, taught at Johns Hopkins in the 1920s–30s; published by Abbey 1952; systematized in Bailey 1975) discretizes an epidemic into generations: at each step, <span class="math inline">\(I_{t+1} \mid
+S_t, I_t \sim \text{Binomial}(S_t, 1 - q^{I_t})\)</span>. “Chain” because it’s a Markov chain; “binomial” because each transition is a binomial draw.</p>
+<p>The <strong>Euler-multinomial</strong> (Bretó et al.&nbsp;2009; He et al.&nbsp;2010) generalizes this to continuous-time models with competing exits — an <span class="math inline">\(I\)</span> individual can recover, die, or be reported — discretized at step size <span class="math inline">\(\Delta t\)</span>. The exits are multinomial rather than binomial, with probabilities derived from the competing hazards: <span class="math inline">\(p_j = (\lambda_j /
+\lambda_{\text{tot}})(1 - e^{-\lambda_{\text{tot}} \Delta t})\)</span>. Chain-binomial is the special case with one exit per compartment and <span class="math inline">\(\Delta t\)</span> equal to one generation.</p>
+<p>Both are finite-population stochastic models where each time step is a joint draw of how many individuals move along which edge, conditional on current compartment sizes. The transition kernel is a composition of independent individual-level draws — which is why the density is closed-form and why particle-filter-based inference works.</p>
+<p>For readers with a population genetics background: the structure is the same as a Wright-Fisher model with multiple allelic classes. Replace “allele frequency” with “compartment fraction,” replace “selection coefficient” with “force of infection minus recovery,” and the transition kernel is the same multinomial-conditional-on-current-state object. The identifiability geometry is similar too: in Wright-Fisher, <span class="math inline">\(N_e\)</span> and selection <span class="math inline">\(s\)</span> are partially confounded from a single-locus trajectory; in stochastic SIR, <span class="math inline">\(R_0\)</span> and reporting rate <span class="math inline">\(\rho\)</span> have the same issue on a single outbreak — you observe <span class="math inline">\(\rho R_0\)</span>-like combinations cleanly but need additional structure to separate them. Both are cases where a single realization of a finite-population Markov chain under-determines the generator. The key biological difference is the depletion-of-susceptibles nonlinearity: <span class="math inline">\(S\)</span> decreases monotonically during an outbreak, making the drift strongly state-dependent in a way neutral genetics doesn’t see.</p>
 </div>
 </div>
 </div>
@@ -649,14 +613,15 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>Gillespie SSA — exact continuous-time simulation
+<span class="screen-reader-only">Tip</span>Chain-binomial (Euler-multinomial) — the default for inference
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-3" class="callout-3-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<p><strong>Use Gillespie when you need an exact stochastic simulation and don’t plan to run PGAS.</strong> (<a href="https://doi.org/10.1021/j100540a008">Gillespie, 1977</a>) Every event (each individual infection, each recovery) is simulated at its exact time — no discretization error, no <span class="math inline">\(dt\)</span> to tune. The result is the “ground truth” stochastic process. It works with IF2 and PMMH for inference.</p>
-<p>Gillespie is the right choice for <strong>small populations</strong> where discrete effects matter (a handful of initial infections, near-extinction dynamics) and for <strong>validation</strong> — comparing Gillespie output against chain-binomial at various <span class="math inline">\(dt\)</span> tells you whether your <span class="math inline">\(dt\)</span> is small enough.</p>
+<p><strong>Use chain-binomial when you plan to fit the model.</strong> It’s the only backend that provides a closed-form transition density, which unlocks PGAS (the most efficient Bayesian algorithm for these models). It also works with IF2 and PMMH.</p>
+<p>The chain-binomial is a discrete-time scheme: at each step <span class="math inline">\(dt\)</span>, rates are converted to probabilities <span class="math inline">\(p = 1 - \exp(-\text{rate} \cdot dt)\)</span> and events are drawn from a multinomial. The multinomial correctly handles <strong>competing risks</strong> — if compartment <span class="math inline">\(I\)</span> has both recovery and death transitions, they compete for the same individuals, and their combined exits can never exceed <span class="math inline">\(I\)</span>. This is guaranteed by construction.</p>
+<p><strong>Overdispersion</strong> (<span class="math inline">\(\sigma^2 &gt; 0\)</span>) enters naturally: the per-capita force of infection is scaled by a Gamma random variable before the probability conversion. Both the multinomial and Gamma terms have closed-form densities, so the full transition likelihood is evaluable. This is what <a href="https://doi.org/10.1098/rsif.2009.0151">He et al.&nbsp;(2010)</a> used for London measles, and it remains the standard in pomp.</p>
 </div>
 </div>
 </div>
@@ -666,15 +631,16 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Gillespie — watch out
+<span class="screen-reader-only">Warning</span>Chain-binomial — watch out
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-4" class="callout-4-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<p><strong>Cost scales with event count, not time span.</strong> Each step simulates one event. For a population of <span class="math inline">\(N = 10{,}000\)</span> with <span class="math inline">\(R_0 = 3\)</span>, the total number of events (infections + recoveries) is <span class="math inline">\(\sim 20{,}000\)</span>. For <span class="math inline">\(N = 3.3\)</span> million (London), it’s <span class="math inline">\(\sim 6\)</span> million events per simulation. At <span class="math inline">\(dt = 0.5\)</span>, the chain-binomial handles the same dynamics in ~<span class="math inline">\(2T\)</span> steps regardless of <span class="math inline">\(N\)</span>.</p>
-<p><strong>No closed-form transition density for discretized observations.</strong> Evaluating <span class="math inline">\(p(x_t \mid x_{t-1}, \theta)\)</span> for a Gillespie trajectory between observation times requires tracking every intermediate event — available in principle but not implemented in camdl. This rules out PGAS. For Bayesian inference with Gillespie, use PMMH.</p>
-<p><strong>Overkill for large populations.</strong> When <span class="math inline">\(N\)</span> is large enough that the law of large numbers smooths out individual-level randomness, the exact event-by-event simulation adds precision that no observation model can distinguish. The chain-binomial with <span class="math inline">\(dt = 0.5\)</span> produces statistically indistinguishable results at a fraction of the cost.</p>
+<p><strong>Discretization bias from large <span class="math inline">\(dt\)</span>.</strong> The chain-binomial assumes rates are constant within each step. When compartment sizes change substantially during <span class="math inline">\(dt\)</span> — for instance, <span class="math inline">\(I\)</span> doubling in one day during exponential growth — the rate at the start of the step doesn’t represent the dynamics within it. The approximation error is <span class="math inline">\(O(dt)\)</span> (first-order Euler).</p>
+<p><strong>Rule of thumb:</strong> <span class="math inline">\(dt\)</span> should be small enough that no compartment changes by more than ~10% in a single step. For fast epidemics in small populations (the boarding school at peak: <span class="math inline">\(\Delta I / I \approx 50\%\)</span> per day), use <span class="math inline">\(dt = 0.5\)</span> or smaller. For slower dynamics or large populations, <span class="math inline">\(dt = 1\)</span> is usually fine.</p>
+<p><strong>Jensen’s inequality with overdispersion.</strong> Because the Gamma noise enters <em>before</em> the nonlinear <span class="math inline">\(1 - \exp(\cdot)\)</span> conversion, adding mean-preserving noise to the rate slightly <em>reduces</em> the expected infection probability (§ overdispersion in the <a href="../guide/experiments.html">experiments chapter</a>). This means parameters estimated under an overdispersed model are not directly comparable to parameters from a non-overdispersed model — the model structure and parameters are entangled.</p>
+<p><strong>Computational cost:</strong> <span class="math inline">\(O(G)\)</span> per substep, where <span class="math inline">\(G\)</span> is the number of source groups (transition clusters sharing a source compartment). Much cheaper than Gillespie for large populations. The cost scales with model structure, not with population size.</p>
 </div>
 </div>
 </div>
@@ -684,14 +650,14 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>Tau-leap — fast approximate simulation
+<span class="screen-reader-only">Tip</span>Gillespie SSA — exact continuous-time simulation
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-5" class="callout-5-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<p><strong>Use tau-leap for rapid exploration</strong> (<a href="https://doi.org/10.1063/1.2159468">Cao, Gillespie &amp; Petzold, 2006</a>) when you want speed over precision — prior predictive checks, sensitivity sweeps, quick iterations on model structure. Each step draws event counts from independent Poisson distributions, approximating the Gillespie process at discrete time steps.</p>
-<p>Tau-leap is typically the fastest backend, and it works with IF2 and PMMH for inference.</p>
+<p><strong>Use Gillespie when you need an exact stochastic simulation and don’t plan to run PGAS.</strong> (<a href="https://doi.org/10.1021/j100540a008">Gillespie, 1977</a>) Every event (each individual infection, each recovery) is simulated at its exact time — no discretization error, no <span class="math inline">\(dt\)</span> to tune. The result is the “ground truth” stochastic process. It works with IF2 and PMMH for inference.</p>
+<p>Gillespie is the right choice for <strong>small populations</strong> where discrete effects matter (a handful of initial infections, near-extinction dynamics) and for <strong>validation</strong> — comparing Gillespie output against chain-binomial at various <span class="math inline">\(dt\)</span> tells you whether your <span class="math inline">\(dt\)</span> is small enough.</p>
 </div>
 </div>
 </div>
@@ -701,11 +667,46 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Tau-leap — watch out
+<span class="screen-reader-only">Warning</span>Gillespie — watch out
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-6" class="callout-6-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Cost scales with event count, not time span.</strong> Each step simulates one event. For a population of <span class="math inline">\(N = 10{,}000\)</span> with <span class="math inline">\(R_0 = 3\)</span>, the total number of events (infections + recoveries) is <span class="math inline">\(\sim 20{,}000\)</span>. For <span class="math inline">\(N = 3.3\)</span> million (London), it’s <span class="math inline">\(\sim 6\)</span> million events per simulation. At <span class="math inline">\(dt = 0.5\)</span>, the chain-binomial handles the same dynamics in ~<span class="math inline">\(2T\)</span> steps regardless of <span class="math inline">\(N\)</span>.</p>
+<p><strong>No closed-form transition density for discretized observations.</strong> Evaluating <span class="math inline">\(p(x_t \mid x_{t-1}, \theta)\)</span> for a Gillespie trajectory between observation times requires tracking every intermediate event — available in principle but not implemented in camdl. This rules out PGAS. For Bayesian inference with Gillespie, use PMMH.</p>
+<p><strong>Overkill for large populations.</strong> When <span class="math inline">\(N\)</span> is large enough that the law of large numbers smooths out individual-level randomness, the exact event-by-event simulation adds precision that no observation model can distinguish. The chain-binomial with <span class="math inline">\(dt = 0.5\)</span> produces statistically indistinguishable results at a fraction of the cost.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Tau-leap — fast approximate simulation
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Use tau-leap for rapid exploration</strong> (<a href="https://doi.org/10.1063/1.2159468">Cao, Gillespie &amp; Petzold, 2006</a>) when you want speed over precision — prior predictive checks, sensitivity sweeps, quick iterations on model structure. Each step draws event counts from independent Poisson distributions, approximating the Gillespie process at discrete time steps.</p>
+<p>Tau-leap is typically the fastest backend, and it works with IF2 and PMMH for inference.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Tau-leap — watch out
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <p><strong>Independent Poisson draws don’t respect competing risks.</strong> Unlike the chain-binomial’s multinomial, tau-leap draws each transition independently. If compartment <span class="math inline">\(I\)</span> has 50 individuals and two exits (recovery, death) each with high probability, the independent Poisson draws can produce <span class="math inline">\(35 + 25 = 60\)</span> total exits from 50 individuals. camdl clamps negative compartments to zero, but this introduces bias — the effective exit rate is lower than intended.</p>
 <p><strong>This bias is worst at epidemic peaks</strong> — exactly when compartments are large, rates are high, and multiple transitions compete. For models with a single exit per compartment (simple SIR where <span class="math inline">\(I\)</span> only has recovery), tau-leap and chain-binomial are nearly equivalent. For models with competing risks (SEIR with I→R and I→D, or overdispersed infection alongside recovery), the chain-binomial is more faithful.</p>
@@ -760,7 +761,7 @@ window.Quarto = {
 <p>PMMH occupies a middle ground: it uses the particle filter’s stochastic estimate of the marginal likelihood as an MCMC acceptance ratio.</p>
 <p>The choice between these strategies is the central decision of the fitting workflow. The callouts below summarize the practical tradeoffs — when each algorithm is the right tool, and what can go wrong.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -769,46 +770,10 @@ window.Quarto = {
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-7" class="callout-7-contents callout-collapse collapse show">
+<div id="callout-9" class="callout-9-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <p><strong>Use IF2 when you want a point estimate (MLE) and work with any backend.</strong> IF2 is the right first step in almost every workflow: it’s fast, requires only forward simulation, and finds the parameter region where the model fits the data. It scales to ~10–15 estimated parameters in standard settings (<a href="https://doi.org/10.18637/jss.v069.i12">King et al., 2016</a>).</p>
 <p><strong>Start here.</strong> Run 8+ chains from dispersed starting points (the scout stage). If chains converge to the same region (<span class="math inline">\(\hat{R} &lt; 1.1\)</span>), you’ve found the MLE. If they find different basins, the likelihood surface is multimodal — examine which basin has the highest validated log-likelihood.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="true" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>IF2 — watch out
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-8" class="callout-8-contents callout-collapse collapse show">
-<div class="callout-body-container callout-body">
-<p><strong>IF2 finds local optima, not global ones.</strong> The cooling schedule contracts the perturbation cloud around whatever basin particles happen to land in. Multistart is mandatory: a single chain gives no convergence guarantee on a multimodal surface. The more parameters you have, the more starts you need.</p>
-<p><strong>Cooling schedule interacts with exploration.</strong> Gentle cooling (<code>cf50</code> ≈ 0.5–0.7) maintains large perturbations longer, allowing particles to jump between basins. Aggressive cooling (<code>cf50</code> ≈ 0.05) converges fast but traps you in the nearest peak. Use gentle cooling for scouting, aggressive for refining.</p>
-<p><strong>The reported log-likelihood is inflated.</strong> IF2’s log-likelihood during optimization includes perturbation noise and is always higher than the true marginal likelihood. Always validate with a clean particle filter (no perturbations) before comparing models or computing profile likelihoods.</p>
-<p><strong>Filtering failure = model failure.</strong> If the PF returns <span class="math inline">\(-\infty\)</span> (all particles get zero weight), the model structure is wrong — no amount of parameter tuning will fix it.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="true" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>PGAS — when to use
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-9" class="callout-9-contents callout-collapse collapse show">
-<div class="callout-body-container callout-body">
-<p><strong>Use PGAS when you need full Bayesian uncertainty and your model uses the chain-binomial backend.</strong> PGAS produces posterior samples of <em>both</em> parameters and trajectories — credible intervals, posterior predictive checks, and the full distribution of epidemic histories consistent with the data.</p>
-<p>Because PGAS pairs with NUTS for parameter updates (using exact gradients of the complete-data log-posterior), it handles correlated parameters (<span class="math inline">\(\beta\)</span>–<span class="math inline">\(\gamma\)</span> anticorrelation through <span class="math inline">\(R_0\)</span>) far more efficiently than random-walk proposals. This makes it the preferred algorithm when the chain-binomial backend is available — which is the default for camdl’s target models.</p>
 </div>
 </div>
 </div>
@@ -818,16 +783,16 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>PGAS — watch out
+<span class="screen-reader-only">Warning</span>IF2 — watch out
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-10" class="callout-10-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<p><strong>Low trajectory renewal is the primary failure mode.</strong> After each CSMC sweep, check what fraction of the trajectory substeps changed. If renewal is below ~10%, the reference particle dominates — parameters may appear to mix while the trajectory is frozen. Remedies: more CSMC particles, or parallel tempering to escape local modes.</p>
-<p><strong>Observation frequency matters more than time span.</strong> CSMC difficulty scales with the number of observation times <span class="math inline">\(T\)</span>, not calendar duration. Weekly observations over 15 years (<span class="math inline">\(T \approx 780\)</span>) require substantially more CSMC particles than monthly observations (<span class="math inline">\(T \approx 180\)</span>). The number of CSMC particles must grow roughly proportional to <span class="math inline">\(T\)</span> (<a href="https://doi.org/10.1093/biomet/asx076">Singh et al., 2017</a>).</p>
-<p><strong>The Gibbs coupling problem.</strong> PGAS alternates parameter and trajectory updates. When the two are strongly correlated in the posterior (higher <span class="math inline">\(\beta\)</span> ↔︎ higher-incidence trajectory), neither can move far without the other. Ancestor sampling helps, but for severe coupling, parallel tempering across the likelihood surface is the standard remedy.</p>
-<p><strong>Requires chain-binomial.</strong> This is a hard constraint: if your model needs Gillespie or tau-leap dynamics, PGAS is not available. Use PMMH for Bayesian inference or IF2 for MLE.</p>
+<p><strong>IF2 finds local optima, not global ones.</strong> The cooling schedule contracts the perturbation cloud around whatever basin particles happen to land in. Multistart is mandatory: a single chain gives no convergence guarantee on a multimodal surface. The more parameters you have, the more starts you need.</p>
+<p><strong>Cooling schedule interacts with exploration.</strong> Gentle cooling (<code>cf50</code> ≈ 0.5–0.7) maintains large perturbations longer, allowing particles to jump between basins. Aggressive cooling (<code>cf50</code> ≈ 0.05) converges fast but traps you in the nearest peak. Use gentle cooling for scouting, aggressive for refining.</p>
+<p><strong>The reported log-likelihood is inflated.</strong> IF2’s log-likelihood during optimization includes perturbation noise and is always higher than the true marginal likelihood. Always validate with a clean particle filter (no perturbations) before comparing models or computing profile likelihoods.</p>
+<p><strong>Filtering failure = model failure.</strong> If the PF returns <span class="math inline">\(-\infty\)</span> (all particles get zero weight), the model structure is wrong — no amount of parameter tuning will fix it.</p>
 </div>
 </div>
 </div>
@@ -837,14 +802,14 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>PMMH — when to use
+<span class="screen-reader-only">Tip</span>PGAS — when to use
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-11" class="callout-11-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<p><strong>Use PMMH when you need Bayesian inference but can’t evaluate the transition likelihood</strong> — non-chain-binomial backends, or as a cross-validation check against PGAS on the same model. PMMH uses the particle filter’s noisy likelihood estimate in a Metropolis-Hastings ratio, and remarkably, the resulting chain targets the exact posterior despite the noise (<a href="https://doi.org/10.1111/j.1467-9868.2009.00736.x">Andrieu et al., 2010</a>).</p>
-<p>Best suited for models with few parameters (3–6), where the random-walk proposal remains efficient.</p>
+<p><strong>Use PGAS when you need full Bayesian uncertainty and your model uses the chain-binomial backend.</strong> PGAS produces posterior samples of <em>both</em> parameters and trajectories — credible intervals, posterior predictive checks, and the full distribution of epidemic histories consistent with the data.</p>
+<p>Because PGAS pairs with NUTS for parameter updates (using exact gradients of the complete-data log-posterior), it handles correlated parameters (<span class="math inline">\(\beta\)</span>–<span class="math inline">\(\gamma\)</span> anticorrelation through <span class="math inline">\(R_0\)</span>) far more efficiently than random-walk proposals. This makes it the preferred algorithm when the chain-binomial backend is available — which is the default for camdl’s target models.</p>
 </div>
 </div>
 </div>
@@ -854,11 +819,47 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>PMMH — watch out
+<span class="screen-reader-only">Warning</span>PGAS — watch out
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-12" class="callout-12-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Low trajectory renewal is the primary failure mode.</strong> After each CSMC sweep, check what fraction of the trajectory substeps changed. If renewal is below ~10%, the reference particle dominates — parameters may appear to mix while the trajectory is frozen. Remedies: more CSMC particles, or parallel tempering to escape local modes.</p>
+<p><strong>Observation frequency matters more than time span.</strong> CSMC difficulty scales with the number of observation times <span class="math inline">\(T\)</span>, not calendar duration. Weekly observations over 15 years (<span class="math inline">\(T \approx 780\)</span>) require substantially more CSMC particles than monthly observations (<span class="math inline">\(T \approx 180\)</span>). The number of CSMC particles must grow roughly proportional to <span class="math inline">\(T\)</span> (<a href="https://doi.org/10.1093/biomet/asx076">Singh et al., 2017</a>).</p>
+<p><strong>The Gibbs coupling problem.</strong> PGAS alternates parameter and trajectory updates. When the two are strongly correlated in the posterior (higher <span class="math inline">\(\beta\)</span> ↔︎ higher-incidence trajectory), neither can move far without the other. Ancestor sampling helps, but for severe coupling, parallel tempering across the likelihood surface is the standard remedy.</p>
+<p><strong>Requires chain-binomial.</strong> This is a hard constraint: if your model needs Gillespie or tau-leap dynamics, PGAS is not available. Use PMMH for Bayesian inference or IF2 for MLE.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-13-contents" aria-controls="callout-13" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>PMMH — when to use
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-13" class="callout-13-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Use PMMH when you need Bayesian inference but can’t evaluate the transition likelihood</strong> — non-chain-binomial backends, or as a cross-validation check against PGAS on the same model. PMMH uses the particle filter’s noisy likelihood estimate in a Metropolis-Hastings ratio, and remarkably, the resulting chain targets the exact posterior despite the noise (<a href="https://doi.org/10.1111/j.1467-9868.2009.00736.x">Andrieu et al., 2010</a>).</p>
+<p>Best suited for models with few parameters (3–6), where the random-walk proposal remains efficient.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-14-contents" aria-controls="callout-14" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>PMMH — watch out
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-14" class="callout-14-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <p><strong>Tune particles so <span class="math inline">\(\text{Var}[\log \hat{p}(y \mid \theta)] \approx 1\)</span>–<span class="math inline">\(3\)</span> at the posterior mode</strong> (<a href="https://doi.org/10.1093/biomet/asu075">Doucet et al., 2015</a>). Too few particles → high variance → the chain gets “stuck” at accidentally high likelihood estimates. Too many → wasted computation. But variance is not constant across parameter space: it typically increases in the posterior tails, so tuning at the mode can produce an artificially concentrated posterior.</p>
 <p><strong>Required particles grow with <span class="math inline">\(T\)</span>.</strong> PF log-likelihood variance grows linearly with the number of observation times. For long time series (<span class="math inline">\(T &gt; 200\)</span>), this can mean thousands of particles per MCMC step — each of which runs a full PF. This makes PMMH expensive for the multi-decade time series common in measles and polio modeling.</p>
@@ -1318,7 +1319,7 @@ window.Quarto = {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../boarding-school-sir-clean/model_comparison.html" class="pagination-link" aria-label="Model Comparison">
+      <a href="../guide/fitting-data/model_comparison.html" class="pagination-link" aria-label="Model Comparison">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Model Comparison</span></span>
       </a>          
   </div>

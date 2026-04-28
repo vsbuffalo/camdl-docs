@@ -81,9 +81,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-7834fc316dc47462563faadba97a63a5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-b981944dac36b7fff9ce3ceeec90f8de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-73b7f00512812729446172a063b47ee0.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-b981944dac36b7fff9ce3ceeec90f8de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -346,12 +346,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../boarding-school-sir-clean/report.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
+  <a href="../guide/dimensions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Dimensions and Stratification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../boarding-school-sir-clean/model_comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
+  <a href="../guide/fitting-data/report.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/fitting-data/model_comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
   </div>
 </li>
       </ul>
@@ -375,21 +380,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <a href="../inference/algorithms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Algorithms: IF2, PGAS, and PMMH</span></a>
   </div>
 </li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../inference/pipeline.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Fitting Pipeline</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../inference/diagnostics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diagnostics Reference</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../inference/debugging.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Debugging</span></a>
-  </div>
-</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -401,31 +391,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           </a> 
       </div>
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vignettes/he2010.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">He et al.&nbsp;(2010) Measles</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vignettes/model-comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vignettes/spatial-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Spatial Inference</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vignettes/sampler-comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sampler Comparison</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vignettes/diagnostics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diagnostics Cookbook</span></a>
-  </div>
-</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -495,6 +460,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#exhaustive-partition-rule" id="toc-exhaustive-partition-rule" class="nav-link" data-scroll-target="#exhaustive-partition-rule">3.3 Exhaustive Partition Rule</a></li>
   <li><a href="#no-params-field" id="toc-no-params-field" class="nav-link" data-scroll-target="#no-params-field">3.4 No <code>params</code> Field</a></li>
   <li><a href="#observation-model" id="toc-observation-model" class="nav-link" data-scroll-target="#observation-model">3.5 Observation Model</a></li>
+  <li><a href="#replicate-fits-and-synthetic-data-calibration" id="toc-replicate-fits-and-synthetic-data-calibration" class="nav-link" data-scroll-target="#replicate-fits-and-synthetic-data-calibration">3.7 Replicate fits and synthetic-data calibration</a></li>
+  <li><a href="#ic-free-inference" id="toc-ic-free-inference" class="nav-link" data-scroll-target="#ic-free-inference">3.8 IC-free inference</a></li>
   </ul></li>
   <li><a href="#the-fit-state-file" id="toc-the-fit-state-file" class="nav-link" data-scroll-target="#the-fit-state-file">4. The Fit State File</a>
   <ul class="collapse">
@@ -531,6 +498,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#single-stream" id="toc-single-stream" class="nav-link" data-scroll-target="#single-stream">10.1 Single-Stream</a></li>
   <li><a href="#multi-stream" id="toc-multi-stream" class="nav-link" data-scroll-target="#multi-stream">10.2 Multi-Stream</a></li>
+  <li><a href="#incidence-vs.-prevalence" id="toc-incidence-vs.-prevalence" class="nav-link" data-scroll-target="#incidence-vs.-prevalence">10.2.1 Incidence vs.&nbsp;Prevalence</a></li>
   <li><a href="#missing-data" id="toc-missing-data" class="nav-link" data-scroll-target="#missing-data">10.3 Missing Data</a></li>
   <li><a href="#spatially-indexed-data" id="toc-spatially-indexed-data" class="nav-link" data-scroll-target="#spatially-indexed-data">10.4 Spatially Indexed Data</a></li>
   </ul></li>
@@ -570,7 +538,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="design-principles" class="level2">
 <h2 class="anchored" data-anchor-id="design-principles">1. Design Principles</h2>
 <p><strong>Files are the workflow.</strong> Every inference step reads files and writes files. The pipeline exists in the filesystem, not in the researcher’s head. Any step can be rerun. Any result can be traced to its inputs.</p>
-<p><strong>params.toml is the universal interface.</strong> The inference pipeline’s final output is a params.toml. It feeds directly into <code>camdl simulate</code>, <code>camdl experiment run</code>, <code>camdl voi run</code>. No format conversion. One chain from raw data to decision.</p>
+<p><strong>params.toml is the universal interface.</strong> The inference pipeline’s final output is a params.toml. It feeds directly into <code>camdl simulate</code>, <code>camdl simulate batch</code>, <code>camdl voi run</code>. No format conversion. One chain from raw data to decision.</p>
 <p><strong>The fixed/free partition is explicit and exhaustive.</strong> Every model parameter must be declared as either estimated or fixed. No silent defaults. Accidental fixation — the most common calibration error — is a compile-time error, not a runtime surprise.</p>
 <p><strong>Provenance is structural.</strong> Every machine-generated file includes a content hash and input references. Modified files are detectable. The full chain from data to decision is auditable.</p>
 <p><strong>TOML for humans, JSON for agents, TSV for data.</strong> No file serves two masters.</p>
@@ -791,6 +759,135 @@ if estimated ∩ fixed ≠ ∅:
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="dt">afp_cases</span> <span class="op">=</span> <span class="st">"data/afp_by_district.tsv"</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="dt">es_positive</span> <span class="op">=</span> <span class="st">"data/es_results.tsv"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The particle filter sums log-likelihoods across all streams at each observation time.</p>
+</section>
+<section id="replicate-fits-and-synthetic-data-calibration" class="level3">
+<h3 class="anchored" data-anchor-id="replicate-fits-and-synthetic-data-calibration">3.7 Replicate fits and synthetic-data calibration</h3>
+<p>A fit config can describe a grid of fits instead of a single fit, varying two orthogonal axes:</p>
+<ul>
+<li><strong>Data axis</strong> — real data (<code>[data]</code>) or synthetic data (<code>[synthetic]</code>, generated from known truth). Mutually exclusive.</li>
+<li><strong>Fit axis</strong> — list-valued <code>fit_seeds</code>. Each seed runs the full stage pipeline independently with a different IF2/PGAS seed and (optionally) perturbation start.</li>
+</ul>
+<p>The grid is the Cartesian product. Collapses orthogonally: omit both and the fit runs once, unchanged from today.</p>
+<section id="config-shape" class="level4">
+<h4 class="anchored" data-anchor-id="config-shape">Config shape</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Top-level scalars must precede any [table] header.</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dt">fit_seeds</span> <span class="op">=</span> <span class="op">[</span><span class="dv">101</span><span class="op">,</span> <span class="dv">102</span><span class="op">,</span> <span class="dv">103</span><span class="op">]</span>   <span class="co"># optional; list-only</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="kw">[model]</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="dt">camdl</span> <span class="op">=</span> <span class="st">"models/sir.camdl"</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Choose one of [data] or [synthetic], never both.</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="kw">[data.observations]</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="dt">cases</span> <span class="op">=</span> <span class="st">"data/cases.tsv"</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co"># …or:</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="kw">[synthetic]</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="dt">true_params</span> <span class="op">=</span> <span class="st">"params/truth.toml"</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="dt">sim_seeds</span>   <span class="op">=</span> <span class="st">"1:20"</span>           <span class="co"># or an explicit list</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="dt">datasets</span>    <span class="op">=</span> <span class="dv">20</span>               <span class="co"># optional; inferred from sim_seeds</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="dt">scenario</span>    <span class="op">=</span> <span class="st">"baseline"</span>       <span class="co"># optional</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="canonical-modes" class="level4">
+<h4 class="anchored" data-anchor-id="canonical-modes">Canonical modes</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 15%">
+<col style="width: 14%">
+<col style="width: 37%">
+<col style="width: 7%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Mode</th>
+<th><code>[synthetic]</code></th>
+<th><code>fit_seeds</code></th>
+<th>Output layout</th>
+<th>Cells</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Single fit</td>
+<td>—</td>
+<td>scalar / absent</td>
+<td><code>real/fit_&lt;seed&gt;/</code></td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>Start-sensitivity</td>
+<td>—</td>
+<td>list, len M</td>
+<td><code>real/fit_&lt;seed&gt;/</code> × M</td>
+<td>M</td>
+</tr>
+<tr class="odd">
+<td>SBC (classical)</td>
+<td>N datasets</td>
+<td>scalar / absent</td>
+<td><code>synthetic/ds_NN/fit_&lt;seed&gt;/</code></td>
+<td>N</td>
+</tr>
+<tr class="even">
+<td>SBC × start-sensitivity</td>
+<td>N datasets</td>
+<td>list, len M</td>
+<td><code>synthetic/ds_NN/fit_&lt;seed&gt;/</code> × M</td>
+<td>N × M</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="output-directory" class="level4">
+<h4 class="anchored" data-anchor-id="output-directory">Output directory</h4>
+<p>Every fit lives under a data-source subdirectory. No single-fit exception — the seed is always the leaf:</p>
+<pre><code>results/fits/&lt;name&gt;/
+  real/                       or    synthetic/
+    fit_101/                            ds_01/
+      scout/ refine/ …                    fit_101/
+    fit_102/                                scout/ refine/ …
+      …                                   fit_102/ …
+    summary.tsv                         …
+                                        summary.tsv
+                                        coverage.tsv
+                                        truth.toml
+                                        data/
+                                          ds_01.tsv
+                                          …</code></pre>
+<p><code>summary.tsv</code> (always): one row per <code>(dataset, fit_seed)</code> with every estimated parameter’s MLE, the log-likelihood, and the content hash.</p>
+<p><code>coverage.tsv</code> (synthetic mode only): one row per estimated parameter with <code>truth</code>, <code>mean_mle</code>, <code>bias</code>, <code>sd_mle</code>, <code>q05</code>, <code>q95</code>, <code>covers_truth</code>, <code>n_datasets</code>. <code>covers_truth = 1</code> when the central 90 % MLE window brackets the declared ground truth.</p>
+</section>
+<section id="synthetic-data-semantics" class="level4">
+<h4 class="anchored" data-anchor-id="synthetic-data-semantics">Synthetic data semantics</h4>
+<p>When <code>[synthetic]</code> is present, the runner generates <code>len(sim_seeds)</code> datasets before dispatching any fits. Each dataset is a single run of the chosen backend at <code>true_params</code> with <code>sim_seed</code>, sampled through every declared observation stream at its declared schedule. The resulting wide-format TSV is written to <code>&lt;fit_dir&gt;/synthetic/data/ds_NN.tsv</code> and handed to the fit runner as if the user had supplied it via <code>[data.observations]</code>.</p>
+<p>Generation is deterministic: same <code>(true_params, sim_seed)</code> produces bit-identical data. The content hash of each dataset participates in the per-cell provenance hash so regenerating with unchanged inputs is a cache hit, not a redo.</p>
+</section>
+<section id="validation" class="level4">
+<h4 class="anchored" data-anchor-id="validation">Validation</h4>
+<ul>
+<li><code>[data]</code> + <code>[synthetic]</code> — hard error (choose one).</li>
+<li>Neither present — hard error.</li>
+<li><code>sim_seeds</code> range/list with duplicates — hard error (would collide on provenance hashes).</li>
+<li><code>datasets</code> supplied and <code>≠ len(sim_seeds)</code> — hard error.</li>
+<li><code>fit_seeds</code> list with duplicates — hard error.</li>
+</ul>
+</section>
+</section>
+<section id="ic-free-inference" class="level3">
+<h3 class="anchored" data-anchor-id="ic-free-inference">3.8 IC-free inference</h3>
+<p>Stochastic compartmental models have a ridge in <code>(β, I₀)</code>: short observation windows admit many parameter combinations that fit the data equally well. Fixing <code>I₀</code> gives a tight <code>β</code> posterior that is paid for with a pretence; estimating <code>I₀</code> reveals the ridge but needs a prior on <code>I₀</code> to resolve along it. The principled alternative from the pomp literature (King et al.&nbsp;2008; Bretó et al.&nbsp;2009) is to condition the likelihood on the first observation and let the particle filter’s initial reweight pin <code>I₀</code> implicitly:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[fit]</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="dt">ic_free</span> <span class="op">=</span> <span class="cn">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>When set:</p>
+<ul>
+<li>The PF / IF2 / PGAS runs still weight and resample at <code>y₁</code> (that’s what pins <code>x₀</code> given <code>y₁</code> via Bayesian update on the particle cloud).</li>
+<li>The log-likelihood accumulation skips <code>y₁</code>. The returned loglik is <code>log L_c(θ | y₁) = Σ_{t=2}^T log p(y_t | y_{1:t-1})</code> rather than the full <code>log L(θ)</code>. These differ by <code>log p(y_1)</code> and are not directly comparable across runs with different <code>ic_free</code> settings.</li>
+</ul>
+<p>Precondition: at least one <code>[estimate.*]</code> entry must be <code>ivp = true</code>. Without per-particle spread at <code>t=0</code>, the first reweight cannot discriminate between particles and <code>ic_free</code> silently degenerates to dropping the first observation. Config validation rejects the degenerate case:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[estimate]</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="dt">I0</span> <span class="op">=</span> <span class="op">{ </span><span class="dt">bounds</span><span class="op"> =</span> <span class="op">[</span><span class="dv">1</span><span class="op">,</span> <span class="dv">500</span><span class="op">], </span><span class="dt">ivp</span><span class="op"> =</span> <span class="cn">true</span><span class="op"> }</span>   <span class="co"># required under ic_free</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>See <code>docs/dev/proposals/2026-04-18-ic-free-inference.md</code> for the mathematical derivation, references (King Nguyen Ionides 2016 JSS, Ionides et al.&nbsp;2015 PNAS, King et al.&nbsp;2008 Nature, Bretó He Ionides King 2009 AOAS), and the epistemic-laundering motivation.</p>
+<p>Explicitly not the same: the Cori-Fraser-Cauchemez / EpiEstim renewal-equation approach avoids <code>I₀</code> by replacing the compartmental structure during growth with a branching process parameterised by <code>R_t</code>. That is a different process model, not a different likelihood factorisation, and is out of scope for this feature.</p>
 <hr>
 </section>
 </section>
@@ -802,42 +899,42 @@ if estimated ∩ fixed ≠ ∅:
 </section>
 <section id="schema" class="level3">
 <h3 class="anchored" data-anchor-id="schema">4.2 Schema</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit/he2010/scout/fit_state.toml</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Auto-generated by camdl fit scout.</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="dt">stage</span> <span class="op">=</span> <span class="st">"scout"</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="dt">seed</span> <span class="op">=</span> <span class="dv">1</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="dt">timestamp</span> <span class="op">=</span> <span class="st">"2026-03-30T14:30:00Z"</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="dt">best_loglik</span> <span class="op">=</span> <span class="fl">-3891.2</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="dt">initial_loglik</span> <span class="op">=</span> <span class="fl">-4523.7</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="dt">best_chain</span> <span class="op">=</span> <span class="dv">4</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="dt">n_chains</span> <span class="op">=</span> <span class="dv">8</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="dt">n_good_chains</span> <span class="op">=</span> <span class="dv">6</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="kw">[start_values]</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Best chain's best-loglik parameters (not endpoint — the point</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co"># during the chain's trajectory where loglik was highest)</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="dt">R0</span> <span class="op">=</span> <span class="fl">55.3</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="dt">sigma</span> <span class="op">=</span> <span class="fl">0.081</span></span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="dt">gamma</span> <span class="op">=</span> <span class="fl">0.084</span></span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="dt">rho</span> <span class="op">=</span> <span class="fl">0.49</span></span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="dt">amplitude</span> <span class="op">=</span> <span class="fl">0.52</span></span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="dt">S0</span> <span class="op">=</span> <span class="dv">71200</span></span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="dt">E0</span> <span class="op">=</span> <span class="dv">140</span></span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="dt">I0</span> <span class="op">=</span> <span class="dv">118</span></span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="kw">[rw_sd]</span></span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="co"># rw_sd from the user's fit.toml (or auto from bounds if omitted).</span></span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="co"># No inter-stage auto-calibration — each stage uses the user's</span></span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a><span class="co"># specified values. Set explicit rw_sd after inspecting scout traces.</span></span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a><span class="dt">R0</span> <span class="op">=</span> <span class="fl">8.5</span></span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="dt">sigma</span> <span class="op">=</span> <span class="fl">0.003</span></span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="dt">gamma</span> <span class="op">=</span> <span class="fl">0.004</span></span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a><span class="dt">rho</span> <span class="op">=</span> <span class="fl">0.025</span></span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="dt">amplitude</span> <span class="op">=</span> <span class="fl">0.02</span></span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a><span class="dt">S0</span> <span class="op">=</span> <span class="dv">3200</span></span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a><span class="dt">E0</span> <span class="op">=</span> <span class="dv">95</span></span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a><span class="dt">I0</span> <span class="op">=</span> <span class="dv">45</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit/he2010/scout/fit_state.toml</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Auto-generated by camdl fit scout.</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="dt">stage</span> <span class="op">=</span> <span class="st">"scout"</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="dt">seed</span> <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="dt">timestamp</span> <span class="op">=</span> <span class="st">"2026-03-30T14:30:00Z"</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="dt">best_loglik</span> <span class="op">=</span> <span class="fl">-3891.2</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="dt">initial_loglik</span> <span class="op">=</span> <span class="fl">-4523.7</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="dt">best_chain</span> <span class="op">=</span> <span class="dv">4</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="dt">n_chains</span> <span class="op">=</span> <span class="dv">8</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="dt">n_good_chains</span> <span class="op">=</span> <span class="dv">6</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="kw">[start_values]</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Best chain's best-loglik parameters (not endpoint — the point</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="co"># during the chain's trajectory where loglik was highest)</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="dt">R0</span> <span class="op">=</span> <span class="fl">55.3</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="dt">sigma</span> <span class="op">=</span> <span class="fl">0.081</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="dt">gamma</span> <span class="op">=</span> <span class="fl">0.084</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="dt">rho</span> <span class="op">=</span> <span class="fl">0.49</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="dt">amplitude</span> <span class="op">=</span> <span class="fl">0.52</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="dt">S0</span> <span class="op">=</span> <span class="dv">71200</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="dt">E0</span> <span class="op">=</span> <span class="dv">140</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="dt">I0</span> <span class="op">=</span> <span class="dv">118</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a><span class="kw">[rw_sd]</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a><span class="co"># rw_sd from the user's fit.toml (or auto from bounds if omitted).</span></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a><span class="co"># No inter-stage auto-calibration — each stage uses the user's</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a><span class="co"># specified values. Set explicit rw_sd after inspecting scout traces.</span></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a><span class="dt">R0</span> <span class="op">=</span> <span class="fl">8.5</span></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a><span class="dt">sigma</span> <span class="op">=</span> <span class="fl">0.003</span></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a><span class="dt">gamma</span> <span class="op">=</span> <span class="fl">0.004</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a><span class="dt">rho</span> <span class="op">=</span> <span class="fl">0.025</span></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a><span class="dt">amplitude</span> <span class="op">=</span> <span class="fl">0.02</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a><span class="dt">S0</span> <span class="op">=</span> <span class="dv">3200</span></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a><span class="dt">E0</span> <span class="op">=</span> <span class="dv">95</span></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a><span class="dt">I0</span> <span class="op">=</span> <span class="dv">45</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="how-stages-chain" class="level3">
 <h3 class="anchored" data-anchor-id="how-stages-chain">4.3 How Stages Chain</h3>
@@ -865,32 +962,32 @@ if estimated ∩ fixed ≠ ∅:
 <section id="mle_params.toml" class="level3">
 <h3 class="anchored" data-anchor-id="mle_params.toml">5.1 <code>mle_params.toml</code></h3>
 <p>The final output of inference. A valid params.toml with provenance in comments:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># camdl fit output</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Content hash: a3c1e890 (editing any value below invalidates this)</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Input hash: 7f2c1d3a (identifies the computation that produced this)</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Model: models/he2010_london.camdl (hash: 3a7f2c1d)</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Data: data/london_cases.tsv (hash: f9e2b047)</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit: fit.toml (hash: b2c4d6e8)</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Seed: 1</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Stage: validate, chain 2</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Log-likelihood: -3804.9 (sd: 5.2, N=10000)</span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co"># ESS at MLE: mean=3842, min=1205</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Timestamp: 2026-03-30T14:30:00Z</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co"># camdl version: 0.3.0</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="dt">R0</span> <span class="op">=</span> <span class="fl">56.82</span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="dt">sigma</span> <span class="op">=</span> <span class="fl">0.0791</span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="dt">gamma</span> <span class="op">=</span> <span class="fl">0.0832</span></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="dt">rho</span> <span class="op">=</span> <span class="fl">0.488</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="dt">amplitude</span> <span class="op">=</span> <span class="fl">0.554</span></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="dt">S0</span> <span class="op">=</span> <span class="dv">73151</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="dt">E0</span> <span class="op">=</span> <span class="dv">127</span></span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="dt">I0</span> <span class="op">=</span> <span class="dv">127</span></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="dt">N0</span> <span class="op">=</span> <span class="dv">2462500</span></span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="dt">mu</span> <span class="op">=</span> <span class="fl">0.0000548</span></span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="dt">k</span> <span class="op">=</span> <span class="fl">50.0</span></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="dt">psi</span> <span class="op">=</span> <span class="fl">0.116</span></span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a><span class="dt">cohort</span> <span class="op">=</span> <span class="fl">0.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># camdl fit output</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Content hash: a3c1e890 (editing any value below invalidates this)</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Input hash: 7f2c1d3a (identifies the computation that produced this)</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Model: models/he2010_london.camdl (hash: 3a7f2c1d)</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Data: data/london_cases.tsv (hash: f9e2b047)</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit: fit.toml (hash: b2c4d6e8)</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Seed: 1</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Stage: validate, chain 2</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Log-likelihood: -3804.9 (sd: 5.2, N=10000)</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co"># ESS at MLE: mean=3842, min=1205</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Timestamp: 2026-03-30T14:30:00Z</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co"># camdl version: 0.3.0</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="dt">R0</span> <span class="op">=</span> <span class="fl">56.82</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="dt">sigma</span> <span class="op">=</span> <span class="fl">0.0791</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="dt">gamma</span> <span class="op">=</span> <span class="fl">0.0832</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="dt">rho</span> <span class="op">=</span> <span class="fl">0.488</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="dt">amplitude</span> <span class="op">=</span> <span class="fl">0.554</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="dt">S0</span> <span class="op">=</span> <span class="dv">73151</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="dt">E0</span> <span class="op">=</span> <span class="dv">127</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="dt">I0</span> <span class="op">=</span> <span class="dv">127</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a><span class="dt">N0</span> <span class="op">=</span> <span class="dv">2462500</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="dt">mu</span> <span class="op">=</span> <span class="fl">0.0000548</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a><span class="dt">k</span> <span class="op">=</span> <span class="fl">50.0</span></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a><span class="dt">psi</span> <span class="op">=</span> <span class="fl">0.116</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a><span class="dt">cohort</span> <span class="op">=</span> <span class="fl">0.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="two-hashes-for-two-purposes" class="level3">
 <h3 class="anchored" data-anchor-id="two-hashes-for-two-purposes">5.2 Two Hashes for Two Purposes</h3>
@@ -920,64 +1017,64 @@ if estimated ∩ fixed ≠ ∅:
 <section id="fit_record.json" class="level3">
 <h3 class="anchored" data-anchor-id="fit_record.json">5.3 <code>fit_record.json</code></h3>
 <p>Self-contained provenance record. Everything needed to understand and reproduce the fit:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"model"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"path"</span><span class="fu">:</span> <span class="st">"models/he2010_london.camdl"</span><span class="fu">,</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"hash"</span><span class="fu">:</span> <span class="st">"3a7f2c1d"</span></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"weekly_cases"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"path"</span><span class="fu">:</span> <span class="st">"data/london_cases.tsv"</span><span class="fu">,</span></span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"hash"</span><span class="fu">:</span> <span class="st">"f9e2b047"</span><span class="fu">,</span></span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"n_observations"</span><span class="fu">:</span> <span class="dv">780</span><span class="fu">,</span></span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"time_range"</span><span class="fu">:</span> <span class="ot">[</span><span class="fl">7.0</span><span class="ot">,</span> <span class="fl">5467.0</span><span class="ot">]</span></span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"fit_config"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"path"</span><span class="fu">:</span> <span class="st">"fit.toml"</span><span class="fu">,</span></span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"hash"</span><span class="fu">:</span> <span class="st">"b2c4d6e8"</span><span class="fu">,</span></span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"estimated"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"R0"</span><span class="ot">,</span> <span class="st">"sigma"</span><span class="ot">,</span> <span class="st">"gamma"</span><span class="ot">,</span> <span class="st">"rho"</span><span class="ot">,</span> <span class="st">"amplitude"</span><span class="ot">,</span></span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"S0"</span><span class="ot">,</span> <span class="st">"E0"</span><span class="ot">,</span> <span class="st">"I0"</span><span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"fixed"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"N0"</span><span class="ot">,</span> <span class="st">"mu"</span><span class="ot">,</span> <span class="st">"k"</span><span class="ot">,</span> <span class="st">"psi"</span><span class="ot">,</span> <span class="st">"cohort"</span><span class="ot">]</span></span>
-<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
-<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"method"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"algorithm"</span><span class="fu">:</span> <span class="st">"IF2"</span><span class="fu">,</span></span>
-<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"backend"</span><span class="fu">:</span> <span class="st">"chain_binomial"</span><span class="fu">,</span></span>
-<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"dt"</span><span class="fu">:</span> <span class="fl">1.0</span><span class="fu">,</span></span>
-<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"seed"</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
-<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"stages"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"scout"</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">"chains"</span><span class="fu">:</span> <span class="dv">8</span><span class="fu">,</span> <span class="dt">"particles"</span><span class="fu">:</span> <span class="dv">200</span><span class="fu">,</span> <span class="dt">"iterations"</span><span class="fu">:</span> <span class="dv">20</span> <span class="fu">},</span></span>
-<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"refine"</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">"chains"</span><span class="fu">:</span> <span class="dv">4</span><span class="fu">,</span> <span class="dt">"particles"</span><span class="fu">:</span> <span class="dv">1000</span><span class="fu">,</span> <span class="dt">"iterations"</span><span class="fu">:</span> <span class="dv">50</span> <span class="fu">},</span></span>
-<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"validate"</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">"chains"</span><span class="fu">:</span> <span class="dv">4</span><span class="fu">,</span> <span class="dt">"particles"</span><span class="fu">:</span> <span class="dv">5000</span><span class="fu">,</span> <span class="dt">"iterations"</span><span class="fu">:</span> <span class="dv">100</span> <span class="fu">}</span></span>
-<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
-<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
-<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"results"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"mle"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"R0"</span><span class="fu">:</span> <span class="fl">56.82</span><span class="fu">,</span> <span class="dt">"sigma"</span><span class="fu">:</span> <span class="fl">0.0791</span><span class="fu">,</span> <span class="dt">"gamma"</span><span class="fu">:</span> <span class="fl">0.0832</span><span class="fu">,</span></span>
-<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"rho"</span><span class="fu">:</span> <span class="fl">0.488</span><span class="fu">,</span> <span class="dt">"amplitude"</span><span class="fu">:</span> <span class="fl">0.554</span><span class="fu">,</span></span>
-<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"S0"</span><span class="fu">:</span> <span class="dv">73151</span><span class="fu">,</span> <span class="dt">"E0"</span><span class="fu">:</span> <span class="dv">127</span><span class="fu">,</span> <span class="dt">"I0"</span><span class="fu">:</span> <span class="dv">127</span></span>
-<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">},</span></span>
-<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"loglik"</span><span class="fu">:</span> <span class="fl">-3804.9</span><span class="fu">,</span></span>
-<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"loglik_sd"</span><span class="fu">:</span> <span class="fl">5.2</span><span class="fu">,</span></span>
-<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"initial_loglik"</span><span class="fu">:</span> <span class="fl">-4523.7</span><span class="fu">,</span></span>
-<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"ess_at_mle"</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">"mean"</span><span class="fu">:</span> <span class="dv">3842</span><span class="fu">,</span> <span class="dt">"min"</span><span class="fu">:</span> <span class="dv">1205</span> <span class="fu">},</span></span>
-<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"convergence"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"rhat_max"</span><span class="fu">:</span> <span class="fl">1.03</span><span class="fu">,</span></span>
-<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"all_converged"</span><span class="fu">:</span> <span class="kw">true</span></span>
-<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">},</span></span>
-<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"identifiability"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"R0"</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">"ci_95"</span><span class="fu">:</span> <span class="ot">[</span><span class="fl">52.1</span><span class="ot">,</span> <span class="fl">62.3</span><span class="ot">]</span><span class="fu">,</span> <span class="dt">"curvature"</span><span class="fu">:</span> <span class="fl">0.23</span> <span class="fu">},</span></span>
-<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"sigma"</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">"ci_95"</span><span class="fu">:</span> <span class="ot">[</span><span class="fl">0.073</span><span class="ot">,</span> <span class="fl">0.086</span><span class="ot">]</span><span class="fu">,</span> <span class="dt">"curvature"</span><span class="fu">:</span> <span class="fl">1.84</span> <span class="fu">}</span></span>
-<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
-<span id="cb16-50"><a href="#cb16-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
-<span id="cb16-51"><a href="#cb16-51" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"provenance"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb16-52"><a href="#cb16-52" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"input_hash"</span><span class="fu">:</span> <span class="st">"7f2c1d3a"</span><span class="fu">,</span></span>
-<span id="cb16-53"><a href="#cb16-53" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"content_hash"</span><span class="fu">:</span> <span class="st">"a3c1e890"</span><span class="fu">,</span></span>
-<span id="cb16-54"><a href="#cb16-54" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"timestamp"</span><span class="fu">:</span> <span class="st">"2026-03-30T14:30:00Z"</span><span class="fu">,</span></span>
-<span id="cb16-55"><a href="#cb16-55" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"camdl_version"</span><span class="fu">:</span> <span class="st">"0.3.0"</span><span class="fu">,</span></span>
-<span id="cb16-56"><a href="#cb16-56" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"wall_time_seconds"</span><span class="fu">:</span> <span class="dv">1847</span></span>
-<span id="cb16-57"><a href="#cb16-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
-<span id="cb16-58"><a href="#cb16-58" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"model"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"path"</span><span class="fu">:</span> <span class="st">"models/he2010_london.camdl"</span><span class="fu">,</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"hash"</span><span class="fu">:</span> <span class="st">"3a7f2c1d"</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"weekly_cases"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"path"</span><span class="fu">:</span> <span class="st">"data/london_cases.tsv"</span><span class="fu">,</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"hash"</span><span class="fu">:</span> <span class="st">"f9e2b047"</span><span class="fu">,</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"n_observations"</span><span class="fu">:</span> <span class="dv">780</span><span class="fu">,</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"time_range"</span><span class="fu">:</span> <span class="ot">[</span><span class="fl">7.0</span><span class="ot">,</span> <span class="fl">5467.0</span><span class="ot">]</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"fit_config"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"path"</span><span class="fu">:</span> <span class="st">"fit.toml"</span><span class="fu">,</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"hash"</span><span class="fu">:</span> <span class="st">"b2c4d6e8"</span><span class="fu">,</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"estimated"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"R0"</span><span class="ot">,</span> <span class="st">"sigma"</span><span class="ot">,</span> <span class="st">"gamma"</span><span class="ot">,</span> <span class="st">"rho"</span><span class="ot">,</span> <span class="st">"amplitude"</span><span class="ot">,</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"S0"</span><span class="ot">,</span> <span class="st">"E0"</span><span class="ot">,</span> <span class="st">"I0"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"fixed"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"N0"</span><span class="ot">,</span> <span class="st">"mu"</span><span class="ot">,</span> <span class="st">"k"</span><span class="ot">,</span> <span class="st">"psi"</span><span class="ot">,</span> <span class="st">"cohort"</span><span class="ot">]</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"method"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"algorithm"</span><span class="fu">:</span> <span class="st">"IF2"</span><span class="fu">,</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"backend"</span><span class="fu">:</span> <span class="st">"chain_binomial"</span><span class="fu">,</span></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"dt"</span><span class="fu">:</span> <span class="fl">1.0</span><span class="fu">,</span></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"seed"</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"stages"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"scout"</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">"chains"</span><span class="fu">:</span> <span class="dv">8</span><span class="fu">,</span> <span class="dt">"particles"</span><span class="fu">:</span> <span class="dv">200</span><span class="fu">,</span> <span class="dt">"iterations"</span><span class="fu">:</span> <span class="dv">20</span> <span class="fu">},</span></span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"refine"</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">"chains"</span><span class="fu">:</span> <span class="dv">4</span><span class="fu">,</span> <span class="dt">"particles"</span><span class="fu">:</span> <span class="dv">1000</span><span class="fu">,</span> <span class="dt">"iterations"</span><span class="fu">:</span> <span class="dv">50</span> <span class="fu">},</span></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"validate"</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">"chains"</span><span class="fu">:</span> <span class="dv">4</span><span class="fu">,</span> <span class="dt">"particles"</span><span class="fu">:</span> <span class="dv">5000</span><span class="fu">,</span> <span class="dt">"iterations"</span><span class="fu">:</span> <span class="dv">100</span> <span class="fu">}</span></span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"results"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"mle"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"R0"</span><span class="fu">:</span> <span class="fl">56.82</span><span class="fu">,</span> <span class="dt">"sigma"</span><span class="fu">:</span> <span class="fl">0.0791</span><span class="fu">,</span> <span class="dt">"gamma"</span><span class="fu">:</span> <span class="fl">0.0832</span><span class="fu">,</span></span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"rho"</span><span class="fu">:</span> <span class="fl">0.488</span><span class="fu">,</span> <span class="dt">"amplitude"</span><span class="fu">:</span> <span class="fl">0.554</span><span class="fu">,</span></span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"S0"</span><span class="fu">:</span> <span class="dv">73151</span><span class="fu">,</span> <span class="dt">"E0"</span><span class="fu">:</span> <span class="dv">127</span><span class="fu">,</span> <span class="dt">"I0"</span><span class="fu">:</span> <span class="dv">127</span></span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">},</span></span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"loglik"</span><span class="fu">:</span> <span class="fl">-3804.9</span><span class="fu">,</span></span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"loglik_sd"</span><span class="fu">:</span> <span class="fl">5.2</span><span class="fu">,</span></span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"initial_loglik"</span><span class="fu">:</span> <span class="fl">-4523.7</span><span class="fu">,</span></span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"ess_at_mle"</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">"mean"</span><span class="fu">:</span> <span class="dv">3842</span><span class="fu">,</span> <span class="dt">"min"</span><span class="fu">:</span> <span class="dv">1205</span> <span class="fu">},</span></span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"convergence"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"rhat_max"</span><span class="fu">:</span> <span class="fl">1.03</span><span class="fu">,</span></span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"all_converged"</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">},</span></span>
+<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"identifiability"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"R0"</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">"ci_95"</span><span class="fu">:</span> <span class="ot">[</span><span class="fl">52.1</span><span class="ot">,</span> <span class="fl">62.3</span><span class="ot">]</span><span class="fu">,</span> <span class="dt">"curvature"</span><span class="fu">:</span> <span class="fl">0.23</span> <span class="fu">},</span></span>
+<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"sigma"</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">"ci_95"</span><span class="fu">:</span> <span class="ot">[</span><span class="fl">0.073</span><span class="ot">,</span> <span class="fl">0.086</span><span class="ot">]</span><span class="fu">,</span> <span class="dt">"curvature"</span><span class="fu">:</span> <span class="fl">1.84</span> <span class="fu">}</span></span>
+<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb20-51"><a href="#cb20-51" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"provenance"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb20-52"><a href="#cb20-52" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"input_hash"</span><span class="fu">:</span> <span class="st">"7f2c1d3a"</span><span class="fu">,</span></span>
+<span id="cb20-53"><a href="#cb20-53" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"content_hash"</span><span class="fu">:</span> <span class="st">"a3c1e890"</span><span class="fu">,</span></span>
+<span id="cb20-54"><a href="#cb20-54" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"timestamp"</span><span class="fu">:</span> <span class="st">"2026-03-30T14:30:00Z"</span><span class="fu">,</span></span>
+<span id="cb20-55"><a href="#cb20-55" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"camdl_version"</span><span class="fu">:</span> <span class="st">"0.3.0"</span><span class="fu">,</span></span>
+<span id="cb20-56"><a href="#cb20-56" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"wall_time_seconds"</span><span class="fu">:</span> <span class="dv">1847</span></span>
+<span id="cb20-57"><a href="#cb20-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb20-58"><a href="#cb20-58" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 </section>
@@ -985,7 +1082,7 @@ if estimated ∩ fixed ≠ ∅:
 <h2 class="anchored" data-anchor-id="stage-details">6. Stage Details</h2>
 <section id="scout" class="level3">
 <h3 class="anchored" data-anchor-id="scout">6.1 Scout</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> fit scout fit.toml [--seed 1]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> fit scout fit.toml [--seed 1]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><strong>Defaults:</strong> 8 chains, 500 particles, 30 iterations, <code>cooling_fraction = 0.5</code> (mild contraction — find basins, don’t converge), rw_sd from fit.toml or auto from bounds (<code>/20</code> for log, <code>/6</code> for logit).</p>
 <p><strong>Seeded chains:</strong> When <code>[estimate]</code> parameters have <code>start</code> values, chain 1 starts near those values (jittered by rw_sd). Remaining chains start from random positions within bounds. Controlled by <code>start_chains</code> in <code>[scout]</code> (default 1 when any start exists).</p>
 <p><strong>Writes:</strong></p>
@@ -999,7 +1096,7 @@ if estimated ∩ fixed ≠ ∅:
 </section>
 <section id="refine" class="level3">
 <h3 class="anchored" data-anchor-id="refine">6.2 Refine</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> fit refine fit.toml <span class="at">--starts-from</span> fit/{name}/scout/ [--seed 1]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> fit refine fit.toml <span class="at">--starts-from</span> fit/{name}/scout/ [--seed 1]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><strong>Defaults:</strong> 4 chains, 1000 particles, 50 iterations, cooling_fraction=0.95 over 50 iterations.</p>
 <p><strong>Reads:</strong> <code>scout/fit_state.toml</code> for start values and rw_sd.</p>
 <p><strong>Writes:</strong></p>
@@ -1015,7 +1112,7 @@ if estimated ∩ fixed ≠ ∅:
 </section>
 <section id="validate" class="level3">
 <h3 class="anchored" data-anchor-id="validate">6.3 Validate</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> fit validate fit.toml <span class="at">--starts-from</span> fit/{name}/refine/ [--seed 1]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> fit validate fit.toml <span class="at">--starts-from</span> fit/{name}/refine/ [--seed 1]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><strong>Defaults:</strong> 4 chains, 5000 particles, 100 iterations, cooling_fraction=0.95. Profiles for ALL estimated parameters (embarrassingly parallel). Final pfilter at MLE with N=10000 for precise loglik and ESS measurement.</p>
 <p><strong>ESS at MLE:</strong> The most informative single diagnostic. Run a clean pfilter at the MLE and report mean and min ESS across observation times. High ESS (&gt;N/2) means the model generates trajectories that track the data. Low ESS (&lt;N/4) means the model can’t produce trajectories consistent with the data even at its best parameters:</p>
 <pre><code>ESS at MLE: mean=3842, min=1205  ✓ filter is healthy</code></pre>
@@ -1045,7 +1142,7 @@ if estimated ∩ fixed ≠ ∅:
 </section>
 <section id="status-command" class="level2">
 <h2 class="anchored" data-anchor-id="status-command">7. Status Command</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> fit status fit.toml</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">camdl</span> fit status fit.toml</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Reads the output_dir, checks which stages have completed, reports convergence and identifiability:</p>
 <pre><code>fit/he2010/ — He et al. 2010 London measles
 
@@ -1076,22 +1173,22 @@ if estimated ∩ fixed ≠ ∅:
     mle_params.toml: ✓ content hash matches (a3c1e890)
     fit_record.json: ✓ input hash 7f2c1d3a
 
-  Next: camdl experiment run experiment.toml \
+  Next: camdl simulate batch experiment.toml \
           --params fit/he2010/validate/mle_params.toml</code></pre>
 <hr>
 </section>
 <section id="connection-to-experiment-system" class="level2">
 <h2 class="anchored" data-anchor-id="connection-to-experiment-system">8. Connection to Experiment System</h2>
 <p>The inference pipeline’s output is the experiment system’s input. One shared format: params.toml.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># experiment.toml</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="kw">[experiment]</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="dt">model</span> <span class="op">=</span> <span class="st">"models/he2010_london.camdl"</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="dt">params</span> <span class="op">=</span> <span class="op">[</span><span class="st">"fit/he2010/validate/mle_params.toml"</span><span class="op">]</span>   <span class="co"># ← from inference</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="kw">[config]</span></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="dt">backend</span> <span class="op">=</span> <span class="st">"chain_binomial"</span></span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="dt">seeds</span> <span class="op">=</span> <span class="op">{ </span><span class="dt">n</span><span class="op"> =</span> <span class="dv">200</span><span class="op"> }</span></span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ...</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># experiment.toml</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="kw">[experiment]</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="dt">model</span> <span class="op">=</span> <span class="st">"models/he2010_london.camdl"</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="dt">params</span> <span class="op">=</span> <span class="op">[</span><span class="st">"fit/he2010/validate/mle_params.toml"</span><span class="op">]</span>   <span class="co"># ← from inference</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="kw">[config]</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="dt">backend</span> <span class="op">=</span> <span class="st">"chain_binomial"</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="dt">seeds</span> <span class="op">=</span> <span class="op">{ </span><span class="dt">n</span><span class="op"> =</span> <span class="dv">200</span><span class="op"> }</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ...</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The experiment system doesn’t know or care that the params came from IF2. It’s just a params.toml. But the provenance hash in the comments lets anyone trace it back to the fit.</p>
 <section id="the-complete-pipeline" class="level3">
 <h3 class="anchored" data-anchor-id="the-complete-pipeline">8.1 The Complete Pipeline</h3>
@@ -1107,8 +1204,8 @@ if estimated ∩ fixed ≠ ∅:
             (params = [mle])     (experiment = ...)
                     │                  │
                     ▼                  ▼
-            camdl experiment     camdl voi run
-            run + analyze            │
+            camdl simulate       camdl voi run
+            batch                    │
                     │                  ▼
                     ▼              evsi.tsv
             sobol_indices.tsv          │
@@ -1160,19 +1257,19 @@ if estimated ∩ fixed ≠ ∅:
 <section id="content-verification" class="level3">
 <h3 class="anchored" data-anchor-id="content-verification">9.3 Content Verification</h3>
 <p><code>camdl fit status</code> checks whether <code>mle_params.toml</code> has been modified since the fit produced it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode rust code-with-copy"><code class="sourceCode rust"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">fn</span> verify_mle_params(path<span class="op">:</span> <span class="op">&amp;</span><span class="dt">str</span>) <span class="op">-&gt;</span> ProvenanceStatus <span class="op">{</span></span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> content <span class="op">=</span> read_file(path)<span class="op">;</span></span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> declared_hash <span class="op">=</span> extract_content_hash(<span class="op">&amp;</span>content)<span class="op">;</span></span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> current_hash <span class="op">=</span> compute_content_hash(<span class="op">&amp;</span>parse_toml_values(<span class="op">&amp;</span>content))<span class="op">;</span></span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> declared_hash <span class="op">==</span> current_hash <span class="op">{</span></span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>        <span class="pp">ProvenanceStatus::</span>Valid</span>
-<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>        <span class="pp">ProvenanceStatus::</span>Modified <span class="op">{</span></span>
-<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>            changes<span class="op">:</span> diff_params(declared_hash<span class="op">,</span> current_hash)</span>
-<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
-<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode rust code-with-copy"><code class="sourceCode rust"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="kw">fn</span> verify_mle_params(path<span class="op">:</span> <span class="op">&amp;</span><span class="dt">str</span>) <span class="op">-&gt;</span> ProvenanceStatus <span class="op">{</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> content <span class="op">=</span> read_file(path)<span class="op">;</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> declared_hash <span class="op">=</span> extract_content_hash(<span class="op">&amp;</span>content)<span class="op">;</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> current_hash <span class="op">=</span> compute_content_hash(<span class="op">&amp;</span>parse_toml_values(<span class="op">&amp;</span>content))<span class="op">;</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> declared_hash <span class="op">==</span> current_hash <span class="op">{</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>        <span class="pp">ProvenanceStatus::</span>Valid</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>        <span class="pp">ProvenanceStatus::</span>Modified <span class="op">{</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>            changes<span class="op">:</span> diff_params(declared_hash<span class="op">,</span> current_hash)</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="when-provenance-breaks" class="level3">
 <h3 class="anchored" data-anchor-id="when-provenance-breaks">9.4 When Provenance Breaks</h3>
@@ -1206,9 +1303,15 @@ if estimated ∩ fixed ≠ ∅:
 <section id="multi-stream" class="level3">
 <h3 class="anchored" data-anchor-id="multi-stream">10.2 Multi-Stream</h3>
 <p>Each observation stream has its own file. The <code>[data]</code> section in fit.toml maps stream names to files:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[data]</span></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="dt">afp_cases</span> <span class="op">=</span> <span class="st">"data/afp_by_district.tsv"</span></span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="dt">es_positive</span> <span class="op">=</span> <span class="st">"data/es_results.tsv"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[data]</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="dt">afp_cases</span> <span class="op">=</span> <span class="st">"data/afp_by_district.tsv"</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="dt">es_positive</span> <span class="op">=</span> <span class="st">"data/es_results.tsv"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="incidence-vs.-prevalence" class="level3">
+<h3 class="anchored" data-anchor-id="incidence-vs.-prevalence">10.2.1 Incidence vs.&nbsp;Prevalence</h3>
+<p>Incidence data (event counts accumulated over the interval since the last observation) and prevalence data (point-in-time compartment counts) project the simulator state differently. Both are first-class: the observation block’s projection (<code>incidence(X)</code>, <code>prevalence(X)</code>, or a derived expression like <code>B1 + B2</code>) selects the mode. See <code>camdl-run-spec.md</code> §14 for the snapshot-timing and intervention-ordering rules.</p>
+<p>Prevalence and incidence carry different Fisher information about the parameters — prevalence is more informative about the recovery rate γ (decay shape), incidence about the transmission rate β (direct flow into I). A fit against prevalence-only data may have a substantially wider posterior for β than the same model fit against incidence data on the same trajectory; this is a feature of the data, not a bug in the fit.</p>
+<p>Pair likelihoods with projection types deliberately: NegBinomial or Poisson-with-reporting for incidence, Binomial or Poisson for prevalence counts, Beta or Binomial for prevalence fractions. The <code>fit run</code> and <code>pfilter</code> startup diagnostic lists the <code>(projection, likelihood)</code> pairing for every stream so that a mismatch is visible before the filter runs.</p>
 </section>
 <section id="missing-data" class="level3">
 <h3 class="anchored" data-anchor-id="missing-data">10.3 Missing Data</h3>

@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Dimensions and Stratification – camdl</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../guide/fitting-data/report.html" rel="next">
+<link href="../guide/scenarios.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-b981944dac36b7fff9ce3ceeec90f8de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-73b7f00512812729446172a063b47ee0.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-b981944dac36b7fff9ce3ceeec90f8de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/dimensions.html"><span class="chapter-title">Dimensions and Stratification</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">camdl</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/vsbuffalo/camdl-book" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What is camdl?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Getting Started</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/getting-started.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building an SIR Model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/experiments.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Uncertainty, Priors, and Simulation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/scenarios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scenarios, Interventions, and Sweeps</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/dimensions.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Dimensions and Stratification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/fitting-data/report.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/fitting-data/model_comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Inference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/likelihood.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Likelihood and the Particle Filter</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/algorithms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Algorithms: IF2, PGAS, and PMMH</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Vignettes</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Reference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Language Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/data-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/features.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">User Features</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/inference-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/ir-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">IR Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/runtimes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simulation Backends</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/design.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Design Philosophy</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#the-core-abstraction" id="toc-the-core-abstraction" class="nav-link active" data-scroll-target="#the-core-abstraction">The core abstraction</a></li>
+  <li><a href="#rates-are-total-propensity-the-compiler-checks" id="toc-rates-are-total-propensity-the-compiler-checks" class="nav-link" data-scroll-target="#rates-are-total-propensity-the-compiler-checks">Rates are total propensity — the compiler checks</a></li>
+  <li><a href="#tables-dimensionally-typed-data" id="toc-tables-dimensionally-typed-data" class="nav-link" data-scroll-target="#tables-dimensionally-typed-data">Tables: dimensionally-typed data</a>
+  <ul class="collapse">
+  <li><a href="#inline-vs.-file-based-tables" id="toc-inline-vs.-file-based-tables" class="nav-link" data-scroll-target="#inline-vs.-file-based-tables">Inline vs.&nbsp;file-based tables</a></li>
+  <li><a href="#verifying-tables-with-camdl-inspect" id="toc-verifying-tables-with-camdl-inspect" class="nav-link" data-scroll-target="#verifying-tables-with-camdl-inspect">Verifying tables with <code>camdl inspect</code></a></li>
+  <li><a href="#data-derived-dimensions" id="toc-data-derived-dimensions" class="nav-link" data-scroll-target="#data-derived-dimensions">Data-derived dimensions</a></li>
+  </ul></li>
+  <li><a href="#contact-mixing-patterns" id="toc-contact-mixing-patterns" class="nav-link" data-scroll-target="#contact-mixing-patterns">Contact mixing patterns</a>
+  <ul class="collapse">
+  <li><a href="#dense-symmetric-childhood-infections" id="toc-dense-symmetric-childhood-infections" class="nav-link" data-scroll-target="#dense-symmetric-childhood-infections">Dense symmetric: childhood infections</a></li>
+  <li><a href="#off-diagonal-sexually-transmitted-infections" id="toc-off-diagonal-sexually-transmitted-infections" class="nav-link" data-scroll-target="#off-diagonal-sexually-transmitted-infections">Off-diagonal: sexually transmitted infections</a></li>
+  <li><a href="#spatial-gravity-coupling-polio-measles-metapopulations" id="toc-spatial-gravity-coupling-polio-measles-metapopulations" class="nav-link" data-scroll-target="#spatial-gravity-coupling-polio-measles-metapopulations">Spatial gravity coupling: polio, measles metapopulations</a></li>
+  <li><a href="#within-stratum-only-independent-patches" id="toc-within-stratum-only-independent-patches" class="nav-link" data-scroll-target="#within-stratum-only-independent-patches">Within-stratum only: independent patches</a></li>
+  </ul></li>
+  <li><a href="#partial-stratification" id="toc-partial-stratification" class="nav-link" data-scroll-target="#partial-stratification">Partial stratification</a>
+  <ul class="collapse">
+  <li><a href="#disease-stages-as-partial-dimensions" id="toc-disease-stages-as-partial-dimensions" class="nav-link" data-scroll-target="#disease-stages-as-partial-dimensions">Disease stages as partial dimensions</a></li>
+  </ul></li>
+  <li><a href="#aging-and-demography" id="toc-aging-and-demography" class="nav-link" data-scroll-target="#aging-and-demography">Aging and demography</a></li>
+  <li><a href="#guard-clauses" id="toc-guard-clauses" class="nav-link" data-scroll-target="#guard-clauses">Guard clauses</a></li>
+  <li><a href="#multiple-dimensions-putting-it-together" id="toc-multiple-dimensions-putting-it-together" class="nav-link" data-scroll-target="#multiple-dimensions-putting-it-together">Multiple dimensions: putting it together</a></li>
+  <li><a href="#feature-inventory-which-diseases-need-what" id="toc-feature-inventory-which-diseases-need-what" class="nav-link" data-scroll-target="#feature-inventory-which-diseases-need-what">Feature inventory: which diseases need what</a></li>
+  <li><a href="#design-philosophy" id="toc-design-philosophy" class="nav-link" data-scroll-target="#design-philosophy">Design philosophy</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/dimensions.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/dimensions.html"><span class="chapter-title">Dimensions and Stratification</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Dimensions and Stratification</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>An SIR model treats everyone as identical: one pool of susceptibles, one pool of infecteds, one recovery rate. Real populations are structured. Children and adults mix differently. Cities seed epidemics into rural areas. Vaccination history determines who is still at risk. The epidemiological questions almost always live in the structure — <em>which</em> age group drives transmission, <em>which</em> patch re-seeds after a campaign, <em>whether</em> partial immunity matters for dynamics.</p>
+<p>camdl’s answer to this is <strong>dimensions</strong>: named axes of population heterogeneity that the compiler uses to expand a compact model specification into the full set of stratified compartments, transitions, and bookkeeping. You write the model once, declare which axes matter, and the compiler generates the expanded system — checked for dimensional consistency at every step.</p>
+<p>This chapter introduces the abstractions, shows how they connect to external data, and works through a series of realistic examples drawn from measles, polio, STI, and malaria modeling.</p>
+<section id="the-core-abstraction" class="level2">
+<h2 class="anchored" data-anchor-id="the-core-abstraction">The core abstraction</h2>
+<p>A <strong>dimension</strong> is a finite set of named levels:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  age   = [child, adult]</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  patch = [north, south, east, west, center]</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A <strong>stratification</strong> applies a dimension to compartments:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="pp">stratify</span>(<span class="cf">by</span> = age)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="pp">stratify</span>(<span class="cf">by</span> = patch)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>By default, <code>stratify(by = age)</code> applies to <strong>all</strong> compartments — S, I, and R each gain an age index. This is the right default because in most models, every disease state needs to track every dimension of population heterogeneity (you need to know how many susceptible <em>children</em> there are, not just how many susceptibles).</p>
+<p>When a dimension only applies to some compartments, use <strong>partial stratification</strong> with the <code>only</code> clause:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="pp">stratify</span>(<span class="cf">by</span> = immunity, <span class="cf">only</span> = [R, V])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Here S, E, and I keep their existing dimensions, but R and V gain an extra <code>immunity</code> axis. The compiler then requires explicit routing into partially-stratified compartments — you must say <code>I → R[natural]</code>, not just <code>I → R</code>. This is covered in detail in <a href="#partial-stratification">Partial stratification</a> below.</p>
+<p>Each <code>stratify()</code> call adds one dimension. You cannot write <code>stratify(by = [age, patch])</code> — it’s a syntax error. This is deliberate: each dimension is added in a separate statement, and the order of <code>stratify()</code> calls determines the positional index order. After <code>stratify(by = age)</code> then <code>stratify(by = patch)</code>, the first index is age and the second is patch: <code>S[child, north]</code>.</p>
+<p>After both stratifications, <code>S</code> has shape <code>age × patch</code> — ten concrete compartments for a two-age, five-patch model. The key rule:</p>
+<blockquote class="blockquote">
+<p><strong>Indexing works like marginalization.</strong> Think of a stratified compartment as a joint table over its dimensions. Bare <code>S</code> — no indices — marginalizes over everything: the total count across all strata. <code>S[child]</code> fixes age and marginalizes over patches: total susceptible children. <code>S[child, north]</code> is fully specified — no dimensions left to sum over. Omitting a dimension always means “sum over it,” never “use the current one.” The compiler never guesses which stratum you meant.</p>
+</blockquote>
+<p>This is the <strong>no-auto-localization</strong> principle, and it prevents a large class of silent bugs in stratified models. In frameworks where bare <code>S</code> implicitly means “the current stratum’s S,” a misplaced variable quietly produces wrong rates. In camdl, you must be explicit — and the compiler checks that every index has the right type.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>How other frameworks handle this
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In a stratified model, every compartment reference is ambiguous: does <code>S</code> mean the current stratum’s susceptibles, the global total, or a specific stratum? Most frameworks resolve this through implicit context or untyped integer indexing. When the modeler’s intent doesn’t match the resolution rule, the model runs without error and produces quantitatively wrong output.</p>
+<p>In <strong>pomp</strong><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, multi-patch models require manually expanding compartments to <code>S1</code>, <code>S2</code>, <code>S3</code> and writing C snippets that reference each by name — the modeler manages all indexing by hand, and a typo between two valid expanded names (<code>S2</code> for <code>S3</code>) silently produces the wrong rate.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> The <strong>spatPomp</strong> extension<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> adds implicit unit-scoping for measurement components (bare <code>C</code> resolves to the current unit’s value), but this doesn’t extend to the process model, which still requires explicit <code>S[u]</code> indexing — two different resolution regimes in the same framework.</p>
+<p>In <strong>odin</strong><a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>, stratified compartments are integer-indexed arrays. Bare <code>S</code> without an index is caught by the parser (error E2022<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>), so the silent-substitution failure mode doesn’t apply. But all indices are untyped integers: <code>S[age_idx]</code> and <code>S[patch_idx]</code> are the same operation to the language. Swapping them parses cleanly and only gets caught if the dimensions happen to differ in size (a bounds error at runtime, not a type error at compile time).<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> Similarly, <code>sum(S)</code> vs.&nbsp;<code>sum(S[i, ])</code> — global total vs.&nbsp;row-specific sum — is a semantic distinction the modeler manages by hand; the compiler can check rank but not intent.</p>
+<p>The common thread: these frameworks catch <em>syntactic</em> errors (missing brackets, wrong rank) but not <em>semantic</em> errors (wrong dimension, swapped indices, incorrect aggregation level). camdl’s approach — bare names are always global sums, indices carry named dimension types, and the compiler rejects mismatches — catches both.</p>
+</div>
+</div>
+</section>
+<section id="rates-are-total-propensity-the-compiler-checks" class="level2">
+<h2 class="anchored" data-anchor-id="rates-are-total-propensity-the-compiler-checks">Rates are total propensity — the compiler checks</h2>
+<p>A related design choice: in camdl, the <code>@</code> rate on every transition is the <strong>total propensity</strong> — the absolute event rate in units of population per time (P·T⁻¹). The compiler checks this dimensionally. There is no hidden per-capita multiplication.</p>
+<p>If you write a per-capita rate where a total propensity is needed, the compiler catches it. The correct form and the common mistake:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ✓ Correct: beta:T⁻¹ × S:P × I:P / N:P = P·T⁻¹</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>infection : S <span class="op">--&gt;</span> I <span class="op">@</span> beta * S * I / N</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ✗ Wrong: beta:T⁻¹ × I:P / N:P = T⁻¹ (missing the × S)</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>infection : S <span class="op">--&gt;</span> I <span class="op">@</span> beta * I / N</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The second form is a per-capita rate (dimension T⁻¹) rather than a total propensity (dimension P·T⁻¹). The compiler’s dimensional checker infers types from parameter declarations (<code>rate</code> → T⁻¹, <code>count</code> → P, <code>probability</code> → dimensionless), propagates them through arithmetic, and rejects the mismatch at compile time with error E300.</p>
+<p>This is the single most common modeling bug. In most other frameworks, it compiles without complaint and produces trajectories where infection happens at the wrong rate. The checker also verifies that arguments to <code>exp()</code> and <code>log()</code> are dimensionless, that additions don’t mix dimensions, and that table unit annotations are consistent.</p>
+<p>Here is what the compiler produces when it catches an undeclared name — a typo like <code>Q</code> where you meant <code>I</code>:</p>
+<div id="4169fd80" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl check error_test.camdl</span>
+<span style="opacity:0.7"><span style="color:#cc3333"><span style="font-weight:bold">error[E100]<span style="color:#cc3333"></span></span></span>: undeclared name 'Q'
+
+<span style="opacity:0.6">  ┌─ /Users/vsb/projects/work/camdl-book/guide/dimensions/error_test.camdl:18:34
+  │
+</span><span style="opacity:0.6"> </span><span style="font-weight:bold"><span style="color:#3366cc">18<span style="font-weight:bold"></span></span></span><span style="opacity:0.6">│</span>    recovery  : I --&gt; R  @ gamma * Q
+  │                                   <span style="color:#cc3333">^</span>
+<span style="opacity:0.6">  │
+</span><span style="opacity:0.6">  = hint: </span>check spelling, or add a declaration in compartments/parameters/let/tables</span></code></pre>
+</div>
+</div>
+<p>The error points to the exact file, line, and column, with a caret under the offending token and a hint suggesting what to check.</p>
+</section>
+<section id="tables-dimensionally-typed-data" class="level2">
+<h2 class="anchored" data-anchor-id="tables-dimensionally-typed-data">Tables: dimensionally-typed data</h2>
+<p>The bridge between dimensions and data is the <strong>table</strong>. A table declaration carries a type signature that says which dimensions index it:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  C_age : age × age      = [[<span class="dv">12.0</span>, <span class="dv">4.0</span>], [<span class="dv">4.0</span>, <span class="dv">8.0</span>]]</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pop   </span>: patch           = <span class="bu">read</span>(<span class="st">"data/pop.tsv"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  W     : patch × patch   = <span class="bu">read</span>(<span class="st">"data/gravity.tsv"</span>, default = <span class="dv">0.0</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The annotation <code>: age × age</code> is not documentation — it is a type the compiler enforces. <code>C_age[a, b]</code> requires both <code>a</code> and <code>b</code> to be bound to the <code>age</code> dimension. Writing <code>C_age[a, p]</code> where <code>p</code> is a <code>patch</code> variable is a compile-time error. This catches a category of bug that in array-indexed frameworks (pomp, odin) only surfaces as wrong numbers at runtime.</p>
+<section id="inline-vs.-file-based-tables" class="level3">
+<h3 class="anchored" data-anchor-id="inline-vs.-file-based-tables">Inline vs.&nbsp;file-based tables</h3>
+<p>Small tables — contact matrices, duration vectors — are written inline. Large tables — spatial kernels, patch populations, district-level demographics — are loaded from TSV/CSV files:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>dimensions/seir_spatial_data.camdl (excerpt)</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-filename="dimensions/seir_spatial_data.camdl (excerpt)"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  pop, <span class="fu">init_sus </span>: patch          = <span class="bu">read</span>(<span class="st">"data/demographics.tsv"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">adj           </span>: patch × patch  = <span class="bu">read</span>(<span class="st">"data/adjacency.tsv"</span>, default = <span class="dv">0.0</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>File paths are relative to the model file
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Paths in <code>read()</code> resolve relative to the <code>.camdl</code> file’s own directory, not the shell’s working directory. Running <code>camdl compile models/mymodel.camdl</code> from the repo root resolves <code>read("data/contact.tsv")</code> to <code>models/data/contact.tsv</code>. This is the same convention as CSS <code>url()</code>, Python’s <code>__file__</code>-relative imports, and R’s <code>here::here()</code> — the file’s location is the anchor, so models work regardless of where you invoke the compiler from.</p>
+</div>
+</div>
+<p>The file is <strong>long-format</strong>: index columns followed by value columns. The number of index columns is determined by the type signature — one column per dimension in the <code>×</code>-separated type. Here is what the files for the declarations above look like:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>dimensions/data/demographics.tsv</strong></pre>
+</div>
+<pre class="tsv" data-filename="dimensions/data/demographics.tsv"><code>patch   pop init_sus
+north   50000   0.90
+south   30000   0.85
+east    20000   0.80</code></pre>
+</div>
+<p>The type signature <code>pop, init_sus : patch</code> tells the compiler: one index column (<code>patch</code>), two value columns (<code>pop</code> and <code>init_sus</code>). Multiple value columns loaded from the same file create separate tables sharing the same index.</p>
+<p>For a two-dimensional table like the adjacency matrix:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>dimensions/data/adjacency.tsv</strong></pre>
+</div>
+<pre class="tsv" data-filename="dimensions/data/adjacency.tsv"><code>patch   patch   weight
+north   south   0.10
+north   east    0.05
+south   north   0.10
+south   east    0.08
+east    north   0.05
+east    south   0.08</code></pre>
+</div>
+<p>The type signature <code>adj : patch × patch</code> means two index columns (both <code>patch</code>), one value column. Each row is a (source, destination, weight) triple. The compiler validates that every index value is a declared level of its dimension — a typo like <code>nroth</code> instead of <code>north</code> is a compile error with a Levenshtein-distance suggestion.</p>
+<p><code>default = 0.0</code> marks a <strong>sparse table</strong> — index combinations missing from the file get the default value rather than raising an error. Without <code>default</code>, the compiler checks that every combination is present (a dense check). For a 774-patch spatial model, a dense gravity matrix would need 774² ≈ 600,000 rows; <code>default = 0.0</code> lets you list only the nonzero entries.</p>
+</section>
+<section id="verifying-tables-with-camdl-inspect" class="level3">
+<h3 class="anchored" data-anchor-id="verifying-tables-with-camdl-inspect">Verifying tables with <code>camdl inspect</code></h3>
+<p>After compilation, <code>camdl inspect --tables</code> shows exactly what the compiler loaded — values, dimensions, and source file. This is the primary way to verify that external data parsed correctly before running simulation or inference:</p>
+<div id="a3195ac7" class="cell" data-execution_count="3">
+<div class="cell-output cell-output-display">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect seir_spatial_data.camdl --tables</span>
+<span style="font-weight:bold"><span style="color:#b8860b">pop<span style="font-weight:bold"></span></span></span>  [<span style="color:#1abc9c">patch</span>]<span style="opacity:0.6">  loaded: data/demographics.tsv</span>
+  <span style="opacity:0.6">│</span> <span style="opacity:0.6">north</span>  50000
+  <span style="opacity:0.6">│</span> <span style="opacity:0.6">south</span>  30000
+  <span style="opacity:0.6">│</span> <span style="opacity:0.6">east</span>   20000
+
+<span style="font-weight:bold"><span style="color:#b8860b">init_sus<span style="font-weight:bold"></span></span></span>  [<span style="color:#1abc9c">patch</span>]<span style="opacity:0.6">  loaded: data/demographics.tsv</span>
+  <span style="opacity:0.6">│</span> <span style="opacity:0.6">north</span>  0.9
+  <span style="opacity:0.6">│</span> <span style="opacity:0.6">south</span>  0.85
+  <span style="opacity:0.6">│</span> <span style="opacity:0.6">east</span>   0.8
+
+<span style="font-weight:bold"><span style="color:#b8860b">adj<span style="font-weight:bold"></span></span></span>  [<span style="color:#1abc9c">patch</span><span style="opacity:0.6"> × </span><span style="color:#1abc9c">patch</span>]<span style="opacity:0.6">  loaded: data/adjacency.tsv</span>
+  <span style="opacity:0.6">│</span>         <span style="opacity:0.6">north</span>  <span style="opacity:0.6">south</span>   <span style="opacity:0.6">east</span>
+  <span style="opacity:0.6">│</span>  <span style="opacity:0.6">north</span>      0    0.1   0.05
+  <span style="opacity:0.6">│</span>  <span style="opacity:0.6">south</span>    0.1      0   0.08
+  <span style="opacity:0.6">│</span>  <span style="opacity:0.6">east</span>    0.05   0.08      0</code></pre>
+</div>
+</div>
+<p>The <code>pop, init_sus</code> multi-value declaration produced two separate tables from the same file. The adjacency matrix — loaded sparse with <code>default = 0.0</code> — is rendered as a full matrix with zeros filled in, making the connectivity pattern immediately visible. The <code>loaded:</code> and <code>inline</code> annotations tell you whether values came from a file or from the DSL source.</p>
+</section>
+<section id="data-derived-dimensions" class="level3">
+<h3 class="anchored" data-anchor-id="data-derived-dimensions">Data-derived dimensions</h3>
+<p>For models with many patches (Nigerian LGAs, London boroughs), you don’t want to type out hundreds of level names. Derive them from the data:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  patch = <span class="bu">read</span>(<span class="st">"data/lga_pop.tsv"</span>, column = <span class="st">"patch"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The compiler reads the named column, collects unique values in first-occurrence order, and those become the dimension levels. Every table and transition referencing <code>patch</code> is validated against these levels. Change the data file, and the model’s spatial resolution changes with it — no code edits needed.</p>
+</section>
+</section>
+<section id="contact-mixing-patterns" class="level2">
+<h2 class="anchored" data-anchor-id="contact-mixing-patterns">Contact mixing patterns</h2>
+<p>The structure of a dimension’s mixing is encoded in its coupling table. Different diseases demand different patterns, and camdl handles them all through the same mechanism: a table indexed by <code>dim × dim</code>, used inside a <code>sum()</code> in the force of infection.</p>
+<section id="dense-symmetric-childhood-infections" class="level3">
+<h3 class="anchored" data-anchor-id="dense-symmetric-childhood-infections">Dense symmetric: childhood infections</h3>
+<p>For measles or pertussis, age-structured contact drives dynamics. Children contact each other far more than they contact adults, but cross-group mixing still matters:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>dimensions/seir_age_measles.camdl</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-filename="dimensions/seir_age_measles.camdl"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Measles-like: age-structured SEIR with WAIFW contact matrix</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="pp">time_unit</span> = <span class="ss">'days</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="kw">compartments</span> { S, E, I, R }</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  age = [under5, school_age, adult]</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="pp">stratify</span>(<span class="cf">by</span> = age)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="kw">parameters</span> {</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  beta     : <span class="dt">rate</span>         <span class="cf">in</span> [<span class="dv">0.01</span>, <span class="dv">1.0</span>]</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  sigma    : <span class="dt">rate</span>         <span class="cf">in</span> [<span class="dv">0.05</span>, <span class="dv">1.0</span>]</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  gamma    : <span class="dt">rate</span>         <span class="cf">in</span> [<span class="dv">0.01</span>, <span class="dv">0.5</span>]</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># WAIFW matrix (who-acquires-infection-from-whom)</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># School-age children drive transmission; adults less so.</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  C_age : age × age = [[<span class="dv">4.0</span>,  <span class="dv">8.0</span>,  <span class="dv">1.5</span>],</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>                        [<span class="dv">8.0</span>, <span class="dv">14.0</span>,  <span class="dv">3.0</span>],</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>                        [<span class="dv">1.5</span>,  <span class="dv">3.0</span>,  <span class="dv">5.0</span>]]</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="pp">let</span> N[a <span class="cf">in</span> age] = S[a] + E[a] + I[a] + R[a]</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">infection[a in age] </span>: S[a] <span class="op">--&gt;</span> E[a]</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>    <span class="op">@</span> beta * S[a] * <span class="bu">sum</span>(b <span class="cf">in</span> age, C_age[a, b] * I[b] / N[b])</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">progression[a in age] </span>: E[a] <span class="op">--&gt;</span> I[a]  <span class="op">@</span> sigma * E[a]</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recovery[a in age]    </span>: I[a] <span class="op">--&gt;</span> R[a]  <span class="op">@</span> gamma * I[a]</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The <code>sum(b in age, C_age[a, b] * I[b] / N[b])</code> computes the age-weighted force of infection: for each age group <code>a</code>, sum over all groups <code>b</code> the contact rate times the prevalence in <code>b</code>. The WAIFW matrix here is symmetric (contacts are reciprocal), but it need not be.</p>
+<p><code>camdl inspect</code> confirms the expansion — 3 age groups × 4 compartments = 12 expanded compartments, and the inline contact matrix:</p>
+<div id="a5bc6b98" class="cell" data-execution_count="4">
+<div class="cell-output cell-output-display">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect seir_age_measles.camdl</span>
+<span style="font-weight:bold"><span style="color:#3366cc">seir_age_measles<span style="font-weight:bold"></span></span></span>
+
+<span style="opacity:0.6">  compartments   </span><span style="font-weight:bold">4</span> base<span style="opacity:0.6"> × </span>3 age = <span style="font-weight:bold">12</span> expanded
+<span style="opacity:0.6">  transitions     </span><span style="font-weight:bold">3</span> base <span style="opacity:0.6">→ </span><span style="font-weight:bold">9</span> expanded (+ 0 filtered by where)
+<span style="opacity:0.6">  parameters      </span><span style="font-weight:bold">3</span> declared (<span style="color:#2e8b2e">beta: rate</span>, <span style="color:#2e8b2e">sigma: rate</span>, <span style="color:#2e8b2e">gamma: rate</span>)
+<span style="opacity:0.6">  tables          </span><span style="font-weight:bold">1</span> (<span style="color:#b8860b">C_age</span><span style="opacity:0.6">: </span><span style="opacity:0.6">age × age</span>)
+<span style="opacity:0.6">  let bindings    </span><span style="font-weight:bold">1</span> (<span style="color:#b8860b">N</span>[a in <span style="color:#1abc9c">age</span>])
+<span style="opacity:0.6">  dimensions      </span><span style="color:#1abc9c">age</span> = [under5, school_age, adult]
+<span style="opacity:0.6">  observations    </span><span style="font-weight:bold">0</span> streams
+<span style="opacity:0.6">  interventions   </span><span style="font-weight:bold">0</span> (0 active by default)</code></pre>
+</div>
+</div>
+<p>The <code>--dims</code> flag shows the dimensional analysis the compiler inferred for each parameter — useful for verifying that rate expressions have the right units:</p>
+<div id="9b82e136" class="cell" data-execution_count="5">
+<div class="cell-output cell-output-display">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect seir_age_measles.camdl --dims</span>
+<span style="font-weight:bold">parameters (inferred dimensions):</span>
+  <span style="color:#2e8b2e">beta</span> <span style="opacity:0.6"> : </span>rate<span style="opacity:0.6"> → T^-1</span> (per-capita rate)
+  <span style="color:#2e8b2e">sigma</span><span style="opacity:0.6"> : </span>rate<span style="opacity:0.6"> → T^-1</span> (per-capita rate)
+  <span style="color:#2e8b2e">gamma</span><span style="opacity:0.6"> : </span>rate<span style="opacity:0.6"> → T^-1</span> (per-capita rate)</code></pre>
+</div>
+</div>
+</section>
+<section id="off-diagonal-sexually-transmitted-infections" class="level3">
+<h3 class="anchored" data-anchor-id="off-diagonal-sexually-transmitted-infections">Off-diagonal: sexually transmitted infections</h3>
+<p>The simplest STI models partition the population by sex and restrict transmission to cross-sex contacts — the contact matrix has zeros on the diagonal. This is a pedagogical simplification, not an epidemiological claim: gonorrhea and syphilis are transmitted within MSM populations, and realistic models would use an activity-level stratification (high/low risk) with a dense contact matrix rather than a strict male/female partition. But the off-diagonal pattern illustrates a general DSL feature — parameterized table entries with structural zeros:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>dimensions/sis_sex_gonorrhea.camdl</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-filename="dimensions/sis_sex_gonorrhea.camdl"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Gonorrhea-like: sex-structured SIS with directed transmission</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="pp">time_unit</span> = <span class="ss">'days</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="kw">compartments</span> { S, I }</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  sex = [female, male]</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="pp">stratify</span>(<span class="cf">by</span> = sex)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="kw">parameters</span> {</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  beta_fm : <span class="dt">rate</span>  <span class="cf">in</span> [<span class="dv">0.01</span>, <span class="dv">0.5</span>]    <span class="co"># female-to-male transmission</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  beta_mf : <span class="dt">rate</span>  <span class="cf">in</span> [<span class="dv">0.01</span>, <span class="dv">0.5</span>]    <span class="co"># male-to-female transmission</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  gamma   : <span class="dt">rate</span>  <span class="cf">in</span> [<span class="dv">0.01</span>, <span class="dv">0.5</span>]</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Off-diagonal only: no within-sex transmission.</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  B_sex : sex × sex = [[<span class="dv">0.0</span>,     beta_mf],</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>                        [beta_fm, <span class="dv">0.0</span>    ]]</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="pp">let</span> N[s <span class="cf">in</span> sex] = S[s] + I[s]</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">infection[s in sex] </span>: S[s] <span class="op">--&gt;</span> I[s]</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">@</span> S[s] * <span class="bu">sum</span>(r <span class="cf">in</span> sex, B_sex[s, r] * I[r] / N[r])</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recovery[s in sex] </span>: I[s] <span class="op">--&gt;</span> S[s]  <span class="op">@</span> gamma * I[s]</span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The table entries are <em>parameter references</em>, not floats — <code>beta_fm</code> and <code>beta_mf</code> are resolved at runtime. This lets the off-diagonal rates be estimated independently. The same mechanism — parameterized table entries — works for any contact matrix where you want to infer the mixing rates.</p>
+</section>
+<section id="spatial-gravity-coupling-polio-measles-metapopulations" class="level3">
+<h3 class="anchored" data-anchor-id="spatial-gravity-coupling-polio-measles-metapopulations">Spatial gravity coupling: polio, measles metapopulations</h3>
+<p>For patch-structured models, transmission is local plus importation from other patches. The coupling strength depends on distance or connectivity — a gravity kernel:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>dimensions/seir_spatial_polio.camdl</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-filename="dimensions/seir_spatial_polio.camdl"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Polio-like: 5-patch SEIR+V with gravity importation</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="pp">time_unit</span> = <span class="ss">'days</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="kw">compartments</span> { S, E, I, R, V }</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  patch = [north, south, east, west, center]</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="pp">stratify</span>(<span class="cf">by</span> = patch)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="pp">let</span> N[p <span class="cf">in</span> patch] = S[p] + E[p] + I[p] + R[p] + V[p]</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="kw">parameters</span> {</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  sigma     : <span class="dt">rate</span>        <span class="cf">in</span> [<span class="dv">0.01</span>,  <span class="dv">1.0</span>]</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  gamma     : <span class="dt">rate</span>        <span class="cf">in</span> [<span class="dv">0.01</span>,  <span class="dv">1.0</span>]</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  kappa     : <span class="dt">rate</span>        <span class="cf">in</span> [<span class="dv">0.0</span>,   <span class="dv">0.5</span>]</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  R0[patch] : <span class="dt">positive</span>    <span class="cf">in</span> [<span class="dv">0.5</span>,  <span class="dv">10.0</span>]  <span class="co"># patch-specific R0</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  N0[patch] : <span class="dt">count</span>       <span class="cf">in</span> [<span class="dv">100</span>, <span class="dv">1000000</span>]</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  I0        : <span class="dt">count</span>       <span class="cf">in</span> [<span class="dv">1</span>,     <span class="dv">1000</span>]</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="pp">let</span> beta[p <span class="cf">in</span> patch] = R0[p] * gamma</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  W : patch × patch = [[<span class="dv">0.00</span>, <span class="dv">0.10</span>, <span class="dv">0.05</span>, <span class="dv">0.05</span>, <span class="dv">0.15</span>],</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>                        [<span class="dv">0.10</span>, <span class="dv">0.00</span>, <span class="dv">0.10</span>, <span class="dv">0.05</span>, <span class="dv">0.10</span>],</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>                        [<span class="dv">0.05</span>, <span class="dv">0.10</span>, <span class="dv">0.00</span>, <span class="dv">0.10</span>, <span class="dv">0.10</span>],</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>                        [<span class="dv">0.05</span>, <span class="dv">0.05</span>, <span class="dv">0.10</span>, <span class="dv">0.00</span>, <span class="dv">0.15</span>],</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>                        [<span class="dv">0.15</span>, <span class="dv">0.10</span>, <span class="dv">0.10</span>, <span class="dv">0.15</span>, <span class="dv">0.00</span>]]</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Local transmission</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">infection[p in patch] </span>: S[p] <span class="op">--&gt;</span> E[p]</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>    <span class="op">@</span> beta[p] * S[p] * I[p] / N[p]</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Cross-patch importation (where p != q excludes self-loops)</span></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">importation[p in patch, q in patch] </span>: S[p] <span class="op">--&gt;</span> E[p]</span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>    <span class="op">@</span> kappa * W[p, q] * S[p] * I[q] / N[q] <span class="cf">where</span> p != q</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">progression[p in patch] </span>: E[p] <span class="op">--&gt;</span> I[p]  <span class="op">@</span> sigma * E[p]</span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recovery[p in patch]    </span>: I[p] <span class="op">--&gt;</span> R[p]  <span class="op">@</span> gamma * I[p]</span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Two things to note. First, <code>R0[patch]</code> is an <strong>indexed parameter</strong> — one scalar per patch, estimated independently. The compiler mangles <code>R0[north]</code> to <code>R0_north</code> in the IR; you supply per-patch values via <code>--param-vec</code>. Second, the <code>where p != q</code> clause on importation excludes self-infection, so the gravity matrix’s diagonal zeros are enforced structurally, not just by convention.</p>
+<p>For real deployments, the coupling matrix comes from data:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  patch = <span class="bu">read</span>(<span class="st">"data/lga_pop.tsv"</span>, column = <span class="st">"patch"</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  W : patch × patch = <span class="bu">read</span>(<span class="st">"data/gravity_kernel.tsv"</span>, default = <span class="dv">0.0</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Change the data file from 5 patches to 774 Nigerian LGAs, and the model scales without editing a single line of camdl.</p>
+</section>
+<section id="within-stratum-only-independent-patches" class="level3">
+<h3 class="anchored" data-anchor-id="within-stratum-only-independent-patches">Within-stratum only: independent patches</h3>
+<p>The simplest spatial structure is no coupling at all — each patch evolves independently. This is the identity matrix case. You don’t need a coupling table; just stratify and write per-patch transitions:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  patch = [urban, rural]</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="pp">stratify</span>(<span class="cf">by</span> = patch)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">infection[p in patch] </span>: S[p] <span class="op">--&gt;</span> I[p]</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">@</span> beta * S[p] * I[p] / N[p]</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>No <code>sum()</code>, no coupling table. Each patch gets its own copy of the transition, and <code>I[p] / N[p]</code> is local prevalence. Useful as a baseline before adding spatial coupling.</p>
+</section>
+</section>
+<section id="partial-stratification" class="level2">
+<h2 class="anchored" data-anchor-id="partial-stratification">Partial stratification</h2>
+<p>Not every dimension applies to every compartment. Vaccination history matters for where recovered individuals go, but you don’t need to track vaccination status through the S → E → I progression. camdl handles this with the <code>only</code> clause:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Polio-like: immunity type only on R and V</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  immunity = [natural, vaccine]</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="pp">stratify</span>(<span class="cf">by</span> = immunity, <span class="cf">only</span> = [R, V])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>After this, S, E, and I have their existing dimensions (say, <code>age × patch</code>), but R and V gain an extra <code>immunity</code> axis. The compiler then <strong>requires</strong> explicit routing in any transition that enters R or V — you must say where recovered individuals go:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recovery[a in age, p in patch] </span>: I[a, p] <span class="op">--&gt;</span> R[a, p, natural]</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">@</span> gamma * I[a, p]</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">vaccination[a in age, p in patch] </span>: S[a, p] <span class="op">--&gt;</span> V[a, p, vaccine]</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">@</span> vacc_rate * S[a, p]</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Stoichiometry requires all dimensions
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Writing <code>I[a, p] --&gt; R[a, p]</code> without the immunity index is a compile-time error — the destination R has dimensions <code>[age, patch, immunity]</code> but only <code>[age, patch]</code> were specified. You must write <code>R[a, p, natural]</code> to tell the compiler exactly which stratum receives the individual. This rule applies to all transitions into partially-stratified compartments: omitting a dimension in a rate expression (right of <code>@</code>) sums over it, but omitting one in stoichiometry (left of <code>@</code>) is always an error.</p>
+</div>
+</div>
+<section id="disease-stages-as-partial-dimensions" class="level3">
+<h3 class="anchored" data-anchor-id="disease-stages-as-partial-dimensions">Disease stages as partial dimensions</h3>
+<p>The same mechanism models Erlang-distributed waiting times. An SEIR where the latent period is Erlang-3 (three serial stages) uses a dimension on E only:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>dimensions/seir_erlang.camdl (excerpt)</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17" data-filename="dimensions/seir_erlang.camdl (excerpt)"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  latent_stage = [e1, e2, e3]</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="pp">stratify</span>(<span class="cf">by</span> = latent_stage, <span class="cf">only</span> = [E])</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sigma_stage </span>: latent_stage = [sigma_e1, sigma_e2, sigma_e3]</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">infection </span>: S <span class="op">--&gt;</span> E[e1]</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">@</span> beta * S * I / N</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  latent[(s, s_next) <span class="cf">in</span> <span class="bu">consecutive</span>(latent_stage)]</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    : E[s] <span class="op">--&gt;</span> E[s_next]</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">@</span> sigma_stage[s] * E[s]</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">onset    </span>: E[e3] <span class="op">--&gt;</span> I  <span class="op">@</span> sigma_stage[e3] * E[e3]</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recovery </span>: I     <span class="op">--&gt;</span> R  <span class="op">@</span> gamma * I</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>consecutive(latent_stage)</code> yields pairs <code>(e1, e2), (e2, e3)</code>. The two-line <code>latent</code> declaration above is equivalent to writing each transition by hand:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>  latent_e1 : E[e1] <span class="op">--&gt;</span> E[e2]  <span class="op">@</span> sigma_stage[e1] * E[e1]</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  latent_e2 : E[e2] <span class="op">--&gt;</span> E[e3]  <span class="op">@</span> sigma_stage[e2] * E[e2]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For an Erlang-3 the saving is modest; for an Erlang-10 it eliminates nine lines of boilerplate that differ only in the index. The compiler generates one transition per consecutive pair, and <code>--transitions</code> shows exactly what was produced (see below).</p>
+<p>Infection enters at <code>E[e1]</code>, progression walks through stages, and onset exits from the last stage. S, I, and R are unstratified — which <code>camdl inspect</code> confirms:</p>
+<div id="2631ffd1" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect seir_erlang.camdl</span>
+<span style="font-weight:bold"><span style="color:#3366cc">seir_erlang<span style="font-weight:bold"></span></span></span>
+
+<span style="opacity:0.6">  compartments   </span><span style="font-weight:bold">4</span> base<span style="opacity:0.6"> × </span>3 latent_stage = <span style="font-weight:bold">6</span> expanded
+<span style="opacity:0.6">  transitions     </span><span style="font-weight:bold">4</span> base <span style="opacity:0.6">→ </span><span style="font-weight:bold">5</span> expanded (+ 0 filtered by where)
+<span style="opacity:0.6">  parameters      </span><span style="font-weight:bold">5</span> declared (<span style="color:#2e8b2e">beta: rate</span>, <span style="color:#2e8b2e">gamma: rate</span>, <span style="color:#2e8b2e">sigma_e1: rate</span>, <span style="color:#2e8b2e">sigma_e2: rate</span>, <span style="color:#2e8b2e">sigma_e3: rate</span>)
+<span style="opacity:0.6">  tables          </span><span style="font-weight:bold">1</span> (<span style="color:#b8860b">sigma_stage</span><span style="opacity:0.6">: </span><span style="opacity:0.6">latent_stage</span>)
+<span style="opacity:0.6">  let bindings    </span><span style="font-weight:bold">1</span> (<span style="color:#b8860b">N</span>)
+<span style="opacity:0.6">  dimensions      </span><span style="color:#1abc9c">latent_stage</span> = [e1, e2, e3]
+<span style="opacity:0.6">  observations    </span><span style="font-weight:bold">0</span> streams
+<span style="opacity:0.6">  interventions   </span><span style="font-weight:bold">0</span> (0 active by default)</code></pre>
+</div>
+</div>
+<p>The summary reads “4 base × 3 latent_stage = 6 expanded” — not 12, because only E was stratified. <code>--compartments</code> makes the mixed arities visible — S, I, and R have no index (<code>[]</code>), while E has <code>[latent_stage]</code>:</p>
+<div id="64132595" class="cell" data-execution_count="7">
+<div class="cell-output cell-output-display">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect seir_erlang.camdl --compartments</span>
+<span style="color:#9b59b6"><span style="font-weight:bold">S<span style="color:#9b59b6"></span></span></span>   <span style="opacity:0.6">integer</span>   <span style="opacity:0.6">[]</span>   <span style="opacity:0.6">→ </span><span style="opacity:0.6"><span style="color:#9b59b6">S<span style="opacity:0.6"></span></span></span>
+<span style="color:#9b59b6"><span style="font-weight:bold">E<span style="color:#9b59b6"></span></span></span>   <span style="opacity:0.6">integer</span>   <span style="opacity:0.6">[<span style="color:#1abc9c">latent_stage<span style="opacity:0.6">]</span></span></span>   <span style="opacity:0.6">→ </span><span style="opacity:0.6"><span style="color:#9b59b6">E<span style="opacity:0.6"><span style="opacity:0.6">[e1]<span style="opacity:0.6">, <span style="color:#9b59b6">E<span style="opacity:0.6"><span style="opacity:0.6">[e2]<span style="opacity:0.6">, <span style="color:#9b59b6">E<span style="opacity:0.6"><span style="opacity:0.6">[e3]<span style="opacity:0.6"></span></span></span></span></span></span></span></span></span></span></span></span></span>
+<span style="color:#9b59b6"><span style="font-weight:bold">I<span style="color:#9b59b6"></span></span></span>   <span style="opacity:0.6">integer</span>   <span style="opacity:0.6">[]</span>   <span style="opacity:0.6">→ </span><span style="opacity:0.6"><span style="color:#9b59b6">I<span style="opacity:0.6"></span></span></span>
+<span style="color:#9b59b6"><span style="font-weight:bold">R<span style="color:#9b59b6"></span></span></span>   <span style="opacity:0.6">integer</span>   <span style="opacity:0.6">[]</span>   <span style="opacity:0.6">→ </span><span style="opacity:0.6"><span style="color:#9b59b6">R<span style="opacity:0.6"></span></span></span>
+
+<span style="font-weight:bold">6</span> expanded compartments (4 base × 3 <span style="color:#1abc9c">latent_stage</span>)</code></pre>
+</div>
+</div>
+<p>And <code>--transitions</code> shows how the compiler expanded the <code>consecutive()</code> chain and routed infection into <code>E[e1]</code>:</p>
+<div id="5c2eb076" class="cell" data-execution_count="8">
+<div class="cell-output cell-output-display">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect seir_erlang.camdl --transitions</span>
+<span style="font-weight:bold"><span style="color:#3366cc">infection<span style="font-weight:bold"></span></span></span> → <span style="font-weight:bold">1</span> transition
+  <span style="opacity:0.6">│</span> <span style="color:#3366cc">infection</span> : <span style="color:#9b59b6">S</span> <span style="opacity:0.6">→</span> <span style="color:#9b59b6">E</span><span style="opacity:0.6">[e1]</span>   @ <span style="color:#2e8b2e">beta</span> <span style="opacity:0.6">×</span> <span style="color:#9b59b6">S</span> <span style="opacity:0.6">×</span> <span style="color:#9b59b6">I</span> <span style="opacity:0.6">/</span> <span style="color:#9b59b6">S</span> + <span style="color:#9b59b6">E</span><span style="opacity:0.6">[e1]</span> + <span style="color:#9b59b6">E</span><span style="opacity:0.6">[e2]</span> + <span style="color:#9b59b6">E</span><span style="opacity:0.6">[e3]</span> + <span style="color:#9b59b6">I</span> + <span style="color:#9b59b6">R</span>
+
+<span style="font-weight:bold"><span style="color:#3366cc">latent<span style="font-weight:bold"></span></span></span><span style="opacity:0.6">[(s, s_next) in consecutive(<span style="color:#1abc9c">latent_stage<span style="opacity:0.6">)]</span></span></span> → <span style="font-weight:bold">2</span> transitions
+  <span style="opacity:0.6">│</span> <span style="color:#3366cc">latent_e1</span> : <span style="color:#9b59b6">E</span><span style="opacity:0.6">[e1]</span> <span style="opacity:0.6">→</span> <span style="color:#9b59b6">E</span><span style="opacity:0.6">[e2]</span>   @ <span style="color:#b8860b">sigma_stage</span><span style="opacity:0.6">[0]</span> <span style="opacity:0.6">×</span> <span style="color:#9b59b6">E</span><span style="opacity:0.6">[e1]</span>
+  <span style="opacity:0.6">│</span> <span style="color:#3366cc">latent_e2</span> : <span style="color:#9b59b6">E</span><span style="opacity:0.6">[e2]</span> <span style="opacity:0.6">→</span> <span style="color:#9b59b6">E</span><span style="opacity:0.6">[e3]</span>   @ <span style="color:#b8860b">sigma_stage</span><span style="opacity:0.6">[1]</span> <span style="opacity:0.6">×</span> <span style="color:#9b59b6">E</span><span style="opacity:0.6">[e2]</span>
+
+<span style="font-weight:bold"><span style="color:#3366cc">onset<span style="font-weight:bold"></span></span></span> → <span style="font-weight:bold">1</span> transition
+  <span style="opacity:0.6">│</span> <span style="color:#3366cc">onset</span> : <span style="color:#9b59b6">E</span><span style="opacity:0.6">[e3]</span> <span style="opacity:0.6">→</span> <span style="color:#9b59b6">I</span>   @ <span style="color:#b8860b">sigma_stage</span><span style="opacity:0.6">[2]</span> <span style="opacity:0.6">×</span> <span style="color:#9b59b6">E</span><span style="opacity:0.6">[e3]</span>
+
+<span style="font-weight:bold"><span style="color:#3366cc">recovery<span style="font-weight:bold"></span></span></span> → <span style="font-weight:bold">1</span> transition
+  <span style="opacity:0.6">│</span> <span style="color:#3366cc">recovery</span> : <span style="color:#9b59b6">I</span> <span style="opacity:0.6">→</span> <span style="color:#9b59b6">R</span>   @ <span style="color:#2e8b2e">gamma</span> <span style="opacity:0.6">×</span> <span style="color:#9b59b6">I</span></code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="aging-and-demography" class="level2">
+<h2 class="anchored" data-anchor-id="aging-and-demography">Aging and demography</h2>
+<p>Fine-grained age structure requires more than a contact matrix — it needs aging transitions that move individuals through age groups over time, plus births and deaths. camdl uses the same <code>consecutive()</code> mechanism:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>dimensions/sir_age_demography.camdl (excerpt)</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19" data-filename="dimensions/sir_age_demography.camdl (excerpt)"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  age = [age_0_5, age_5_15, age_15_50, age_50_65, age_65p]</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="pp">stratify</span>(<span class="cf">by</span> = age)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">age_dur </span>: age <span class="ss">'years</span> = [<span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">35</span>, <span class="dv">15</span>, <span class="dv">20</span>]</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="pp">let</span> N_local[a <span class="cf">in</span> age] = S[a] + I[a] + R[a]</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Aging: consecutive pairs across all compartments</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  aging[c <span class="cf">in</span> <span class="kw">compartments</span>, (a, a_next) in consecutive(age)]</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    : c[a] --&gt; c[a_next]</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    @ (1 / age_dur[a]) * c[a]</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Death: age-specific, all compartments</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>  death[c in compartments, a in age] : c[a] --&gt;</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>    @ mu * c[a]</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Birth: into youngest age group</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>  birth : --&gt; S[age_0_5]</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>    @ mu * sum(a in age, N_local[a])</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The <code>[c in compartments]</code> quantifier iterates over all compartments — every compartment gets aging and death transitions. <code>age_dur</code> is a dimensioned table with a unit annotation (<code>'years</code>), giving the duration spent in each age class. The combinatorial expansion is substantial:</p>
+<div id="aaf7c21f" class="cell" data-execution_count="9">
+<div class="cell-output cell-output-display">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect sir_age_demography.camdl</span>
+<span style="font-weight:bold"><span style="color:#3366cc">sir_age_demography<span style="font-weight:bold"></span></span></span>
+
+<span style="opacity:0.6">  compartments   </span><span style="font-weight:bold">3</span> base<span style="opacity:0.6"> × </span>5 age = <span style="font-weight:bold">15</span> expanded
+<span style="opacity:0.6">  transitions     </span><span style="font-weight:bold">5</span> base <span style="opacity:0.6">→ </span><span style="font-weight:bold">38</span> expanded (+ 0 filtered by where)
+<span style="opacity:0.6">  parameters      </span><span style="font-weight:bold">3</span> declared (<span style="color:#2e8b2e">beta: rate</span>, <span style="color:#2e8b2e">gamma: rate</span>, <span style="color:#2e8b2e">mu: rate</span>)
+<span style="opacity:0.6">  tables          </span><span style="font-weight:bold">1</span> (<span style="color:#b8860b">age_dur</span><span style="opacity:0.6">: </span><span style="opacity:0.6">age</span>)
+<span style="opacity:0.6">  let bindings    </span><span style="font-weight:bold">1</span> (<span style="color:#b8860b">N_local</span>[a in <span style="color:#1abc9c">age</span>])
+<span style="opacity:0.6">  dimensions      </span><span style="color:#1abc9c">age</span> = [age_0_5, age_5_15, age_15_50, age_50_65, age_65p]
+<span style="opacity:0.6">  observations    </span><span style="font-weight:bold">0</span> streams
+<span style="opacity:0.6">  interventions   </span><span style="font-weight:bold">0</span> (0 active by default)</code></pre>
+</div>
+</div>
+<p>5 transition templates expand to 38 concrete transitions: <code>aging</code> generates 3 compartments × 4 consecutive pairs = 12, <code>death</code> generates 3 × 5 = 15, plus <code>infection</code> (5), <code>recovery</code> (5), and <code>birth</code> (1).</p>
+<p>Note the interaction with partial stratification: if R has an extra <code>immunity</code> dimension that S and I don’t have, <code>death[c in compartments, a in age] : c[a] --&gt;</code> does the right thing automatically. For S (dims: <code>[age]</code>), it generates one death transition per age group. For R (dims: <code>[age, immunity]</code>), it generates separate transitions for each <code>(age, immunity)</code> combination — <code>R[child, natural]</code>, <code>R[child, vaccine]</code>, etc. The compiler fills in the omitted dimensions by iterating over them. You write the compact form; the expansion handles the arity differences.</p>
+</section>
+<section id="guard-clauses" class="level2">
+<h2 class="anchored" data-anchor-id="guard-clauses">Guard clauses</h2>
+<p>Several examples above use <code>where p != q</code> to exclude self-loops from spatial importation. This is a <strong>guard clause</strong> — a compile-time filter on which index combinations generate transitions:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Migration: exclude self-loops</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>migrate[c <span class="cf">in</span> <span class="kw">compartments</span>, a in age, src in patch, dst in patch]</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  : c[a, src] --&gt; c[a, dst]</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  @ mig[dst, src] * c[a, src]</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  where src != dst</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Only adults reproduce</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>birth[a in age, p in patch] : --&gt; S[child, p]</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  @ fertility[a] * N_local[a, p]</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  where a != child</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Compound guard</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>transfer[a in age, src in patch, dst in patch] : S[a, src] --&gt; S[a, dst]</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  @ rate * S[a, src]</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>  where src != dst and a == adult</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Guards are evaluated at compile time — the compiler instantiates all index combinations, evaluates the guard for each, and emits IR transitions only for those that pass. The runtime never sees the guard; it just gets the filtered set of transitions. Guards compose with all iteration forms: <code>[i in dim]</code>, <code>consecutive()</code>, and <code>[c in compartments]</code>.</p>
+</section>
+<section id="multiple-dimensions-putting-it-together" class="level2">
+<h2 class="anchored" data-anchor-id="multiple-dimensions-putting-it-together">Multiple dimensions: putting it together</h2>
+<p>Real models combine several dimensions. A spatial age-structured measles model might have <code>age × patch</code> with a contact matrix over age and a gravity kernel over patches. The force of infection nests both sums:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">dimensions</span> {</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  age   = [child, adult]</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  patch = <span class="bu">read</span>(<span class="st">"data/pop.tsv"</span>, column = <span class="st">"patch"</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="pp">stratify</span>(<span class="cf">by</span> = age)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="pp">stratify</span>(<span class="cf">by</span> = patch)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="kw">tables</span> {</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  C_age : age × age     = [[<span class="dv">12.0</span>, <span class="dv">4.0</span>], [<span class="dv">4.0</span>, <span class="dv">8.0</span>]]</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  W     : patch × patch  = <span class="bu">read</span>(<span class="st">"data/gravity.tsv"</span>, default = <span class="dv">0.0</span>)</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pop   </span>: patch           = <span class="bu">read</span>(<span class="st">"data/pop.tsv"</span>)</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a><span class="pp">let</span> N[a <span class="cf">in</span> age, p <span class="cf">in</span> patch] = S[a, p] + E[a, p] + I[a, p] + R[a, p]</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">infection[a in age, p in patch] </span>: S[a, p] <span class="op">--&gt;</span> E[a, p]</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">@</span> beta * S[a, p]</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>      * <span class="bu">sum</span>(b <span class="cf">in</span> age, <span class="bu">sum</span>(q <span class="cf">in</span> patch,</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>          C_age[a, b] * W[p, q] * I[b, q] / N[b, q]</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>        ))</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Each dimension contributes one <code>sum()</code>. The compiler expands the nested iteration at compile time — for 2 age groups and 50 patches, the infection rate for each <code>(a, p)</code> stratum becomes a sum of 100 terms, all type-checked against the declared dimensions of <code>C_age</code> and <code>W</code>.</p>
+<p>The <code>seir_cross_dim.camdl</code> example in this chapter’s files puts all of these features together — patch × age stratification, contact matrix, spatial adjacency, demography — and <code>camdl inspect</code> shows the full expansion:</p>
+<div id="77430966" class="cell" data-execution_count="10">
+<div class="cell-output cell-output-display">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect seir_cross_dim.camdl</span>
+<span style="font-weight:bold"><span style="color:#3366cc">seir_cross_dim<span style="font-weight:bold"></span></span></span>
+
+<span style="opacity:0.6">  compartments   </span><span style="font-weight:bold">4</span> base<span style="opacity:0.6"> × </span>4 patch<span style="opacity:0.6"> × </span>3 age = <span style="font-weight:bold">48</span> expanded
+<span style="opacity:0.6">  transitions     </span><span style="font-weight:bold">6</span> base <span style="opacity:0.6">→ </span><span style="font-weight:bold">120</span> expanded (+ 0 filtered by where)
+<span style="opacity:0.6">  parameters      </span><span style="font-weight:bold">5</span> declared (<span style="color:#2e8b2e">beta_local: rate</span>, <span style="color:#2e8b2e">beta_travel: rate</span>, <span style="color:#2e8b2e">sigma: rate</span>, <span style="color:#2e8b2e">gamma: rate</span>, <span style="color:#2e8b2e">mu: rate</span>)
+<span style="opacity:0.6">  tables          </span><span style="font-weight:bold">4</span> (<span style="color:#b8860b">pop_pa</span><span style="opacity:0.6">: </span><span style="opacity:0.6">patch × age</span>, <span style="color:#b8860b">adj</span><span style="opacity:0.6">: </span><span style="opacity:0.6">patch × patch</span>, <span style="color:#b8860b">age_dur</span><span style="opacity:0.6">: </span><span style="opacity:0.6">age</span>, <span style="color:#b8860b">C</span><span style="opacity:0.6">: </span><span style="opacity:0.6">age × age</span>)
+<span style="opacity:0.6">  let bindings    </span><span style="font-weight:bold">3</span> (<span style="color:#b8860b">N</span>[p in <span style="color:#1abc9c">patch</span>, a in <span style="color:#1abc9c">age</span>], <span style="color:#b8860b">N_total</span>[p in <span style="color:#1abc9c">patch</span>], <span style="color:#b8860b">I_total</span>[p in <span style="color:#1abc9c">patch</span>])
+<span style="opacity:0.6">  dimensions      </span><span style="color:#1abc9c">patch</span> = [north, south, east, west], <span style="color:#1abc9c">age</span> = [child, adult, elder]
+<span style="opacity:0.6">  observations    </span><span style="font-weight:bold">0</span> streams
+<span style="opacity:0.6">  interventions   </span><span style="font-weight:bold">0</span> (0 active by default)</code></pre>
+</div>
+</div>
+<div id="e99a4d5b" class="cell" data-execution_count="11">
+<div class="cell-output cell-output-display">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect seir_cross_dim.camdl --tables</span>
+<span style="font-weight:bold"><span style="color:#b8860b">pop_pa<span style="font-weight:bold"></span></span></span>  [<span style="color:#1abc9c">patch</span><span style="opacity:0.6"> × </span><span style="color:#1abc9c">age</span>]<span style="opacity:0.6">  loaded: data/patch_age_pop3.tsv</span>
+  <span style="opacity:0.6">│</span>          <span style="opacity:0.6">child</span>   <span style="opacity:0.6">adult</span>   <span style="opacity:0.6">elder</span>
+  <span style="opacity:0.6">│</span>  <span style="opacity:0.6">north</span>   22000   72000   26000
+  <span style="opacity:0.6">│</span>  <span style="opacity:0.6">south</span>   16000   52000   17000
+  <span style="opacity:0.6">│</span>  <span style="opacity:0.6">east</span>     8500   28000    8500
+  <span style="opacity:0.6">│</span>  <span style="opacity:0.6">west</span>    38000  124000   38000
+
+<span style="font-weight:bold"><span style="color:#b8860b">adj<span style="font-weight:bold"></span></span></span>  [<span style="color:#1abc9c">patch</span><span style="opacity:0.6"> × </span><span style="color:#1abc9c">patch</span>]<span style="opacity:0.6">  loaded: data/spatial_adj.tsv</span>
+  <span style="opacity:0.6">│</span>         <span style="opacity:0.6">north</span>  <span style="opacity:0.6">south</span>   <span style="opacity:0.6">east</span>   <span style="opacity:0.6">west</span>
+  <span style="opacity:0.6">│</span>  <span style="opacity:0.6">north</span>      0  0.008  0.003      0
+  <span style="opacity:0.6">│</span>  <span style="opacity:0.6">south</span>  0.008      0  0.005  0.012
+  <span style="opacity:0.6">│</span>  <span style="opacity:0.6">east</span>   0.003  0.005      0      0
+  <span style="opacity:0.6">│</span>  <span style="opacity:0.6">west</span>       0  0.012      0      0
+
+<span style="font-weight:bold"><span style="color:#b8860b">age_dur<span style="font-weight:bold"></span></span></span>  [<span style="color:#1abc9c">age</span>]<span style="opacity:0.6">  inline</span>
+  <span style="opacity:0.6">│</span> <span style="opacity:0.6">child</span>  5475
+  <span style="opacity:0.6">│</span> <span style="opacity:0.6">adult</span>  16425
+  <span style="opacity:0.6">│</span> <span style="opacity:0.6">elder</span>  36500
+
+<span style="font-weight:bold"><span style="color:#b8860b">C<span style="font-weight:bold"></span></span></span>  [<span style="color:#1abc9c">age</span><span style="opacity:0.6"> × </span><span style="color:#1abc9c">age</span>]<span style="opacity:0.6">  inline</span>
+  <span style="opacity:0.6">│</span>         <span style="opacity:0.6">child</span>  <span style="opacity:0.6">adult</span>  <span style="opacity:0.6">elder</span>
+  <span style="opacity:0.6">│</span>  <span style="opacity:0.6">child</span>     18      6      1
+  <span style="opacity:0.6">│</span>  <span style="opacity:0.6">adult</span>      6     12      2
+  <span style="opacity:0.6">│</span>  <span style="opacity:0.6">elder</span>      1      2      5</code></pre>
+</div>
+</div>
+<p>6 transition templates expand to 120 transitions across 48 compartments. The tables show both file-loaded data (<code>loaded:</code>) and inline values (<code>inline</code>), with 2D tables rendered as matrices for immediate verification.</p>
+</section>
+<section id="feature-inventory-which-diseases-need-what" class="level2">
+<h2 class="anchored" data-anchor-id="feature-inventory-which-diseases-need-what">Feature inventory: which diseases need what</h2>
+<p>The table below maps common modeling patterns to the camdl features that support them. Each row is a pattern seen in practice; the examples show which diseases motivate it.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 35%">
+<col style="width: 42%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Pattern</th>
+<th>camdl feature</th>
+<th>Disease examples</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Age-structured contact</td>
+<td><code>dim × dim</code> table + <code>sum()</code></td>
+<td>Measles, pertussis, COVID-19</td>
+</tr>
+<tr class="even">
+<td>Directed (cross-group only)</td>
+<td>Off-diagonal contact matrix</td>
+<td>Gonorrhea, syphilis, HIV</td>
+</tr>
+<tr class="odd">
+<td>Spatial metapopulation</td>
+<td><code>patch × patch</code> gravity kernel</td>
+<td>Polio, measles, cholera</td>
+</tr>
+<tr class="even">
+<td>Data-derived patches</td>
+<td><code>read("file", column = ...)</code></td>
+<td>Any sub-national model</td>
+</tr>
+<tr class="odd">
+<td>Indexed reproduction number</td>
+<td><code>R0[patch] : positive</code></td>
+<td>Polio, malaria (heterogeneous transmission)</td>
+</tr>
+<tr class="even">
+<td>Consecutive aging</td>
+<td><code>consecutive(age)</code> + <code>age_dur</code> table</td>
+<td>Any age-structured endemic model</td>
+</tr>
+<tr class="odd">
+<td>Erlang-distributed stages</td>
+<td><code>stratify(by = stage, only = [E])</code></td>
+<td>Measles (latent), malaria (liver stages)</td>
+</tr>
+<tr class="even">
+<td>Vaccination as partial dim</td>
+<td><code>stratify(by = immunity, only = [R, V])</code></td>
+<td>Polio (OPV/IPV), COVID-19</td>
+</tr>
+<tr class="odd">
+<td>Seasonal forcing</td>
+<td>Time-dependent rate expression</td>
+<td>Measles (school terms), cholera (monsoon)</td>
+</tr>
+<tr class="even">
+<td>Campaign interventions on strata</td>
+<td><code>transfer(from = S[patch], to = V[patch])</code></td>
+<td>Polio SIAs, MDA for malaria</td>
+</tr>
+<tr class="odd">
+<td>Sparse coupling matrix</td>
+<td><code>read("file", default = 0.0)</code></td>
+<td>Any large spatial model</td>
+</tr>
+<tr class="even">
+<td>Parameterized mixing rates</td>
+<td>Table entries as parameter refs</td>
+<td>STIs (sex-specific β), flu (age-specific)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="design-philosophy" class="level2">
+<h2 class="anchored" data-anchor-id="design-philosophy">Design philosophy</h2>
+<p>camdl’s dimension system reflects a few deliberate choices:</p>
+<p><strong>Dimensions are type-level, not value-level.</strong> The levels of a dimension are known at compile time (either declared inline or read from a file during compilation). This means the compiler can expand all indexed transitions, check all table lookups, and verify population accounting <em>before</em> any simulation runs. There is no runtime dimension discovery.</p>
+<p><strong>Tables are the interface between data and model.</strong> External data enters the model through dimensionally-typed tables, not through untyped arrays or global variables. The dimension annotation on a table is a contract: it says what the rows and columns mean, and the compiler enforces it. This makes the data pipeline part of the model’s type system, catching mismatches (wrong number of patches, misspelled level names) at compile time rather than producing silently wrong simulation output.</p>
+<p><strong>Explicit over implicit.</strong> You write <code>sum(b in age, C[a,b] * I[b] / N[b])</code> rather than declaring a mixing mode. This is more verbose than a <code>coupling = "frequency_dependent"</code> flag, but it means the rate expression is always readable as math — no hidden multiplication, no framework magic. The transition rate <em>is</em> the equation.</p>
+<p><strong>Partial stratification forces explicit routing.</strong> When a dimension applies to some compartments but not others, every transition into a partially-stratified compartment must specify which stratum the population flows to. This is annoying for the modeler and essential for correctness — it prevents the framework from silently distributing individuals across strata by some default rule.</p>
+<p>These choices trade convenience for safety. For a 3-compartment teaching model, the overhead is negligible. For a 774-patch, 5-age-group, multi-intervention polio model, the compiler’s checking is the difference between a model that works and one that silently computes the wrong force of infection for six months before anyone notices.</p>
+
+
+</section>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn1"><p>King AA, Nguyen D, Ionides EL (2016). “Statistical inference for partially observed Markov processes via the R package pomp.” <em>Journal of Statistical Software</em>, 69(12), 1–43. doi:<a href="https://doi.org/10.18637/jss.v069.i12">10.18637/jss.v069.i12</a>.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>The manual expansion pattern is documented in the pomp FAQ and discussed in <a href="https://github.com/kingaa/pomp/issues/11">kingaa/pomp#11</a>, where a user asks whether vector-valued state is supported. The canonical workaround uses C pointer arithmetic over <code>statenames=sprintf("X%d",1:n)</code>. A typo between two valid expanded names (e.g.&nbsp;<code>S2</code> for <code>S3</code>) compiles without error because both are declared <code>statenames</code>; the silent failure requires both names to exist, which is exactly the situation in any stratified model with more than one stratum.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>Asfaw K, Ionides EL et al.&nbsp;(2024). spatPomp: Statistical Inference for Spatiotemporal Partially Observed Markov Processes. CRAN package. The <code>dunit_measure</code> C snippet receives a predefined integer <code>u</code> (current unit index, 0 to U−1) and bare <code>unit_statenames</code> resolve to unit <code>u</code>’s values. The <code>rprocess</code> snippet does not — it requires explicit <code>S[u]</code>, <code>E[u]</code> indexing. See the spatPomp tutorial vignette, §3 (unit-level measurement models).<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>FitzJohn R et al.&nbsp;(2024). odin2: an R package for generating dynamical models. CRAN package odin2. See also dust2 (FitzJohn R et al., 2024) for the compiled simulation backend.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>odin2 error E2022: “Trying to access an array without using square bracket indexes.” Documented at <a href="https://mrc-ide.github.io/odin2/articles/errors.html#e2022">mrc-ide.github.io/odin2/articles/errors.html#e2022</a>. This error exists in both odin1 (tested in <a href="https://github.com/mrc-ide/odin/blob/master/tests/testthat/test-parse2-general.R">test-parse2-general.R</a>, <code>"Array 'x' used without array index"</code>) and odin2. An earlier version of this chapter incorrectly stated that bare array references silently resolved to the first element; we are grateful to reviewers for the correction.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>The untyped-index hazard: if <code>dim(S) &lt;- c(n_age, n_patch)</code> and you write <code>S[j, i]</code> instead of <code>S[i, j]</code>, it parses cleanly. When <code>n_age == n_patch</code> it runs with transposed values; when they differ, you get a runtime bounds error rather than a compile-time type error. The same issue affects reduction operations — <code>sum(S)</code> vs. <code>sum(S[i, ])</code> are semantically different (global total vs.&nbsp;row sum) but the compiler cannot distinguish intent from syntax.<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../guide/scenarios.html" class="pagination-link" aria-label="Scenarios, Interventions, and Sweeps">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Scenarios, Interventions, and Sweeps</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../guide/fitting-data/report.html" class="pagination-link" aria-label="Fitting to Data">
+        <span class="nav-page-text"><span class="chapter-title">Fitting to Data</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Vince Buffalo. Supported by the Institute for Disease Modeling, Bill &amp; Melinda Gates Foundation.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/dimensions.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>License: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p>
+</div>
+  </div>
+</footer>
+<script src="cli-copy.js"></script>
+
+
+
+
+</body></html>

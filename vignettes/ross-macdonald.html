@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>The Fitting Pipeline – camdl</title>
+<title>Ross-Macdonald: Vector-Host Malaria Transmission – camdl</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -23,18 +23,53 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../inference/diagnostics.html" rel="next">
-<link href="../inference/algorithms.html" rel="prev">
+<link href="../vignettes/garki.html" rel="next">
+<link href="../vignettes/malaria.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -46,9 +81,9 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-7834fc316dc47462563faadba97a63a5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-bd23a541b4b70ecd4d3c12acd207375d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-b981944dac36b7fff9ce3ceeec90f8de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-73b7f00512812729446172a063b47ee0.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-b981944dac36b7fff9ce3ceeec90f8de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -76,6 +111,10 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<meta name="quarto:status" content="draft">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -274,13 +313,13 @@ window.Quarto = {
   </script>
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
+  <header id="quarto-header" class="headroom fixed-top"><div id="quarto-draft-alert" class="alert alert-warning"><i class="bi bi-pencil-square"></i>Draft</div>
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../inference/likelihood.html">Inference</a></li><li class="breadcrumb-item"><a href="../inference/pipeline.html"><span class="chapter-title">The Fitting Pipeline</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/he2010.html">Vignettes</a></li><li class="breadcrumb-item"><a href="../vignettes/ross-macdonald.html"><span class="chapter-title">Ross-Macdonald: Vector-Host Malaria Transmission</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -340,12 +379,17 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../boarding-school-sir-clean/report.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
+  <a href="../guide/dimensions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Dimensions and Stratification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../boarding-school-sir-clean/model_comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
+  <a href="../guide/fitting-data/report.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/fitting-data/model_comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
   </div>
 </li>
       </ul>
@@ -369,21 +413,6 @@ window.Quarto = {
   <a href="../inference/algorithms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Algorithms: IF2, PGAS, and PMMH</span></a>
   </div>
 </li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../inference/pipeline.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">The Fitting Pipeline</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../inference/diagnostics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diagnostics Reference</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../inference/debugging.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Debugging</span></a>
-  </div>
-</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -395,31 +424,6 @@ window.Quarto = {
           </a> 
       </div>
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vignettes/he2010.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">He et al.&nbsp;(2010) Measles</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vignettes/model-comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vignettes/spatial-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Spatial Inference</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vignettes/sampler-comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sampler Comparison</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vignettes/diagnostics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diagnostics Cookbook</span></a>
-  </div>
-</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -478,21 +482,32 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#scout-find-the-right-basin" id="toc-scout-find-the-right-basin" class="nav-link active" data-scroll-target="#scout-find-the-right-basin">Scout: find the right basin</a></li>
-  <li><a href="#refine-converge-within-the-basin" id="toc-refine-converge-within-the-basin" class="nav-link" data-scroll-target="#refine-converge-within-the-basin">Refine: converge within the basin</a></li>
-  <li><a href="#validate-verify-and-characterize-the-mle" id="toc-validate-verify-and-characterize-the-mle" class="nav-link" data-scroll-target="#validate-verify-and-characterize-the-mle">Validate: verify and characterize the MLE</a></li>
-  <li><a href="#pgas-bayesian-posterior" id="toc-pgas-bayesian-posterior" class="nav-link" data-scroll-target="#pgas-bayesian-posterior">PGAS: Bayesian posterior</a></li>
-  <li><a href="#status" id="toc-status" class="nav-link" data-scroll-target="#status">Status</a></li>
+  <li><a href="#the-model" id="toc-the-model" class="nav-link active" data-scroll-target="#the-model">The model</a>
+  <ul class="collapse">
+  <li><a href="#the-full-model-source" id="toc-the-full-model-source" class="nav-link" data-scroll-target="#the-full-model-source">The full model source</a></li>
+  <li><a href="#observation-model-imperfect-slide-microscopy" id="toc-observation-model-imperfect-slide-microscopy" class="nav-link" data-scroll-target="#observation-model-imperfect-slide-microscopy">Observation model: imperfect slide microscopy</a></li>
+  </ul></li>
+  <li><a href="#forward-simulation" id="toc-forward-simulation" class="nav-link" data-scroll-target="#forward-simulation">Forward simulation</a></li>
+  <li><a href="#synthetic-observations" id="toc-synthetic-observations" class="nav-link" data-scroll-target="#synthetic-observations">Synthetic observations</a></li>
+  <li><a href="#prior-predictive-check" id="toc-prior-predictive-check" class="nav-link" data-scroll-target="#prior-predictive-check">Prior predictive check</a></li>
+  <li><a href="#fitting-posterior-recovery-via-pmmh" id="toc-fitting-posterior-recovery-via-pmmh" class="nav-link" data-scroll-target="#fitting-posterior-recovery-via-pmmh">Fitting: posterior recovery via PMMH</a>
+  <ul class="collapse">
+  <li><a href="#posterior-recovery" id="toc-posterior-recovery" class="nav-link" data-scroll-target="#posterior-recovery">Posterior recovery</a></li>
+  <li><a href="#trace-diagnostics" id="toc-trace-diagnostics" class="nav-link" data-scroll-target="#trace-diagnostics">Trace diagnostics</a></li>
+  <li><a href="#pair-plot" id="toc-pair-plot" class="nav-link" data-scroll-target="#pair-plot">Pair plot</a></li>
+  <li><a href="#posterior-predictive-check" id="toc-posterior-predictive-check" class="nav-link" data-scroll-target="#posterior-predictive-check">Posterior predictive check</a></li>
+  </ul></li>
+  <li><a href="#features-exercised" id="toc-features-exercised" class="nav-link" data-scroll-target="#features-exercised">Features exercised</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/inference/pipeline.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/vignettes/ross-macdonald.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../inference/likelihood.html">Inference</a></li><li class="breadcrumb-item"><a href="../inference/pipeline.html"><span class="chapter-title">The Fitting Pipeline</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vignettes/he2010.html">Vignettes</a></li><li class="breadcrumb-item"><a href="../vignettes/ross-macdonald.html"><span class="chapter-title">Ross-Macdonald: Vector-Host Malaria Transmission</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">The Fitting Pipeline</span></h1>
+<h1 class="title"><span class="chapter-title">Ross-Macdonald: Vector-Host Malaria Transmission</span></h1>
 </div>
 
 
@@ -509,36 +524,398 @@ window.Quarto = {
 </header>
 
 
-<p>The <code>camdl fit</code> pipeline connects the <a href="../inference/algorithms.html">inference algorithms</a> into a workflow where each stage feeds the next.</p>
-<section id="scout-find-the-right-basin" class="level3">
-<h3 class="anchored" data-anchor-id="scout-find-the-right-basin">Scout: find the right basin</h3>
-<pre><code>camdl fit scout fit.toml</code></pre>
-<p>IF2 with many chains (8+), gentle cooling, random starts. Goal: find the region of parameter space where the likelihood is highest. Chains that find different basins are expected — that’s the point. The best chain’s parameters and auto-calibrated <code>rw_sd</code> values carry forward.</p>
+<p>This vignette implements the Ross-Macdonald malaria transmission model — the foundational two-species host-vector model that underlies most modern malaria modeling. It exercises two camdl language features: <strong>multi-source transitions</strong> for bimolecular vector-host contact and <strong><code>diagnostic_test</code> likelihood sugar</strong> for imperfect surveillance.</p>
+<section id="the-model" class="level2">
+<h2 class="anchored" data-anchor-id="the-model">The model</h2>
+<p>The Ross-Macdonald model (Ross 1911; Macdonald 1957; reviewed in Smith et al.&nbsp;2012) tracks two coupled populations:</p>
+<ul>
+<li><strong>Hosts</strong> (humans): susceptible <span class="math inline">\(S_h\)</span> and infectious <span class="math inline">\(I_h\)</span>, constant total <span class="math inline">\(H = S_h + I_h\)</span>.</li>
+<li><strong>Vectors</strong> (mosquitoes): susceptible <span class="math inline">\(S_v\)</span>, exposed <span class="math inline">\(E_v\)</span> (infected but not yet infectious, undergoing the extrinsic incubation period), and infectious <span class="math inline">\(I_v\)</span>. Mosquito population is maintained at ~<span class="math inline">\(M_0\)</span> by balancing births against mortality.</li>
+</ul>
+<p>Transmission is <strong>bimolecular</strong> — it requires contact between a host and a vector. An infectious mosquito biting a susceptible host infects the host; a susceptible mosquito biting an infectious host becomes exposed. In camdl’s multi-source syntax, these are written as:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>bite     : S_h + I_v <span class="op">--&gt;</span> I_h + I_v  <span class="op">@</span> a * b_h * S_h * I_v / H</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>infect_v : S_v + I_h <span class="op">--&gt;</span> E_v + I_h  <span class="op">@</span> a * b_v * S_v * I_h / H</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The <code>I_v</code> in <code>bite</code> and <code>I_h</code> in <code>infect_v</code> appear on both sides of <code>--&gt;</code> — they are <strong>catalysts</strong> (present but not consumed). The compiler collapses them to net-zero stoichiometry while keeping the rate dependency for simulation.</p>
+<section id="the-full-model-source" class="level3">
+<h3 class="anchored" data-anchor-id="the-full-model-source">The full model source</h3>
+<div id="0a8b2d82" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect ross_macdonald.camdl</span>
+<span style="font-weight:bold"><span style="color:#3366cc">ross_macdonald<span style="font-weight:bold"></span></span></span>
+
+<span style="opacity:0.6">  compartments   </span><span style="font-weight:bold">5</span>
+<span style="opacity:0.6">  transitions     </span><span style="font-weight:bold">8</span> base <span style="opacity:0.6">→ </span><span style="font-weight:bold">8</span> expanded (+ 0 filtered by where)
+<span style="opacity:0.6">  parameters      </span><span style="font-weight:bold">12</span> declared (<span style="color:#2e8b2e">a: rate</span>, <span style="color:#2e8b2e">b_h: probability</span>, <span style="color:#2e8b2e">b_v: probability</span>, <span style="color:#2e8b2e">r: rate</span>, <span style="color:#2e8b2e">sigma_v: rate</span>, <span style="color:#2e8b2e">mu_v: rate</span>, <span style="color:#2e8b2e">rho_sens: probability</span>, <span style="color:#2e8b2e">rho_spec: probability</span>, <span style="color:#2e8b2e">H0: count</span>, <span style="color:#2e8b2e">M0: count</span>, <span style="color:#2e8b2e">I_h0: count</span>, <span style="color:#2e8b2e">N_tested: count</span>)
+<span style="opacity:0.6">  tables          </span><span style="font-weight:bold">0</span>
+<span style="opacity:0.6">  let bindings    </span><span style="font-weight:bold">2</span> (<span style="color:#b8860b">H</span>, <span style="color:#b8860b">M</span>)
+<span style="opacity:0.6">  dimensions      </span><span style="opacity:0.6">none</span>
+<span style="opacity:0.6">  observations    </span><span style="font-weight:bold">1</span> streams
+<span style="opacity:0.6">  interventions   </span><span style="font-weight:bold">0</span> (0 active by default)</code></pre>
+</div>
+</div>
+<div id="8bc1ebba" class="cell" data-execution_count="3">
+<div class="cell-output cell-output-display">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl check ross_macdonald.camdl</span>
+<span style="font-weight:bold"><span style="color:#3366cc">ross_macdonald<span style="font-weight:bold"></span></span></span>
+
+<span style="opacity:0.6">  compartments   </span><span style="font-weight:bold">5</span>
+<span style="opacity:0.6">  transitions     </span><span style="font-weight:bold">8</span> base <span style="opacity:0.6">→ </span><span style="font-weight:bold">8</span> expanded (+ 0 filtered by where)
+<span style="opacity:0.6">  parameters      </span><span style="font-weight:bold">12</span> declared (<span style="color:#2e8b2e">a: rate</span>, <span style="color:#2e8b2e">b_h: probability</span>, <span style="color:#2e8b2e">b_v: probability</span>, <span style="color:#2e8b2e">r: rate</span>, <span style="color:#2e8b2e">sigma_v: rate</span>, <span style="color:#2e8b2e">mu_v: rate</span>, <span style="color:#2e8b2e">rho_sens: probability</span>, <span style="color:#2e8b2e">rho_spec: probability</span>, <span style="color:#2e8b2e">H0: count</span>, <span style="color:#2e8b2e">M0: count</span>, <span style="color:#2e8b2e">I_h0: count</span>, <span style="color:#2e8b2e">N_tested: count</span>)
+<span style="opacity:0.6">  tables          </span><span style="font-weight:bold">0</span>
+<span style="opacity:0.6">  let bindings    </span><span style="font-weight:bold">2</span> (<span style="color:#b8860b">H</span>, <span style="color:#b8860b">M</span>)
+<span style="opacity:0.6">  dimensions      </span><span style="opacity:0.6">none</span>
+<span style="opacity:0.6">  observations    </span><span style="font-weight:bold">1</span> streams
+<span style="opacity:0.6">  interventions   </span><span style="font-weight:bold">0</span> (0 active by default)
+
+  <span style="font-weight:bold">✓</span> no errors, 0 warnings</code></pre>
+</div>
+</div>
 </section>
-<section id="refine-converge-within-the-basin" class="level3">
-<h3 class="anchored" data-anchor-id="refine-converge-within-the-basin">Refine: converge within the basin</h3>
-<pre><code>camdl fit refine fit.toml --starts-from scout/</code></pre>
-<p>IF2 with fewer chains (4), aggressive cooling, starting from scout’s best parameters. Goal: precise MLE within the basin scout found. <span class="math inline">\(\hat{R} &lt; 1.05\)</span> for all parameters indicates convergence.</p>
+<section id="observation-model-imperfect-slide-microscopy" class="level3">
+<h3 class="anchored" data-anchor-id="observation-model-imperfect-slide-microscopy">Observation model: imperfect slide microscopy</h3>
+<p>The weekly surveillance observation uses <code>diagnostic_test</code> sugar to model imperfect detection. A random sample of <span class="math inline">\(N\)</span> hosts is tested by slide microscopy with sensitivity <span class="math inline">\(\rho_{\text{sens}}\)</span> and specificity <span class="math inline">\(\rho_{\text{spec}}\)</span>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>slide_positivity : {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  projected = <span class="bu">prevalence</span>(I_h)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">every</span>     = <span class="dv">1</span> <span class="ss">'weeks</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">likelihood</span> = diagnostic_test(</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    base = <span class="bu">binomial</span>(n = N_tested, p = projected / H),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    sens = rho_sens,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    spec = rho_spec</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The compiler rewrites <code>diagnostic_test(base = binomial(n, p), sens, spec)</code> to <code>binomial(n, sens * p + (1 - spec) * (1 - p))</code> — the standard sens/spec-corrected apparent prevalence. The DSL reads like the biology; the algebra is the compiler’s job.</p>
 </section>
-<section id="validate-verify-and-characterize-the-mle" class="level3">
-<h3 class="anchored" data-anchor-id="validate-verify-and-characterize-the-mle">Validate: verify and characterize the MLE</h3>
-<pre><code>camdl fit validate fit.toml --starts-from refine/</code></pre>
-<p>Three things happen:</p>
-<ol type="1">
-<li><strong>True log-likelihood</strong> at the MLE via clean particle filter (no IF2 perturbations).</li>
-<li><strong>Profile likelihoods</strong> for each estimated parameter — 1D slices through the likelihood surface. Profiles that don’t curve indicate unidentifiable parameters.</li>
-<li><strong>ESS diagnostic</strong> — if ESS at the MLE is low, the observation model may be misspecified.</li>
-</ol>
 </section>
-<section id="pgas-bayesian-posterior" class="level3">
-<h3 class="anchored" data-anchor-id="pgas-bayesian-posterior">PGAS: Bayesian posterior</h3>
-<pre><code>camdl fit pgas fit.toml --starts-from validate/</code></pre>
-<p>PGAS starting from the MLE. Produces posterior samples of parameters and (optionally) trajectories. The MLE from validate provides a good initial trajectory and mass matrix starting point.</p>
+<section id="forward-simulation" class="level2">
+<h2 class="anchored" data-anchor-id="forward-simulation">Forward simulation</h2>
+<div id="cell-fig-forward-sim" class="cell" data-execution_count="4">
+<div class="cell-output cell-output-display">
+<div id="fig-forward-sim" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-forward-sim-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ross-macdonald_files/figure-html/fig-forward-sim-output-1.png" width="1480" height="728" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-forward-sim-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.1: Ross-Macdonald forward simulation at baseline parameters. <strong>Top</strong>: host dynamics — I_h rises from 50 initial infections to endemic equilibrium (~860 of 1000 hosts). <strong>Bottom</strong>: vector dynamics — S_v depletes as E_v and I_v build up, with M maintained near M₀ = 10,000 by constant recruitment.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The host prevalence reaches ~86% at equilibrium — high, but consistent with holoendemic settings where the mosquito-to-human ratio <span class="math inline">\(m = M/H\)</span> is large (here <span class="math inline">\(m = 10\)</span>). The vectorial capacity <span class="math inline">\(C = m a^2 b_h b_v
+e^{-\mu_v / \sigma_v} / \mu_v\)</span> drives the equilibrium; at these parameters <span class="math inline">\(R_0 \gg 1\)</span>.</p>
 </section>
-<section id="status" class="level3">
-<h3 class="anchored" data-anchor-id="status">Status</h3>
-<pre><code>camdl fit status fit.toml</code></pre>
-<p>Colored summary of all stages: completion, convergence, staleness.</p>
+<section id="synthetic-observations" class="level2">
+<h2 class="anchored" data-anchor-id="synthetic-observations">Synthetic observations</h2>
+<p>To test the full inference pipeline, we generate synthetic weekly slide-positivity data at the baseline parameters. This is the “ground truth” dataset — parameters are known, so posterior recovery is checkable.</p>
+<div id="cell-fig-synthetic-obs" class="cell" data-execution_count="5">
+<div class="cell-output cell-output-display">
+<div id="fig-synthetic-obs" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-synthetic-obs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ross-macdonald_files/figure-html/fig-synthetic-obs-output-1.png" width="1479" height="504" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-synthetic-obs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.2: Synthetic slide-positivity observations (red dots) overlaid on the true host prevalence trajectory (grey). Each observation is a draw from Binomial(200, p_apparent) where p_apparent = sens × (I_h/H) + (1−spec) × (1−I_h/H). Early observations are low (few infections); equilibrium observations fluctuate around ~148/200.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The observations track the true prevalence with binomial noise — low during the initial transient, stabilizing around 140–155 per week at equilibrium. The sens/spec correction means the apparent positive rate (~74%) is lower than the true prevalence (~86%): sensitivity (0.85) misses some true positives, while specificity (0.95) adds a small false-positive floor.</p>
+</section>
+<section id="prior-predictive-check" class="level2">
+<h2 class="anchored" data-anchor-id="prior-predictive-check">Prior predictive check</h2>
+<p>Before fitting, we verify the model produces a range of plausible dynamics under parameter variation:</p>
+<div id="cell-fig-prior-predictive" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div id="fig-prior-predictive" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-prior-predictive-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ross-macdonald_files/figure-html/fig-prior-predictive-output-1.png" width="1480" height="504" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-prior-predictive-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.3: Prior predictive: host prevalence (I_h / H) under 15 parameter draws. Biting rate a, infection probabilities b_h/b_v, and mosquito ratio M0/H0 are varied. Most draws produce endemic equilibria; a few with low transmission fade out.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="fitting-posterior-recovery-via-pmmh" class="level2">
+<h2 class="anchored" data-anchor-id="fitting-posterior-recovery-via-pmmh">Fitting: posterior recovery via PMMH</h2>
+<p>We fit the model to the synthetic observations using a two-stage pipeline: IF2 scout (24 chains) to find the MLE basin, then PMMH (4 chains × 2000 iterations) for posterior sampling. Six parameters are estimated; the remaining six (population sizes, observation parameters) are fixed at their true values.</p>
+<div id="86889ac4" class="cell" data-execution_count="7">
+<div class="cell-output cell-output-display">
+<details class="cli-run"><summary><code>$ cat fit.toml</code></summary><pre class="ansi-output"><code>[model]
+camdl = "ross_macdonald.camdl"
+output_dir = "results"
+scenario = "baseline"
+
+[data.observations]
+slide_positivity = "ross_macdonald_obs.tsv"
+
+[config]
+backend = "chain_binomial"
+dt = 1.0
+
+# Estimate the 6 transmission/recovery parameters.
+# Priors are weakly informative log-normals centered near truth.
+[estimate.a]
+bounds = [0.1, 1.0]
+start  = 0.4
+prior  = { dist = "log_normal", mu = -0.7, sigma = 0.5 }
+
+[estimate.b_h]
+bounds = [0.05, 0.8]
+start  = 0.25
+prior  = { dist = "uniform" }
+
+[estimate.b_v]
+bounds = [0.05, 0.5]
+start  = 0.15
+prior  = { dist = "uniform" }
+
+[estimate.r]
+bounds = [0.005, 0.5]
+start  = 0.04
+prior  = { dist = "log_normal", mu = -3.0, sigma = 0.5 }
+
+[estimate.sigma_v]
+bounds = [0.05, 0.5]
+start  = 0.08
+prior  = { dist = "log_normal", mu = -2.3, sigma = 0.5 }
+
+[estimate.mu_v]
+bounds = [0.01, 0.3]
+start  = 0.08
+prior  = { dist = "log_normal", mu = -2.3, sigma = 0.5 }
+
+# Fix observation and population parameters at truth.
+[fixed]
+rho_sens = 0.85
+rho_spec = 0.95
+H0       = 1000
+M0       = 10000
+I_h0     = 50
+N_tested = 200
+
+# Scout: IF2 to find the MLE basin.
+[stages.scout]
+method     = "if2"
+chains     = 24
+particles  = 1000
+iterations = 200
+cooling    = 0.9
+
+# PMMH: posterior sampling from the scout MLE.
+[stages.pmmh]
+method     = "pmmh"
+chains     = 4
+particles  = 1000
+iterations = 2000
+burn_in    = 500
+thin       = 2
+starts_from = "scout"</code></pre></details>
+</div>
+</div>
+<p>The scout converges in ~2 minutes (all Rhat &lt; 1.02). PMMH runs for ~3.5 minutes with acceptance rates of 20–21% — in the target range.</p>
+<section id="posterior-recovery" class="level3">
+<h3 class="anchored" data-anchor-id="posterior-recovery">Posterior recovery</h3>
+<p>The key question: do the posteriors cover the true parameters?</p>
+<div id="cell-fig-posteriors" class="cell" data-fig-height="6" data-execution_count="8">
+<div class="cell-output cell-output-display">
+<div id="fig-posteriors" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-posteriors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ross-macdonald_files/figure-html/fig-posteriors-output-1.png" width="1490" height="729" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-posteriors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.4: Posterior marginals from PMMH (4 chains, 750 post-burn-in draws per chain, thinned by 2). Dashed vertical lines are the true parameter values used to generate the synthetic data. All six 90% credible intervals cover the truth.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="9">
+<div id="tbl-recovery" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="9">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-recovery-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;12.1: Posterior summary: all six true parameter values fall within the 90% credible interval.
+</figcaption>
+<div aria-describedby="tbl-recovery-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display cell-output-markdown">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Truth</th>
+<th>Median</th>
+<th>90% CI</th>
+<th>Covers?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>a</td>
+<td>0.500</td>
+<td>0.499</td>
+<td>[0.279, 0.825]</td>
+<td><strong>YES</strong></td>
+</tr>
+<tr class="even">
+<td>b_h</td>
+<td>0.300</td>
+<td>0.378</td>
+<td>[0.161, 0.714]</td>
+<td><strong>YES</strong></td>
+</tr>
+<tr class="odd">
+<td>b_v</td>
+<td>0.200</td>
+<td>0.199</td>
+<td>[0.068, 0.431]</td>
+<td><strong>YES</strong></td>
+</tr>
+<tr class="even">
+<td>r</td>
+<td>0.050</td>
+<td>0.060</td>
+<td>[0.036, 0.103]</td>
+<td><strong>YES</strong></td>
+</tr>
+<tr class="odd">
+<td>sigma_v</td>
+<td>0.100</td>
+<td>0.095</td>
+<td>[0.050, 0.200]</td>
+<td><strong>YES</strong></td>
+</tr>
+<tr class="even">
+<td>mu_v</td>
+<td>0.100</td>
+<td>0.087</td>
+<td>[0.048, 0.161]</td>
+<td><strong>YES</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>All six parameters are recovered — the 90% credible intervals cover every true value. The widest posterior is <code>b_h</code> (host infection probability), which is partially confounded with <code>a</code> (biting rate): the data informs the product <span class="math inline">\(a \cdot b_h\)</span> more sharply than either factor alone. This is a known identifiability feature of Ross-Macdonald — the entomological inoculation rate (EIR) is the estimable composite, not its components.</p>
+</section>
+<section id="trace-diagnostics" class="level3">
+<h3 class="anchored" data-anchor-id="trace-diagnostics">Trace diagnostics</h3>
+<p>The trace plots show how the chains explored the parameter space. Good mixing looks like a “hairy caterpillar” — chains should overlap and traverse the full posterior quickly.</p>
+<div id="cell-fig-traces" class="cell" data-fig-height="8" data-execution_count="10">
+<div class="cell-output cell-output-display">
+<div id="fig-traces" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-traces-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ross-macdonald_files/figure-html/fig-traces-output-1.png" width="1483" height="1328" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-traces-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.5: PMMH trace plots for all six estimated parameters (4 chains, post-burn-in). Log-likelihood trace at top left. Dashed lines mark true parameter values.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The log-likelihood traces converge to ~-176 within the first 100 steps (burn-in = 500 was conservative). The <code>a</code> and <code>b_h</code> traces show the partial confounding — when one chain drifts to higher <code>a</code>, it compensates with lower <code>b_h</code>, keeping their product roughly constant.</p>
+</section>
+<section id="pair-plot" class="level3">
+<h3 class="anchored" data-anchor-id="pair-plot">Pair plot</h3>
+<p>The pair plot reveals correlations between parameters. The <code>a</code>–<code>b_h</code> ridge is the dominant feature — a nearly linear negative correlation reflecting the identifiability structure of the transmission rate.</p>
+<div id="cell-fig-pairs" class="cell" data-fig-height="8" data-execution_count="11">
+<div class="cell-output cell-output-display">
+<div id="fig-pairs" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-pairs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ross-macdonald_files/figure-html/fig-pairs-output-1.png" width="1470" height="1327" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-pairs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.6: Posterior pair plot (lower triangle) for the six estimated parameters. Red star marks the true parameter values. The a–b_h anti-correlation reflects the Ross-Macdonald identifiability ridge: the data constrains a × b_h but not the individual factors.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="posterior-predictive-check" class="level3">
+<h3 class="anchored" data-anchor-id="posterior-predictive-check">Posterior predictive check</h3>
+<p>The ultimate test: simulate from posterior parameter draws and compare to the observed data. If the model is well-calibrated, the observed data should fall within the predictive envelope.</p>
+<div id="cell-fig-ppc" class="cell" data-fig-height="4" data-execution_count="12">
+<div class="cell-output cell-output-display">
+<div id="fig-ppc" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ppc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ross-macdonald_files/figure-html/fig-ppc-output-1.png" width="1479" height="504" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ppc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.7: Posterior predictive check: 50 trajectories simulated at posterior parameter draws (red ribbons) compared to synthetic observations (black dots). The model captures both the transient rise and the endemic equilibrium level.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Convergence note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The PMMH Rhat for <code>b_h</code> was 1.77 (not converged) and <code>r</code> was 1.12 (marginal). Despite this, the credible intervals cover truth because each chain individually explores a reasonable region — the chains just haven’t mixed fully. Longer runs or PGAS (which mixes faster on these models) would tighten convergence. For a production fit, we would not accept Rhat &gt; 1.1; for a demonstration of pipeline correctness, the posterior recovery is the primary success criterion.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="features-exercised" class="level2">
+<h2 class="anchored" data-anchor-id="features-exercised">Features exercised</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 56%">
+<col style="width: 43%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Multi-source transitions</td>
+<td><code>S_h + I_v --&gt; I_h + I_v</code> (catalyst collapse)</td>
+</tr>
+<tr class="even">
+<td><code>diagnostic_test</code> sugar</td>
+<td><code>diagnostic_test(base = binomial(...), sens, spec)</code></td>
+</tr>
+<tr class="odd">
+<td><code>prevalence()</code> projection</td>
+<td>Observation model on instantaneous compartment count</td>
+</tr>
+<tr class="even">
+<td><code>let</code> bindings</td>
+<td><code>H = S_h + I_h</code>, <code>M = S_v + E_v + I_v</code></td>
+</tr>
+<tr class="odd">
+<td>Inflow transition</td>
+<td><code>birth_v : --&gt; S_v @ mu_v * M0</code> (constant recruitment)</td>
+</tr>
+<tr class="even">
+<td>Outflow transitions</td>
+<td><code>death_Sv : S_v --&gt; @ mu_v * S_v</code></td>
+</tr>
+</tbody>
+</table>
 
 
 </section>
@@ -959,13 +1336,13 @@ window.Quarto = {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../inference/algorithms.html" class="pagination-link" aria-label="Algorithms: IF2, PGAS, and PMMH">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Algorithms: IF2, PGAS, and PMMH</span></span>
+      <a href="../vignettes/malaria.html" class="pagination-link" aria-label="Malaria: Sub-National Tailoring Model">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Malaria: Sub-National Tailoring Model</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../inference/diagnostics.html" class="pagination-link" aria-label="Diagnostics Reference">
-        <span class="nav-page-text"><span class="chapter-title">Diagnostics Reference</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../vignettes/garki.html" class="pagination-link" aria-label="The Garki Model: Immunity and Superinfection">
+        <span class="nav-page-text"><span class="chapter-title">The Garki Model: Immunity and Superinfection</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -977,7 +1354,7 @@ window.Quarto = {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/inference/pipeline.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/vignettes/ross-macdonald.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>License: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p>
 </div>
