@@ -1,17 +1,16 @@
 ---
 title: "Scenarios, Interventions, and Sweeps"
-freeze: true
 ---
 
 ```{python}
 #| echo: false
 #| output: false
-import subprocess, io, os, tempfile, re, json, shutil
+import sys, os, json, shutil, tempfile
+from pathlib import Path
 import polars as pl
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-from IPython.display import Markdown, HTML
 
 GREY = "#888888"
 mpl.rcParams.update({
@@ -28,77 +27,19 @@ mpl.rcParams.update({
     "legend.edgecolor": GREY,
 })
 
+# Import shared book-level helpers from <book root>/_lib/
+sys.path.insert(0, str(Path("/Users/vsb/projects/work/camdl-book")))
+from _lib.cli import run_cli
+from _lib.sim import run_simulate
+
 EXAMPLE_DIR = "boarding-school"
-MODEL = f"{EXAMPLE_DIR}/sirv.camdl"
-PARAMS = f"{EXAMPLE_DIR}/params.toml"
-BS_MODEL = f"{EXAMPLE_DIR}/boarding_school.camdl"
-BS_PARAMS = f"{EXAMPLE_DIR}/boarding_school_params.toml"
+MODEL = "sirv.camdl"
+PARAMS = "params.toml"
+BS_MODEL = "boarding_school.camdl"
+BS_PARAMS = "boarding_school_params.toml"
 
 # Load boarding school data for overlay plots
 flu_data = pl.read_csv(f"{EXAMPLE_DIR}/data/boarding_school_flu.tsv", separator="\t")
-
-def run_sim(model=MODEL, params=PARAMS, seed=42, extra_args=None, obs=False, scenario=None, show=False):
-    """Run camdl simulate, return polars DataFrame (and obs DataFrame if obs=True)."""
-    cmd = ["camdl", "simulate", model, "--params", params, "--seed", str(seed)]
-    if scenario:
-        cmd.extend(["--scenario", scenario])
-    if extra_args:
-        cmd.extend(extra_args)
-    obs_path = None
-    if obs:
-        obs_path = os.path.join(tempfile.mkdtemp(), "obs.tsv")
-        cmd.extend(["--obs", obs_path])
-    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-    lines = result.stdout.split("\n")
-    tsv = "\n".join(l for l in lines if not l.startswith("#"))
-    traj = pl.read_csv(io.StringIO(tsv), separator="\t")
-    if show:
-        display_cmd = " ".join(cmd).replace(EXAMPLE_DIR + "/", "").replace("getting-started/", "")
-        preview_lines = [l for l in lines if l.strip()][:6]
-        preview = "\n".join(preview_lines)
-        stderr_info = result.stderr.strip()
-        if stderr_info:
-            preview = stderr_info + "\n" + preview
-        display(HTML(
-            f'<details class="cli-run">'
-            f'<summary><code>$ {display_cmd}</code></summary>'
-            f'<pre><code>{preview}\n...</code></pre>'
-            f'</details>'
-        ))
-    if obs:
-        return traj, pl.read_csv(obs_path, separator="\t")
-    return traj
-
-def _ansi_to_html(raw, max_lines=40, tail=6):
-    """Convert raw ANSI text to HTML, truncating long output."""
-    lines = raw.split("\n")
-    if len(lines) > max_lines:
-        head = lines[:max_lines - tail]
-        foot = lines[-tail:]
-        omitted = len(lines) - (max_lines - tail) - tail
-        raw = "\n".join(head + [f"  [...{omitted} lines omitted...]"] + foot)
-    _sgr = {"1": "font-weight:bold", "2": "opacity:0.6", "0": None,
-            "33": "color:#b8860b", "31": "color:#cc3333"}
-    def _repl(m):
-        s = _sgr.get(m.group(1))
-        return f'<span style="{s}">' if s else "</span>"
-    escaped = raw.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-    return re.sub(r'\033\[(\d+)m', _repl, escaped)
-
-def run_cli(cmd, echo=None, collapse=True, cwd=None, max_lines=40, tail=6):
-    """Run a shell command, return ANSI-styled HTML for display."""
-    result = subprocess.run(cmd, capture_output=True, text=True, shell=True, cwd=cwd)
-    raw = (result.stdout + result.stderr).rstrip()
-    html = _ansi_to_html(raw, max_lines=max_lines, tail=tail)
-    if collapse and echo:
-        return HTML(
-            f'<details class="cli-run">'
-            f'<summary><code>$ {echo}</code></summary>'
-            f'<pre class="ansi-output"><code>{html}</code></pre>'
-            f'</details>'
-        )
-    prompt = f'<span style="opacity:0.6">$ {echo}</span>\n' if echo else ""
-    return HTML(f'<pre class="ansi-output"><code>{prompt}{html}</code></pre>')
 
 def ribbon(ax, multi_df, col, color, label):
     """Plot median + 50%/95% intervals for a column across replicates."""
@@ -161,10 +102,11 @@ pass `--enable`:
 
 ```{python}
 #| echo: false
-display(run_cli(
-    f"cd {EXAMPLE_DIR} && camdl simulate sirv.camdl --params params.toml --enable vaccination --seed 42 2>&1 | head -8",
-    echo="camdl simulate sirv.camdl --params params.toml --enable vaccination --seed 42"
-))
+run_cli(
+    "camdl simulate sirv.camdl --params params.toml --enable vaccination --seed 42 | head -8",
+    echo="camdl simulate sirv.camdl --params params.toml --enable vaccination --seed 42",
+    cwd=EXAMPLE_DIR,
+)
 ```
 
 ```{python}
@@ -172,9 +114,9 @@ display(run_cli(
 #| code-summary: "Plotting code"
 #| label: fig-enable-vaccination
 #| fig-cap: "Effect of `--enable vaccination`. **Left:** baseline run with the intervention declared but inactive — the epidemic runs unchecked. **Right:** enabling the vaccination intervention moves 80% of susceptibles to V on day 15, sharply reducing transmission."
-no_vacc = run_sim(params=PARAMS, seed=42)
-with_vacc = run_sim(params=PARAMS, seed=42,
-                    extra_args=["--enable", "vaccination"])
+no_vacc    = run_simulate(MODEL, PARAMS, seed=42, cwd=EXAMPLE_DIR)
+with_vacc  = run_simulate(MODEL, PARAMS, seed=42, cwd=EXAMPLE_DIR,
+                          extra_args=["--enable", "vaccination"])
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3.5), sharey=True)
 for ax, df, title in [(ax1, no_vacc, "Intervention off (default)"),
@@ -321,10 +263,12 @@ Run all three with:
 
 ```{python}
 #| echo: false
+from IPython.display import display
 for sc in ["baseline", "with_vaccination", "with_leaky_vaccination"]:
     display(run_cli(
-        f"cd {EXAMPLE_DIR} && camdl simulate sirv.camdl --scenario {sc} --seed 42 2>&1 | head -8",
-        echo=f"camdl simulate sirv.camdl --scenario {sc} --seed 42"
+        f"camdl simulate sirv.camdl --scenario {sc} --seed 42 | head -8",
+        echo=f"camdl simulate sirv.camdl --scenario {sc} --seed 42",
+        cwd=EXAMPLE_DIR,
     ))
 ```
 
@@ -354,9 +298,12 @@ values take precedence — the scenario is the final word.
 
 ```{python}
 #| echo: false
-baseline = run_sim(scenario="baseline", seed=42, show=True)
-vaccinated = run_sim(scenario="with_vaccination", seed=42, show=True)
-leaky = run_sim(scenario="with_leaky_vaccination", seed=42, show=True)
+baseline   = run_simulate(MODEL, PARAMS, seed=42, scenario="baseline",
+                          cwd=EXAMPLE_DIR, show=True)
+vaccinated = run_simulate(MODEL, PARAMS, seed=42, scenario="with_vaccination",
+                          cwd=EXAMPLE_DIR, show=True)
+leaky      = run_simulate(MODEL, PARAMS, seed=42, scenario="with_leaky_vaccination",
+                          cwd=EXAMPLE_DIR, show=True)
 ```
 
 ```{python}
@@ -392,15 +339,12 @@ outcomes under each:
 ```{python}
 #| echo: false
 n_reps = 200
-baseline_multi = run_sim(scenario="baseline", seed=42,
-                         extra_args=["--replicates", str(n_reps)],
-                         show=True)
-vacc_multi = run_sim(scenario="with_vaccination", seed=42,
-                     extra_args=["--replicates", str(n_reps)],
-                     show=True)
-leaky_multi = run_sim(scenario="with_leaky_vaccination", seed=42,
-                      extra_args=["--replicates", str(n_reps)],
-                      show=True)
+baseline_multi = run_simulate(MODEL, PARAMS, seed=42, scenario="baseline",
+                              replicates=n_reps, cwd=EXAMPLE_DIR, show=True)
+vacc_multi     = run_simulate(MODEL, PARAMS, seed=42, scenario="with_vaccination",
+                              replicates=n_reps, cwd=EXAMPLE_DIR, show=True)
+leaky_multi    = run_simulate(MODEL, PARAMS, seed=42, scenario="with_leaky_vaccination",
+                              replicates=n_reps, cwd=EXAMPLE_DIR, show=True)
 ```
 
 ```{python}
@@ -511,11 +455,11 @@ beta = { linspace = { min = 0.2, max = 0.6, n = 5 } }
 ```{python}
 #| echo: false
 # Write the sweep manifest and dry-run it to verify
-sweep_toml = f"""\
+sweep_toml = """\
 [config]
 model = "sirv.camdl"
 params = "params.toml"
-seeds = {{ n = 50 }}
+seeds = { n = 50 }
 
 [[scenario]]
 name = "baseline"
@@ -525,15 +469,14 @@ name = "with_vaccination"
 enable = ["vaccination"]
 
 [sweep]
-beta = {{ linspace = {{ min = 0.2, max = 0.6, n = 5 }} }}
+beta = { linspace = { min = 0.2, max = 0.6, n = 5 } }
 """
-sweep_path = os.path.join(EXAMPLE_DIR, "sweep.toml")
-with open(sweep_path, "w") as f:
-    f.write(sweep_toml)
-display(run_cli(
-    f"cd {EXAMPLE_DIR} && camdl batch run sweep.toml --dry-run",
-    echo="camdl batch run sweep.toml --dry-run"
-))
+Path(EXAMPLE_DIR, "sweep.toml").write_text(sweep_toml)
+run_cli(
+    "camdl batch run sweep.toml --dry-run",
+    echo="camdl batch run sweep.toml --dry-run",
+    cwd=EXAMPLE_DIR,
+)
 ```
 
 The batch system manages the Cartesian product: 5 sweep points × 2
@@ -551,25 +494,19 @@ batch_dir = tempfile.mkdtemp()
 for f in ["sirv.camdl", "params.toml", "sweep.toml"]:
     shutil.copy(os.path.join(EXAMPLE_DIR, f), batch_dir)
 
-batch_result = subprocess.run(
-    ["camdl", "batch", "run", "sweep.toml"],
-    cwd=batch_dir, capture_output=True, text=True, check=True
-)
-_batch_html = _ansi_to_html(batch_result.stderr.rstrip())
-display(HTML(
-    f'<details class="cli-run">'
-    f'<summary><code>$ camdl batch run sweep.toml</code></summary>'
-    f'<pre class="ansi-output"><code>{_batch_html}</code></pre>'
-    f'</details>'
+display(run_cli(
+    "camdl batch run sweep.toml",
+    echo="camdl batch run sweep.toml",
+    cwd=batch_dir, check=True,
 ))
 
 # Read manifest and all trajectories
-with open(os.path.join(batch_dir, "output", "sims", "manifest.json")) as f:
+with open(os.path.join(batch_dir, "results", "sims", "manifest.json")) as f:
     manifest = json.load(f)
 
 sweep_results = []
 for run in manifest["runs"]:
-    traj_path = os.path.join(batch_dir, "output", "sims", run["run_path"], "traj.tsv")
+    traj_path = os.path.join(batch_dir, "results", "sims", run["run_path"], "traj.tsv")
     traj = pl.read_csv(traj_path, separator="\t")
     peak = traj["I"].max()
     sweep_results.append({
@@ -612,10 +549,11 @@ shows what's done:
 
 ```{python}
 #| echo: false
-display(run_cli(
-    f"cd {batch_dir} && camdl batch status sweep.toml",
-    echo="camdl batch status sweep.toml"
-))
+run_cli(
+    "camdl batch status sweep.toml",
+    echo="camdl batch status sweep.toml",
+    cwd=batch_dir,
+)
 ```
 
 The sweep reveals that vaccination consistently reduces the peak across
@@ -635,11 +573,11 @@ The batch run above generated 500 simulations. Where did they go?
 
 ```{python}
 #| echo: false
-display(run_cli(
-    f"camdl list output --scenario baseline 2>&1 | head -12",
+run_cli(
+    "camdl list --scenario baseline | head -12",
     echo="camdl list --scenario baseline | head -12",
-    cwd=batch_dir
-))
+    cwd=batch_dir,
+)
 ```
 
 Each row is one run. The PARAMS column shows the sweep point
@@ -653,14 +591,13 @@ store and Nix's `/nix/store`. The hash *is* the identity.
 
 ```{python}
 #| echo: false
-# Find a short path prefix for a specific run
 first_run = manifest["runs"][0]
-run_path = first_run["run_path"]
-display(run_cli(
-    f"camdl show output/sims/{run_path}",
-    echo=f"camdl show {run_path.split('/')[0][:8]}…",
-    cwd=batch_dir
-))
+target = f"results/sims/{first_run['run_path']}"
+run_cli(
+    f"camdl show {target}",
+    echo=f"camdl show {target}",
+    cwd=batch_dir,
+)
 ```
 
 And `camdl cat` emits the cached trajectory — useful for piping
@@ -668,11 +605,11 @@ into analysis tools without hunting for file paths:
 
 ```{python}
 #| echo: false
-display(run_cli(
-    f"camdl cat output/sims/{run_path} 2>&1 | head -6",
-    echo=f"camdl cat {run_path.split('/')[0][:8]}… | head -6",
-    cwd=batch_dir
-))
+run_cli(
+    f"camdl cat {target} | head -6",
+    echo=f"camdl cat {target} | head -6",
+    cwd=batch_dir,
+)
 ```
 
 The hash-based layout has three important properties:
@@ -744,14 +681,14 @@ recover at rate $\gamma$, but they can't infect anyone.
 
 ```{python}
 #| echo: false
-BS_INTV_MODEL = f"{EXAMPLE_DIR}/boarding_school_intv.camdl"
+BS_INTV_MODEL = "boarding_school_intv.camdl"
 n_reps_intv = 200
 intv_scenarios = {}
 for i, sc in enumerate(["baseline", "isolation_only", "vaccination_low", "vaccination_high", "combined"]):
-    intv_scenarios[sc] = run_sim(model=BS_INTV_MODEL, params=BS_PARAMS, seed=7,
-                                 scenario=sc,
-                                 extra_args=["--replicates", str(n_reps_intv)],
-                                 show=(i == 0))  # show CLI for first scenario
+    intv_scenarios[sc] = run_simulate(BS_INTV_MODEL, BS_PARAMS, seed=7,
+                                      scenario=sc, replicates=n_reps_intv,
+                                      cwd=EXAMPLE_DIR,
+                                      show=(i == 0))  # show CLI for first scenario
 ```
 
 ```{python}

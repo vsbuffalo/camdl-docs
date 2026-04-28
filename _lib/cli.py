@@ -148,6 +148,34 @@ def truncate(
 Stream = Literal["stdout", "stderr", "both"]
 
 
+def _run_capture(
+    cmd: str | list[str],
+    *,
+    cwd: str | None = None,
+    env: dict[str, str] | None = None,
+    check: bool = False,
+) -> subprocess.CompletedProcess:
+    """Thin wrapper over ``subprocess.run`` that captures both streams as text.
+
+    Used by both ``run_cli`` (which renders the result as HTML) and
+    ``run_simulate`` (which parses stdout as TSV). Centralizes the
+    shell vs. arglist + env-merge logic.
+    """
+    import os as _os
+    shell = isinstance(cmd, str)
+    run_env = None
+    if env:
+        run_env = {**_os.environ, **env}
+    result = subprocess.run(
+        cmd, capture_output=True, text=True, shell=shell, cwd=cwd, env=run_env,
+    )
+    if check and result.returncode != 0:
+        raise subprocess.CalledProcessError(
+            result.returncode, cmd, result.stdout, result.stderr,
+        )
+    return result
+
+
 def run_cli(
     cmd: str | list[str],
     *,
@@ -200,20 +228,7 @@ def run_cli(
     IPython.display.HTML
         Ready to ``display()`` in a Quarto/Jupyter cell.
     """
-    import os as _os
-
-    shell = isinstance(cmd, str)
-    run_env = None
-    if env:
-        run_env = {**_os.environ, **env}
-
-    result = subprocess.run(
-        cmd, capture_output=True, text=True, shell=shell, cwd=cwd, env=run_env,
-    )
-    if check and result.returncode != 0:
-        raise subprocess.CalledProcessError(
-            result.returncode, cmd, result.stdout, result.stderr,
-        )
+    result = _run_capture(cmd, cwd=cwd, env=env, check=check)
 
     # Assemble the raw text according to `show`
     if show == "stdout":

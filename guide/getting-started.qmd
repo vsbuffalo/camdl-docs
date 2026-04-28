@@ -5,7 +5,8 @@ title: "Building an SIR Model"
 ```{python}
 #| echo: false
 #| output: false
-import subprocess, io, os, sys, tempfile
+import sys
+from pathlib import Path
 import polars as pl
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -24,44 +25,26 @@ mpl.rcParams.update({
     "axes.edgecolor": GREY,
     "legend.edgecolor": GREY,
 })
-from IPython.display import Markdown, HTML
-import re
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname("__file__"), "..")))
+# Import shared book-level helpers from <book root>/_lib/
+sys.path.insert(0, str(Path("/Users/vsb/projects/work/camdl-book")))
 from _lib.cli import run_cli
+from _lib.sim import run_simulate
 
 EXAMPLE_DIR = "getting-started"
-MODEL = f"{EXAMPLE_DIR}/sir.camdl"
+MODEL  = f"{EXAMPLE_DIR}/sir.camdl"
 PARAMS = f"{EXAMPLE_DIR}/params.toml"
-
-def run_sim(seed=42, extra_args=None, obs=False):
-    """Run camdl simulate, return polars DataFrame (and obs DataFrame if obs=True)."""
-    cmd = ["camdl", "simulate", MODEL, "--params", PARAMS, "--seed", str(seed)]
-    if extra_args:
-        cmd.extend(extra_args)
-    obs_path = None
-    if obs:
-        obs_path = os.path.join(tempfile.mkdtemp(), "obs.tsv")
-        cmd.extend(["--obs", obs_path])
-    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-    # skip the comment header line
-    lines = result.stdout.split("\n")
-    tsv = "\n".join(l for l in lines if not l.startswith("#"))
-    traj = pl.read_csv(io.StringIO(tsv), separator="\t")
-    if obs:
-        return traj, pl.read_csv(obs_path, separator="\t")
-    return traj
 ```
 
 camdl (the **C**ompartmental **M**odel **D**escription **L**anguage, pronounced
-"cam-dee-ell", or just rhymes with "candle" is a domain-specific language for
+"cam-dee-ell", or rhymes with "candle") is a domain-specific language for
 stochastic epidemiological compartmental models. Like
 [SQL](https://en.wikipedia.org/wiki/Domain-specific_language) for databases,
 camdl separates the *scientific declaration* of a model from the code that
 implements it. The math *is* the model — what you write in a `.camdl` file is
 designed to read like the model specification and equations you'd put on a
 whiteboard. Other modeling frameworks often force you to write code that blends
-the declaration of the scientific model with implementation code; camdl keeps
+the declaration of the scientific model with implementation code; camdl
 intentionally keeps them apart. Moreover, camdl has a *compiler* that actually
 checks the semantics and validity of your scientific model before simulating
 from it, which eliminates whole classes of bugs that come from writing code
@@ -164,22 +147,8 @@ reference for what's available:
 
 ```{python}
 #| echo: false
-# Show help, truncated after --scenario to keep concise
-_r = subprocess.run("camdl simulate", shell=True, capture_output=True, text=True)
-_raw = (_r.stdout + _r.stderr).rstrip()
-_lines = _raw.split("\n")
-_cut = next((i for i, l in enumerate(_lines) if "--scenario" in l), len(_lines))
-_truncated = "\n".join(_lines[:_cut + 1]) + "\n  ..."
-
-# Convert ANSI to HTML inline
-_sgr = {"1": "font-weight:bold", "2": "opacity:0.6", "0": None}
-def _repl(m):
-    s = _sgr.get(m.group(1))
-    return f'<span style="{s}">' if s else "</span>"
-_escaped = _truncated.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-_html = re.sub(r'\033\[(\d+)m', _repl, _escaped)
-_prompt = '<span style="opacity:0.6">$ camdl simulate</span>\n'
-display(HTML(f'<pre class="ansi-output"><code>{_prompt}{_html}</code></pre>'))
+# Show help, truncated to the first ~25 lines so this stays concise.
+run_cli("camdl simulate", echo="camdl simulate", head=25, collapse=False)
 ```
 
 Don't worry about the advanced flags yet — we'll use most of them through
@@ -195,15 +164,12 @@ camdl simulate sir.camdl \
 ```{python}
 #| echo: false
 #| output: asis
-df = run_sim(seed=42)
+df = run_simulate(MODEL, PARAMS, seed=42)
 sub = df.head(10)
-header = "| " + " | ".join(sub.columns) + " |"
-sep = "| " + " | ".join(["---:"] * len(sub.columns)) + " |"
-rows = "\n".join(
-    "| " + " | ".join(str(v) for v in row) + " |"
-    for row in sub.iter_rows()
-)
-print(f"{header}\n{sep}\n{rows}")
+print("| " + " | ".join(sub.columns) + " |")
+print("|" + "|".join("---:" for _ in sub.columns) + "|")
+for row in sub.iter_rows():
+    print("| " + " | ".join(str(v) for v in row) + " |")
 ```
 
 ```{python}
@@ -227,8 +193,8 @@ plt.tight_layout()
 plt.show()
 ```
 
-In 16 lines of camdl, we defined stochastic SIR epidemic. The rest of this
-chapter explains what those 16 lines mean, why camdl is syntax is designed this
+In 16 lines of camdl, we defined a stochastic SIR epidemic. The rest of this
+chapter explains what those 16 lines mean, why camdl's syntax is designed this
 way, and additional model language features that lead to better readability,
 correctness, and easier downstream inference when we don't know the parameters
 and want to fit the model to data.
@@ -402,8 +368,41 @@ observations {
 the compiler handles the conversion, and the unit annotation documents
 where the number came from. The parentheses matter: a unit literal binds
 to the number immediately before it, so `20 / 100_000 'per_year` would
-apply `'per_year` only to `100_000`, not to the whole expression. The
-compiler catches this and tells you to add parentheses.
+apply `'per_year` only to `100_000`, not to the whole expression. Rather
+than silently picking the wrong interpretation, the compiler refuses with
+a hard error that points at the exact span and tells you the fix:
+
+```{python}
+#| echo: false
+#| code-fold: false
+from pathlib import Path
+import tempfile
+
+bad = """\
+compartments { S, I, R }
+parameters {
+  beta : rate
+  gamma : rate
+  N0 : count
+  I0 : count
+}
+let mu : rate = 20 / 100_000 'per_year
+let N = S + I + R
+transitions {
+  infection : S --> I @ beta * S * I / N
+  recovery  : I --> R @ gamma * I
+}
+init {
+  S = N0 - I0
+  I = I0
+}
+"""
+tmp = Path(tempfile.mkdtemp(prefix="camdl_paren_"))
+(tmp / "bad.camdl").write_text(bad)
+run_cli(f"camdl check {tmp}/bad.camdl",
+        echo="camdl check bad.camdl   # 20 / 100_000 'per_year (no parens)",
+        collapse=False, max_lines=20)
+```
 
 Numeric literals also support underscore separators for readability — write
 `100_000` instead of `100000`. The compiler even warns you if your grouping
@@ -615,7 +614,7 @@ camdl simulate sir.camdl --params params.toml --seed 42 --replicates 5
 ```{python}
 #| echo: false
 #| output: false
-multi = run_sim(seed=42, extra_args=["--replicates", "5"])
+multi = run_simulate(MODEL, PARAMS, seed=42, extra_args=["--replicates", "5"])
 ```
 
 With `--replicates`, camdl derives independent seeds from the base seed, runs
@@ -701,6 +700,60 @@ observations {
 }
 ```
 
+::: {.callout-tip}
+## Incidence vs. prevalence — events vs. states
+
+`incidence(...)` and `prevalence(...)` are **projection functions**: they
+take a model object and produce a scalar that the likelihood can consume.
+They look like ordinary function calls because they are. Which one applies
+depends on what the data actually measures:
+
+- **`incidence(transition)`** — a *flow accumulator*. It counts how many
+  times the named transition fired between the previous observation time
+  and this one, then resets. Use this when your data records *events*
+  happening over a window — weekly case reports, monthly hospitalizations,
+  daily deaths. Argument is a transition label (e.g. `infection`,
+  `recovery`).
+
+- **`prevalence(compartment)`** — an *instantaneous snapshot*. It returns
+  the count of individuals in the named compartment at the observation
+  time, no accumulation. Use this when your data records *who is in what
+  state right now* — seroprevalence surveys, point-in-time hospital
+  censuses, current-infection counts from a cross-sectional study.
+  Argument is a compartment name (e.g. `I`, `R`).
+
+The argument type tells you which is sensible: transitions are events and
+have rates; compartments are states and have populations. You wouldn't ask
+"how much `S` happened this week?" and you wouldn't ask "how many people
+are currently in the `infection` event?" — the two functions exist
+precisely so the model can speak about both.
+
+camdl also supports **arithmetic projections** — any expression over
+compartments, parameters, and time. `projected = (I + R) / N` is the
+ever-infected fraction; `projected = prevalence(I) / N0` is point
+prevalence as a proportion. Arithmetic projections compile to the same
+machinery as `prevalence(...)`; the named form is just sugar for the
+single-compartment case.
+:::
+
+A prevalence-style observation block, for the case where what you measure
+is "fraction of the population currently infected" (e.g. a periodic
+serosurvey of active infection):
+
+```camdl
+observations {
+  point_prevalence : {
+    projected  = I / N0                     # fraction currently infected
+    every      = 14 'days                   # biweekly survey
+    likelihood = binomial(n = n_sampled, p = projected)
+  }
+}
+```
+
+The same model can host both blocks at once — a weekly case-report stream
+*and* a biweekly prevalence survey, each with its own likelihood. The
+inference engine combines the log-likelihoods automatically.
+
 To see this pipeline in action, generate synthetic observations alongside the
 trajectory with the `--obs` flag:
 
@@ -732,7 +785,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Generate synthetic observations from the observation model
-_, obs_df = run_sim(seed=42, obs=True)
+_, obs_df = run_simulate(MODEL, PARAMS, seed=42, obs=True)
 
 # Daily new infections (flow_infection is already per-step)
 daily_infections = df["flow_infection"]

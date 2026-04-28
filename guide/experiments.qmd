@@ -101,7 +101,7 @@ process over model complexity, the data available to constrain it, and
 the consequences of different intervention strategies. At each stage,
 you're asking a specific question and using simulation to answer it.
 
-Two kinds of uncertainty run through this entire workflow:
+Three kinds of uncertainty run through this entire workflow:
 
 - **Parameter uncertainty** — we don't know the "true" parameters.
   (The scare quotes are deliberate: epidemiological parameters are
@@ -112,14 +112,27 @@ Two kinds of uncertainty run through this entire workflow:
 
 - **Process uncertainty** — even if we knew every parameter exactly,
   the epidemic is a stochastic process. Run the same model with the
-  same parameters twice and you get different trajectories. This
-  uncertainty is intrinsic to the system and cannot be reduced by
-  collecting more data.
+  same parameters twice and you get different trajectories.
+  *Demographic* stochasticity (which susceptibles happen to meet which
+  infecteds) is the main contributor at small population sizes; on
+  top of that, *environmental* fluctuation in the transmission rate
+  (school schedules, weather, gatherings) pushes the dynamics around
+  day-to-day. Both are intrinsic to the system and cannot be reduced
+  by collecting more data — only by modeling them more faithfully.
 
-A single simulation trajectory ignores both. When a decision-maker
+- **Observation uncertainty** — even with parameters and the underlying
+  trajectory both fixed, what reaches us is incomplete and noisy.
+  Surveillance catches a fraction of cases; reporting is overdispersed
+  and delayed; serosurveys come with sample-size sampling error. The
+  measurement layer has its own variance, and disentangling it from
+  the process layer — telling "noisy data from a smooth epidemic"
+  apart from "clean data from a noisy epidemic" — is one of the
+  central jobs of inference.
+
+A single simulation trajectory ignores all three. When a decision-maker
 asks "should we vaccinate?" the answer depends on the *distribution*
-of outcomes under both sources of uncertainty, not on one arbitrary
-simulated future. Carrying both kinds of uncertainty forward — from
+of outcomes under all three sources of uncertainty, not on one arbitrary
+simulated future. Carrying every kind of uncertainty forward — from
 model specification through simulation to the eventual policy
 comparison — is what separates rigorous analysis from storytelling
 with curves.
@@ -155,26 +168,31 @@ $\log \beta$, so the choice of parameterization smuggles in information.
 [Jaynes (2003)](https://doi.org/10.1017/CBO9780511790423)
 developed this further, arguing that maximum entropy is the principled
 baseline precisely because uniform priors on arbitrary scales are not
-"uninformative." More recently,
+"uninformative."
 [Gelman (2006)](https://sites.stat.columbia.edu/gelman/research/published/taumain.pdf)
 showed that common "vague" prior specifications (like
 $\text{InverseGamma}(\epsilon, \epsilon)$ for variance parameters)
 are in fact highly informative, and
-[Gelman et al. (2017)](https://doi.org/10.3150/16-BEJ868)
-argued that a prior can only be understood in the context of the
-likelihood it will interact with — there is no prior that is
-unconditionally "uninformative."
+[Gelman, Simpson, and Betancourt (2017)](https://doi.org/10.3390/e19100555)
+sharpened the point: **"informative" is a property of the pair (prior,
+likelihood), not of the prior alone.**[^prior-context] A distribution
+that looks flat in isolation can be a strong claim under one likelihood
+and genuinely diffuse under another — and along weakly-identified
+directions in the likelihood (the $R_0$–$1/\gamma$ ridge, the
+reporting-fraction vs. process-noise trade-off common to overdispersed
+fits), the prior never washes out no matter how much data you collect.
 
-With enough data, the prior's influence vanishes — the posterior
-concentrates around the maximum likelihood estimate regardless of the
-prior (the
-[Bernstein–von Mises theorem](https://en.wikipedia.org/wiki/Bernstein%E2%80%93von_Mises_theorem)).
+Under an identified model with sufficient data, the prior's influence
+vanishes — the posterior concentrates around the maximum likelihood
+estimate ([Bernstein–von Mises
+theorem](https://en.wikipedia.org/wiki/Bernstein%E2%80%93von_Mises_theorem)).
 So this isn't about priors dominating the analysis forever. It's about
-the regime where priors matter most: when data is scarce — early in an
-outbreak, with a novel pathogen, or under limited surveillance. In those
-settings, which are exactly when decisions are most urgent, encoding
-domain knowledge through thoughtful priors can mean the difference
-between useful model-informed decisions and misleading ones.
+the regime where priors matter most: small data (early in an outbreak,
+a novel pathogen, limited surveillance) and structurally non-identified
+models (nearly every interesting compartmental fit). In those settings,
+which are exactly when decisions are most urgent, encoding domain
+knowledge through thoughtful priors can mean the difference between
+useful model-informed decisions and misleading ones.
 :::
 
 Recall the parameters block from [Building an SIR Model](getting-started.qmd);
@@ -397,6 +415,20 @@ Your other beliefs (that flu is transmissible, that this is a boarding
 school, that an outbreak clearly occurred) are *mathematically
 incompatible* with the fizzle-out probability implied by uniform priors.
 The prior predictive makes this visible before you've touched any data.
+
+The high tail is biologically just as implausible. A uniform prior over
+$[0.05, 1.0] \times [0.01, 0.5]$ for $(\beta, \gamma)$ puts substantial
+mass on $R_0$ values above 10 — measles-grade contagiousness for what
+we already know is influenza. Most respiratory pathogens have $R_0$ in
+the range 1–5 (seasonal flu ~1.3, pandemic flu ~1.5–2, varicella ~3–5);
+$R_0 \geq 10$ is reserved for a small set of outliers (measles ~12–18,
+pertussis ~5–17). Saying "I'm uniform on $\beta$ and $\gamma$" is
+implicitly saying "I'm equally open to the flu I'm modeling being as
+contagious as measles" — not a claim of ignorance, but a claim that
+spans two distinct biological regimes with equal weight. Once you know
+the pathogen and that an outbreak is in fact occurring, both tails of
+the implied $R_0$ distribution carry information you don't actually
+believe.
 
 ::: {.callout-note collapse="false"}
 ## Coherence and the Dutch book
@@ -652,11 +684,54 @@ spends near the exponential-growth phase, where small differences in
 early transmission compound. With 763 people, the law of large numbers
 constrains peak size, but timing remains noisy.
 
-In practice, transmission rates also fluctuate day-to-day due to
-environmental factors (school schedules, weather, gatherings). camdl
-supports this via `overdispersed()`, following
-[He et al. (2010)](https://doi.org/10.1098/rsif.2009.0151) — we'll use
-it in the [He et al. vignette](../vignettes/he2010.qmd).
+The chain-binomial draws shown above capture *demographic*
+stochasticity: which susceptibles happen to meet which infecteds at
+the propensities the model specifies. They do not capture day-to-day
+environmental variation in the underlying transmission rate — school
+schedules, weather, public gatherings — which most real outbreaks
+exhibit. Leaving this variation unmodeled forces the observation
+parameters ($\rho$, $k$) to absorb extra-demographic variability they
+shouldn't, biasing both inference and predictions.
+
+::: {.callout-note collapse="false"}
+## Overdispersed transmission and the Euler-multinomial step
+
+[He, Ionides, and King (2010)](https://doi.org/10.1098/rsif.2009.0151)
+introduced the now-standard treatment for extra-demographic variability
+in mechanistic epidemic models: multiply the per-step transmission
+rate by a gamma-distributed white-noise increment with unit mean and
+dispersion $\sigma^2$, so the realized hazard over an Euler step of
+length $\Delta t$ becomes $\beta \cdot \Gamma_{\Delta t} / \Delta t$
+with
+$\Gamma_{\Delta t} \sim \mathrm{Gamma}(\Delta t / \sigma^2,\, \sigma^2)$.
+The intensity parameter $\sigma$ is fit jointly with the rest of the
+parameters. In camdl this is written as
+`infection : S --> I @ overdispersed(beta * S * I / N, sigma)`. This
+is *still* process uncertainty — same family as chain-binomial — but
+adds environmental variation on top of demographic.
+
+**Is there an analytical Euler-multinomial form that absorbs the
+noise?** Partially. For a *single-compartment* counting process —
+purely additive events with a rate that depends only on time, not on
+the dynamic state — [Bretó and Ionides
+(2011)](https://doi.org/10.1016/j.spa.2011.06.012) showed that
+integrating gamma white noise into the rate yields a clean
+**Negative-Binomial** transition density in closed form: the per-step
+event count is exactly NegBin, replacing the usual Poisson/binomial
+draw. For multi-compartment SIR-style flows, where the hazard
+$\beta S I / N$ depends on populations changing during the step, no
+single distribution absorbs both the gamma rate noise and the
+multinomial allocation. camdl handles this the standard way: draw
+$\Gamma_{\Delta t}$ once per Euler step, multiply it into the rate,
+then perform the regular Euler-multinomial draw. As $\Delta t \to 0$
+this converges to the He et al. continuous-time process; in
+single-source outflow sub-steps (e.g. recovery alone), it reduces to
+the Bretó-Ionides closed-form Negative-Binomial.
+
+We use `overdispersed()` extensively in the
+[He et al. vignette](../vignettes/he2010.qmd), where it's load-bearing
+for fitting the 1948–1968 measles record.
+:::
 
 Remember: we haven't fit to data yet. The parameters here ($\beta =
 1.66$, $\gamma = 0.44$) are textbook values from the literature, not
@@ -775,3 +850,69 @@ are the foundation everything else builds on. In the
 that modify the model mid-simulation, scenarios that package
 counterfactual comparisons, parameter sweeps that test robustness, and
 a batch system that manages it all reproducibly.
+
+[^prior-context]: Three consequences of the (prior, likelihood) framing
+    from [Gelman, Simpson, and Betancourt (2017)](https://doi.org/10.3390/e19100555)
+    are worth internalizing even if you don't care about Bayesian
+    statistics philosophically.
+
+    **First, flat priors can swamp surprisingly large datasets.**
+    Gelman, Simpson, and Betancourt re-analyze a study of $n = 3000$
+    survey respondents estimating $\delta$, the difference in
+    girl-birth probability between "beautiful" and "plain" parents;
+    the sample estimate is $0.08 \pm 0.033$. Under a uniform prior on
+    $\delta \in [-1, 1]$, the posterior just echoes the likelihood:
+    99.2% probability that beautiful parents are more likely to have
+    girls, 50% probability the effect exceeds 8 percentage points.
+    But human sex ratios are remarkably stable near 48.5% across
+    every demographic split ever measured (race, maternal age, season
+    of birth, socioeconomic status), with sub-percentage-point
+    variation outside pathological settings. A uniform prior on
+    $[-1, 1]$ is not "uninformative" — it is a strong claim that
+    $\delta$ could plausibly be 50 percentage points. A
+    $\mathcal{N}(0, 0.005^2)$ weakly informative prior that merely
+    matches what we already know about human biology collapses the
+    posterior to a sensible 0.2 percentage points. Same data, same
+    $n = 3000$, different conclusion. And $n = 3000$ is *not small* —
+    but it is laughably small compared to ~4 million US births per
+    year, which is the comparison that actually frames the prior.
+    For ID modelers: weekly case counts from 20 years of measles
+    surveillance feels like a lot of data, but it is not a lot of
+    data *relative to what the likelihood needs* to pin down a
+    12-parameter compartmental model with overdispersion.
+
+    **Second, "default" priors are already likelihood-specific.**
+    Essentially every principled default construction in the
+    literature is silently a function of the likelihood. Jeffreys
+    priors are proportional to $\sqrt{\det I(\theta)}$, where
+    $I(\theta)$ is the Fisher information of the likelihood;
+    reference priors (Bernardo 1979) require a specified likelihood
+    to define "maximal missing information"; regularizing priors
+    (ridge, half-Cauchy) are designed to stabilize specific MLE
+    pathologies. The folklore that "a principled default prior is
+    likelihood-free" has never been true in any Bayesian method we
+    actually use. Gelman, Simpson, and Betancourt's contribution is
+    to drop the pretense: let priors depend on the likelihood
+    openly, and judge them on the data-generating processes they
+    imply when pushed through it (the prior-predictive distribution).
+
+    **Third — and this is load-bearing for compartmental modeling —
+    along non-identified directions, the prior never washes out.**
+    Bernstein–von Mises ("priors vanish asymptotically") is a
+    theorem about *identified* models. If two parameter combinations
+    produce the same likelihood along a ridge — $\beta$ and
+    $1/\gamma$ along the $R_0$ contour, reporting fraction $\rho$
+    and process-noise scale $\sigma$ trading off in overdispersed
+    fits, Gaussian-process range $\kappa$ and marginal variance
+    $\sigma^2$ along a $\sigma^2 \sqrt{\kappa}$ ridge — the
+    posterior concentrates on a *submanifold*, not a point. The
+    prior's projection onto that submanifold sets the answer
+    forever: a harmless-looking prior on $\kappa$ directly
+    determines the posterior on $\sigma$, and a flat prior on
+    $\beta$ covertly specifies a posterior on $R_0$. More data does
+    not rescue you. Only changes in model structure or explicit
+    informative priors can break a structural non-identifiability.
+    If you take one thing from the Gelman–Simpson–Betancourt paper,
+    take this: run a parameter-identifiability check before
+    declaring a prior "noninformative," because along ridges there
+    is no such thing.
