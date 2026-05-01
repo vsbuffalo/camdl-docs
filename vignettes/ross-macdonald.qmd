@@ -254,7 +254,7 @@ display(run_cli(
 ))
 ```
 
-The scout converges in ~2 minutes (all Rhat < 1.02). PMMH runs for
+The scout converges in ~2 minutes (all Â < 1.02). PMMH runs for
 ~3.5 minutes with acceptance rates of 20–21% — in the target range.
 
 ### Posterior recovery

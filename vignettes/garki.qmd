@@ -115,6 +115,29 @@ display(run_cli(
 10 base compartments × 3 age groups = 24 expanded (7 human × 3 ages +
 3 vector unstratified). 14 transition templates → 30 expanded.
 
+The compartment expansion shows how partial stratification works —
+human states get age indices, vector states don't:
+
+```{python}
+display(run_cli(
+    f"camdl inspect {MODEL} --compartments",
+    echo="camdl inspect garki.camdl --compartments",
+    collapse=False
+))
+```
+
+The 17 parameters span three kinds — rates for transmission and
+progression dynamics, probabilities for infection and detection,
+and counts for population sizes:
+
+```{python}
+display(run_cli(
+    f"camdl inspect {MODEL} --parameters",
+    echo="camdl inspect garki.camdl --parameters",
+    collapse=False
+))
+```
+
 ## Forward simulation
 
 ```{python}

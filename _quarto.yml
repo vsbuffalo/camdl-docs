@@ -10,6 +10,7 @@ book:
   repo-url: https://github.com/vsbuffalo/camdl-book
   repo-actions: [edit]
   page-navigation: true
+  draft-mode: visible
   page-footer:
     left: "© 2026 Vince Buffalo. Supported by the Institute for Disease Modeling, Bill & Melinda Gates Foundation."
     right: "License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)"
@@ -23,15 +24,17 @@ book:
         - guide/experiments.qmd
         - guide/scenarios.qmd
         - guide/dimensions.qmd
-        - guide/fitting-data/report.qmd
-        - guide/fitting-data/model_comparison.qmd
+        - guide/fitting/likelihood.qmd
+        - guide/fitting/model_comparison.qmd
+        - guide/fitting/priors.qmd
     - part: "Inference"
       chapters:
         - inference/likelihood.qmd
         - inference/algorithms.qmd
     - part: "Vignettes"
       chapters:
-        - vignettes/he2010.qmd
+        - vignettes/he2010-synthetic.qmd
+        - vignettes/he2010-bayesian.qmd
         - vignettes/malaria.qmd
         - vignettes/ross-macdonald.qmd
         - vignettes/garki.qmd

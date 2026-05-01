@@ -42,10 +42,10 @@ i0     = 0.0000514    # initial infected fraction (He et al., weakly identifiabl
 chains = 8
 particles = 1000
 iterations = 80
-cooling = 0.9
+# cooling left at camdl default (SCOUT_COOLING = 0.70)
 
 [refine]
 chains = 4
 particles = 2000
 iterations = 100
-cooling = 0.95
+# cooling left at camdl default (REFINE_COOLING = 0.05; refine.cooling < scout.cooling)

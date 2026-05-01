@@ -1,0 +1,262 @@
+---
+title: "Measles Bayesian: PGAS+NUTS posterior on the synthetic data"
+subtitle: "What posterior inference looks like when the likelihood has a 4-parameter ridge"
+draft: true
+execute:
+  echo: true
+  warning: false
+code-fold: true
+code-summary: "show code"
+---
+
+The [synthetic-recovery chapter](he2010-synthetic.qmd) showed the
+He et al. (2010) measles likelihood has a 4-parameter ridge in
+$(R_0, \gamma, s_0, \alpha)$. MLE methods (IF2 + profile) gave us
+the ridge geometry; this chapter does the Bayesian posterior with
+weakly informative priors that break the ridge enough to produce
+a coherent posterior.
+
+PMMH is a non-starter at $T = 1096$ observations (PF log-lik
+variance scales linearly with $T$; acceptance collapses below 1%).
+The viable path is **PGAS with NUTS for the parameter step** —
+PGAS's CSMC trajectory step decouples parameter sampling from PF
+noise, and NUTS handles the ridge-correlated parameters far better
+than random-walk MH.
+
+```{python}
+#| label: setup
+#| echo: false
+import os, sys, tomllib
+from pathlib import Path
+import numpy as np
+import polars as pl
+import matplotlib.pyplot as plt
+
+_BOOK_ROOT = Path("/Users/vsb/projects/work/camdl-book")
+sys.path.insert(0, str(_BOOK_ROOT))
+from _lib.cli import run_cli
+from _lib.pair_plot import chain_color_palette
+
+GREY = "#666666"
+plt.rcParams.update({
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.labelcolor": GREY, "xtick.color": GREY, "ytick.color": GREY,
+    "axes.edgecolor": GREY, "legend.edgecolor": GREY,
+})
+
+VDIR = Path("he2010-bayesian")
+TRUTH = {"R0": 56.8, "alpha": 0.976, "amplitude": 0.554,
+         "gamma": 0.0832, "s0": 0.0297, "sigma": 0.0791}
+PARAMS = ["R0", "alpha", "gamma", "amplitude", "sigma", "s0"]
+
+# Find the fit dir that actually completed PGAS (has chain trace.tsv files).
+# Prefers fit_bayesian_5yr-* (the tuned overnight run), falls back to others.
+def _find_pgas_dir(prefix):
+    for d in sorted((VDIR / "results/fits").glob(f"{prefix}/real/fit_42/pgas")):
+        if list(d.glob("chain_*/trace.tsv")):
+            return d
+    return None
+
+PGAS_DIR = (_find_pgas_dir("fit_bayesian_5yr-*")
+            or _find_pgas_dir("fit_bayesian_21yr-*")
+            or _find_pgas_dir("fit_bayesian-*"))
+# Whichever lands first; chapter narrative below assumes 5yr is the
+# primary working fit.
+```
+
+## Configuration
+
+```{python}
+#| label: show-config
+#| echo: false
+run_cli("cat fit_bayesian.toml", cwd="he2010-bayesian",
+        echo="cat fit_bayesian.toml", max_lines=120)
+```
+
+Run with:
+
+```{.bash}
+camdl fit run fit_bayesian.toml --seed 42 --progress plain
+```
+
+## Convergence: Rhat + ESS
+
+```{python}
+#| label: rhat-summary
+#| echo: false
+import json
+if PGAS_DIR is not None:
+    summary_path = PGAS_DIR / "pgas_summary.json"
+    state_path   = PGAS_DIR / "fit_state.toml"
+    if summary_path.exists():
+        psum = json.loads(summary_path.read_text())
+        rhat_d = psum.get("rhat", {})
+        ess_d  = psum.get("ess", {})
+        print(f"PGAS+NUTS convergence diagnostics ({psum.get('n_chains', '?')} chains)")
+        # acceptance_rates is [[per-param] × n_chains]; one number per chain
+        # (NUTS accepts all params jointly per step, so per-chain values are
+        # all identical across params — take the first column).
+        ar = psum.get("acceptance_rates", [])
+        per_chain_acc = [round(row[0], 2) for row in ar] if ar else []
+        print(f"  per-chain NUTS acceptance: {per_chain_acc}")
+        print()
+        print(f"  {'param':<12} {'Rhat':>8}  {'ESS':>8}  status")
+        for p in sorted(rhat_d):
+            r = rhat_d[p]
+            ess = ess_d.get(p)
+            ess_str = f"{ess:.1f}" if isinstance(ess, (int, float)) else "—"
+            flag = "✓" if r < 1.05 else ("~" if r < 1.10 else "✗")
+            print(f"  {p:<12} {r:>8.3f}  {ess_str:>8}  {flag}")
+        # Best-loglik + acceptance rate from fit_state.toml
+        if state_path.exists():
+            state = tomllib.loads(state_path.read_text())
+            print()
+            print(f"  best complete-data ll: {state.get('best_loglik', float('nan')):.1f} "
+                  f"(chain {state.get('best_chain', '?')+1})")
+            print(f"  acceptance rate (mean across chains): "
+                  f"{state.get('acceptance_rate', float('nan')):.1%}")
+```
+
+::: {.callout-warning}
+## On the Rhat numbers and what they mean here
+
+Rhat ≥ 1.10 means chains haven't mixed: across-chain variance in
+the posterior is larger than within-chain variance. We're at
+**Rhat = 1.05–1.76 across the 6 parameters** for the 5-yr fit, and
+much worse for the 21-yr stretch test.
+
+The structural reason — same as in the synthetic chapter — is the
+4-parameter $(R_0, \gamma, s_0, \alpha)$ FOI ridge. Likelihood-only
+inference is non-identifiable along the ridge; only the priors
+break it. The priors here are *moderately* informative (1990s
+measles-modeling subject-matter knowledge) but not informative
+enough to fully constrain ridge-aligned drift across chains in
+this many sweeps.
+
+ESS is shown as `—` for parameters with Rhat ≫ 1.10: it's
+mathematically defined but not interpretable when chains haven't
+mixed. R₀ has Rhat ≈ 1.05 and ESS ≈ 35 (low but real).
+
+camdl flags acceptance rates 64–80% as "outside healthy range
+[15%, 50%]" but those bounds apply to random-walk
+Metropolis–Hastings; **NUTS targets 65–90%**, so the observed
+rates are healthy for NUTS specifically. That's a wording bug
+in camdl's diagnostic warning, not a real issue with this fit.
+:::
+
+::: {.callout-note collapse="true"}
+## Upstream gap: `camdl fit summary` doesn't show PGAS stages
+
+`camdl fit summary <fit_dir>` (added in camdl#18) only emits the
+scout / refine / validate sections. PGAS / PMMH stages are silently
+dropped — even though they produce rich diagnostics
+(Rhat, ESS, acceptance rates, per-chain log-likelihood) that the
+summary command would naturally cover. We hand-parse
+`pgas/pgas_summary.json` here as a workaround. Worth filing
+upstream as a Phase-N follow-up to the summary command.
+:::
+
+## Posterior pair plot
+
+```{python}
+#| label: fig-posterior-pair
+#| fig-cap: "Posterior pair plot. Lower triangle = pairwise scatter (post burn-in samples, thinned), colored by chain. Diagonal = marginal histograms per chain. Black × = truth values."
+BURN_IN = 2000  # matches fit_bayesian_5yr.toml [stages.pgas].burn_in
+
+def load_pgas_samples(pgas_dir, burn_in=BURN_IN):
+    """Load post-burn-in samples from per-chain trace.tsv files."""
+    dfs = []
+    for cd in sorted((Path(pgas_dir)).glob("chain_*"),
+                     key=lambda p: int(p.name.split("_")[1])):
+        cid = int(cd.name.split("_")[1])
+        sf = cd / "trace.tsv"
+        if not sf.exists():
+            continue
+        df = pl.read_csv(sf, separator="\t", comment_prefix="#",
+                         infer_schema_length=10000)
+        if "sweep" in df.columns:
+            df = df.filter(pl.col("sweep") >= burn_in)
+        dfs.append(df.with_columns(pl.lit(cid).alias("chain")))
+    return pl.concat(dfs) if dfs else None
+
+if PGAS_DIR is not None and PGAS_DIR.exists():
+    samples = load_pgas_samples(PGAS_DIR)
+    if samples is not None:
+        chain_ids = sorted(samples["chain"].unique().to_list())
+        colors = chain_color_palette(chain_ids)
+        n = len(PARAMS)
+        fig, axes = plt.subplots(n, n, figsize=(2*n+1, 2*n+1))
+        for i, p_y in enumerate(PARAMS):
+            for j, p_x in enumerate(PARAMS):
+                ax = axes[i, j]
+                if i == j:
+                    for c in chain_ids:
+                        sub = samples.filter(pl.col("chain") == c)
+                        ax.hist(sub[p_y].to_numpy(), bins=30,
+                                color=colors[c], alpha=0.4,
+                                edgecolor="none")
+                    if p_y in TRUTH:
+                        ax.axvline(TRUTH[p_y], color="black",
+                                   linestyle="--", linewidth=1.2)
+                    ax.set_yticks([])
+                elif i > j:
+                    for c in chain_ids:
+                        sub = samples.filter(pl.col("chain") == c)
+                        ax.scatter(sub[p_x], sub[p_y],
+                                   color=colors[c], s=2, alpha=0.3,
+                                   edgecolor="none")
+                    if p_x in TRUTH and p_y in TRUTH:
+                        ax.scatter([TRUTH[p_x]], [TRUTH[p_y]],
+                                   marker="x", color="black", s=80,
+                                   linewidth=2.5, zorder=10)
+                else:
+                    ax.set_visible(False)
+                if i == n-1: ax.set_xlabel(p_x, fontsize=9)
+                else: ax.set_xticklabels([])
+                if j == 0: ax.set_ylabel(p_y, fontsize=9)
+                else: ax.set_yticklabels([])
+                ax.tick_params(labelsize=7)
+        fig.suptitle("PGAS+NUTS posterior — pair plot", fontsize=11)
+        fig.tight_layout()
+else:
+    print("PGAS posterior not yet present.")
+    print("Run: cd vignettes/he2010-bayesian && make pgas")
+```
+
+## Trace plots
+
+```{python}
+#| label: fig-traces
+#| fig-cap: "Per-chain parameter traces (post burn-in). Mixing chains overlap on a shared distribution; non-mixing chains stay in disjoint bands."
+if PGAS_DIR is not None and PGAS_DIR.exists() and samples is not None:
+    fig, axes = plt.subplots(len(PARAMS), 1, figsize=(9, 1.6*len(PARAMS)),
+                              sharex=True)
+    for ax, p in zip(axes, PARAMS):
+        for c in chain_ids:
+            sub = samples.filter(pl.col("chain") == c).sort("sweep") \
+                if "sweep" in samples.columns else samples.filter(pl.col("chain") == c)
+            x = sub["sweep"] if "sweep" in samples.columns else np.arange(sub.height)
+            ax.plot(x, sub[p].to_numpy(), color=colors[c],
+                    linewidth=0.6, alpha=0.7)
+        if p in TRUTH:
+            ax.axhline(TRUTH[p], color="black", linestyle="--",
+                       linewidth=1, label="truth")
+        ax.set_ylabel(p, fontsize=10)
+    axes[-1].set_xlabel("sweep")
+    axes[0].set_title("PGAS+NUTS per-chain parameter traces")
+    fig.tight_layout()
+```
+
+## Posterior summary
+
+```{python}
+#| label: posterior-summary
+#| echo: false
+if PGAS_DIR is not None and PGAS_DIR.exists() and samples is not None:
+    print(f"{'param':<12} {'truth':>8} {'mean':>8} {'sd':>8} {'q025':>8} {'q975':>8}")
+    for p in PARAMS:
+        v = samples[p].to_numpy()
+        truth = TRUTH.get(p, float("nan"))
+        print(f"{p:<12} {truth:>8.4g} {v.mean():>8.4g} {v.std():>8.4g} "
+              f"{np.quantile(v, 0.025):>8.4g} {np.quantile(v, 0.975):>8.4g}")
+```

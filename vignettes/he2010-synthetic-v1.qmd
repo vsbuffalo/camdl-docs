@@ -1,0 +1,907 @@
+---
+title: "Fitting the He et al. (2010) seasonal SEIR to synthetic data"
+subtitle: "What camdl's defaults get you, and how to read what they tell you"
+execute:
+  echo: true
+  warning: false
+---
+
+This chapter fits the He et al. [-@he2010] seasonal SEIR measles model
+to *synthetic* data generated from the published MLE. Synthetic
+recovery is the cleanest possible test of an inference pipeline: we
+know the answer, the data come from the same process the inference
+assumes, and any failure to recover truth localizes to either a
+modelling artifact or an inference artifact rather than to
+model misspecification.
+
+**Pedagogical principle.** Every numeric setting that *can* be a camdl
+default *is* a camdl default in this chapter. Stage cooling, chain
+count, particle count, iteration count — all camdl-shipped values.
+The chapter's job is to show what those defaults do on a real
+multimodal problem, how to read the diagnostics camdl emits, and how
+to remediate when a default doesn't suffice. Fitting is rarely
+push-button; learning to fit is mostly learning to read the failure
+modes.
+
+The chapter is structured around a single linear fit attempt. We
+will not preview results before showing them, will not stage problems
+to demonstrate features, and will not interpret point estimates
+before checking convergence. When the compound gate fails — and on
+this problem at default budget it likely will, on at least one of its
+two legs — we treat the failure as the lesson and respond to it the
+way a working analyst would.
+
+> **An archived earlier draft of this chapter** ran on a buggier
+> version of camdl (extraction-bias, looser scout gate,
+> non-default cooling) and reached conclusions about identifiability
+> ridges that turned out to be mostly real but partially confounded
+> with pipeline artifacts. That draft is preserved at
+> [`he2010-v0-synthetic`](he2010-v0-synthetic.qmd) for context. This
+> chapter is the rewrite against camdl `ba334a9` and later (compound
+> gate, clean-evaluation chain selection, atomic Â/`chain_agreement`
+> rename in MLE outputs).
+
+```{python}
+#| label: setup
+#| echo: false
+import os, sys, subprocess, tomllib, io
+from pathlib import Path
+import numpy as np
+import polars as pl
+import matplotlib.pyplot as plt
+
+# _lib path is absolute so it works regardless of quarto's cwd
+_LIB = Path(__file__).resolve().parent / "_lib" if "__file__" in dir() \
+       else Path("/Users/vsb/projects/work/camdl-book/vignettes/_lib")
+sys.path.insert(0, str(_LIB))
+from pair_plot import pair_plot_chains, load_chain_traces
+
+GREY = "#666666"
+plt.rcParams.update({
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.labelcolor": GREY, "xtick.color": GREY, "ytick.color": GREY,
+    "axes.edgecolor": GREY, "legend.edgecolor": GREY,
+})
+
+VDIR = Path("he2010")
+MODEL  = VDIR / "models/he2010_london.camdl"
+PARAMS = VDIR / "params/he2010_london.toml"
+SYNTH  = VDIR / "data/he2010_synthetic_obs.tsv"
+REAL   = VDIR / "data/he2010_london_cases.tsv"
+
+# ── freshness check ────────────────────────────────────────────────
+# Every chapter's opening cell asserts that downstream artifacts are
+# at least as new as their upstream sources. If anything is stale,
+# render fails loudly with the make target the reader needs to run.
+def assert_fresh(path, *deps, hint=""):
+    if not path.exists():
+        raise FileNotFoundError(f"{path} missing — {hint}")
+    pm = path.stat().st_mtime
+    for d in deps:
+        if Path(d).stat().st_mtime > pm:
+            raise RuntimeError(
+                f"{path} is older than {d}. Run: {hint}")
+    return path
+
+# Synthetic obs must be newer than model + truth params.
+assert_fresh(SYNTH, MODEL, PARAMS, hint="cd vignettes/he2010 && make sim")
+
+# Fit results — Round 1 (fit-*) and Round 2 (fit_r2-*) live in
+# separate hashed dirs. Each round has its own scout / refine.
+def _find_fit(prefix):
+    # Only count a fit dir as present if its scout has fit_state.toml
+    # (i.e. scout completed, not mid-run).
+    hits = sorted((VDIR / "results/fits").glob(f"{prefix}/real/fit_42"))
+    return next((h for h in reversed(hits)
+                 if (h / "scout/fit_state.toml").exists()), None)
+
+R1_ROOT = _find_fit("fit-*")
+R2_ROOT = _find_fit("fit_r2-*")
+if R1_ROOT is None:
+    raise RuntimeError(
+        "no Round 1 fit results in vignettes/he2010/results/fits/. "
+        "Run: cd vignettes/he2010 && make fit-r1")
+R1_SCOUT,  R1_REFINE  = R1_ROOT / "scout",  R1_ROOT / "refine"
+R2_SCOUT  = (R2_ROOT / "scout")  if R2_ROOT else None
+R2_REFINE = (R2_ROOT / "refine") if R2_ROOT else None
+```
+
+## 1. Forward-simulation validation
+
+Before any inference work, we validate that camdl's chain-binomial
+backend produces the same forward-simulation distribution at the He
+et al. MLE as the pomp reference [@king2016pomp] for the same model.
+Recovery experiments against a buggy simulator are meaningless —
+"recovered to truth" tells us nothing if the truth-trajectory is
+itself wrong.
+
+The smoke test runs ~200 forward simulations at the He et al. MLE
+under camdl, compares ensemble medians and IQR on total cases and
+last-year cases against a pre-computed pomp ensemble, and exits
+non-zero if any metric falls outside tolerance.
+
+```{bash}
+#| label: envelope-smoke
+#| echo: true
+cd vignettes/he2010 && python validation/envelope_smoke.py
+```
+
+::: {.callout-note}
+## Camdl-pomp parity history (camdl#11)
+
+An earlier version of this chapter (the `-v0` archive) discovered two
+unit-conversion bugs in camdl by running this exact smoke test:
+`iota` was being interpreted as a rate when it should have been a
+dimensionless count floor, and `birthrate` was being divided by
+365.25 twice. Both surfaced as catastrophic envelope mismatch
+(0% epidemic persistence in camdl vs. 100% in pomp). Both were
+fixed upstream in camdl#11. This kind of regression test is what
+catches them.
+:::
+
+## 2. The synthetic dataset
+
+We generate one synthetic dataset from the He et al. MLE at seed 42,
+21 years of weekly notifications matching the real London time
+series.
+
+```{bash}
+#| label: show-sim-command
+#| echo: true
+#| eval: false
+# Already run by `make sim`; here is the command verbatim.
+cd vignettes/he2010 && camdl simulate models/he2010_london.camdl \
+    --params params/he2010_london.toml \
+    --backend chain_binomial --dt 1 --seed 42 \
+    --obs-only data/he2010_synthetic_obs.tsv
+```
+
+```{python}
+#| label: fig-synth-vs-real
+#| fig-cap: "Synthetic data (top) generated at the He et al. MLE under seed 42 vs. the real London notifications 1944–1964 (bottom). Visual similarity here is *not* the validation criterion — see the data-leakage callout below."
+synth = pl.read_csv(SYNTH, separator="\t")
+real  = pl.read_csv(REAL,  separator="\t")
+
+fig, axes = plt.subplots(2, 1, figsize=(10, 4.5), sharex=True)
+axes[0].plot(synth["time"], synth["weekly_cases"], color="#3366cc", linewidth=0.8)
+axes[0].set_ylabel("synth weekly cases")
+axes[1].plot(real["time"], real["cases"], color="#222222", linewidth=0.8)
+axes[1].set_ylabel("real weekly cases")
+axes[1].set_xlabel("time (days from 1944-01-07)")
+fig.tight_layout()
+```
+
+::: {.callout-warning}
+## Subtle and pernicious: cherry-picking synthetic seeds
+
+A natural temptation in a recovery study is to *select* a synthetic
+draw that "looks like" the real data — visually matching biennial
+peak heights, troughs, between-year regularity. **Do not.** Once you
+filter draws by features of the real data, the inference is no
+longer a clean recovery test: you have leaked structure of the real
+data into the supposedly-blind ground truth, and any "successful
+recovery" reflects how well your filter encoded that structure
+rather than how well the inference machinery works. Use the first
+seed you draw, or pre-register a seed schedule. The pipeline either
+recovers or it doesn't; the data realization is what it is.
+
+This applies equally to *any* tuning informed by the truth dataset:
+adjusting bounds based on where truth happens to sit, picking
+cooling schedules that worked well on this seed, choosing
+particle counts that gave clean diagnostics last time. All of it
+leaks. The only escape is to commit to settings *before*
+inspecting the recovery result.
+:::
+
+## 3. Fitting: a diagnostic-driven loop
+
+Fitting is rarely push-button. The transferable knowledge in this
+chapter isn't a particular budget that worked, it's the loop:
+
+> Run a principled first attempt → read the compound gate → let the
+> failing leg dictate the next scaling decision → repeat until the
+> gate passes (or until the gate's persistent refusal becomes
+> evidence of structural unidentifiability).
+
+We illustrate one full turn of that loop here. Round 1 starts at
+camdl's package defaults — the smallest budget at which the gate is
+designed to be informative. Round 2 scales based on what Round 1's
+gate says, not on a pre-decided budget.
+
+::: {.callout-tip}
+## Why start at camdl defaults?
+
+Camdl's stage defaults — 8 chains × 500 particles × 30 iterations
+for scout, 4 chains × 1000 particles × 50 iterations for refine —
+are sized for a *typical* problem: medium-dimensional parameter
+space, ≲ 200 observations, well-identified likelihood. They are
+deliberately *not* sized for hard problems like this one. See the
+[Inference Specification](../reference/inference-spec.qmd) for the
+package author's reasoning.
+
+Starting at defaults is not a claim that defaults will work. It is
+the smallest principled budget that lets us read what the compound
+gate flags. The gate's two legs — chain agreement Â and clean-eval
+decibans-spread Δ_dB — surface different failure modes (chains
+haven't mixed; chains found different basins; chains pinned at
+bounds; PF impoverishment). Seeing *which* leg fires on a default
+run tells us what to scale up:
+
+- Â high uniformly across params → more iterations
+- Â high on a subset, others fine → narrower bounds on the
+  unidentified subset, or more chains to span basins
+- Δ_dB high with Â low → more chains, possibly wider bounds, or
+  multimodality investigation via profile
+- Both pass at default budget → unusual; either the problem is
+  easy or the gate is being lenient (check σ_max in the threshold)
+
+Round 2 below uses the diagnostic from Round 1 to choose how to
+scale, not a pre-decided budget.
+:::
+
+### 3.1 Round 1: defaults
+
+The Round-1 fit configuration is below in full. Stage budgets mirror
+camdl's `scout.rs`/`refine.rs` package defaults verbatim; the only
+domain knowledge is in the `[estimate]` and `[fixed]` blocks
+(physical bounds and He et al. published values).
+
+```{bash}
+#| label: show-fit-config
+#| echo: true
+cat vignettes/he2010/fit.toml
+```
+
+```{bash}
+#| label: show-fit-command
+#| echo: true
+#| eval: false
+# Already run by `make fit-r1`; here is the command verbatim.
+cd vignettes/he2010 && camdl fit run fit.toml --seed 42 --progress plain
+```
+
+### 3.2 Reading the compound gate after Round 1
+
+Camdl's scout-to-refine handoff is gated by **two** convergence
+criteria, both of which must pass [see the `chain_agreement` /
+clean-evaluation entries in the
+[Inference Specification](../reference/inference-spec.qmd)]:
+
+1. **Per-parameter chain agreement Â** — Gelman–Rubin's split-Â
+   computed on the per-iteration parameter-mean trajectory across
+   chains, last half of iterations. Tests whether independent IF2
+   optimizers agreed on *where* in parameter space they ended.
+2. **Clean-evaluation decibans-spread Δ_dB** — high-particle PF
+   re-evaluation (default 4000 particles × 8 replicates,
+   logmeanexp-combined) of each chain's winning candidate, rendered
+   as the spread (max − min) in decibans across chains. Tests
+   whether the basins those chains found are equally good in
+   likelihood units, with an SE-aware floor that prevents the gate
+   from firing on noise.
+
+The Â leg is necessary but not sufficient. All chains can agree
+per-parameter and still sit in basins separated by tens of thousands
+of decibans — a failure mode that the Δ_dB leg exists to catch.
+
+```{python}
+#| label: r1-scout-gate
+#| echo: true
+def report_gate(stage_path, label):
+    if not (stage_path / "fit_state.toml").exists():
+        print(f"{label}: not produced (upstream gate refused handoff).")
+        return
+    state = tomllib.loads((stage_path / "fit_state.toml").read_text())
+    agreement = state.get("tail_chain_agreement", {})
+    chain_lls = state.get("chain_clean_logliks", [])
+    chain_ses = state.get("chain_clean_ses", [])
+    print(f"{label}:")
+    print(f"  {'param':<12} {'Â':>6}  status")
+    for p, a in sorted(agreement.items()):
+        flag = "✓" if a < 1.05 else ("~" if a < 1.10 else "✗")
+        print(f"  {p:<12} {a:>6.3f}  {flag}")
+    if chain_lls:
+        nats_to_db = 10.0 / np.log(10)
+        delta_db = (max(chain_lls) - min(chain_lls)) * nats_to_db
+        sigma_max = max(chain_ses) if chain_ses else 0.0
+        threshold_db = max(30.0, 8.0 * sigma_max * nats_to_db)
+        flag = "✓" if delta_db < threshold_db else "✗"
+        print(f"  Δ_dB = {delta_db:.1f} dB / threshold {threshold_db:.1f} dB "
+              f"(σ_max={sigma_max:.2f} nats) {flag}")
+
+report_gate(R1_SCOUT,  "Round 1 scout")
+print()
+report_gate(R1_REFINE, "Round 1 refine")
+```
+
+```{python}
+#| label: fig-r1-trajectories
+#| fig-cap: "Round 1 scout: per-chain log-likelihood trajectories across 30 IF2 iterations. Raw in-run `if2_perturbed_loglik` at 500 particles (noisy, ~30-nat per-eval SD). Dashed line = truth ℓ ≈ −5983. Five chains dove into a bad basin during cooling iter 13–25 before partially recovering; three stayed in the better region throughout. Clean-eval at iter 30 pulled all chains back into a narrower cluster (see §3.2 verdict above) but best chain still ~252 nats below truth."
+def load_traces(scout_dir):
+    dfs = []
+    chain_dirs = [p for p in scout_dir.glob("chain_*")
+                  if p.is_dir() and p.name.split("_")[1].isdigit()]
+    for cd in sorted(chain_dirs, key=lambda p: int(p.name.split("_")[1])):
+        cid = int(cd.name.split("_")[1])
+        lines = [l for l in (cd/"parameter_traces.tsv").read_text().splitlines()
+                 if not l.startswith("#")]
+        df = pl.read_csv(io.StringIO("\n".join(lines)), separator="\t",
+                         infer_schema_length=10000)
+        dfs.append(df.with_columns(pl.lit(cid).alias("chain")))
+    return pl.concat(dfs)
+
+import io
+TRUTH_LL = -5982.7   # 16k-particle reference from v0 archive
+t1 = load_traces(R1_SCOUT)
+
+fig, ax = plt.subplots(figsize=(9, 4))
+for c in sorted(t1["chain"].unique()):
+    sub = t1.filter(pl.col("chain") == c).sort("iteration")
+    ax.plot(sub["iteration"], sub["if2_perturbed_loglik"],
+            linewidth=1.1, alpha=0.85, label=f"chain {c}")
+ax.axhline(TRUTH_LL, color="black", linestyle="--", linewidth=1,
+           label=f"truth ℓ = {TRUTH_LL:.1f}")
+ax.set_xlabel("IF2 iteration"); ax.set_ylabel("log-likelihood (in-run, 500 particles)")
+ax.set_title("Round 1 scout: per-chain ll trajectories")
+ax.legend(frameon=False, fontsize=7, ncol=1, loc="center left", bbox_to_anchor=(1.02, 0.5))
+fig.tight_layout()
+```
+
+```{python}
+#| label: fig-r1-param-trajectories
+#| fig-cap: "Round 1 scout: per-parameter trajectories across 30 IF2 iterations, all 8 chains overlaid. Dashed line = truth. γ, σ, amplitude, s₀ converge to a tight bundle near reasonable values; R₀ and α visibly bifurcate, with five chains drifting toward (R₀ ≳ 80, α ≳ 0.9, s₀ → 0.95 upper bound) while three stay in the truth-adjacent region. The Â=1.61 / 1.21 failure on (α, R₀) is exactly this bifurcation."
+TRUTH = {"R0": 56.8, "alpha": 0.976, "amplitude": 0.554,
+         "gamma": 0.0832, "s0": 0.0297, "sigma": 0.0791}
+
+fig, axes = plt.subplots(2, 3, figsize=(11, 5.5), sharex=True)
+params_show = ["R0", "alpha", "gamma", "amplitude", "s0", "sigma"]
+for ax, p in zip(axes.flat, params_show):
+    for c in sorted(t1["chain"].unique()):
+        sub = t1.filter(pl.col("chain") == c).sort("iteration")
+        ax.plot(sub["iteration"], sub[p], linewidth=1.0, alpha=0.7)
+    ax.axhline(TRUTH[p], color="black", linestyle="--", linewidth=1)
+    ax.set_title(p, fontsize=10); ax.set_xlabel("iter")
+fig.suptitle("Round 1: parameter trajectories (8 chains × 30 iters)", fontsize=11)
+fig.tight_layout()
+```
+
+```{python}
+#| label: fig-r1-extraction-bias
+#| fig-cap: "Round 1: in-run 500-particle PF log-likelihood at iter 30 (the value camdl's IF2 reports as `final_ll`) vs the clean-eval winner ll for each chain (4000p × 8 reps, logmeanexp). The 56-nat gap on chain 6 (in-run −6192 → clean-eval −6235) is selection-on-PF-noise: at 500p single-eval SD ≈ 30 nats, argmax over 8 chains accumulates ~σ√(2·ln 8) ≈ 60 nats of optimistic bias. This is the v0 extraction-bias pathology that camdl unit A's clean-eval was built to eliminate."
+def chain_in_run_final(scout_dir):
+    out = []
+    for cd in sorted(scout_dir.glob("chain_*"),
+                     key=lambda p: int(p.name.split("_")[1])
+                     if p.is_dir() and p.name.split("_")[1].isdigit() else -1):
+        if not cd.is_dir() or not cd.name.split("_")[1].isdigit():
+            continue
+        cid = int(cd.name.split("_")[1])
+        df = pl.read_csv(io.StringIO(
+            "\n".join(l for l in (cd/"parameter_traces.tsv").read_text().splitlines()
+                      if not l.startswith("#"))),
+            separator="\t", infer_schema_length=10000)
+        df = df.with_columns(pl.col("loglik").cast(pl.Float64, strict=False))
+        ll_finite = df.filter(pl.col("loglik").is_not_null())
+        if ll_finite.height:
+            out.append((cid, float(ll_finite.tail(1)["loglik"].item())))
+    return out
+
+inrun = chain_in_run_final(R1_SCOUT)
+state1 = tomllib.loads((R1_SCOUT / "fit_state.toml").read_text())
+clean_lls = state1.get("chain_clean_logliks", [])
+
+fig, ax = plt.subplots(figsize=(8, 4))
+for cid, ir in inrun:
+    ce = clean_lls[cid - 1]
+    ax.plot([cid, cid], [ir, ce], color="#888888", linewidth=1)
+    ax.scatter(cid, ir, color="#3366cc", s=70, zorder=3,
+               label="in-run final_ll (500p)" if cid == inrun[0][0] else None)
+    ax.scatter(cid, ce, color="#cc3333", s=70, marker="s", zorder=3,
+               label="clean-eval (4000p × 8)" if cid == inrun[0][0] else None)
+ax.axhline(TRUTH_LL, color="black", linestyle="--", linewidth=1,
+           label=f"truth ℓ = {TRUTH_LL:.0f}")
+ax.set_xlabel("chain"); ax.set_ylabel("log-likelihood")
+ax.set_title("Round 1: in-run vs clean-eval ll per chain — extraction bias visible per chain")
+ax.legend(frameon=False, fontsize=9, loc="center left", bbox_to_anchor=(1.02, 0.5))
+fig.tight_layout()
+```
+
+::: {.callout-note}
+## Why we need clean-eval (and what it can and can't fix)
+
+The traditional IF2 winner-selection pipeline picks the chain with
+the highest in-run log-likelihood at the final iteration. That number
+is an *unreliable* estimator of which chain actually ended up in the
+best place, for two compounding reasons:
+
+1. **PF noise is large at low particle counts.** At 500 particles
+   on 1096 weekly observations, a single PF evaluation has SD
+   ≈ 30 nats. With 8 chains and an argmax selection, the expected
+   *upward* bias of the winning chain's reported ll is roughly
+   $\sigma\sqrt{2\log N} \approx 60$ nats — pure selection on noise.
+2. **The reported in-run `final_ll` evaluates the *particle cloud*,
+   not the final parameter vector.** IF2's perturbations smear the
+   cloud across parameter space, so the cloud average can score
+   well even when the cloud's *mean* (the param vector you'd
+   actually use downstream) is in a bad region. Chain 6 in
+   fig-r1-extraction-bias shows this dramatically: cloud ll ≈ −6192
+   at iter 30, param-mean ll ≈ −8577 at the same iter — a 2400-nat
+   gap explained entirely by which estimator you ask.
+
+**Clean-eval does three things to fix this**:
+
+- **Higher particles** (default 4000): drops single-eval SD from
+  ~30 nats to ~3 nats.
+- **Multiple replicates** (default 8) combined via `logmeanexp`:
+  unbiased on the likelihood scale, drops SE another √8.
+- **Three candidate vectors per chain** — `final_iter` (the cloud
+  mean at last iter), `tail_mean_last_k` (averaged over last K
+  iters), and `best_in_run_iter` (the chain's best visited θ̂
+  during its run). The chain's reported score is the **max** over
+  these three candidates' clean-eval scores.
+
+**Does a bad chain stay bad?** *Mostly*, with an important
+qualification. The candidate set picks each chain's *best visited
+point*, not an invented one. If a chain spent its whole life in
+a basin 2000 nats below truth, all three candidates score there
+(`best_in_run_iter`'s "best" is still bad), and clean-eval
+correctly reports a chain that's 2000 nats below truth. Chain 1
+in R1 is exactly this case: final_iter −8422, best_in_run_iter
+−8440 — no rescue, transparently bad.
+
+**The qualification: `best_in_run_iter` reports a chain's best
+*visited* point, not its *destination*.** If a chain transited a
+good region during cooling and then drifted away, clean-eval
+headlines the visit even if the chain ended in a bad basin. R1's
+winner — chain 6 at ll=−6235 — is exactly this: chain 6's
+final_iter scored −8400, but it briefly visited a region scoring
+−6235 mid-run, and that's what's reported (see fig-r1-candidates
+below). So the headline "best chain at −6235" is true at the level
+of "this θ̂ vector exists in chain 6's history", but misleading if
+read as "chain 6 converged to a good place".
+
+This is why **the compound gate has two legs, not one**:
+
+- **Â on the parameter trajectory** sees the *destination* and the
+  iter-by-iter path. Chain 6's R₀ ended at ~88 with chains 5/7/8
+  at ~60–90 in *different* basins → Â(R₀) = 1.21, fails. The
+  trajectory diagnostic catches what `best_in_run_iter` hides.
+- **Δ_dB across chain best-moments** still catches the
+  multimodality independently. Chain 1's *best ever* point is at
+  −8440; chain 6's at −6235; spread = 9500 dB. The chains didn't
+  all transit the same good region.
+
+A pipeline that reported only `best_in_run_iter` scores without the
+Â trajectory check could plausibly launder a "chain 6 winner at
+−6235" into a refine starting point and produce a "converged" MLE
+that no Bayesian sanity check would survive. The gate refuses
+exactly that handoff.
+
+The deeper design point: `best_in_run_iter` is the right *warm-start
+candidate* for refine (refine wants the best θ̂ regardless of where
+the chain ended), but it is *not* a sufficient summary of "did this
+chain converge". Refine starting from chain 6's good-visit θ̂ is
+fine if Â on the broader cohort says chains agree. If Â says they
+don't, the gate refuses regardless of how good the best-visited
+point looks.
+:::
+
+```{python}
+#| label: fig-r1-candidates
+#| fig-cap: "Round 1: clean-eval log-likelihood of all three candidates per chain — `final_iter` (where the chain ended), `tail_mean_last_k` (averaged over last 50% of iters), and `best_in_run_iter` (best θ̂ visited during run). The chain's reported headline score is the max over its three candidates. Chain 6's headline winner ll = −6235 comes from its `best_in_run_iter` candidate; its `final_iter` candidate scores −8400 — chain 6 *visited* a good region during cooling but ended in a bad basin. Chains 1, 4 have all three candidates in the bad cluster (no transient visit, transparent failure). The gap between a chain's best candidate and its `final_iter` candidate is the 'rescue' magnitude: chains 2, 3, 6 had ~2000-nat rescues; chain 1 essentially zero. The Â trajectory leg of the gate catches what these single-point candidates can hide."
+ce = pl.read_csv(io.StringIO(
+    "\n".join(l for l in (R1_SCOUT/"chain_evaluations.tsv").read_text().splitlines()
+              if not l.startswith("#"))),
+    separator="\t", infer_schema_length=10000)
+fig, ax = plt.subplots(figsize=(10, 4.5))
+markers = {"final_iter": ("o", "#3366cc", "final_iter (chain endpoint)"),
+           "tail_mean_last_k": ("^", "#888888", "tail_mean_last_k"),
+           "best_in_run_iter": ("s", "#cc3333", "best_in_run_iter (winner)")}
+for cand, (mk, col, lbl) in markers.items():
+    sub = ce.filter(pl.col("candidate") == cand)
+    ax.scatter(sub["chain"], sub["loglik"], marker=mk, color=col, s=80,
+               edgecolor="white", linewidth=0.8, label=lbl, zorder=3)
+ax.axhline(TRUTH_LL, color="black", linestyle="--", linewidth=1,
+           label=f"truth ℓ = {TRUTH_LL:.0f}")
+ax.set_xlabel("chain"); ax.set_ylabel("clean-eval log-likelihood")
+ax.set_title("Round 1: 3 clean-eval candidates per chain — visualizes the 'rescue' effect")
+ax.legend(frameon=False, fontsize=9, loc="center left", bbox_to_anchor=(1.02, 0.5))
+ax.set_ylim(-12000, -5500)
+fig.tight_layout()
+```
+
+```{python}
+#| label: fig-r1-ridge
+#| fig-cap: "Round 1: final-iter (R₀, α) chain endpoints. Two clusters separated along the FOI ridge axis: a 'good basin' cluster (chains 5, 7, 8) at R₀ ≈ 60–90 with α ≈ 0.65–0.7, and a 'pinned-s₀' cluster (chains 1, 2, 3, 4, 6) where s₀ has saturated at the upper bound (0.95) and chains compensate via R₀ ≳ 80, α ≳ 0.9. Truth (black ×) is at R₀=56.8, α=0.976. With only 8 chains the two basins look discrete; the smoother ridge shape only becomes visible with more chains (see fig-r2-ridge)."
+t1_final = (t1.group_by("chain")
+              .agg(pl.col("iteration").max().alias("max_iter")))
+final1 = t1.join(t1_final,
+                 left_on=["chain", "iteration"],
+                 right_on=["chain", "max_iter"])
+fig, ax = plt.subplots(figsize=(6, 5))
+ax.scatter(final1["R0"], final1["alpha"], c=final1["s0"],
+           cmap="viridis", s=80, edgecolor="white", linewidth=0.8,
+           vmin=0, vmax=1)
+ax.scatter([TRUTH["R0"]], [TRUTH["alpha"]], marker="x", color="black", s=200,
+           linewidth=3, label="truth")
+ax.set_xlabel("R₀"); ax.set_ylabel("α")
+ax.set_title("Round 1 final-iter chain endpoints (color = s₀)")
+sm = plt.cm.ScalarMappable(cmap="viridis", norm=plt.Normalize(vmin=0, vmax=1))
+plt.colorbar(sm, ax=ax, label="s₀")
+ax.legend(frameon=False, fontsize=9, loc="center left", bbox_to_anchor=(1.02, 0.5))
+fig.tight_layout()
+```
+
+```{python}
+#| label: fig-r1-pair
+#| fig-cap: "Round 1 pair plot — last 50% of iterations (iter 15–29), 8 chains × 15 iters = 120 points per panel, colored by chain. **Diagonals**: per-chain marginal histograms; black dashed = truth, red dotted = parameter bounds. **Lower triangle**: pairwise scatter; black × = truth. The s₀ marginal exposes the bound-pinning failure: 5 chains have all their tail values pressed against s₀ = 0.95 (upper bound), 3 chains cluster near truth (s₀ ≈ 0.03). The (R₀, α) panel shows the ridge: chains in the bad-s₀ cluster compensate via R₀ ↑ 80, α ↑ 0.93, while truth-adjacent chains sit at lower R₀ and α. This is the multimodality Â only flagged on (R₀, α); the s₀ failure was *invisible* to the gate because s₀ has `ivp = true` and IVP params are reported but not gated."
+PARAMS = ["R0", "alpha", "gamma", "amplitude", "sigma", "s0"]
+TRUTH_VALS = {"R0": 56.8, "alpha": 0.976, "amplitude": 0.554,
+              "gamma": 0.0832, "s0": 0.0297, "sigma": 0.0791}
+BOUNDS = {"R0": (5.0, 100.0), "alpha": (0.5, 1.0),
+          "gamma": (0.02, 0.2), "amplitude": (0.1, 0.9),
+          "sigma": (0.02, 0.2), "s0": (0.001, 0.5)}
+
+fig, _ = pair_plot_chains(
+    t1, params=PARAMS, truth=TRUTH_VALS, bounds=BOUNDS,
+    last_frac=0.5,
+    title="Round 1 pair plot (last 50% of iterations, 8 chains)")
+```
+
+```{python}
+#| label: fig-r1-chain-clean
+#| fig-cap: "Round 1 clean-eval log-likelihood per chain (4000 particles × 8 replicates, logmeanexp combined). Error bars = clean-eval SE. Horizontal line = truth. Two distinct clusters clearly separated by ~2100 nats — the Δ_dB leg of the gate fires on exactly this spread (~9500 dB vs 30 dB threshold)."
+state = tomllib.loads((R1_SCOUT / "fit_state.toml").read_text())
+ll = state.get("chain_clean_logliks", [])
+se = state.get("chain_clean_ses", [])
+if ll:
+    fig, ax = plt.subplots(figsize=(7, 3.5))
+    x = np.arange(1, len(ll)+1)
+    ax.errorbar(x, ll, yerr=se, fmt="o", color="#3366cc",
+                markersize=8, capsize=3, linewidth=1)
+    ax.axhline(TRUTH_LL, color="black", linestyle="--", linewidth=1,
+               label=f"truth ℓ = {TRUTH_LL:.1f}")
+    ax.set_xlabel("chain"); ax.set_ylabel("clean-eval log-likelihood")
+    ax.set_title(f"R1 clean-eval: spread = {max(ll)-min(ll):.0f} nats "
+                 f"≈ {(max(ll)-min(ll))*10/np.log(10):.0f} dB")
+    ax.legend(frameon=False, fontsize=9,
+              loc="center left", bbox_to_anchor=(1.02, 0.5))
+    fig.tight_layout()
+```
+
+**Reading the verdict.** Round 1 scout completed in ~80 s of IF2 +
+~13 min of clean-eval, and the gate fired hard on both legs:
+
+- **Â non-uniform**: alpha (1.61 ✗) and R₀ (1.21 ✗) failed the gate;
+  the other four parameters passed. The pattern matters — chains
+  agreed on (γ, σ, amplitude, s₀) but not on (R₀, α). This localizes
+  the disagreement to the (R₀, α) sub-space, which is structurally
+  the FOI ridge $\beta(t) (I+\iota)^\alpha$ sees in §5.
+- **Δ_dB catastrophic**: chain clean-evaluated log-likelihoods span
+  from −8423 to −6235, a spread of 2189 nats ≈ 9510 dB. The gate's
+  threshold is 30 dB. This is a 350× breach — not "marginal
+  multimodality," genuine basin disagreement.
+- **Best chain log-lik = −6235.1 ± 2.2** at clean-eval. Truth is at
+  ℓ ≈ −5983 (16k-particle reference). Even the best chain is
+  **252 nats below truth** — Round 1 didn't even find the truth
+  basin. Two distinct sub-optimal basins were sampled.
+- **Refine refused.** The compound gate's whole purpose is exactly
+  this refusal: scout output that hasn't agreed on a basin is not
+  a starting point for refine. The error message points the user at
+  three remediations: more chains/iterations, narrower bounds, or
+  marking weakly-identified params as `ivp = true`.
+
+::: {.callout-note}
+## Bonus diagnostic: extraction-bias visible in 56 nats
+
+Chain 6's in-run `final_ll = −6191.8` (camdl's per-chain printout,
+500-particle PF eval at iter 30) versus its clean-eval winner
+`−6235.1 ± 2.2` (4000 particles × 8 replicates, logmeanexp). The
+56-nat difference is exactly the extraction-bias the camdl
+clean-evaluation pass exists to correct: in-run 500-particle eval
+has ~30-nat single-eval SD on this problem, and the
+selection-on-noise bias when picking "best chain" by argmax over
+in-run scores accumulates roughly $\sigma\sqrt{2 \log N}$ — for
+σ ≈ 30 nats and N = 8 chains, that's ~60 nats. Chain 6 happened to
+draw a favorable in-run noise sample at iter 30; clean-eval reveals
+its true ll is closer to the bottom of the better basin's cluster.
+This bias was the load-bearing pipeline issue in v0; the
+remediation is shipped upstream in camdl `ba334a9`.
+:::
+
+::: {.callout-note}
+## Bonus diagnostic: logit-transform compression
+
+Camdl flagged two transform-position warnings:
+
+```
+amplitude  logit position |z|=3.8 — effective perturbation reduced
+s0         logit position |z|=3.1 — effective perturbation reduced
+```
+
+The default logit transform on `amplitude ∈ [0.0001, 0.9999]` and
+`s0 ∈ [0.001, 0.95]` puts the start values (0.4 and 0.05
+respectively) far from the transformed-space midpoint 0. In logit
+coordinates, perturbation of magnitude δ moves the parameter by
+$\delta\,\sigma'(z)$ where $\sigma'$ is the logistic derivative —
+which goes to zero at the bound corners. Chains starting near
+those corners explore poorly. Camdl suggests `log` over `logit`
+for compressed bounds; we leave that as a Round-3-or-later
+investigation if Round 2's larger budget doesn't paper over it.
+:::
+
+### 3.3 Round 2: scaling from the diagnostic
+
+Round 1's verdict was "Â high non-uniformly on (R₀, α) plus Δ_dB
+catastrophically high." Per the §3 callout's rule table: more chains
+(to span basins), more iterations (to let chains mix once they're in
+a basin), and bumping particles is justified because 500 particles
+on 1096 obs gives ~30 nat per-eval SD which makes the in-run trace
+hard to read. None of these scaling decisions inspect the truth value
+of any parameter — they're informed by the gate's two flags and by
+problem features (data length, parameter dim) visible from the paper.
+
+The Round-2 config is below; the diff from `fit.toml` is the
+teaching artifact:
+
+```{bash}
+#| label: show-r2-config-diff
+#| echo: true
+diff vignettes/he2010/fit.toml vignettes/he2010/fit-r2.toml | head -40
+```
+
+```{bash}
+#| label: show-r2-command
+#| echo: true
+#| eval: false
+# Already run by `make fit-r2`; here is the command verbatim.
+cd vignettes/he2010 && camdl fit run fit-r2.toml --seed 42 --progress plain
+```
+
+Total scout work: 16 × 100 × 2000 = 3.2M particle-iter units, ~27×
+Round 1, ~4.5× *less* than the v0 archive's over-tuned 14.4M. The
+budget choice is justified by the gate diagnosis, not by
+foreknowledge of how much compute the answer needs.
+
+### 3.4 Reading the compound gate after Round 2
+
+```{python}
+#| label: r2-gate
+#| echo: true
+if R2_SCOUT is None:
+    print("Round 2 fit not yet present. Run: cd vignettes/he2010 && make fit-r2")
+else:
+    report_gate(R2_SCOUT,  "Round 2 scout")
+    print()
+    report_gate(R2_REFINE, "Round 2 refine")
+```
+
+```{python}
+#| label: fig-r2-trajectories
+#| fig-cap: "Round 2 scout: 16 chains × 100 iterations. Three chains (4, 8, 14) briefly visited a 'disaster' region with ll ≲ −30,000 during cooling iter ~40–80 (off-axis here, traces clipped below the y-limit for readability) before returning to the main cluster. Clean-eval's best-in-run-iter candidate selection lifted them back (see next figure). Dashed line = truth."
+if R2_SCOUT is not None:
+    t2 = load_traces(R2_SCOUT)
+    fig, ax = plt.subplots(figsize=(9, 4.2))
+    for c in sorted(t2["chain"].unique()):
+        sub = t2.filter(pl.col("chain") == c).sort("iteration")
+        ax.plot(sub["iteration"], sub["if2_perturbed_loglik"],
+                linewidth=0.9, alpha=0.7)
+    ax.axhline(TRUTH_LL, color="black", linestyle="--", linewidth=1)
+    ax.set_xlabel("IF2 iteration"); ax.set_ylabel("log-likelihood (in-run, 2000 particles)")
+    ax.set_ylim(-10000, -5500)
+    ax.set_title(f"Round 2 scout: 16 chains × 100 iterations "
+                 f"(y-axis clipped; 3 chains visit ll < −10000 transiently)")
+    fig.tight_layout()
+```
+
+```{python}
+#| label: fig-r2-chain-clean
+#| fig-cap: "Round 2 clean-eval log-likelihood per chain. All 16 chains consistently cluster in a single sub-optimal basin (spread ≈ 101 nats ≈ 440 dB), ~300 nats below truth. The 3 'disaster basin' chains (4, 8, 14) were recovered by clean-eval's best-in-run-iter candidate. Best chain 15 at ℓ = −6286.3 ± 0.8."
+if R2_SCOUT is not None:
+    state2 = tomllib.loads((R2_SCOUT / "fit_state.toml").read_text())
+    ll2 = state2.get("chain_clean_logliks", [])
+    se2 = state2.get("chain_clean_ses", [])
+    if ll2:
+        fig, ax = plt.subplots(figsize=(8, 3.5))
+        x = np.arange(1, len(ll2)+1)
+        ax.errorbar(x, ll2, yerr=se2, fmt="o", color="#cc3333",
+                    markersize=7, capsize=3, linewidth=1)
+        ax.axhline(TRUTH_LL, color="black", linestyle="--", linewidth=1,
+                   label=f"truth ℓ = {TRUTH_LL:.1f}")
+        ax.set_xlabel("chain"); ax.set_ylabel("clean-eval log-likelihood")
+        ax.set_title(f"R2 clean-eval: spread = {max(ll2)-min(ll2):.0f} nats "
+                     f"≈ {(max(ll2)-min(ll2))*10/np.log(10):.0f} dB, "
+                     f"all 16 chains in one basin ~300 nats below truth")
+        ax.legend(frameon=False, fontsize=9, loc="center left", bbox_to_anchor=(1.02, 0.5))
+        fig.tight_layout()
+```
+
+```{python}
+#| label: fig-r2-ridge
+#| fig-cap: "Round 2: final-iter (R₀, α) endpoints across 16 chains. Chains span ~25 units in R₀ and ~0.05 in α, but the likelihood spread within this scatter is only ~100 nats — directly visualizing the (R₀, α) identifiability ridge that motivates §5. Truth (black cross) is at R₀ = 56.8, α = 0.976. The cloud is **not** centered on truth; the whole R2 basin is offset from the true MLE, consistent with structural ridge geometry."
+if R2_SCOUT is not None:
+    # Pull final-iter rows per chain
+    t2_final = (t2.group_by("chain")
+                  .agg(pl.col("iteration").max().alias("max_iter")))
+    final_rows = t2.join(t2_final,
+                          left_on=["chain", "iteration"],
+                          right_on=["chain", "max_iter"])
+    # Read clean-eval winner from final_params.toml (canonical post-fix
+    # for camdl issues #16/#17). mle_params.toml now matches but
+    # final_params.toml is the documented artifact.
+    mle2 = tomllib.loads((R2_SCOUT / "final_params.toml").read_text())
+    fig, ax = plt.subplots(figsize=(6, 5))
+    ax.scatter(final_rows["R0"], final_rows["alpha"],
+               c="#cc3333", alpha=0.7, s=60, edgecolor="white", linewidth=0.8)
+    ax.scatter([mle2.get("R0", 0)], [mle2.get("alpha", 0)],
+               marker="s", color="#cc3333", s=140, edgecolor="black",
+               linewidth=1.2, label=f"best chain (R₀={mle2.get('R0',0):.1f}, "
+                                     f"α={mle2.get('alpha',0):.3f})")
+    ax.scatter([56.8], [0.976], marker="x", color="black", s=200,
+               linewidth=3, label="truth (R₀=56.8, α=0.976)")
+    ax.set_xlabel("R₀"); ax.set_ylabel("α")
+    ax.set_title("Round 2 final-iter chain endpoints in (R₀, α)")
+    ax.legend(frameon=False, fontsize=9, loc="center left", bbox_to_anchor=(1.02, 0.5))
+    fig.tight_layout()
+```
+
+```{python}
+#| label: fig-r2-pair
+#| fig-cap: "Round 2 pair plot — last 50% of iterations (iter 50–99), 16 chains × 50 iters = 800 points per panel, same axes/scales as fig-r1-pair for direct visual comparison. **Diagonals**: marginals are now narrow on every parameter; chains agree. **Lower triangle**: the (R₀, α), (R₀, γ), (α, γ), (s₀, α) panels show **elongated correlated clouds** — the classic identifiability-ridge signature. Truth (×) sits at the *edge* of the cloud, not the center: chains reached consensus on a *different* point on the ridge than where the truth lives. s₀ is no longer bound-pinned but its marginal is *broad* (≈ 0.15–0.4) — chains agree it's not 0.95, but they don't agree where it is either. The pair plot reveals what the Â+Δ_dB scalar diagnostics couldn't: structural unidentifiability, not under-iteration."
+if R2_SCOUT is not None:
+    fig, _ = pair_plot_chains(
+        t2, params=PARAMS, truth=TRUTH_VALS, bounds=BOUNDS,
+        last_frac=0.5,
+        title="Round 2 pair plot (last 50% of iterations, 16 chains)")
+```
+
+**Reading the R2 verdict.** The figures tell a coherent story:
+
+- **fig-r2-trajectories**: chains consolidate into a single cluster
+  after ~iter 40. Three chains transiently visit a disaster region
+  (ll ≪ −30,000) during mid-cooling but recover. The trajectories
+  are much cleaner than R1's bimodal split.
+- **fig-r2-chain-clean**: all 16 chains clean-evaluate to a single
+  basin at ℓ ≈ −6286 to −6388 — spread 101 nats (~440 dB, still
+  above the 30 dB threshold but ~200× tighter than R1's 9500 dB).
+  The gate's Δ_dB failure is now *within-basin spread*, not
+  *between-basin disagreement*.
+- **fig-r2-ridge**: the 16 endpoints scatter by ~25 units in R₀ and
+  ~0.05 in α; truth sits at the edge of the cloud, not at its
+  centroid. Chains are wandering on a ridge in (R₀, α), not on a
+  mixing-defect around a shared optimum.
+
+**Verdict**: R2 converted R1's "multiple basins + extraction noise"
+into "one consistent sub-optimal basin + residual (R₀, α) ridge
+spread." The 300-nat gap to truth persists through tripled iterations,
+doubled chains, and quadrupled particles. Adding compute has **reached
+diminishing returns** for recovering truth on this parametrization —
+the remaining signal says the data doesn't identify the (R₀, α)
+combination at this resolution. The honest diagnostic move is §5
+(profile likelihood), not Round 3.
+
+<!-- TODO: write the verdict-interpretation prose once R2 lands.
+Three branches to be ready for:
+
+  - R2 passes both legs → continue to §4 with the R2 MLE.
+  - R2 passes Â but Δ_dB still fails → multiple basins are
+    structural, not just under-sampled — pivot to §5 profile
+    likelihood as the diagnostic move, not Round 3 with bigger
+    budget.
+  - R2 still fails Â → genuinely under-converged at 100 iters; the
+    chapter's stopping rule (callout below) says we don't spin
+    Round 3 unless we have a structural reason — most likely
+    candidate is the logit-compression issue camdl flagged in
+    Round 1, or boundary pinning. -->
+
+::: {.callout-note}
+## Stopping rule
+
+If Round 2 passes the gate, we move to §4 (sampling-distribution
+characterization). If Round 2 still fails, the chapter doesn't
+silently spin up Round 3 — persistent gate failure after a principled
+scale-up is itself evidence about the problem (likely structural
+unidentifiability, which §5's profile likelihood is designed to
+investigate). The loop terminates honestly, not with a budget that
+finally launders the failure.
+:::
+
+## 4. Sampling variability of the MLE
+
+A deeper question than "did this one fit recover truth" is "what is
+the *sampling distribution* of the MLE at this DGP?" Even with a
+bug-free pipeline running on a well-identified model, fitting one
+realization of a stochastic DGP gives one MLE — different realizations
+give different MLEs, and the spread of those MLEs is a property of
+the data-generating process, not of the inference machinery.
+
+This section runs the scout + refine pipeline on N independent
+synthetic realizations (seeds 1..N) drawn from the same truth, and
+reports the empirical distribution of recovered parameter estimates.
+
+<!-- TODO: this is the chapter's anchor experiment. Implement once
+the single-seed fit at default budget converges (or once we have
+adopted the budget that does). N=20 is the working target.
+Concrete output: a (R₀, γ) scatter with truth marked, plus a table
+of (param, mean estimate, sd, 95% CI, fraction of fits that passed
+the gate). The take-home number is "X% of seeds at default budget
+passed the gate; among those that did, the MLE has sampling SD ≈ Y
+on R₀ and Z on γ." -->
+
+::: {.callout-note}
+## Why this section, and why nobody else does it
+
+Most published synthetic-recovery studies show one realization. That
+makes "the MLE was 5% off truth" hard to interpret: is 5% bias
+indicative of a problem with the inference, or one-σ sampling
+variability of an honest estimator? Without a sampling distribution
+we can't tell. The 20-seed cloud here is what makes the chapter's
+later claims about identifiability ridges defensible: bias along a
+ridge axis should be much wider than bias across it, and the cloud
+shape in (parameter, parameter) projections shows that directly.
+:::
+
+## 5. Identifiability analysis
+
+For the He et al. parameterisation, the force of infection is
+
+$$\lambda(t) \;=\; \beta(t)\,\frac{(I + \iota)^\alpha}{N},$$
+
+where $\beta(t) = R_0 (\gamma + \mu)$ is the seasonally-modulated
+contact rate and $\alpha$ is the mixing exponent. This form induces
+an analytical ridge in $(s_0, \alpha)$: the early-epidemic infection
+flux scales as $s_0 (i_0 + \iota)^\alpha$, so a perturbation that
+increases $s_0$ by $\delta$ and decreases $\alpha$ by $\delta /
+\log(i_0 + \iota)$ produces an identical flux to first order — a
+direction in parameter space along which the likelihood is flat
+[@he2010, Section 4.2 discusses this phenomenologically; the
+derivation is in the v0 archive of this chapter].
+
+<!-- TODO: lift the analytical derivation from the v0 archive
+once the §3 fit lands. The ridge analysis is structural to the
+problem and survives the pipeline cleanup; only the framing
+("the data cannot identify one direction in 6D parameter space")
+changes from v0's "why is the MLE biased?" -->
+
+### Profile likelihood on s₀
+
+The profile likelihood is the likelihood at each candidate $s_0$
+value with the other parameters re-optimised — the honest
+test of whether $s_0$ is identified by the data. We use camdl's
+`profile` command, with IF2 starts at the scout MLE (not at truth —
+that would leak) and re-optimization at each grid point.
+
+<!-- TODO: profile_s0 cell, at modest grid (~16 points) and modest
+particle count. Display the profile, mark scout MLE and truth s_0,
+report the 1-nat and 2-nat intervals. -->
+
+## 6. Fixed-s₀ fit
+
+If §5's profile shows $s_0$ is poorly identified, fixing it at the
+profile peak and re-fitting the remaining 5 parameters is the
+canonical response: trade an unconstrained-but-undeterminable
+parameter for a constrained-and-determinable conditional MLE. We
+report the constraint cost (likelihood gap to the unconstrained
+truth) and the residual bias on $(R_0, \gamma)$ to characterize
+what the data does and does not tell us once the dominant ridge is
+removed.
+
+<!-- TODO: fixed-s0 fit, same defaults, report MLE table with
+truth comparison + constraint-cost decomposition. -->
+
+## What this chapter does not claim
+
+A clean recovery on this problem at camdl-default budget would be
+genuinely surprising. He et al. fit by maximum likelihood took
+thousands of IF2 iterations across multiple bound-narrowing rounds;
+the public MLE rests on calibration that no default could match. If
+the chapter's §3 fit fails to recover truth within reasonable
+sampling variability, the lesson is not that camdl is broken — it
+is that *fitting is hard*, and that camdl's gate refused to launder
+a non-converged scout into a refine output that would have looked
+plausible per-parameter while masking basin-disagreement
+internally. That refusal is the feature, not the failure mode.
+
+## References
+
+::: {#refs}
+:::

@@ -1,0 +1,224 @@
+---
+title: "Measles: Bayesian Posterior Inference"
+draft: true
+execute:
+  echo: false
+---
+
+```{python}
+#| output: false
+import subprocess, io, os, sys, glob, json, tomllib
+import polars as pl
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+sys.path.insert(0, os.path.join(os.getcwd(), ".."))
+from _lib.cli import run_cli
+
+GREY = "#888888"
+mpl.rcParams.update({
+    "figure.facecolor": "none", "axes.facecolor": "none",
+    "savefig.facecolor": "none", "figure.dpi": 150, "font.size": 11,
+    "text.color": GREY, "axes.labelcolor": GREY,
+    "xtick.color": GREY, "ytick.color": GREY,
+    "axes.edgecolor": GREY, "legend.edgecolor": GREY,
+})
+
+VDIR = "he2010"
+MODEL = os.path.join(VDIR, "models/he2010_london.camdl")
+SYNTH_OBS = os.path.join(VDIR, "data/he2010_synthetic_obs.tsv")
+
+# Truth (He et al. 2010 MLE)
+TRUE_PARAMS = {
+    "R0": 56.8, "sigma": 0.0791, "gamma": 0.0832,
+    "amplitude": 0.554, "alpha": 0.976, "s0": 0.0297,
+}
+```
+
+The [Synthetic Recovery chapter](he2010-synthetic.qmd) used IF2 to find
+point estimates of the He et al. (2010) measles parameters. IF2 is an
+*optimizer*: it returns an MLE, a per-chain convergence diagnostic, and
+a profile likelihood if you ask it. What it does not return is a
+**posterior distribution** — the Bayesian object we'd use for
+uncertainty quantification, policy decisions under uncertainty, or
+posterior predictive checks with formal credibility intervals.
+
+This chapter takes the fixed-s0 model from the previous chapter — five
+estimated parameters, s0 pinned at the profile-likelihood peak of 0.025
+— and runs two Bayesian posterior samplers on it:
+
+1. **PMMH** (particle marginal Metropolis–Hastings; Andrieu, Doucet, &
+   Holenstein 2010), the canonical "just add a particle filter inside
+   your MCMC" approach.
+2. **PGAS** (particle Gibbs with ancestor sampling; Lindsten, Jordan,
+   & Schön 2014), a modern alternative that decouples trajectory
+   sampling from parameter sampling and avoids PMMH's main pathology.
+
+The result is a natural diagnostic: the He et al. model is large
+enough (21 years, 1096 weekly observations) that PMMH's particle-filter
+bottleneck kicks in hard. PGAS should handle the same model without
+the same bottleneck. We measure this directly and use the comparison to
+explain *when* each method is the right choice.
+
+
+## Why long time series break PMMH
+
+PMMH proposes a new parameter vector $\theta'$, runs a particle filter
+to estimate $\hat\ell(\theta')$, then accepts or rejects via
+Metropolis–Hastings using the ratio $\hat\ell(\theta') - \hat\ell(\theta)$.
+The method is exact in expectation provided the particle-filter
+estimate is unbiased (which it is for the bootstrap PF). But the
+*variance* of $\hat\ell$ grows roughly linearly with the number of
+observations:
+
+$$\mathrm{Var}(\hat\ell) \;\approx\; c \cdot T \cdot \kappa(\theta) / N$$
+
+where $T$ is the observation count, $N$ the particle count, and
+$\kappa(\theta)$ a model-dependent constant that measures how difficult
+the data is for the filter at parameter $\theta$. When the MH ratio's
+noise dominates its signal — specifically when
+$\mathrm{sd}(\hat\ell)$ exceeds a few nats — the chain effectively
+accepts or rejects at random and stops mixing.
+
+For the He et al. model with 1096 weekly observations, prior work in
+this book's companion repository
+([camdl-vignettes/he2010-pmmh](https://github.com/vsbuffalo/camdl-vignettes/tree/main/he2010-pmmh))
+measured
+$\mathrm{sd}(\hat\ell) = 173$ nats at 2000 particles on the full 21-year
+series, and $\mathrm{sd}(\hat\ell) = 75$ nats on a 5-year window. The
+target for reliable PMMH is
+$\mathrm{sd}(\hat\ell) < 2$. To get there on the full series, we'd need
+the PF variance down by a factor of ~7500 — which requires
+$\sim \!N \times 7500 = 15$M particles, infeasible in any reasonable
+compute budget. This is the fundamental wall PMMH hits on long time
+series.
+
+### The camdl-vignettes PMMH attempt (summary)
+
+The prior vignette tried three workarounds and documented that none
+fully solve the problem:
+
+| attempt | result |
+|---|---|
+| **Vanilla PMMH, 1096 obs, 2000 particles** | sd(ll) = 173, acceptance 1% |
+| **Vanilla PMMH, 260 obs (5yr window)** | sd(ll) = 75, acceptance 3–6% |
+| **Correlated PF (CPM-PMMH, Deligiannidis et al. 2018)** | sd(ll) reduced ~3×, acceptance 5–8% |
+| target | acceptance $\ge 23\%$ |
+
+In none of the attempts did the chains pass standard mixing diagnostics
+on the full 21-year series.
+
+
+## Why PGAS doesn't have the same problem
+
+PGAS alternates between two Gibbs steps:
+
+1. **Trajectory update**: given $\theta$, sample a new latent trajectory
+   $x_{0:T}$ via conditional SMC with ancestor sampling (CSMC-AS).
+   This does not require an unbiased $\hat\ell$ — it just requires the
+   CSMC-AS algorithm to produce a valid Gibbs step.
+2. **Parameter update**: given $x_{0:T}$, the *complete-data* likelihood
+   $p(\theta \mid x_{0:T}, y_{0:T})$ is closed-form in many models (or at
+   least low-variance), and can be sampled via a standard MH step or
+   (with gradients) HMC/NUTS.
+
+The crucial difference: the parameter step in PGAS conditions on the
+latent trajectory, not on a noisy marginal log-likelihood estimate. The
+"variance grows with T" pathology disappears. PGAS still has costs —
+CSMC-AS needs enough particles to renew the trajectory (rule of thumb:
+100–500 particles is sufficient vs. thousands for PMMH), and mixing
+quality depends on how well CSMC-AS decorrelates consecutive
+trajectories. But there's no wall.
+
+For our setup (5 estimated parameters, 21 years, 1096 obs), PGAS with
+~100 particles should run several orders of magnitude faster per
+effective sample than PMMH at the same target variance.
+
+
+## The experiment
+
+We use `fit_synthetic_fixed_s0.toml` from the previous chapter (5
+estimated params, s0 = 0.025 fixed) and add PMMH and PGAS stages. Both
+samplers start from the scout MLE and run under the same target prior
+and total compute budget.
+
+::: {.callout-important collapse="false"}
+## Running these fits in this chapter
+
+The fits below are long-running (~30 min each for PGAS on this model;
+PMMH will be budget-capped to a short run showing its failure mode
+rather than left to run indefinitely). To regenerate:
+
+```bash
+cd vignettes/he2010
+camdl fit run fit_synthetic_fixed_s0.toml --seed 42 --stage pmmh \
+    --progress plain 2>&1 | tee /tmp/camdl_pmmh.log
+camdl fit run fit_synthetic_fixed_s0.toml --seed 42 --stage pgas \
+    --progress plain 2>&1 | tee /tmp/camdl_pgas.log
+```
+
+Results land under `results/fits/fit_synthetic_fixed_s0-*/real/fit_42/{pmmh,pgas}/`.
+:::
+
+
+## PMMH on the fixed-s0 model
+
+[PENDING — run once the fixed-s0 scout completes and cores free up]
+
+Target: 4 chains × 1000 samples × 2000 particles. Will document the
+PF log-lik variance at the scout MLE, actual acceptance rate, and trace
+quality. If the failure mode replicates (high PF variance, low
+acceptance, poor mixing), that confirms the bottleneck is structural
+in PMMH itself rather than parameter-space-specific.
+
+
+## PGAS on the fixed-s0 model
+
+[PENDING — run after PMMH completes]
+
+Target: 4 chains × 5000 sweeps × 100 particles (per CSMC-AS step),
+burn-in 500. PGAS's CSMC-AS should scale efficiently with T, so we
+should see:
+
+- Chain mixing ("fuzzy caterpillar" in trace plots)
+- Reasonable effective sample size (target ~100–500 per parameter)
+- Posterior credibility intervals around truth for the 5 estimated
+  parameters
+- Stable trajectory-renewal diagnostic (near 50% is ideal)
+
+
+## Posterior comparison
+
+[PENDING]
+
+The two samplers' posteriors (if both sample cleanly) should agree up to
+Monte Carlo noise. PGAS should produce narrower CIs for a given compute
+budget, confirming its efficiency advantage on long series.
+
+We'll also overlay the IF2 scout MLE, the profile-likelihood peak, and
+the true parameter values from the synthetic recovery setup — so the
+reader can see how IF2's point estimate, the profile peak, and the
+full posterior relate to each other.
+
+
+## What this chapter establishes
+
+1. **PMMH is feasible for short time series, not long ones.** For
+   camdl's target application domain (public-health-scale surveillance
+   data typically spanning years to decades), PGAS is the practical
+   Bayesian option.
+2. **The posterior (not just the MLE) is needed for uncertainty
+   quantification.** The profile likelihood from the previous chapter
+   bounds where the likelihood is identifiable; the full posterior
+   bounds where we should *act*.
+3. **Comparison to the profile.** If the posterior marginal on any
+   parameter is narrower than the profile likelihood's curvature
+   suggests it should be, something is wrong — either the prior is
+   doing too much work, or the sampler is not mixing.
+4. **Model ambiguity.** With s0 fixed at 0.025 (not truth 0.030), the
+   posteriors won't *center* on truth. The interesting question is
+   whether the posterior's credible region *includes* truth — i.e.,
+   does fixing s0 at the profile peak produce a Bayesian fit whose
+   uncertainty correctly acknowledges the remaining ~0.005 of s0
+   ambiguity through compensating spread in the other parameters?

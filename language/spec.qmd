@@ -165,6 +165,54 @@ Additional checks:
 Disable with `--no-dim-check` if a false positive is encountered (and file
 a bug).
 
+### 2.2.2 Phenomenological dimensional escape: `unchecked_dim`
+
+Some formulations intentionally break dimensional homogeneity. The
+canonical case is the He et al. (2010) α-mixing term `(I + ι)^α`
+with non-integer `α`: `P^0.976` has no well-defined dimension, but
+the formulation is empirically validated and widely used. These are
+legitimate modelling choices, not bugs.
+
+`unchecked_dim(expr, dim = NAME, reason = "…")` asserts that the
+wrapped expression has the named dimension without the dim-checker
+verifying the assertion. Surrounding rate expressions continue to
+dim-check normally — the escape is narrow and visible.
+
+```camdl
+transitions {
+  infection : S --> E
+    @ beta(t) * unchecked_dim((I + iota)^alpha,
+                              dim = population,
+                              reason = "He et al. 2010 α-mixing exponent")
+             * S / pop(t)
+}
+```
+
+Valid `dim` names: `dimensionless`, `population`, `time`, `rate`,
+`population_rate`, `per_population`. `reason` is required — a string
+documenting the assertion's legitimacy. The wrapper compiles to
+`Ir::UncheckedDim` and is transparent at runtime (identity over
+`inner`).
+
+**Choosing the asserted dimension.** The assertion must make the
+*surrounding* expression typecheck. For the He case above:
+`β(t)` is rate (T⁻¹), `S / pop(t)` is dimensionless, so
+`unchecked_dim(…)` must absorb the population-exponent for the full
+rate to be P·T⁻¹. Hence `dim = population`. A common mistake is
+asserting `dimensionless`, which leaves the full rate at T⁻¹ and
+triggers downstream dim errors.
+
+Use sparingly — `unchecked_dim` should feel like an escape hatch,
+not a normal tool. When a build has `unchecked_dim` sites, each
+should be reviewed in code review for legitimacy.
+
+References for the canonical case:
+
+- He, Ionides, & King (2010). *J. R. Soc. Interface* 7(43): 271–283.
+  doi:10.1098/rsif.2009.0151.
+- Bretó, He, Ionides, & King (2009). *Annals of Applied Statistics*
+  3(1): 319–348. doi:10.1214/08-AOAS201.
+
 ### 2.3 Date Literals
 
 The `date("YYYY-MM-DD")` expression converts an ISO 8601 date to a float offset
@@ -193,6 +241,72 @@ simulate { to = date("2021-06-30") }
 The `origin` value is stored in the IR (`"origin": "2019-01-01"`). It does not
 affect simulation dynamics — it is purely a coordinate reference for converting
 calendar dates to simulation time.
+
+### 2.3 Three tiers of dimensional information
+
+Dimensional information in a model can be declared at three levels of
+specificity. Each tier carries strictly more information than the
+next, and each is the right tool for a distinct class of declaration.
+Understanding the hierarchy makes the rest of §2 and §4–7 fit together.
+
+| Tier                    | Syntax                                               | Carries                        | Use when                                                         |
+|-------------------------|------------------------------------------------------|--------------------------------|------------------------------------------------------------------|
+| 1. **Kind keyword**     | `rate`, `probability`, `count`, `positive`, `real`   | Dimension (inferred from kind) | Common parameter cases (the 99% case).                           |
+| 2. **Bracket annotation** | `[T]`, `[T^-1]`, `[P]`, `[P/T]`, `[1]`               | Dimension only                 | Kind keyword is under-determined (`real`, `positive`).           |
+| 3. **Unit literal**     | `'days`, `'years`, `'per_day`, `'per_year`, `'count`, `'ratio` | Dimension **+ scale**          | Concrete numeric data with a known real-world scale.             |
+
+**The tiers are complementary, not redundant.** They answer different
+questions about a value:
+
+- **Bracket annotations** answer *"what dimension does this parameter
+  have?"* — for values supplied later (at fit time via `--params`,
+  from priors, from inference). The compiler type-checks dimensions
+  without knowing scales. Scale is implicit: everything is in the
+  model's `time_unit`.
+
+- **Unit literals** answer *"what dimension AND what real-world scale
+  does this value have?"* — for concrete data (`time_unit`
+  declaration, duration literals like `5 'years`, table entries,
+  data loaded via `read()`). The compiler type-checks dimensions
+  AND normalises scale to the model's `time_unit`.
+
+You can't collapse tiers 2 and 3 into one syntax. Brackets can't
+carry scale: `[T]` says "time-dimension," not "days" vs. "years." A
+user supplying `beta = 0.3` via `--params` has agreed to provide it
+in model time units — the compiler doesn't need to convert. Unit
+literals can't be applied to unknowns: you can't write `beta :
+positive 'per_day` when `beta`'s value will be drawn from a prior,
+because the prior samples directly in model time units.
+
+**Subtyping.** Every unit literal decomposes to (dimension, scale).
+The dimension half plays the same type-checking role as a bracket;
+the scale half drives scale normalisation. A unit literal is
+strictly more informative than a bracket of the same dimension:
+
+```
+'years       ⊂    [T]     ⊂   (any time-dimensioned value)
+(dim+scale)       (dim)         (unconstrained)
+```
+
+**Kind keywords are a fourth, convenience layer on top** of the
+three tiers. They name common dimension patterns (`rate` ≡ `[T^-1]`,
+`probability` ≡ `[1]` with `[0,1]` domain, `count` ≡ `[P]`) so 99%
+of parameter declarations avoid bracket notation entirely. Use
+brackets only when the kind keyword is under-determined (`real`,
+`positive`); use unit literals only where concrete numeric values
+are attached. This section (§2.4, §6.1) shows tier-3 use on table
+values; §4.1.1 shows tier 2 on parameter declarations; §7 (Forcing)
+requires tier 3 on every forcing declaration.
+
+**`'ratio` vs `probability`**: both are dimensionless, but they're
+not synonyms. `'ratio` (tier 3) is the **unbounded** dimensionless
+case — a multiplier that could be 0.7, 1.3, 50, used for seasonal
+forcings, school-term indicators, reporting multipliers. `probability`
+(tier 1, parameter kind) is the **bounded** dimensionless case —
+values constrained to [0, 1] with an automatic logit transform for
+inference. Reach for `'ratio` when you want an arbitrary multiplier;
+reach for `probability` when you want a bounded probability
+parameter.
 
 ### 2.4 Table Unit Annotations
 
@@ -310,16 +424,16 @@ declares names and types only; concrete values are supplied at runtime:
 
 ```bash
 # Single flat TOML file
-camdl-sim simulate model.ir.json --params base.toml
+camdl simulate model.ir.json --params base.toml
 
 # Layered overrides (later files win)
-camdl-sim simulate model.ir.json --params base.toml --params patch.toml
+camdl simulate model.ir.json --params base.toml --params patch.toml
 
 # Single value override
-camdl-sim simulate model.ir.json --param gamma=0.1
+camdl simulate model.ir.json --param gamma=0.1
 
 # Per-stratum override (indexed params)
-camdl-sim simulate model.ir.json --param-vec R0=r0_posterior.tsv
+camdl simulate model.ir.json --param-vec R0=r0_posterior.tsv
 ```
 
 The TOML format supports both flat and sectioned forms (see §21).
@@ -379,7 +493,7 @@ N[patch] : positive  →  { name: "N_urban",  value: null }
 at runtime (see §21):
 
 ```bash
-camdl-sim simulate model.ir.json --param-vec R0=/tmp/r0_posterior.tsv
+camdl simulate model.ir.json --param-vec R0=/tmp/r0_posterior.tsv
 ```
 
 ### 4.4 Parameter Bounds
@@ -795,6 +909,45 @@ To use pattern (2), set `baseline = 1.0` (dimensionless) and multiply by the
 rate parameter explicitly. The dimensional analysis checker handles both
 correctly.
 
+### Required unit literal (tier-3)
+
+**Every forcing declaration must carry a tier-3 unit literal** between
+the kind keyword and the block. The literal states both the scale
+(values are normalised to the model `time_unit` at expand time) and
+the dimension (used by the dim-checker as authoritative — no
+value-based inference fallback). GH #8.
+
+```camdl
+forcing {
+  seasonal  : sinusoidal   'ratio    { baseline = 1.0  amplitude = 0.3  … }
+  beta_seas : sinusoidal   'per_day  { baseline = beta  amplitude = amp  … }
+  school    : periodic     'ratio    { values = [0.7, 1.3, 0.7, …]  … }
+  pop       : interpolated 'count    { data = "…"  time_col = t  value_col = pop  method = "linear" }
+  birthrate : interpolated 'per_year { data = "…"  time_col = t  value_col = rate  method = "linear" }
+}
+```
+
+Omitting the literal is a syntax error (E001). Previously the parser
+accepted forcings without annotations and fell back on value-based
+dimensional inference, which silently went wrong for `interpolated`
+(data-file values are always literal constants → dimensionless) and
+caused E300 dim-check failures on correct models. The required-literal
+design eliminates that class of bug at parse time.
+
+Unit-literal choices for forcings in practice:
+
+- **`'ratio`** — dimensionless multiplier around 1.0. Most seasonal
+  forcings (sinusoidal with `baseline = 1.0`), day-of-week
+  reporting factors, school-term indicators.
+- **`'per_day` / `'per_week` / `'per_month` / `'per_year`** — rate
+  forcings. The value is in the named per-unit; the expander
+  rescales it to the model `time_unit` (e.g. `'per_year` with
+  `time_unit = 'days` multiplies all stored values by 1/365.2425).
+- **`'count`** — raw population count. For `pop(t)` and similar
+  demographic covariates.
+- **`'days` / `'years`** — duration-valued forcings. Rare in
+  practice.
+
 ---
 
 ## 8. Let Bindings
@@ -950,6 +1103,129 @@ exogenous exposure — cases entering the modeled region from elsewhere:
 importation[a in age, p in patch] : --> I[a, p]
   @ import_rate * age_weights[a] * patch_weights[p]
 ```
+
+### 9.1.1 Multi-source transitions (`A + B --> …`)
+
+Either side of `-->` accepts a `+`-separated list of compartments. Each
+source contributes `-1` and each destination contributes `+1` to the
+transition's net stoichiometry. This exposes the IR's already-general
+`stoichiometry: Vec<(name, int)>` shape to the DSL — the same
+construct the Rust runtime has always consumed.
+
+**Bimolecular mass-action** (vector-host transmission, pair formation,
+cell-cell interactions):
+
+```camdl
+# Host infection from an infectious mosquito bite.
+bite     : S_h + I_v --> I_h + I_v   @ a * b_h * S_h * I_v / H
+
+# Mosquito infection from biting an infectious host.
+infect_v : S_v + I_h --> E_v + I_h   @ a * b_v * S_v * I_h / H
+
+# Chemistry-style two-reactant reaction.
+react    : A + B --> C               @ k * A * B
+```
+
+Atomic firing: a single Gillespie / tau-leap / chain-binomial step
+applies the *vector* of deltas at once. For `bite`, `S_h`
+decrements and `I_h` increments together — no intermediate state.
+
+**Catalyst collapse.** A compartment appearing on both sides of the
+arrow contributes `−1` and `+1`, which sum to `0`. Zero-delta
+entries are dropped from the stoichiometry because (a) they produce
+no net state change, and (b) the IR validator rejects `delta == 0`.
+The rate expression's reference to the catalyst is preserved, so
+the propensity dependency graph still wires it in.
+
+- `bite : S_h + I_v --> I_h + I_v @ …`  →  stoichiometry `{S_h: -1, I_h: +1}`.
+- `react : A + B --> C @ …`             →  stoichiometry `{A: -1, B: -1, C: +1}`.
+
+**No-net-effect error (E310).** A transition where every delta
+collapses to zero (all compartments are pure catalysts) emits
+`E310`: "transition 'X' has no net effect: sources and destinations
+cancel". Almost always a model error; the hint suggests removing
+catalysts or adding a non-trivial destination.
+
+**When to use it.** Multi-source is the canonical encoding for any
+two-population mass-action event — transmission that depends on two
+pop classes (S × I), predator-prey-style interactions, chemistry.
+Single-source with the catalyst referenced only in the rate is
+equivalent in the IR but hides the biological structure:
+
+```camdl
+# Clear (reads like the biology).
+bite : S_h + I_v --> I_h + I_v  @ a * b_h * S_h * I_v / H
+
+# Equivalent IR, less clear.
+bite : S_h --> I_h              @ a * b_h * S_h * I_v / H
+```
+
+Both produce the same stoichiometry `{S_h:-1, I_h:+1}` and the same
+rate expression. Prefer the multi-source form when two compartments
+jointly determine the event — the `+` makes the dependency explicit.
+
+### 9.1.2 Probabilistic branching (`X --> { A : p, B : 1-p }`)
+
+When a single event has multiple possible destination compartments
+chosen probabilistically — symptomatic vs asymptomatic infection,
+mild vs severe vs fatal progression, detected vs missed case —
+write the destinations as a weighted set:
+
+```camdl
+# An infection event produces a symptomatic case with probability
+# p_symp, otherwise asymptomatic.
+infection : S --> { I_symp : p_symp, I_asym : 1 - p_symp }
+  @ beta * S * (I_symp + I_asym) / N
+
+# Age-indexed branching (malaria use case).
+bite[a in age] : X[a] --> { Y_symp[a] : p_symp[a], Y_asym[a] : 1 - p_symp[a] }
+  @ h_eff * X[a]
+```
+
+**Semantics.** Pure compile-time sugar. Each branch expands to its
+own IR transition with rate `weight_i × original_rate` and
+stoichiometry `{source: -1, dest_i: +1}`. The existing source-
+grouping machinery in every stochastic backend (Gillespie, tau-leap,
+chain-binomial) correctly groups transitions sharing a source and
+performs a **single multinomial split** at firing time — *not* two
+independent draws, which would double-consume the source at high
+incidence. See `sim/src/chain_binomial.rs` §Euler-multinomial for
+the algorithm (matches pomp's `reulermultinom`).
+
+For the example above, `S --> { I_symp : p_symp, I_asym : 1 - p_symp }
+@ r` produces two IR transitions:
+
+| Name              | Stoich            | Rate                  |
+|-------------------|-------------------|-----------------------|
+| `infection_I_symp` | `{S:-1, I_symp:+1}` | `p_symp * r`         |
+| `infection_I_asym` | `{S:-1, I_asym:+1}` | `(1 - p_symp) * r`   |
+
+The total exit rate from `S` is `p_symp * r + (1 - p_symp) * r = r`,
+so the overall depletion rate is unchanged; only the destination
+distribution is refined.
+
+**Branch naming.** The compiler appends the destination compartment
+name to the transition's base name to disambiguate. Indexed
+transitions combine the index suffix and branch suffix:
+`bite[a in age] : X[a] --> { Y_symp[a] : …, Y_asym[a] : … } @ …`
+produces `bite_child_Y_symp`, `bite_child_Y_asym`,
+`bite_adult_Y_symp`, `bite_adult_Y_asym`.
+
+**When to use it.** When the biology is "one event, multiple
+outcomes chosen stochastically at the moment of the event." When the
+biology is "two separate ongoing processes from the same compartment
+with different rates" (e.g., death and recovery from I), use two
+plain transitions — the runtime treats them identically under
+source-grouping, but the DSL intent differs and two transitions
+reads more naturally.
+
+**Weights.** The weight of each branch is any scalar expression with
+dimension `probability` (dimensionless, domain `[0, 1]`). The
+compiler does not enforce that weights sum to 1 — users can write
+rate-weighted branches where the sum differs from 1 (e.g., for a
+fraction of events going to an "other" compartment that's implicit).
+Most users will write `{A : p, B : 1 - p}` for binary branching or
+an explicit last entry `1 - sum-of-others` for n-way branching.
 
 ### 9.2 Indexed Transitions
 
@@ -1445,6 +1721,44 @@ prevalence(compartment)                  current population
 prevalence(compartment[age = child])     named index on compartment
 ```
 
+**Arithmetic projections** (the general form). Beyond `incidence()`
+and `prevalence()` sugar, `projected` accepts any expression over
+compartment state, parameters, and time. Pooled-group prevalence,
+prevalence-as-proportion, and arbitrary derived observables compose
+naturally:
+
+```camdl
+observations {
+  # Pooled-group count (Garki patent prevalence across x3, y3).
+  patent_count : {
+    projected = x3 + y3
+    likelihood = poisson(rate = projected)
+    every = 1 'months
+  }
+
+  # Prevalence-as-proportion — the canonical surveillance form.
+  slide_positivity : {
+    projected = (I_m + I_s) / (S + I_m + I_s + R)
+    likelihood = diagnostic_test(
+      base = binomial(n = N_tested, p = projected),
+      sens = rho_sens, spec = rho_spec
+    )
+    every = 1 'weeks
+  }
+}
+```
+
+Arithmetic projections emit `Ir::Projection::DerivedExpr`. Both the
+forward-simulation emission path (`camdl simulate --obs`) and the
+likelihood-scoring path (pfilter / PGAS / IF2) share a single
+evaluator (`sim::inference::multi_stream_obs::eval_stream_projection`),
+so they agree on semantics by construction. If you find yourself
+wanting a "multi-compartment prevalence" shortcut, write the sum
+directly: `projected = x + y` is the general form; `prevalence(x)`
+is kept as sugar only for the single-compartment case where the
+named function clarifies intent.
+
+
 **Both indexed forms sum over unspecified dimensions.** The only difference
 is how the index is matched:
 
@@ -1475,6 +1789,68 @@ binomial(n = EXPR, p = EXPR)                   bounded counts
 beta_binomial(n = EXPR, alpha = EXPR, beta = EXPR)
 bernoulli(p = EXPR)                            binary outcome
 ```
+
+### 13.2.1 Diagnostic-test likelihood sugar
+
+Surveillance data is almost never perfectly observed — slide
+microscopy, RDTs, and PCR all have sensitivity < 1 and specificity
+< 1. The `diagnostic_test` sugar absorbs the measurement-model
+correction so the DSL reads like the biology:
+
+```camdl
+observations {
+  slide_positivity : {
+    projected  = prevalence(I)
+    every      = 1 'weeks
+    likelihood = diagnostic_test(
+      base = binomial(n = N_tested, p = projected / N),
+      sens = rho_sens,
+      spec = rho_spec
+    )
+  }
+}
+```
+
+**Semantics.** Pure compile-time rewrite. If true positive fraction
+is π, the probability of a positive test outcome is
+
+```
+p_observed  =  sens · π  +  (1 − spec) · (1 − π)
+```
+
+— the first term is a true-positive (infected and detected), the
+second is a false-positive (uninfected but mistakenly positive). The
+compiler rewrites the inner likelihood's `p = π` to this expression,
+producing IR byte-identical to a hand-inlined
+
+```camdl
+likelihood = binomial(
+  n = N_tested,
+  p = rho_sens * projected / N + (1 - rho_spec) * (1 - projected / N)
+)
+```
+
+**Supported bases.**
+
+- `binomial(n = …, p = …)` — survey of `n` individuals, count positives.
+- `bernoulli(p = …)` — single test per individual, 0/1 outcome.
+
+Other likelihood families (`poisson`, `neg_binomial`, `normal`,
+`beta_binomial`) aren't meaningful as diagnostic-test bases
+(sens/spec correct a probability, not a count-mean or variance) and
+produce `E253` when used.
+
+**Parameters.** `sens` and `spec` can be anything in `[0, 1]`: fixed
+constants, parameters with priors (for joint estimation of test
+characteristics with the transmission model), or expressions.
+Dimensional type is `probability`; the compiler checks domain.
+
+**Diagnostics.**
+
+- `E253` — base must be `binomial(...)` or `bernoulli(...)`; other
+  likelihood families rejected.
+- `E254` — missing one of the required keyword arguments `base`,
+  `sens`, `spec`.
 
 ### 13.3 Indexed Observations
 
@@ -2351,7 +2727,7 @@ structural skeleton; the parameter grammar fills in the rest.
 ## 21. CLI
 
 The unified `camdl` command routes to two backends: **`camdlc`** (OCaml
-compiler) for compilation/inspection and **`camdl-sim`** (Rust) for simulation,
+compiler) for compilation/inspection and **`camdl`** (Rust) for simulation,
 experiments, and inference. All commands accept `.camdl` files directly
 (auto-compiled via `camdlc`).
 
@@ -2458,9 +2834,13 @@ heteroscedastic variance).
 - Mixed: `--rw-sd "R0=5,sigma=auto"` — explicit where you know, auto
   where you don't.
 
-**`--regime`**: IF2 presets — `scout` (8 chains, 500 particles,
-cooling=0.5), `refine` (4 chains, 1000 particles, cooling=0.95),
-`validate` (4 chains, 5000 particles, cooling=0.95).
+**`--regime`**: IF2 presets — `scout` (8 chains, 500 particles, 30 iters,
+cooling=0.70 — mild cooling for basin exploration), `refine` (4 chains,
+1000 particles, 50 iters, cooling=0.05 — aggressive cooling to converge
+onto scout's best), `validate` (4 chains, 5000 particles, 100 iters,
+cooling=0.05 — final polish). Authoritative constants:
+`rust/crates/cli/src/fit/{scout,refine}.rs`. Cooling is pomp's cf50
+convention (halfway-SD fraction); see `docs/methods/cooling.md`.
 
 **`--ivp "S0,I0"`**: Initial value parameters, perturbed only at t=0.
 
@@ -3376,7 +3756,7 @@ Diagnostics carry a numeric code for programmatic consumption (e.g.,
 | E202 | Error   | Wrong number of indices for compartment                                                         |
 | E203 | Error   | Index belongs to wrong dimension (e.g., `C_age[i, s]` where `s : sex`)                          |
 | E204 | Error   | Partial-stratification stoichiometry: destination compartment dimensions incompletely specified |
-| W002 | Warning | Zero-firing transition (emitted at simulation time by `camdl-sim`)                              |
+| W002 | Warning | Zero-firing transition (emitted at simulation time by `camdl`)                              |
 | W103 | Warning | Let binding name shadows a stratum value in some dimension                                      |
 
 Diagnostics can be emitted as structured JSON by passing `--json-errors` to

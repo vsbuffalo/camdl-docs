@@ -15,32 +15,34 @@ dt = 1.0
 [estimate.a]
 bounds = [0.1, 1.0]
 start  = 0.4
-prior  = { dist = "log_normal", mu = -0.7, sigma = 0.5 }
+prior  = { log_normal = { mu = -0.7, sigma = 0.5 } }
 
 [estimate.b_h]
 bounds = [0.05, 0.8]
 start  = 0.25
-prior  = { dist = "uniform" }
+# No prior block → Prior::Flat (uninformative; bounds enforce constraint).
+# v2's `prior = { dist = "uniform" }` was the same thing said differently;
+# post-2026-04-30 prior-types-consolidation it's expressed by omission.
 
 [estimate.b_v]
 bounds = [0.05, 0.5]
 start  = 0.15
-prior  = { dist = "uniform" }
+# No prior block → Prior::Flat (see [estimate.b_h] above).
 
 [estimate.r]
 bounds = [0.005, 0.5]
 start  = 0.04
-prior  = { dist = "log_normal", mu = -3.0, sigma = 0.5 }
+prior  = { log_normal = { mu = -3.0, sigma = 0.5 } }
 
 [estimate.sigma_v]
 bounds = [0.05, 0.5]
 start  = 0.08
-prior  = { dist = "log_normal", mu = -2.3, sigma = 0.5 }
+prior  = { log_normal = { mu = -2.3, sigma = 0.5 } }
 
 [estimate.mu_v]
 bounds = [0.01, 0.3]
 start  = 0.08
-prior  = { dist = "log_normal", mu = -2.3, sigma = 0.5 }
+prior  = { log_normal = { mu = -2.3, sigma = 0.5 } }
 
 # Fix observation and population parameters at truth.
 [fixed]

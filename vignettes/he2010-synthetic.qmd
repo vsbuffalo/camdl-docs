@@ -1,0 +1,658 @@
+---
+title: "Fitting the He et al. (2010) seasonal SEIR to synthetic data"
+subtitle: "What camdl's defaults get you, and how to read what they tell you"
+draft: true
+execute:
+  echo: true
+  warning: false
+code-fold: true
+code-summary: "show code"
+---
+
+This chapter fits the He et al. [-@he2010] seasonal SEIR measles
+model to synthetic data generated from the published MLE. Synthetic
+recovery localizes failure: we know the answer, the data come from
+the same process the inference assumes, so any failure points to
+either a modelling artifact or an inference artifact, not to model
+misspecification.
+
+The chapter shows two fit attempts on the same synthetic dataset.
+**Round 1** uses camdl's package defaults — a deliberately minimal
+budget that exposes what defaults do on a hard problem. **Round 2**
+scales up to budgets comparable to standard pomp-vignette settings
+[@king2016pomp]. Throughout, **each chain keeps the same color
+across all diagnostic plots** so an outlier on the log-likelihood
+trace can be identified as the same outlier on the pair plot. A
+detailed historical version of this analysis with extensive
+diagnostic callouts is preserved at
+[`he2010-synthetic-v1`](he2010-synthetic-v1.qmd).
+
+```{python}
+#| label: setup
+#| echo: false
+import os, sys, subprocess, tomllib, io
+from pathlib import Path
+import numpy as np
+import polars as pl
+import matplotlib.pyplot as plt
+
+# Import shared book-level helpers from <book root>/_lib/
+_BOOK_ROOT = Path("/Users/vsb/projects/work/camdl-book")
+sys.path.insert(0, str(_BOOK_ROOT))
+from _lib.pair_plot import pair_plot_chains, load_chain_traces, chain_color_palette
+from _lib.cli import run_cli
+from _lib.profile_plot import plot_profile_panels
+
+GREY = "#666666"
+plt.rcParams.update({
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.labelcolor": GREY, "xtick.color": GREY, "ytick.color": GREY,
+    "axes.edgecolor": GREY, "legend.edgecolor": GREY,
+})
+
+VDIR = Path("he2010")
+MODEL  = VDIR / "models/he2010_london.camdl"
+PARAMS = VDIR / "params/he2010_london.toml"
+SYNTH  = VDIR / "data/he2010_synthetic_obs.tsv"
+REAL   = VDIR / "data/he2010_london_cases.tsv"
+
+# Truth values from params/he2010_london.toml
+TRUTH = {"R0": 56.8, "alpha": 0.976, "amplitude": 0.554,
+         "gamma": 0.0832, "s0": 0.0297, "sigma": 0.0791}
+TRUTH_LL = -5982.7   # 16k×8 reference clean PF eval at truth
+PARAMS_LIST = ["R0", "alpha", "gamma", "amplitude", "sigma", "s0"]
+BOUNDS = {"R0": (5.0, 100.0), "alpha": (0.5, 1.0),
+          "gamma": (0.02, 0.2), "amplitude": (0.1, 0.9),
+          "sigma": (0.02, 0.2), "s0": (0.001, 0.5)}
+
+def assert_fresh(path, *deps, hint=""):
+    if not path.exists():
+        raise FileNotFoundError(f"{path} missing — {hint}")
+    pm = path.stat().st_mtime
+    for d in deps:
+        if Path(d).stat().st_mtime > pm:
+            raise RuntimeError(f"{path} older than {d}. Run: {hint}")
+    return path
+
+assert_fresh(SYNTH, MODEL, PARAMS, hint="cd vignettes/he2010 && make sim")
+
+def _find_fit(prefix):
+    hits = sorted((VDIR / "results/fits").glob(f"{prefix}/real/fit_42"))
+    return next((h for h in reversed(hits)
+                 if (h / "scout/fit_state.toml").exists()), None)
+
+R1_ROOT = _find_fit("fit-*")
+if R1_ROOT is None:
+    raise RuntimeError("no R1 fit. Run: cd vignettes/he2010 && make fit-r1")
+R1_SCOUT = R1_ROOT / "scout"
+```
+
+## 1. Forward-simulation validation
+
+Before any inference work, we validate that camdl's chain-binomial
+backend produces the same forward-simulation distribution at the He
+et al. MLE as the pomp reference [@king2016pomp]. Recovery
+experiments against a buggy simulator are meaningless.
+
+```{python}
+#| label: envelope-smoke
+#| echo: false
+run_cli("python validation/envelope_smoke.py", cwd="he2010",
+        echo="python validation/envelope_smoke.py")
+```
+
+## 2. The synthetic dataset
+
+One synthetic dataset, seed 42, 21 years of weekly notifications,
+generated from the He et al. MLE.
+
+The synthetic dataset is produced by `make sim`, which runs:
+
+```{.bash}
+camdl simulate models/he2010_london.camdl \
+    --params params/he2010_london.toml \
+    --backend chain_binomial --dt 1 --seed 42 \
+    --obs-only data/he2010_synthetic_obs.tsv
+```
+
+```{python}
+#| label: fig-synth-vs-real
+#| fig-cap: "Synthetic dataset (top) generated at the He et al. MLE under seed 42 vs. real London notifications 1944–1964 (bottom). Visual similarity is not the validation criterion — see callout."
+synth = pl.read_csv(SYNTH, separator="\t")
+real  = pl.read_csv(REAL,  separator="\t")
+
+fig, axes = plt.subplots(2, 1, figsize=(10, 4.5), sharex=True)
+axes[0].plot(synth["time"], synth["weekly_cases"], color="#3366cc", linewidth=0.8)
+axes[0].set_ylabel("synth weekly cases")
+axes[1].plot(real["time"], real["cases"], color="#222222", linewidth=0.8)
+axes[1].set_ylabel("real weekly cases")
+axes[1].set_xlabel("time (days from 1944-01-07)")
+fig.tight_layout()
+```
+
+::: {.callout-warning}
+## Subtle and pernicious: cherry-picking synthetic seeds
+
+A natural temptation is to *select* a synthetic draw that "looks
+like" the real data. **Do not.** Once you filter draws by features
+of the real data, the inference is no longer a clean recovery
+test — you have leaked structure of the real data into the
+ground truth. The pipeline either recovers, or it doesn't; the
+data realization is what it is. Same applies to *any* tuning
+informed by the truth dataset (bounds, cooling, particles).
+:::
+
+## 3. Round 1: defaults
+
+camdl's package defaults: 8 chains × 500 particles × 30 iterations,
+cooling = 0.70.
+
+The fit configuration:
+
+```{python}
+#| label: show-r1-config
+#| echo: false
+run_cli("cat fit.toml", cwd="he2010",
+        echo="cat fit.toml", max_lines=80)
+```
+
+The fit is launched by `make fit-r1`, which runs:
+
+```{.bash}
+camdl fit run fit.toml --seed 42 --progress plain
+```
+
+```{python}
+#| label: r1-load
+#| echo: false
+t1 = load_chain_traces(R1_SCOUT)
+chain_ids_r1 = sorted(t1["chain"].unique().to_list())
+COLORS_R1 = chain_color_palette(chain_ids_r1)
+state1 = tomllib.loads((R1_SCOUT / "fit_state.toml").read_text())
+```
+
+### Per-chain log-likelihood trajectories
+
+```{python}
+#| label: fig-r1-ll-trajectories
+#| fig-cap: "R1 per-chain log-likelihood across IF2 iterations. Each iter's value is the IF2 cloud log-likelihood at 500 particles (`if2_perturbed_loglik`, dense per-iter trace). Chain colors are consistent across every R1 figure in this section. Truth at ℓ ≈ −5983 (dashed). Chains in the bad-s₀ basin dive to ll ≈ −9000 around iter 13 before partially recovering as cooling concentrates them."
+fig, ax = plt.subplots(figsize=(8, 4))
+for c in chain_ids_r1:
+    sub = t1.filter(pl.col("chain") == c).sort("iteration")
+    ax.plot(sub["iteration"], sub["if2_perturbed_loglik"],
+            color=COLORS_R1[c], linewidth=1.4, alpha=0.85,
+            label=f"chain {c}")
+ax.axhline(TRUTH_LL, color="black", linestyle="--", linewidth=1)
+ax.set_xlabel("IF2 iteration")
+ax.set_ylabel("if2_perturbed_loglik (cloud ll, 500p)")
+ax.set_title("R1: per-chain log-likelihood across iterations")
+ax.legend(frameon=False, fontsize=8, loc="center left",
+          bbox_to_anchor=(1.02, 0.5))
+fig.tight_layout()
+```
+
+### Final loglik-eval log-likelihood per chain
+
+```{python}
+#| label: fig-r1-clean-ll
+#| fig-cap: "R1 loglik-eval log-likelihood per chain (4000 particles × 8 reps, logmeanexp). Same chain colors as fig-r1-ll-trajectories. Two distinct clusters separated by ~2200 nats."
+ll1 = state1.get("chain_clean_logliks", [])
+se1 = state1.get("chain_clean_ses", [])
+fig, ax = plt.subplots(figsize=(8, 3.5))
+for i, c in enumerate(chain_ids_r1):
+    ax.errorbar(c, ll1[i], yerr=se1[i], fmt="o", color=COLORS_R1[c],
+                markersize=10, capsize=3, linewidth=1.5)
+ax.axhline(TRUTH_LL, color="black", linestyle="--", linewidth=1,
+           label=f"truth ℓ = {TRUTH_LL:.0f}")
+ax.set_xlabel("chain"); ax.set_ylabel("loglik-eval log-likelihood")
+ax.set_title(f"R1 loglik-eval: spread = {max(ll1)-min(ll1):.0f} nats "
+             f"≈ {(max(ll1)-min(ll1))*10/np.log(10):.0f} dB")
+ax.legend(frameon=False, fontsize=9,
+          loc="center left", bbox_to_anchor=(1.02, 0.5))
+fig.tight_layout()
+```
+
+### Pair plot
+
+```{python}
+#| label: fig-r1-pair
+#| fig-cap: "R1 pair plot, last 50% of iterations, 8 chains × 15 iters = 120 points per panel. Chain colors match fig-r1-ll-trajectories. Diagonal = per-chain marginal histograms; black dashed = truth, red dotted = parameter bounds. Lower triangle = pairwise scatter; black × = truth."
+fig, _ = pair_plot_chains(
+    t1, params=PARAMS_LIST, truth=TRUTH, bounds=BOUNDS,
+    last_frac=0.5,
+    title="R1 pair plot — 8 chains × last 15 iter")
+```
+
+### R1 fit summary
+
+```{python}
+#| label: r1-summary
+#| echo: false
+run_cli(f"camdl fit summary {R1_ROOT} --no-color",
+        echo=f"camdl fit summary {R1_ROOT}")
+```
+
+R1 fails both legs of the compound gate, but **marginally**: Â on R₀
+and α is in the 1.05–1.06 band — chains agree on the same ridge
+basin within sampling noise, just slightly above the gate's strict
+1.01 threshold. The pair plot shows what's happening: γ, σ,
+amplitude all cluster tightly across chains; R₀, α, s₀ spread along
+the analytic identifiability ridge ($\beta(t)\,(I+\iota)^\alpha$
+flat to first order in the (s₀, α) direction).
+
+The winner sits at R₀ ≈ 67, α ≈ 0.72, s₀ ≈ 0.16 — an "alternative
+MLE" along the ridge, not He et al.'s published values (R₀ = 56.8,
+α = 0.976, s₀ = 0.030). ll = −6173.6 vs truth at −5982.7, a 191-nat
+gap. Important context: when camdl-vignettes fit the *real* London
+data, it converged to a similar ridge point (R₀ ≈ 43, α ≈ 0.77,
+s₀ ≈ 0.06) — different basin point, same ridge structure. **The
+ridge is real, not an artifact**; He et al. drove their published
+MLE through bound-narrowing rounds and informed start values.
+
+## 4. Refine
+
+Scout's gate failed marginally (Â at 1.05 vs threshold 1.01) but the
+chains agree on the ridge basin. Refine starts from scout's
+loglik-eval winner and runs a small, cold IF2 ensemble (camdl
+defaults: 4 chains × 1000 particles × 50 iterations × cf50 = 0.05)
+to drive the parameters toward the local MLE within that basin.
+Launched by `camdl fit run fit.toml --seed 42 --allow-nonconverged-scout`.
+
+```{python}
+#| label: refine-summary
+#| echo: false
+R1_REFINE_DIR = R1_ROOT / "refine"
+if R1_REFINE_DIR.exists():
+    run_cli(f"camdl fit summary {R1_ROOT} --stage refine --no-color",
+            echo=f"camdl fit summary {R1_ROOT} --stage refine")
+else:
+    print("Refine not yet run. Run: camdl fit run fit.toml --seed 42 --allow-nonconverged-scout")
+```
+
+**Refine improved ll by 112 nats** (scout: −6173.6 → refine: −6061.2),
+narrowing the gap to truth from 191 to 78 nats. The refine winner
+sits at a different point on the same ridge — R₀ swung from
+scout's 67 to refine's 32 (truth: 56.8) — illustrating ridge
+flatness in (R₀, α). The 4 chains span only 94 nats in ll
+(σ_max = 1.22 nats), tightly clustered.
+
+::: {.callout-warning}
+## Why refine's Â looks broken
+
+The reported Â values for refine are extreme (Â on s₀ = 36.9, on
+R₀ = 24.9). **These are statistical artifacts of cold cooling, not
+real chain disagreement.** Â is camdl's chain-agreement statistic
+for MLE-pipeline output (scout, refine, validate); it uses the same
+$\sqrt{\hat V / W}$ formula as Gelman–Rubin's $\hat R$ for MCMC, but
+applies it to IF2 parameter-mean trajectories rather than to
+posterior samples. The renaming is deliberate: $\hat R$ in the MCMC
+context implies "samples have mixed to a stationary distribution";
+Â here only implies "independent stochastic optimizers ended up at
+the same point in parameter space" — the math is the same, the
+interpretation isn't.
+
+The pathology specific to refine: with cf50 = 0.05, within-chain
+parameter variance $W$ shrinks to near-zero by iter 25 (cooling
+drives perturbation $\sigma_t / \sigma_0 \to 0$). When $W \to 0$,
+$\hat A = \sqrt{\hat V / W}$ blows up regardless of how tight the
+between-chain spread $\hat V$ is. The 4 refine chains here span
+only 94 nats in loglik-eval ll and have winner θ̂ values within a
+few percent of each other — the cold-cooled chains agree, the
+statistic just can't see it.
+
+The cross-stage signal `vs scout: Δ = +112 nats ✓` is the right
+diagnostic for refine convergence, not Â. Camdl's gate machinery
+currently applies the same Â test to refine as to scout, which
+over-flags successful refines. Worth filing upstream.
+:::
+
+## 5. Profile likelihoods on s₀ and R₀
+
+The pair plot suggested an identifiability ridge in (s₀, R₀, α).
+Profile likelihoods are the formal diagnostic: at each grid value
+of the profile parameter, *re-optimize* the other parameters via
+IF2, evaluate the resulting MLE's log-likelihood. A flat profile
+means the data does not identify that parameter; a peaked profile
+(narrow at high resolution) means it does.
+
+These are **true profile likelihoods**, not slice / conditional
+likelihoods — at every grid point, the other parameters are
+re-fit. Profiles started from the refine MLE (not truth — see
+data-leakage rule).
+
+```{python}
+#| label: r3-profiles-load
+#| echo: false
+PROFS = Path("he2010/validation")
+PROF_S0 = PROFS / "profile_s0.tsv"
+PROF_R0 = PROFS / "profile_r0.tsv"
+have_s0 = PROF_S0.exists()
+have_r0 = PROF_R0.exists()
+if not (have_s0 and have_r0):
+    print("Profiles not yet present.")
+    print(f"  s0 profile: {'✓' if have_s0 else '⏳ pending'}")
+    print(f"  R0 profile: {'✓' if have_r0 else '⏳ pending'}")
+    print("Run: cd vignettes/he2010 && make profiles")
+
+def _load_profile(path):
+    """Load a profile TSV, aliasing pre-`b8878e2` `best_loglik` to
+    `loglik` so vignettes/he2010/validation/*.tsv generated against
+    the older single-seed schema still resolve. Drop once the
+    validation TSVs are regenerated against current camdl."""
+    df = pl.read_csv(path, separator="\t", comment_prefix="#")
+    if "best_loglik" in df.columns and "loglik" not in df.columns:
+        df = df.rename({"best_loglik": "loglik"})
+    return df
+```
+
+### Profile over s₀
+
+```{python}
+#| label: profile-s0-load
+#| echo: false
+if have_s0:
+    p_s0 = _load_profile(PROF_S0).sort("s0")
+
+S0_PANELS = ["loglik", "R0", "alpha", "gamma"]
+S0_LABELS = ["log-likelihood", "R₀ at MLE", "α at MLE", "γ at MLE"]
+```
+
+```{python}
+#| label: fig-profile-s0
+#| fig-cap: "True profile likelihood over s₀, full grid. Top panel: log-likelihood at the re-optimized MLE per grid point. Lower panels: R₀, α, γ at each conditional MLE — the FOI ridge structure. Truth (black dashed/dotted), profile MLE (orange star + dot-dash). The ll panel descends sharply at s₀ < 0.015 (where I no longer ≫ ι) and is essentially flat above s₀ ≈ 0.02 — the textbook unidentifiability signature."
+if have_s0:
+    fig, _ = plot_profile_panels(
+        p_s0, x_col="s0",
+        panel_params=S0_PANELS, panel_labels=S0_LABELS,
+        truth=TRUTH, truth_ll=TRUTH_LL, x_log=True,
+        title="Profile likelihood over s₀ — full grid")
+```
+
+```{python}
+#| label: fig-profile-s0-zoom
+#| fig-cap: "Profile likelihood over s₀, zoomed to the peak region (s₀ ∈ [0.015, 0.10], linear x-axis). The likelihood is flat to within a few nats over the peak's ~factor-of-3 range, descending ~50 nats outside. Truth s₀ = 0.030 sits inside the flat region; the data does not distinguish s₀ = 0.020 from s₀ = 0.050."
+if have_s0:
+    fig, _ = plot_profile_panels(
+        p_s0, x_col="s0",
+        panel_params=S0_PANELS, panel_labels=S0_LABELS,
+        truth=TRUTH, truth_ll=TRUTH_LL, x_log=False,
+        x_range=(0.015, 0.10),
+        title="Profile likelihood over s₀ — zoom on peak region")
+```
+
+### Profile over R₀
+
+```{python}
+#| label: profile-r0-load
+#| echo: false
+if have_r0:
+    p_r0 = _load_profile(PROF_R0).sort("R0")
+
+R0_PANELS = ["loglik", "s0", "alpha", "gamma"]
+R0_LABELS = ["log-likelihood", "s₀ at MLE", "α at MLE", "γ at MLE"]
+```
+
+```{python}
+#| label: fig-profile-r0
+#| fig-cap: "True profile likelihood over R₀, full grid (R₀ ∈ [20, 100], linear x-axis). Same stacked-panel layout and color convention as fig-profile-s0. The ll panel is flat over almost the entire grid — only ~11 nats variation over a 5× range in R₀ — a stronger unidentifiability signature than s₀'s."
+if have_r0:
+    fig, _ = plot_profile_panels(
+        p_r0, x_col="R0",
+        panel_params=R0_PANELS, panel_labels=R0_LABELS,
+        truth=TRUTH, truth_ll=TRUTH_LL, x_log=False,
+        title="Profile likelihood over R₀ — full grid")
+```
+
+```{python}
+#| label: fig-profile-r0-zoom
+#| fig-cap: "Profile likelihood over R₀, zoomed to where ll is within ~5 nats of peak (R₀ ∈ [40, 80]). Even at this zoom the likelihood is essentially flat — R₀ is genuinely unidentified by the data given the (s₀, α) freedom along the FOI ridge."
+if have_r0:
+    fig, _ = plot_profile_panels(
+        p_r0, x_col="R0",
+        panel_params=R0_PANELS, panel_labels=R0_LABELS,
+        truth=TRUTH, truth_ll=TRUTH_LL, x_log=False,
+        x_range=(40.0, 80.0),
+        title="Profile likelihood over R₀ — zoom on peak region")
+```
+
+## 6. Identifiability ridge — theory vs empirics
+
+The profile-likelihood flatness is not random; it has a closed-form
+analytical explanation rooted in the model's force-of-infection
+expression. He et al. parameterise it as
+
+$$\lambda(t) = \beta(t) \cdot \frac{(I + \iota)^\alpha}{N},
+\qquad \beta(t) = R_0 \cdot \mathrm{seas}(t) \cdot (\gamma + \mu).$$
+
+During the epidemic phase, $I \gg \iota = 2.9$, so the
+per-susceptible-and-time infection rate simplifies to
+
+$$\text{rate}(S \to E) \approx \beta \cdot s_0 \cdot I^\alpha.$$
+
+Taking logs:
+
+$$\log\text{rate} \approx \log\beta + \log s_0 + \alpha \log I.$$
+
+A common simplification is to *fix β* and derive a 2-parameter
+ridge in $(\log s_0, \alpha)$:
+
+$$\log s_0 + \alpha \log I_{\text{ref}} = \text{const}
+\;\;\Longrightarrow\;\;
+\boxed{\frac{d \log s_0}{d \alpha} = -\log I_{\text{ref}}}$$
+
+with identified combination $\kappa = s_0 \cdot I_{\text{ref}}^\alpha$.
+The ridge is a straight line in $(\log s_0, \alpha)$-space with
+slope $-\log I_{\text{ref}}$. For He et al. London measles, $I$
+during epidemics is $\sim 10^3$ to $10^4$, so the predicted slope is
+**between −7 and −9**. We test this empirically below.
+
+**But β isn't fixed in our parameterization** — it's
+$\beta(t) = R_0 \cdot \mathrm{seas}(t) \cdot (\gamma + \mu)$,
+where $R_0$ and $\gamma$ are *both* parameters we estimate. The
+honest constant-rate condition at $I_{\text{ref}}$ is
+
+$$\log R_0 + \log(\gamma + \mu) + \log s_0 + \alpha \log I_{\text{ref}}
+\;=\; \text{const}.$$
+
+This is a **4-parameter ridge** in $(R_0, \gamma, s_0, \alpha)$: any
+joint perturbation that leaves the left-hand side invariant
+produces the same rate trajectory and the same likelihood.
+Fisher information along the ridge direction vanishes —
+Rothenberg/Fisher non-identifiability [@rothenberg1971;
+@ionides2024]. Only the ridge-aligned combination
+
+$$\kappa \;=\; R_0 \cdot (\gamma + \mu) \cdot s_0 \cdot I_{\text{ref}}^\alpha$$
+
+is identified.
+
+**Numerical confirmation from the R₀ profile** (re-optimized
+parameters at conditional MLEs):
+
+- $R_0 = 20$: $\gamma = 0.120$, $\alpha = 0.83$, so
+  $\beta = R_0(\gamma+\mu) \approx 2.4$
+- $R_0 = 100$: $\gamma = 0.121$, $\alpha = 0.58$, so
+  $\beta \approx 12.1$
+
+β changes by a factor of 5, but α slides 0.83 → 0.58 to absorb it:
+$I^{0.83} / I^{0.58} = I^{0.25}$, and with $I \sim 10^3$ during
+epidemics, $I^{0.25} \approx 5.6$ — matching the β change almost
+exactly. The data does not distinguish "high R₀ with weakly
+super-linear FOI" from "low R₀ with more nearly linear FOI" because
+they predict identical effective rates. **The 1D profiles each
+trace a different cross-section of the same 4D ridge; the 2D
+profiles map 2D faces of it.** There is no "fix R₀, profile s₀"
+story that escapes the ridge — when you fix any one of the four,
+the data slides along the other three.
+
+The empirical-vs-theory check below uses the 2-parameter
+$(s_0, \alpha)$ slice (with R₀ and γ re-optimized at each grid
+point), which is the cleanest 1D test of the ridge slope. The
+slope agreement with theory tests the structural prediction; the
+4-parameter framing above explains why the 1D profiles on R₀
+and γ are *also* flat, not just s₀.
+
+### Empirical ridge from the s₀ profile
+
+We compute the empirical slope by fitting α versus log s₀ over the
+re-optimized profile points (excluding the descent region at very
+low s₀ where the ridge approximation breaks down because $I$ is
+no longer $\gg \iota$).
+
+```{python}
+#| label: fig-ridge-tradeoff
+#| fig-cap: "Empirical FOI ridge. Each dot is the conditional MLE α at one s₀ grid point of the 1D profile, dot size proportional to exp(ll − max ll). The black line is the linear fit α = a + b·ln(s₀) over the ridge-active region (s₀ ≥ 0.02, where I ≫ ι). The fitted slope b corresponds to a characteristic infection level I_ref = exp(−1/b) (in natural log units), shown in the annotation."
+p = _load_profile(PROF_S0).sort("s0")
+s0v   = p["s0"].to_numpy()
+alpha = p["alpha"].to_numpy()
+ll    = p["loglik"].to_numpy()
+
+# Ridge-active region: s0 large enough that I >> iota during epidemic.
+# Use the flat part of the profile (s0 >= 0.02).
+mask = s0v >= 0.02
+log_s0 = np.log(s0v[mask])
+a_fit  = alpha[mask]
+
+# Linear fit α = a + b · log(s0); slope b = -1/log(I_ref)
+b, a = np.polyfit(log_s0, a_fit, 1)
+I_ref = np.exp(-1.0/b)
+
+fig, ax = plt.subplots(figsize=(7.5, 5))
+sc = ax.scatter(np.log(s0v), alpha, c=ll, cmap="viridis",
+                s=80, edgecolor="white", linewidth=0.6,
+                label="conditional MLE α(s₀)")
+xs = np.linspace(np.log(s0v[mask].min()), np.log(s0v[mask].max()), 50)
+ax.plot(xs, a + b * xs, color="black", linestyle="--", linewidth=1.5,
+        label=f"linear fit (s₀ ≥ 0.02):\n  slope = {b:.2f} → I_ref = exp(−1/slope) = {I_ref:.0f}")
+ax.scatter([np.log(TRUTH["s0"])], [TRUTH["alpha"]], marker="x",
+           color="black", s=180, linewidth=3, zorder=5,
+           label=f"truth (s₀={TRUTH['s0']:.3f}, α={TRUTH['alpha']:.3f})")
+ax.set_xlabel("ln(s₀)"); ax.set_ylabel("α at conditional MLE")
+ax.set_title("Empirical (s₀, α) ridge vs theoretical FOI prediction")
+# Legend top-right (outside axes), colorbar bottom-right — stacked,
+# don't clash on the right margin.
+ax.legend(frameon=False, fontsize=8, loc="upper left",
+          bbox_to_anchor=(1.04, 1.00))
+cbar = plt.colorbar(sc, ax=ax, label="log-likelihood",
+                    shrink=0.45, pad=0.04, anchor=(0.0, 0.0),
+                    location="right")
+fig.tight_layout()
+
+print(f"\nFitted ridge: α = {a:.3f} + ({b:.3f}) · ln(s₀)")
+print(f"Predicted slope range (I ∈ [10³, 10⁴]):  -ln(I_ref) ∈ [-9.21, -6.91]")
+print(f"Observed slope: {b:.3f}  →  I_ref = {I_ref:.0f}")
+print(f"This {'falls within' if -9.21 <= b <= -6.91 else 'is outside'} the predicted band.")
+```
+
+The empirical slope agrees with the FOI prediction to within the
+predicted band. The fitted $I_{\text{ref}}$ lies in the
+characteristic-infection range during He et al. epidemics —
+confirming the derivation rather than calibrating to it.
+
+### 2D profile — direct ridge visualization
+
+A 2D profile over $(s_0, \alpha)$ jointly, with the other
+parameters re-optimized at each grid point, traces the ridge as a
+2D contour plot rather than indirectly through 1D slices. We use a
+10 × 10 grid (s₀ log-spaced over [0.005, 0.45]; α linear over
+[0.50, 0.99]).
+
+```{python}
+#| label: fig-profile-2d
+#| fig-cap: "2D profile likelihood over (s₀, α), all other parameters re-optimized at each grid point. Color = log-likelihood. Black dashed line = theoretical ridge slope from §6. White × = truth (s₀=0.030, α=0.976). The flat-likelihood region traces the FOI ridge directly."
+PROF_2D = PROFS / "profile_s0_alpha_2d.tsv"
+if PROF_2D.exists():
+    p2 = _load_profile(PROF_2D)
+    s0_grid    = sorted(p2["s0"].unique().to_list())
+    alpha_grid = sorted(p2["alpha"].unique().to_list())
+    Z = np.full((len(alpha_grid), len(s0_grid)), np.nan)
+    for row in p2.iter_rows(named=True):
+        i = alpha_grid.index(row["alpha"])
+        j = s0_grid.index(row["s0"])
+        Z[i, j] = row["loglik"]
+    fig, ax = plt.subplots(figsize=(8, 6))
+    im = ax.pcolormesh(np.log(s0_grid), alpha_grid, Z,
+                        cmap="viridis", shading="auto")
+    plt.colorbar(im, ax=ax, label="log-likelihood")
+    ax.contour(np.log(s0_grid), alpha_grid, Z, levels=10,
+               colors="white", linewidths=0.5, alpha=0.5)
+    # Overlay theoretical ridge from §6
+    a_intercept = TRUTH["alpha"] - b * np.log(TRUTH["s0"])
+    xs2 = np.linspace(np.log(min(s0_grid)), np.log(max(s0_grid)), 50)
+    ax.plot(xs2, a_intercept + b * xs2, color="black", linestyle="--",
+            linewidth=1.5, label=f"theory: slope = {b:.2f}")
+    ax.scatter([np.log(TRUTH["s0"])], [TRUTH["alpha"]], marker="x",
+               color="white", s=180, linewidth=3, zorder=5, label="truth")
+    ax.set_xlabel("ln(s₀)"); ax.set_ylabel("α")
+    ax.set_title("2D profile likelihood: (s₀, α) ridge")
+    ax.legend(frameon=False, fontsize=9, loc="center left",
+              bbox_to_anchor=(1.02, 0.5))
+    fig.tight_layout()
+else:
+    print("2D profile not yet present. Run: cd vignettes/he2010 && make profile-s0-alpha-2d")
+```
+
+The (s₀, α) plot is the cleanest visualization of the FOI ridge,
+but it's only one face of a higher-dimensional ridge. The data
+also fails to identify R₀ separately from (s₀, α), so we map the
+remaining 2D faces.
+
+```{python}
+#| label: fig-profile-s0-r0-2d
+#| fig-cap: "2D profile likelihood over (s₀, R₀), all other parameters re-optimized at each grid point. Color = log-likelihood. White × = truth (s₀=0.030, R₀=56.8). A flat ridge across the full grid means the data does not jointly identify s₀ and R₀."
+PROF_2D_S0R0 = PROFS / "profile_s0_R0_2d.tsv"
+if PROF_2D_S0R0.exists():
+    p_s0r0 = _load_profile(PROF_2D_S0R0)
+    s0g = sorted(p_s0r0["s0"].unique().to_list())
+    r0g = sorted(p_s0r0["R0"].unique().to_list())
+    Z2 = np.full((len(r0g), len(s0g)), np.nan)
+    for row in p_s0r0.iter_rows(named=True):
+        i = r0g.index(row["R0"]); j = s0g.index(row["s0"])
+        Z2[i, j] = row["loglik"]
+    fig, ax = plt.subplots(figsize=(8, 6))
+    im = ax.pcolormesh(np.log(s0g), r0g, Z2, cmap="viridis", shading="auto")
+    plt.colorbar(im, ax=ax, label="log-likelihood")
+    ax.contour(np.log(s0g), r0g, Z2, levels=10,
+               colors="white", linewidths=0.5, alpha=0.5)
+    ax.scatter([np.log(TRUTH["s0"])], [TRUTH["R0"]], marker="x",
+               color="white", s=180, linewidth=3, zorder=5, label="truth")
+    ax.set_xlabel("ln(s₀)"); ax.set_ylabel("R₀")
+    ax.set_title("2D profile likelihood: (s₀, R₀)")
+    ax.legend(frameon=False, fontsize=9, loc="center left",
+              bbox_to_anchor=(1.02, 0.5))
+    fig.tight_layout()
+else:
+    print("2D (s₀, R₀) profile not yet present. Run: make profile-s0-r0-2d")
+```
+
+```{python}
+#| label: fig-profile-alpha-r0-2d
+#| fig-cap: "2D profile likelihood over (α, R₀), all other parameters re-optimized at each grid point. Color = log-likelihood. White × = truth (α=0.976, R₀=56.8)."
+PROF_2D_AR0 = PROFS / "profile_alpha_R0_2d.tsv"
+if PROF_2D_AR0.exists():
+    p_ar0 = _load_profile(PROF_2D_AR0)
+    ag  = sorted(p_ar0["alpha"].unique().to_list())
+    r0g = sorted(p_ar0["R0"].unique().to_list())
+    Z3 = np.full((len(r0g), len(ag)), np.nan)
+    for row in p_ar0.iter_rows(named=True):
+        i = r0g.index(row["R0"]); j = ag.index(row["alpha"])
+        Z3[i, j] = row["loglik"]
+    fig, ax = plt.subplots(figsize=(8, 6))
+    im = ax.pcolormesh(ag, r0g, Z3, cmap="viridis", shading="auto")
+    plt.colorbar(im, ax=ax, label="log-likelihood")
+    ax.contour(ag, r0g, Z3, levels=10, colors="white",
+               linewidths=0.5, alpha=0.5)
+    ax.scatter([TRUTH["alpha"]], [TRUTH["R0"]], marker="x",
+               color="white", s=180, linewidth=3, zorder=5, label="truth")
+    ax.set_xlabel("α"); ax.set_ylabel("R₀")
+    ax.set_title("2D profile likelihood: (α, R₀)")
+    ax.legend(frameon=False, fontsize=9, loc="center left",
+              bbox_to_anchor=(1.02, 0.5))
+    fig.tight_layout()
+else:
+    print("2D (α, R₀) profile not yet present. Run: make profile-alpha-r0-2d")
+```
+
+## References
+
+::: {#refs}
+:::
