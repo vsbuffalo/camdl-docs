@@ -36,19 +36,25 @@ MODEL  = f"{EXAMPLE_DIR}/sir.camdl"
 PARAMS = f"{EXAMPLE_DIR}/params.toml"
 ```
 
-camdl (the **C**ompartmental **M**odel **D**escription **L**anguage, pronounced
-"cam-dee-ell", or rhymes with "candle") is a domain-specific language for
-stochastic epidemiological compartmental models. Like
+camdl (the **C**ompartmental **M**odel **D**escription **L**anguage (rhymes
+with "candle") is a domain-specific language for stochastic epidemiological
+compartmental models. Like
 [SQL](https://en.wikipedia.org/wiki/Domain-specific_language) for databases,
-camdl separates the *scientific declaration* of a model from the code that
-implements it. The math *is* the model — what you write in a `.camdl` file is
-designed to read like the model specification and equations you'd put on a
-whiteboard. Other modeling frameworks often force you to write code that blends
-the declaration of the scientific model with implementation code; camdl
-intentionally keeps them apart. Moreover, camdl has a *compiler* that actually
-checks the semantics and validity of your scientific model before simulating
-from it, which eliminates whole classes of bugs that come from writing code
-that blends the scientific model with the computational implementation.
+camdl separates the *scientific declaration* of a model from the *runtime code*
+that implements it. 
+
+In camdl, the math *is* the model — what you write in a `.camdl` file is
+designed to read like the specification and equations you'd put on a
+whiteboard. You declare *what* the model is; camdl's runtime takes care of
+*how* to simulate it, and camdl's particle-filter-based inference engine —
+iterated filtering (IF2) for maximum likelihood, PGAS+NUTS for full Bayesian
+posteriors — handles how to fit it to data. Other modeling frameworks blur
+this line: you end up writing the simulator yourself, hand-coding loops,
+propensities, and accumulators alongside the scientific declaration — and any
+bug in that glue silently corrupts the science. Moreover, camdl has a
+*compiler* that checks the semantics and validity of your model before any
+simulation runs, eliminating whole classes of bugs that come from blending
+model and implementation.
 
 To see what this means in practice, we start with the ["Hello,
 World!"](https://en.wikipedia.org/wiki/%22Hello,_World!%22_program) of
@@ -141,18 +147,7 @@ complexity scales when you need it.
 The full model and parameter files for this chapter are in
 [`guide/getting-started/`](https://github.com/vsbuffalo/camdl-book/tree/main/guide/getting-started).
 Clone the book repo and `cd` into that directory to follow along.
-
-Running `camdl simulate` without arguments shows the help — a quick
-reference for what's available:
-
-```{python}
-#| echo: false
-# Show help, truncated to the first ~25 lines so this stays concise.
-run_cli("camdl simulate", echo="camdl simulate", head=25, collapse=False)
-```
-
-Don't worry about the advanced flags yet — we'll use most of them through
-this guide. For now, the basic invocation:
+The basic invocation:
 
 ```bash
 camdl simulate sir.camdl \

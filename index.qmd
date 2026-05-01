@@ -1,5 +1,8 @@
 ---
 title: "What is camdl?"
+execute:
+  echo: false
+  warning: false
 ---
 
 <style>
@@ -7,14 +10,31 @@ title: "What is camdl?"
 #title-block-header { display: none; }
 </style>
 
+```{python}
+#| echo: false
+#| output: false
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path("/Users/vsb/projects/work/camdl-book")))
+from _lib.cli import run_cli
+```
+
 # What is camdl?
 
-camdl (the **C**ompartmental **M**odel **D**escription **L**anguage) is a
-domain-specific language for stochastic epidemic models. You write the
-scientific model — compartments, transitions, observation process — in a
-`.camdl` file that reads like the equations on a whiteboard. A compiler
-checks the model's semantics, and a Rust backend handles simulation and
-inference.
+Stochastic compartmental models are the natural baseline for infectious disease
+modeling — they propagate uncertainty honestly, surface identifiability and
+other model-fitting problems early, and make model development and comparison
+cheap enough to actually do. But fitting them well has historically required
+enough custom simulation and inference code that the startup cost often pushes
+teams toward tools they already have, even when a simpler model would answer
+the question.
+
+With camdl, that cost is eliminated. You declare the model — compartments,
+transitions, observation process — in a `.camdl` file that reads like the
+equations on a whiteboard. A compiler checks the model's semantics, and a Rust
+backend handles simulation and full probabilistic inference. No simulator to
+write, no particle filter to implement, no gradient plumbing. The math *is* the
+model:
 
 ```camdl
 compartments { S, I, R }
@@ -30,13 +50,205 @@ transitions {
 }
 ```
 
-The separation is the point: the math *is* the model, the implementation
-is someone else's problem. camdl's compiler catches whole classes of bugs
-(dimension mismatches, undefined compartments, inconsistent population
-accounting) before a single trajectory is simulated.
+If you suspect a more complex model is needed for your problem, camdl gives
+you a well-calibrated baseline to compare against — fit the compartmental
+model, fit the alternative, compare out-of-sample. That comparison has
+been too expensive to do routinely. camdl makes it practical.
 
-The toolchain covers the full modeling workflow — forward simulation,
-parameter sweeps, scenario comparison, maximum likelihood estimation via
-iterated filtering (IF2), Bayesian posterior sampling (PGAS+NUTS), profile
-likelihoods, simulation-based calibration, and model comparison via
-prequential scoring. Start with the [Getting Started](guide/getting-started.qmd) guide.
+## Real-world complexity
+
+camdl handles the features real published models need. Here is a fragment
+of [He, Ionides & King (2010)](https://doi.org/10.1098/rsif.2009.0151) —
+the canonical particle-filter measles benchmark, fit to London weekly
+notifications 1950–1964, externally validated against
+[pomp](https://doi.org/10.18637/jss.v069.i12) — written directly in
+camdl:
+
+```camdl
+# He et al. (2010) London measles SEIR
+# Full model: 138 lines — see he2010 vignette
+
+forcing {
+  pop       : interpolated { data = "covariates.tsv", value_col = pop }
+  birthrate : interpolated { data = "covariates.tsv", value_col = birthrate }
+  school    : periodic { period = 365.25 'days, on = [7:100, 115:199, 252:300, 308:356] }
+}
+
+let seas = 1.0 - amplitude + amplitude * (1.0 + 0.2411 / 0.7589) * school(t)
+
+transitions {
+  infection : S --> E  @ overdispersed(beta_base * seas * S * ((I + iota)^alpha) / pop(t), sigma_se)
+  latency   : E --> I  @ sigma * E
+  recovery  : I --> R  @ gamma * I
+  birth     : --> S    @ deterministic((1.0 - cohort) * birthrate(t) * pop(t) / 365.25)
+  # ... + per-compartment mu deaths
+}
+
+events {
+  cohort_entry : add(S, cohort * birthrate(t) * pop(t))  every 365.25 'days at_day 258
+}
+
+observations {
+  weekly_cases : {
+    projected  = incidence(recovery)
+    every      = 7 'days
+    likelihood = normal(mean = rho * projected,
+                        sd   = sqrt(rho * projected * (1 - rho + psi^2 * rho * projected)))
+  }
+}
+```
+
+Time-varying covariates, UK school-term forcing, overdispersed
+environmental noise on the force of infection, a once-per-year cohort
+pulse, and the He et al. heteroscedastic observation likelihood — all
+declarative, all compiler-checked. The full 138-line model lives at
+[`models/he2010_london.camdl`](https://github.com/vsbuffalo/camdl-book/blob/main/models/he2010_london.camdl).
+
+
+## The compiler catches the bugs you'd find in week three
+
+Many of the most consequential modeling bugs aren't logic errors — they're
+unit mismatches, dimension slips, and typos that produce trajectories that
+look plausible but are quietly wrong. camdl's compiler catches these and
+many other issues before anything runs.
+
+**Units.** camdl supports unit literals — tick-prefixed annotations like
+`'days`, `'weeks`, `'per_year` — that the compiler converts to the
+model's `time_unit` automatically:
+
+```camdl
+time_unit = 'days
+
+# A paper reports mortality as 20 per 100,000 per year.
+# Parentheses apply the unit to the whole expression.
+let mu : rate = (20 / 100_000) 'per_year
+
+simulate {
+  from = 0 'days
+  to   = 12 'weeks                    # compiler converts: 84 days
+}
+```
+
+When the grouping is ambiguous, the compiler refuses rather than guessing:
+
+```{python}
+#| echo: false
+run_cli(
+    "camdl check landing/bad_unit.camdl",
+    echo="camdl check bad_unit.camdl",
+    collapse=False,
+)
+```
+
+**Dimensions.** The compiler infers dimensional types from parameter
+declarations (`rate` → T⁻¹, `count` → P, `probability` → dimensionless),
+propagates them through arithmetic, and rejects mismatches. This catches
+the single most common modeling bug — writing a per-capita rate where a
+total propensity is needed:
+
+```camdl
+# ✓ Correct: beta:T⁻¹ × S:P × I:P / N:P = P·T⁻¹
+infection : S --> I @ beta * S * I / N
+
+# ✗ Wrong: beta:T⁻¹ × I:P / N:P = T⁻¹ (missing × S)
+infection : S --> I @ beta * I / N
+```
+
+In most frameworks, the second form compiles silently and produces
+trajectories where infection happens at the wrong rate. camdl rejects it
+at compile time:
+
+```{python}
+#| echo: false
+run_cli(
+    "camdl check landing/bad_dimension.camdl",
+    echo="camdl check bad_dimension.camdl",
+    collapse=False,
+)
+```
+
+**Names.** Typos that would silently introduce a new variable elsewhere
+are caught immediately:
+
+```{python}
+#| echo: false
+run_cli(
+    "camdl check landing/bad_name.camdl",
+    echo="camdl check bad_name.camdl",
+    collapse=False,
+)
+```
+
+Catching these at compile time matters because the code defining
+epidemiological models are not merely academic; rather, they inform vaccination
+strategies, school-closure thresholds, and outbreak response, decisions that
+scale from tens of thousands to millions of lives. A silent unit slip or
+dimension error can survive peer review and re-fits, quietly distorting
+recommendations long after the bug was introduced. camdl's contribution is engineering
+rigor: typos, unit mismatches, and per-capita-vs-propensity confusion are
+exactly the class of bug a compiler can rule out, so scientific scrutiny
+can focus on the science.
+
+
+## State-of-the-art inference, rigorous validation
+
+camdl ships a full probabilistic-inference toolkit — frequentist and
+Bayesian — paired with the validation machinery that makes either one
+trustworthy:
+
+- **Maximum likelihood** via iterated filtering ([IF2; Ionides et al.,
+  2015](https://doi.org/10.1073/pnas.1410597112)) — fast point estimates
+  and likelihood surfaces before committing to a full Bayesian run
+- **Bayesian posteriors** via PGAS+NUTS ([Lindsten, Jordan & Schön,
+  2014](https://jmlr.org/papers/v15/lindsten14a.html); [Hoffman & Gelman,
+  2014](https://jmlr.org/papers/v15/hoffman14a.html)) — honest uncertainty
+  on parameters and latent states, with gradients from automatic
+  differentiation through the model
+- **Gradient-free alternative** via PMMH ([Andrieu, Doucet & Holenstein,
+  2010](https://doi.org/10.1111/j.1467-9868.2009.00736.x)) — when the
+  posterior geometry is rough or you want a second opinion on the sampler
+- **Profile likelihoods** ([Raue et al.,
+  2009](https://doi.org/10.1093/bioinformatics/btp358)) — expose
+  identifiability problems *before* you've spent months building around
+  unidentifiable parameters
+- **Out-of-sample validation** via prequential scoring for time series data
+  ([Dawid, 1984](https://doi.org/10.2307/2981683); [Gneiting & Raftery,
+  2007](https://doi.org/10.1198/016214506000001437)) — held-out predictive
+  performance is the only honest test of fit, and the only honest basis for
+  model comparison
+- **Calibration audits** via simulation-based calibration ([Talts et al.,
+  2018](https://arxiv.org/abs/1804.06788)) — verify that inference is
+  recovering known parameters before trusting it on real data
+- **Model comparison** by prequential log-score — when you need to decide
+  whether additional model complexity is earning its keep, this is how you
+  test it (see the [boarding-school SIR vs SIBCR
+  vignette](vignettes/model-comparison.qmd))
+
+Concretely, here is `camdl compare` running on three observation models —
+Poisson, negative binomial, and a process-noise variant — fit to the same
+boarding-school epidemic data:
+
+```{python}
+#| echo: false
+run_cli(
+    "camdl compare guide/fitting/output/preq_poisson.json "
+    "guide/fitting/output/preq_negbin.json "
+    "guide/fitting/output/preq_procnoise.json",
+    echo="camdl compare preq_poisson.json preq_negbin.json preq_procnoise.json",
+    collapse=False,
+    max_lines=None,
+    font_size="0.75em",
+)
+```
+
+Δelpd, decibans evidence ([Shafer, 2021](https://doi.org/10.1080/01621459.2021.1898334)
+e-values), CRPS, and PIT calibration coverage at 90% — all in one view.
+The baseline pivots automatically to the best-supported model. PIT
+coverage of 0.71 on the Poisson model flags it as underdispersed; the
+NegBin and process-noise models are well-calibrated at 0.93. This is the
+kind of decision-grade summary that makes model development and
+comparison cheap enough to do routinely.
+
+Forward simulation, parameter sweeps, and scenario comparison sit on top
+of the same model object. Start with the [Getting
+Started](guide/getting-started.qmd) guide.

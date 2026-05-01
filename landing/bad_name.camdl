@@ -1,0 +1,16 @@
+compartments { S, I, R }
+parameters {
+  beta  : rate
+  gamma : rate
+  N0    : count
+  I0    : count
+}
+let N = S + I + R
+transitions {
+  infection : S --> I @ beta * S * I / N
+  recovery  : I --> R @ gamma * Q
+}
+init {
+  S = N0 - I0
+  I = I0
+}

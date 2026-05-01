@@ -176,6 +176,31 @@ def _run_capture(
     return result
 
 
+def fit_clean(*configs: "str | Path", root: "str | Path" = "results/fits") -> None:
+    """Remove stale fit dirs for one or more fit configs.
+
+    Each ``config`` can be a path to a fit toml (``fits/foo.toml``) or
+    a bare stem (``foo``). The function deletes every
+    ``<root>/<stem>-*`` directory it finds.
+
+    Use case: pinned at the top of a chapter's setup cell so each
+    render starts with at most one fit dir per stem. After
+    ``fit_clean(...)`` runs, ``Path(root).glob('<stem>-*').next()``
+    is unambiguous (one match) for every fit the chapter performs.
+
+    No-op if a stem has no matching dirs. Order-independent. Cheap —
+    typical chapter rendering pays a few hundred microseconds.
+    """
+    import shutil
+    from pathlib import Path
+    root_p = Path(root)
+    for cfg in configs:
+        stem = Path(cfg).stem if str(cfg).endswith(".toml") else str(cfg)
+        for d in root_p.glob(f"{stem}-*"):
+            if d.is_dir():
+                shutil.rmtree(d)
+
+
 def run_cli(
     cmd: str | list[str],
     *,
@@ -189,6 +214,7 @@ def run_cli(
     check: bool = False,
     env: dict[str, str] | None = None,
     stderr_style: str = "opacity:0.7",
+    font_size: str | None = None,
 ) -> HTML:
     """Run a shell command and return styled HTML output.
 
@@ -222,6 +248,10 @@ def run_cli(
         Extra environment variables (merged with ``os.environ``).
     stderr_style
         CSS applied to stderr lines when ``show="both"``.
+    font_size
+        Optional CSS font-size applied to the output ``<pre>`` (e.g.
+        ``"0.75em"``, ``"11px"``). Default ``None`` leaves theme styling
+        untouched. Useful for wide flag listings or tabular output.
 
     Returns
     -------
@@ -260,24 +290,31 @@ def run_cli(
                     f'<span style="{stderr_style}">{stderr_html}</span>'
                 )
             body = "\n".join(body_parts)
-            return _wrap(body, echo=echo, collapse=collapse)
+            return _wrap(body, echo=echo, collapse=collapse, font_size=font_size)
 
         raw = "\n".join(parts) if parts else ""
 
     # Single-stream path
     raw = truncate(raw, max_lines=max_lines, head=head, tail=tail)
     body = ansi_to_html(raw)
-    return _wrap(body, echo=echo, collapse=collapse)
+    return _wrap(body, echo=echo, collapse=collapse, font_size=font_size)
 
 
-def _wrap(body: str, *, echo: str | None, collapse: bool) -> HTML:
+def _wrap(
+    body: str,
+    *,
+    echo: str | None,
+    collapse: bool,
+    font_size: str | None = None,
+) -> HTML:
     """Wrap converted HTML body in the appropriate container."""
+    style_attr = f' style="font-size:{font_size}"' if font_size else ""
     if collapse and echo:
         return HTML(
             f'<details class="cli-run">'
             f'<summary><code>$ {_html.escape(echo)}</code></summary>'
-            f'<pre class="ansi-output"><code>{body}</code></pre>'
+            f'<pre class="ansi-output"{style_attr}><code>{body}</code></pre>'
             f'</details>'
         )
     prompt = f'<span style="opacity:0.6">$ {_html.escape(echo)}</span>\n' if echo else ""
-    return HTML(f'<pre class="ansi-output"><code>{prompt}{body}</code></pre>')
+    return HTML(f'<pre class="ansi-output"{style_attr}><code>{prompt}{body}</code></pre>')
