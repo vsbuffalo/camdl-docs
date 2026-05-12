@@ -30,7 +30,15 @@ mpl.rcParams.update({
 # Import shared book-level helpers from <book root>/_lib/
 sys.path.insert(0, str(Path("/Users/vsb/projects/work/camdl-book")))
 from _lib.cli import run_cli
-from _lib.sim import run_simulate
+from _lib.sim import run_simulate as _run_simulate
+import functools
+
+# All simulations in this chapter use the chain-binomial integrator at
+# dt = 0.1. The boarding-school flu params (γ ≈ 0.44/day, peak force of
+# infection ≈ 0.66/day) violate the leap condition r_max·dt ≲ 0.1 at the
+# default dt = 1.0; the fitting chapters establish dt = 0.1 for this model,
+# and the toy SIRV demos here are equally fine (or better) at the finer step.
+run_simulate = functools.partial(_run_simulate, dt=0.1)
 
 EXAMPLE_DIR = "boarding-school"
 MODEL = "sirv.camdl"
@@ -103,8 +111,8 @@ pass `--enable`:
 ```{python}
 #| echo: false
 run_cli(
-    "camdl simulate sirv.camdl --params params.toml --enable vaccination --seed 42 | head -8",
-    echo="camdl simulate sirv.camdl --params params.toml --enable vaccination --seed 42",
+    "camdl simulate sirv.camdl --params params.toml --enable vaccination --seed 42 --dt 0.1 | head -8",
+    echo="camdl simulate sirv.camdl --params params.toml --enable vaccination --seed 42 --dt 0.1",
     cwd=EXAMPLE_DIR,
 )
 ```
@@ -266,8 +274,8 @@ Run all three with:
 from IPython.display import display
 for sc in ["baseline", "with_vaccination", "with_leaky_vaccination"]:
     display(run_cli(
-        f"camdl simulate sirv.camdl --scenario {sc} --seed 42 | head -8",
-        echo=f"camdl simulate sirv.camdl --scenario {sc} --seed 42",
+        f"camdl simulate sirv.camdl --scenario {sc} --seed 42 --dt 0.1 | head -8",
+        echo=f"camdl simulate sirv.camdl --scenario {sc} --seed 42 --dt 0.1",
         cwd=EXAMPLE_DIR,
     ))
 ```
@@ -725,7 +733,7 @@ plt.show()
 #| code-fold: true
 #| code-summary: "Plotting code"
 #| label: fig-intervention-peaks
-#| fig-cap: "Peak infection distributions across scenarios. Baseline peaks cluster around 280–340. Isolation alone reduces the median peak by roughly 40%. High-coverage vaccination compresses the peak to below 50. The combined strategy nearly eliminates the epidemic — most replicates never exceed 30 infected."
+#| fig-cap: "Peak infection distributions across scenarios. Baseline peaks cluster around 250–340. Isolation alone reduces the median peak by roughly 85%. High-coverage vaccination compresses the peak to below 50. The combined strategy nearly eliminates the epidemic — most replicates never exceed 30 infected."
 def get_peaks_intv(multi_df, active_col="I"):
     return (
         multi_df.group_by("replicate")
@@ -811,5 +819,5 @@ same workflow — `--draws prior`, `--replicates`, `--scenario`,
 overdispersion, and 60 years of weekly case data. The commands are
 the same; the model is not.
 
-- [Fitting to Data](fitting.qmd) — recover parameters from observed
+- [Fitting to Data](fitting/likelihood.qmd) — recover parameters from observed
   data using IF2 and PGAS+NUTS.

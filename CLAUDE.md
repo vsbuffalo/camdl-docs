@@ -1,5 +1,145 @@
 # camdl-book — project instructions for Claude
 
+## ALWAYS view rendered figures before declaring a render done
+
+When you write or modify a figure-producing cell in any chapter, **view
+the rendered PNG with the Read tool before declaring the cell done or
+pushing the chapter to the public site.** Quarto puts rendered figures
+under `_site/<chapter>_files/figure-html/<label>-output-N.png`. Open
+each one you produced or changed, and inspect:
+
+- **Composition** — is the figure squished, cropped, or overflowing
+  the page? Are subplots making each panel too narrow to read? Is
+  the legend cut off, overlapping data, or stacked weirdly because
+  of `bbox_to_anchor` math?
+- **Information density** — is the diagnostic the figure was meant
+  to show actually visible, or is everything mashed together? Two
+  panels side-by-side often looks worse than two single-panel
+  figures stacked vertically.
+- **Labels and units** — do x-axis and y-axis labels make sense?
+  Are units shown? Is the title duplicating something already in
+  the caption?
+- **Colour usage** — are colours legible against the background? If
+  many series share a palette, is the legend ordered the same way
+  as the data is rendered?
+
+**Why this matters.** Authoring a figure cell in code without
+inspecting the rendering is a fast way to ship visually broken or
+misleading plots. The reader can't see your code intent — they see
+the picture. Bad figures undermine the chapter's credibility and
+waste reader time. The user has explicitly flagged exhaustion at
+having to back out plots that should never have been pushed in the
+first place.
+
+**How to apply.** After every `quarto render` of a chapter you've
+edited:
+
+1. List the rendered figure files: `ls _site/<chapter>_files/figure-html/`.
+2. Read every PNG you produced or changed, even briefly.
+3. If any figure looks broken / unreadable / wrong composition,
+   fix the cell before pushing to remote.
+4. **Default to multiple single-panel figures** rather than one
+   multi-panel figure unless the panels are genuinely comparing
+   the *same axis range* (e.g. raw vs log of the same scatter).
+   Side-by-side panels with different y-axes / different colour
+   meanings become unreadable fast.
+5. If a figure is informative but hard to read at the chapter's
+   render width, prefer wider single panels stacked vertically
+   over narrow multi-panel layouts.
+
+This rule applies even when the user is excited or asks for a quick
+turnaround — pushing a broken figure costs more time than the 30
+seconds it takes to view it.
+
+## NEVER call published-MLE parameter values "truth" outside of synthetic recovery
+
+The word **"truth"** has a precise technical meaning in this project:
+**the parameter vector that was used to generate synthetic data**. It
+is *only* "truth" when there is a synthetic-recovery experiment in
+progress where data was simulated from those exact parameters and
+inference is trying to recover them.
+
+For **any chapter or analysis that fits real-world data**, the
+published / literature MLE values are **not truth** — they are an
+**estimate** from a prior analysis. They have all the usual estimate
+properties (variance, dependence on prior modelling choices, fit
+budget). Calling them "truth" is misleading because:
+
+- It conflates "values used to generate this data" with "values from
+  some other analysis someone else published."
+- It signals a ground-truth comparison that doesn't exist; readers
+  expect "truth" to be the unobserved data-generating parameters.
+- It makes plots and tables harder to interpret correctly. A reader
+  seeing "truth" on a plot of real-data fits will think the data was
+  simulated, not measured.
+
+**How to apply.** When labelling reference parameter values:
+
+- Synthetic recovery → "truth" / `TRUTH` / `truth.toml` is fine.
+- Real-data fits → use **"He et al. MLE"** or **"pomp tutorial MLE"**
+  or **"published reference"** in plot legends, captions, table
+  headers, and prose.
+- Variable names: `published_mle`, `reference_mle`, `lit_params`,
+  `he2010_mle` — never `truth` for a real-data context, even
+  internally in code, because the variable name leaks into plots
+  via `label=` arguments and tooltips.
+- File names: `params/he2010_published_mle.toml` is clearer than
+  `params/he2010_london.toml` when used as a literature reference.
+  If a single toml does double-duty (synthetic *and* real-data
+  contexts), document the dual purpose at the top and label it
+  contextually in each chapter.
+
+**Why the rule.** Caught a real instance: in `vignettes/he2010-pomp/`
+and `vignettes/he2010-paper/`, the chapters fit *real London weekly
+case data* but inherited the variable name `truth` from the
+prelim-chapter's synthetic-recovery setup. The pred-vs-obs scatter
+plot legend then read "truth" alongside "top-1, top-2, …" and the
+reader couldn't tell whether the plot showed:
+
+- (a) parameter recovery in a synthetic experiment with known
+  ground truth, or
+- (b) real-data fits with one literature-MLE reference
+
+The chapter is (b). Re-rendering required reaching for variable
+names, plot labels, and captions everywhere — not just the legend.
+
+## NEVER fix parameters without explicit user approval
+
+When constructing any fit configuration (`fit*.toml`, `survey*.toml`,
+profile commands), **never put a parameter into `[fixed]` without
+explicit user approval first**. This includes:
+
+- Initial-condition fractions (s₀, e₀, i₀, R_init, etc.)
+- Observation-model parameters (rho, psi)
+- Demographic parameters that some prior literature pins (mu, cohort)
+- "Nuisance" parameters that another tutorial fixes (alpha, iota,
+  sigma_se, etc.)
+- Anything not strictly required by the data structure (e.g. N0 from
+  population data is fine; everything else is not)
+
+The right default is **everything `[estimate]`**. If matching an
+external reference (pomp tutorial, paper, etc.), the parameter list
+is dictated by the reference — confirm out loud what each fixed
+parameter is, why it's fixed there, and get explicit user approval
+before adding it to `[fixed]`.
+
+**Why this matters:** silent parameter pinning is data leakage in
+synthetic-recovery experiments and a credibility hit for inference
+results in real-data work. We have repeatedly hit confusion and rework
+because intermediate fits pinned parameters at truth values without
+making it explicit. Pinning at truth makes the inference problem
+*easier than it is in reality*, and obscures what the data + model
+can actually tell you. The chapter narrative becomes wrong without
+either of us noticing until we re-read carefully.
+
+**How to apply:** When proposing a fit config, list every parameter
+in a comparison table: estimated vs fixed, with the source/reason for
+each fix. Wait for the user to approve the fix list before writing
+the toml. If a parameter must be fixed for technical reasons (model
+identifiability with this data shape, e.g.), say so explicitly and
+flag it as a load-bearing modeling decision worth its own callout in
+the chapter prose.
+
 ## Fitting diagnostics: always check the compound gate
 
 When running any `camdl fit` pipeline (scout, refine, validate), **always

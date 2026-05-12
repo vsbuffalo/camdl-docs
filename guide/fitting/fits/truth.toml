@@ -1,0 +1,9 @@
+# Synthetic truth parameters (β = 1.20 /day, γ = 0.33 /day; R₀ = 3.64).
+# Mean infectious period 1/γ ≈ 3 days — flu-like.
+# Distinct from the real-data MLE basin (R₀ ≈ 3) so recovery is
+# non-circular: if IF2 lands at (1.20, 0.33), it found the synthetic
+# truth, not the real-data basin.
+beta  = 1.20
+gamma = 0.33
+N0    = 763
+I0    = 5

@@ -1,0 +1,69 @@
+# Likelihood-landscape survey: 7 dynamic params, ICs pinned at He et al. truth.
+# External validation chapter — matches sbied profile.R rw_sd block.
+# Source: https://kingaa.github.io/sbied/measles/profile.R
+#
+# Holds ICs at truth so we see the d=7 dynamic landscape clearly. The
+# companion survey_ivp.toml does the inverse. Together they map the
+# two orthogonal slices.
+#
+# Fixed param list approved 2026-05-06 for sbied-exact external validation
+# only — see CLAUDE.md "NEVER fix parameters without explicit user approval".
+
+[model]
+camdl = "models/he2010_london.camdl"
+
+[data.observations]
+weekly_cases = "data/he2010_london_cases.tsv"
+
+[config]
+backend = "chain_binomial"
+dt      = 1.0
+
+# 7 dynamic process parameters — sbied profile.R rw_sd block
+[estimate.R0]
+bounds = [5.0, 100.0]
+start  = 56.8
+
+[estimate.sigma]
+bounds = [0.02, 0.2]
+start  = 0.0791
+
+[estimate.gamma]
+bounds = [0.02, 0.2]
+start  = 0.0832
+
+[estimate.sigma_se]
+bounds = [0.5, 5.0]
+start  = 2.816
+
+[estimate.psi]
+bounds = [0.05, 0.5]
+start  = 0.116
+
+[estimate.cohort]
+bounds = [0.1, 0.9]
+start  = 0.557
+
+[estimate.amplitude]
+bounds = [0.1, 0.9]
+start  = 0.554
+
+# Fixed at He et al. London MLE (Table 2) — sbied profile.R fixes the same.
+[fixed]
+mu     = 0.0000548
+alpha  = 0.976
+iota   = 2.9
+rho    = 0.488
+N0     = 2462500
+s0     = 0.0297
+e0     = 0.0000517
+i0     = 0.0000514
+
+# Placeholder fit stage — survey ignores it; schema requires at least one.
+[stages.placeholder]
+algorithm  = "if2"
+backend    = "chain_binomial"
+chains     = 1
+particles  = 100
+iterations = 1
+cooling    = 0.5

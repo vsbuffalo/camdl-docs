@@ -1,0 +1,328 @@
+---
+title: "He et al. (2010) measles — pomp tutorial replication"
+subtitle: "External validation against the sbied IF2 setup"
+draft: true
+execute:
+  echo: true
+  warning: false
+code-fold: true
+code-summary: "show code"
+---
+
+::: {.callout-note}
+## Build status (2026-05-10)
+
+This is the first take-stock pass on the post-gh#54 pipeline:
+**survey + scout** completed against the dt-aware model, **refine
+refused by compound gate** (multi-modality unchanged from the buggy
+model — same per-chain logliks, same Â). Numbers and figures below
+load directly from the fresh artifacts. Prose is in-flight.
+:::
+
+```{python}
+#| label: setup
+#| code-fold: true
+from __future__ import annotations
+import json
+import math
+import sys
+from pathlib import Path
+
+import numpy as np
+import polars as pl
+import matplotlib.pyplot as plt
+
+sys.path.insert(0, str(Path("/Users/vsb/projects/work/camdl-book")))
+from _lib.cli import run_cli
+from _lib.pair_plot import chain_color_palette, load_chain_traces, pair_plot_chains
+
+VDIR     = Path("/Users/vsb/projects/work/camdl-book/vignettes/he2010-pomp")
+SURVEY   = VDIR / "results/surveys/he2010_london-48976729"
+SCOUT    = VDIR / "results/fits/fit_lhs_seeded-a86661dd/real/fit_42/scout"
+LIT_MLE  = VDIR / "params/he2010_london.toml"
+POMP_TSV = Path("/Users/vsb/projects/work/camdl-vignettes/he2010-forward/"
+                "bench/pomp/out/richardson_pomp.tsv")
+CAMDL_POST_TSV = Path("/tmp/he2010_richardson_camdl_postfix.tsv")
+
+def assert_fresh(path, *deps, hint=""):
+    if not path.exists():
+        raise FileNotFoundError(f"{path} missing — {hint}")
+    pm = path.stat().st_mtime
+    for d in deps:
+        if Path(d).stat().st_mtime > pm:
+            raise RuntimeError(f"{path} older than {d}. Run: {hint}")
+    return path
+
+assert_fresh(SURVEY / "landscape.tsv",
+             VDIR / "models/he2010_london.camdl",
+             VDIR / "survey_dynamic.toml",
+             hint="cd vignettes/he2010-pomp && camdl survey models/he2010_london.camdl --fit survey_dynamic.toml ...")
+assert_fresh(SCOUT / "fit_state.toml",
+             SURVEY / "landscape.tsv",
+             hint="cd vignettes/he2010-pomp && camdl fit run fit_lhs_seeded.toml --stage scout --survey-path <SURVEY>")
+
+PARAMS = ["R0", "sigma", "gamma", "sigma_se", "psi", "cohort", "amplitude"]
+```
+
+## Context
+
+This chapter is an *external-validation* exercise. It runs camdl on the
+**He et al. (2010) measles model** — SEIR with seasonal forcing,
+school-cohort entry, environmental Gamma-noise on FOI, and overdispersed
+Normal observation — using the parameter-fix choices the
+[sbied](https://kingaa.github.io/sbied/measles/) tutorial makes in its
+`profile.R` IF2 setup. The model file:
+
+```{python}
+#| label: beta-base-line
+#| echo: false
+import re as _re
+_model_txt = (VDIR / "models/he2010_london.camdl").read_text()
+for _i, _line in enumerate(_model_txt.splitlines(), 1):
+    if "beta_base" in _line:
+        print(f"{_i:>4}: {_line}")
+        break
+```
+
+`beta_base = R0 · (1 − exp(−(γ+μ)·dt)) / dt` is the dt-aware
+Euler-multinomial correction matching pomp's csnippet exactly. At dt=1
+it evaluates to the same number as the pre-gh#54 `… * 1 'days)` form,
+but at any sub-day dt the new form is the dt-invariant rate the chain-
+binomial backend expects.
+
+## The survey
+
+`camdl survey` evaluated 2450 Latin-hypercube draws over the seven
+estimated parameters at Np=500, 12 replicates per point, on the
+dt-aware model. This is the landscape the scout's `survey_top_k` init
+samples its 20 chain starts from.
+
+```{python}
+#| label: survey-load
+#| code-fold: true
+lines = (SURVEY / "landscape.tsv").read_text().splitlines()
+header = next(l for l in lines if not l.startswith("#")).split("\t")
+data_lines = [l for l in lines if not l.startswith("#")][1:]
+survey = pl.read_csv(SURVEY / "landscape.tsv",
+                     separator="\t", comment_prefix="#")
+print(f"  n points    : {survey.height}")
+print(f"  loglik range: [{survey['loglik'].min():>10.1f}, {survey['loglik'].max():>10.1f}]")
+print(f"  top loglik  : {survey['loglik'].max():.2f}  ± {survey.filter(pl.col('loglik')==survey['loglik'].max())['loglik_se'][0]:.2f}")
+print(f"  median ll   : {survey['loglik'].median():.1f}")
+print(f"  SE quartiles: q25={survey['loglik_se'].quantile(0.25):.1f}  "
+      f"median={survey['loglik_se'].median():.1f}  "
+      f"q75={survey['loglik_se'].quantile(0.75):.1f}")
+```
+
+Top-10 points by loglik:
+
+```{python}
+#| label: survey-top10
+#| code-fold: true
+top = (survey.sort("loglik", descending=True)
+              .head(10)
+              .select(["point_id", "loglik", "loglik_se"] + PARAMS))
+print(top.with_columns([pl.col(c).round(3) for c in PARAMS]
+                       + [pl.col("loglik").round(2),
+                          pl.col("loglik_se").round(2)]))
+```
+
+The top point is at loglik ≈ −5769.5; the scout (next section) finds a
+basin at −5766.9 — within ~3 nats of the survey's best LHS draw, as
+expected when IF2 polishes a survey-seeded start.
+
+### Pair plot — landscape colored by loglik
+
+Each panel shows the marginal projection of the 2450 LHS points onto
+two parameters; color is the per-point loglik clipped to the top 25%
+window so the basin structure is visible (low-loglik draws would
+otherwise dominate the colorbar). Diagonal panels show marginal
+loglik vs each parameter.
+
+```{python}
+#| label: fig-survey-landscape
+#| code-fold: true
+#| fig-cap: "Survey landscape: 2450 LHS draws, colored by loglik (top-25% window). Diagonals are loglik-vs-param marginals."
+#| fig-width: 11
+#| fig-height: 11
+ll = survey["loglik"].to_numpy()
+ll_lo = np.quantile(ll, 0.90)   # show top 10% — basin structure visible
+ll_hi = ll.max()
+ll_clip = np.clip(ll, ll_lo, ll_hi)
+mask = ll >= ll_lo
+
+fig, axes = plt.subplots(len(PARAMS), len(PARAMS),
+                         figsize=(12, 12), constrained_layout=True)
+for i, pi in enumerate(PARAMS):
+    xi = survey[pi].to_numpy()
+    for j, pj in enumerate(PARAMS):
+        ax = axes[i, j]
+        if i == j:
+            ax.scatter(xi[mask], ll[mask], s=4, alpha=0.45, c="0.3")
+            ax.set_ylim(ll_lo, ll_hi)
+            ax.set_xlabel(pi, fontsize=8)
+            ax.set_ylabel("loglik", fontsize=8)
+        else:
+            xj = survey[pj].to_numpy()
+            order = np.argsort(ll_clip)
+            sc = ax.scatter(xj[order], xi[order], s=5,
+                            c=ll_clip[order], cmap="viridis",
+                            vmin=ll_lo, vmax=ll_hi)
+            if j == 0:
+                ax.set_ylabel(pi, fontsize=8)
+            else:
+                ax.set_yticklabels([])
+            if i == len(PARAMS) - 1:
+                ax.set_xlabel(pj, fontsize=8)
+            else:
+                ax.set_xticklabels([])
+        ax.tick_params(axis="both", labelsize=6.5)
+fig.suptitle(f"Survey landscape — color: top-10% loglik ∈ [{ll_lo:.0f}, {ll_hi:.0f}]",
+             fontsize=11)
+cbar = fig.colorbar(sc, ax=axes, location="right",
+                    fraction=0.025, pad=0.02)
+cbar.set_label("loglik (top 10%)")
+plt.show()
+```
+
+## The scout
+
+20 IF2 chains seeded from the top-20 survey rows, 1000 particles ×
+100 iterations, cooling = 0.5, dt = 1.0.
+
+### Per-chain final loglik
+
+```{python}
+#| label: fig-chain-logliks
+#| code-fold: true
+#| fig-cap: "Loglik-eval at θ̂ per chain, sorted descending. Color is per-chain (stable across plots in this chapter)."
+#| fig-width: 9
+#| fig-height: 4
+ce = pl.read_csv(SCOUT / "chain_evaluations.tsv",
+                 separator="\t", comment_prefix="#")
+ce_sorted = ce.sort("loglik", descending=True)
+palette = chain_color_palette(ce["chain"].to_list())
+colors = [palette[c] for c in ce_sorted["chain"].to_list()]
+
+fig, ax = plt.subplots(figsize=(9, 4))
+positions = np.arange(ce_sorted.height)
+ax.barh(positions, ce_sorted["loglik"].to_numpy() - ce_sorted["loglik"].min() + 1,
+        left=ce_sorted["loglik"].min() - 1,
+        color=colors, edgecolor="black", linewidth=0.4)
+ax.errorbar(ce_sorted["loglik"].to_numpy(), positions,
+            xerr=ce_sorted["se"].to_numpy(),
+            fmt="none", ecolor="black", elinewidth=0.6, capsize=2)
+ax.set_yticks(positions)
+ax.set_yticklabels([f"chain {c}" for c in ce_sorted["chain"].to_list()],
+                   fontsize=8)
+ax.set_xlabel("loglik (logmeanexp over 8 reps @ Np=4000)")
+ax.invert_yaxis()
+ax.axvline(ce_sorted["loglik"].max(), color="black", linestyle="--",
+           linewidth=0.6, alpha=0.4)
+ax.set_title(f"Scout chain loglik-eval at θ̂  (best −{ce['loglik'].max():.1f}, worst −{ce['loglik'].min():.1f}, spread {ce['loglik'].max() - ce['loglik'].min():.1f} nats)")
+plt.show()
+```
+
+The spread between the best and worst chain is ~60 nats — clear
+evidence of multi-modality at this fitting budget. Three roughly-
+separated bands sit at ≈−5767, ≈−5780, and ≈−5800. The compound
+gate (next) refuses to refine on this scout.
+
+### IF2 parameter trajectories
+
+Last 50 iterations of each chain, all seven parameters projected to
+pairs. Pinned-bound chains show as flat lines on the diagonals.
+
+```{python}
+#| label: fig-chain-pairs
+#| code-fold: true
+#| fig-cap: "Per-chain IF2 trajectories (last 50 iters of 100), pair plot. Color = chain (same as preceding bar chart)."
+#| fig-width: 11
+#| fig-height: 11
+traces = load_chain_traces(SCOUT)
+_fig, _ax = pair_plot_chains(traces, PARAMS, last_frac=0.5,
+                             title="IF2 trajectories (last 50 iters)")
+plt.show()
+```
+
+### Compound gate verdict + dt-check
+
+```{python}
+#| label: fit-summary
+#| echo: false
+#| code-fold: false
+run_cli(["camdl", "fit", "summary",
+         "results/fits/fit_lhs_seeded-a86661dd"],
+        echo="$ camdl fit summary results/fits/fit_lhs_seeded-a86661dd",
+        cwd=str(VDIR), collapse=False)
+```
+
+## Pomp comparison at literature MLE
+
+The Richardson ladder evaluates `pfilter(θ_lit)` at a halving sequence
+of dt values, in both camdl (post-gh#54) and pomp. If the two
+implementations agree on the discretized model, the per-rung loglik
+deltas should be within particle-filter SE.
+
+```{python}
+#| label: pomp-richardson-table
+#| code-fold: true
+import math as _math
+
+def lme(xs):
+    a = max(xs)
+    s = _math.log(sum(_math.exp(x - a) for x in xs)/len(xs)) + a
+    var = sum((x - s)**2 for x in xs) / (len(xs) - 1)
+    return s, _math.sqrt(var / len(xs))
+
+pomp_raw = pl.read_csv(POMP_TSV, separator="\t")
+pomp_lit = (pomp_raw.filter(pl.col("target") == "lit_MLE")
+                    .group_by("delta_t_days")
+                    .agg(pl.col("loglik")))
+pomp_lit_dict = {row[0]: lme(row[1]) for row in pomp_lit.iter_rows()}
+
+camdl_post = pl.read_csv(CAMDL_POST_TSV, separator="\t")
+camdl_lit = (camdl_post.filter(pl.col("target") == "lit_MLE")
+                       .select(["dt", "loglik", "se"]))
+
+import sys as _sys
+print(f"{'dt':>6}  {'pomp ll':>12}  {'camdl ll':>12}  {'Δ (camdl−pomp)':>14}")
+print(f"{'-'*6}  {'-'*12}  {'-'*12}  {'-'*14}")
+for dt in [1.0, 0.5, 0.25, 0.125]:
+    pll, _pse = pomp_lit_dict[dt]
+    row = camdl_lit.filter(pl.col("dt") == dt).row(0)
+    cll, _cse = row[1], row[2]
+    print(f"{dt:>6.3f}  {pll:>12.2f}  {cll:>12.2f}  {cll-pll:>+13.2f}")
+```
+
+Mean sub-day Δ ≈ +3 nats across the three rungs (dt=0.5, 0.25, 0.125)
+— within PF SE band given the per-rep noise on both sides. The
++12–22 nat structural residual that gh#54 was filed for is gone:
+camdl and pomp now agree on the dt-aware He et al. measles likelihood.
+
+## Take-stock
+
+Three facts:
+
+1. **Pomp ⟷ camdl agreement at lit MLE is clean.** The dt fix did its
+   job; on the canonical external-validation point the two
+   implementations match to within PF noise on every Richardson rung.
+2. **IF2 trajectories at dt=1 are bit-identical to the pre-gh#54 buggy
+   model.** This is mathematically expected: the new
+   `(1−exp(−(γ+μ)·dt))/dt` and the old `(1−exp(−(γ+μ)·1 'days))`
+   evaluate identically at dt=1.0. Multi-modality of the dt=1 IF2
+   surface is therefore unchanged — same per-chain logliks, same Â
+   verdict.
+3. **dt-check at scout θ̂ now FAILs both legs honestly.** Leg-1 went
+   from 2.78 nats (was within τ, masked by L401-pinning) to 4.66 nats
+   (1.2×τ); leg-2 8.91 nats (2.3×τ). Pomp shows the same
+   dt-sensitivity at literature MLE — the He et al. measles model is
+   *genuinely* dt-sensitive at dt = 1 day. The published lit-MLE is
+   itself a "dt=1-MLE."
+
+What this means for the chapter narrative: the dt fix unlocks
+external validation (we agree with pomp), and exposes that the
+literature setup is itself discretization-dependent. The refine
+remediation is either (a) bigger IF2 budget at dt=1 to clear
+multi-modality, anchoring against published MLE; or (b) refit at
+dt ≤ 0.25 per the gate's recommendation. Pending your call.

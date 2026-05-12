@@ -1,0 +1,65 @@
+# Pipeline validation: simulate from known truth, fit, check recovery.
+#
+# Uses the SAME model file as the real-data fit (boarding_school_sir.camdl).
+# Synthetic recovery is only meaningful if the data-generating model and
+# the inference model are identical — so this config consumes
+# data/synthetic.tsv, produced by one `camdl simulate
+# models/boarding_school_sir.camdl --params fits/truth.toml` call (see
+# the chapter prose for the exact invocation).
+#
+# Truth (fits/truth.toml): β = 1.20, γ = 0.33 → R₀ = 3.64, I(0) = 5.
+# Deliberately distinct from the real-data fit's expected basin
+# (R₀ ≈ 3.0, I(0) = 3) so a successful recovery is non-circular — if
+# IF2 drifted toward the real basin instead of the synthetic truth,
+# that would be a broken pipeline.
+#
+# No `scenario` here: the boarding_school_sir.camdl `baseline` scenario
+# pins I(0) = 3 (the BMJ source for the real outbreak), which would
+# conflict with the synthetic truth I(0) = 5. Instead [fixed] supplies
+# N0 and I0 directly. Same IF2 budget as poisson_fixed_ic.toml so this
+# validates *the same pipeline* the real fit will use.
+#
+# dt = 0.1: data/synthetic.tsv was generated with `camdl simulate ...
+# --dt 0.1`, so γ·dt ≈ 0.03 — the chain-binomial is close to its
+# continuous-time limit, recovery is clean, and the post-fit Richardson
+# dt-check passes. (The real-data fit deliberately starts at dt = 1.0
+# to show what a too-coarse step does — see the chapter.)
+
+[model]
+camdl      = "../models/boarding_school_sir.camdl"
+output_dir = "../results/sir_synthetic"
+
+[data.observations]
+in_bed = "../data/synthetic.tsv"
+
+[config]
+backend = "chain_binomial"
+dt      = 0.1
+
+[estimate]
+beta  = { bounds = [0.5, 5.0], start = 1.5 }
+gamma = { bounds = [0.1, 1.0], start = 0.4 }
+
+[fixed]
+N0 = 763
+I0 = 5
+
+[stages.scout]
+algorithm  = "if2"
+backend    = "chain_binomial"
+chains     = 48
+particles  = 2000
+iterations = 250
+cooling    = 0.9
+
+[stages.refine]
+algorithm   = "if2"
+backend     = "chain_binomial"
+chains      = 12
+particles   = 4000
+iterations  = 400
+cooling     = 0.98
+starts_from = "scout"
+
+[stages.refine.gate]
+a_thresh = 1.05

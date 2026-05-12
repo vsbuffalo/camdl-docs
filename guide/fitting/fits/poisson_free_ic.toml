@@ -1,0 +1,60 @@
+# Free-initial-conditions fit: Poisson SIR with I(0) and R(0) estimated
+# alongside β and γ. Same IF2 budget as the fixed-IC fit, but four
+# parameters instead of two.
+#
+# Expected outcome: scout's compound gate will refuse to run refine —
+# the joint surface has a wide ridge in (I(0), R(0)) along which (β, γ)
+# re-tune. This is a *finding about the data*, demonstrating that 14
+# daily counts do not identify all four parameters jointly. The
+# priors chapter (forthcoming) shows how informed external priors on
+# R(0) collapse this ridge into a coherent posterior.
+#
+# We do NOT use --allow-nonconverged-scout. The principled response
+# to a failed gate here is profile likelihoods (run via `camdl profile`
+# in a separate cell), not laundering scout output.
+
+[model]
+camdl      = "../models/boarding_school_sir_init.camdl"
+output_dir = "../results/poisson_free_ic"
+scenario   = "baseline"
+
+[data.observations]
+in_bed = "../data/in_bed.tsv"
+
+[config]
+backend = "chain_binomial"
+dt      = 0.1
+
+[estimate]
+beta   = { bounds = [0.5, 5.0],   start = 1.5 }
+gamma  = { bounds = [0.1, 1.0],   start = 0.4 }
+# I(0) and R(0) flagged as ivp = true: still gated for chain agreement
+# (Â reported), but the gate's pass criterion is more lenient on these
+# than on dynamical parameters — Â failures on ivp parameters are
+# expected and don't block refine. (The chapter's whole point is that
+# they fail anyway, joint with β-γ.)
+I0     = { bounds = [1.0, 20.0],  start = 3.0,   ivp = true, rw_sd = 0.10 }
+R_init = { bounds = [0.0, 400.0], start = 0.0,   ivp = true, rw_sd = 5.0 }
+
+[fixed]
+N0 = 763
+
+[stages.scout]
+algorithm     = "if2"
+backend     = "chain_binomial"
+chains     = 48
+particles  = 2000
+iterations = 250
+cooling    = 0.9
+
+[stages.refine]
+algorithm      = "if2"
+backend      = "chain_binomial"
+chains      = 12
+particles   = 4000
+iterations  = 400
+cooling     = 0.98
+starts_from = "scout"
+
+[stages.refine.gate]
+a_thresh = 1.05

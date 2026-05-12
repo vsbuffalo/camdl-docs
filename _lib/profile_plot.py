@@ -157,8 +157,8 @@ def plot_profile_2d(df, *, focal_x, focal_y, nuisance_params,
     ll_max = np.nanmax(lls)
     i_, j_ = np.unravel_index(np.nanargmax(lls), lls.shape)
     fmax_x = float(xs[i_]); fmax_y = float(ys[j_])
-    star_label = (f"profile max\n({lbl(focal_x)}={fmax_x:.3g}, "
-                  f"{lbl(focal_y)}={fmax_y:.3g})")
+    # Short label — values belong in the figure caption, not legend
+    star_label = "profile max"
     star = (fmax_x, fmax_y, MARKER_STAR, star_label)
     markers = [star] + list(reference_points or [])
     # bare-marker variant for nuisance panels: no labels (legend only on Δll)
@@ -174,33 +174,50 @@ def plot_profile_2d(df, *, focal_x, focal_y, nuisance_params,
         # also render the in-panel legend.
         figsize = (5.0 * n_cols, 4.0 * n_rows)
     fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize,
-                             gridspec_kw={"wspace": 0.30, "hspace": 0.32})
+                             gridspec_kw={"wspace": 0.55, "hspace": 0.32})
     axes = np.atleast_1d(axes).flatten()
 
-    # Panel 1: Δll
+    # Panel 1: Δll. Right-margin layout — colorbar in lower 40% of the
+    # right strip, legend in upper 50%. Colorbar label as a small
+    # title above the bar (using set_title on the cax) so the label
+    # doesn't rotate-extend up into the legend area, which was the
+    # failure mode of the default `colorbar(label=…)` placement.
+    from mpl_toolkits.axes_grid1.inset_locator import inset_axes
     im0 = plot_dll_heatmap(
         axes[0], xs, ys, lls, dll_clip=dll_clip, markers=markers,
         xlabel=lbl(focal_x), ylabel=lbl(focal_y),
         title=f"Δ log-likelihood   (max ll = {ll_max:.1f})")
-    # Opaque white legend — frameon with explicit white facecolor
-    # so the legend reads cleanly regardless of the heatmap colour
-    # underneath. framealpha=1.0 (not the default 0.8) is load-bearing.
-    leg = axes[0].legend(
-        loc="best", fontsize=8,
+    cax0 = inset_axes(axes[0], width="4%", height="40%",
+                      loc="lower left",
+                      bbox_to_anchor=(1.04, 0.02, 1, 1),
+                      bbox_transform=axes[0].transAxes,
+                      borderpad=0)
+    cb0 = fig.colorbar(im0, cax=cax0)
+    cb0.ax.tick_params(labelsize=7)
+    cax0.set_title(f"Δ ll\n(≤ {dll_clip})", fontsize=7, pad=3, loc="left")
+    # Legend in the upper 50% of the right strip.
+    axes[0].legend(
+        loc="upper left", fontsize=7,
+        bbox_to_anchor=(1.02, 1.0), bbox_transform=axes[0].transAxes,
         frameon=True, facecolor="white", edgecolor="#888888",
         framealpha=1.0,
     )
-    fig.colorbar(im0, ax=axes[0],
-                 label=f"Δ log-lik (clipped at {dll_clip})")
 
-    # Nuisance panels
+    # Nuisance panels — same shrunk-colorbar layout for visual consistency.
     for ax, p in zip(axes[1:], nuisance_params):
         Z = nuis_grids[p]
         im = plot_nuisance_heatmap(
             ax, xs, ys, Z, markers=bare_markers,
             xlabel=lbl(focal_x), ylabel=lbl(focal_y),
             title=f"{lbl(p)} — IF2-optimised per cell")
-        fig.colorbar(im, ax=ax, label=lbl(p))
+        cax = inset_axes(ax, width="4%", height="40%",
+                         loc="lower left",
+                         bbox_to_anchor=(1.04, 0.02, 1, 1),
+                         bbox_transform=ax.transAxes,
+                         borderpad=0)
+        cb = fig.colorbar(im, cax=cax)
+        cb.ax.tick_params(labelsize=7)
+        cax.set_title(lbl(p), fontsize=7, pad=3, loc="left")
 
     for ax in axes[n_panels:]:
         ax.axis("off")
@@ -221,6 +238,7 @@ def plot_profile_panels(
     title: str = "",
     color: str = PROFILE_COLOR,
     ll_col: str = "loglik",
+    show_truth_ll: bool = False,
 ):
     """Stacked-panel profile figure.
 
@@ -243,6 +261,12 @@ def plot_profile_panels(
       ll_col: log-likelihood column name (default ``loglik``; the
         first entry of ``panel_params`` is matched against this to
         identify which panel renders the loglik surface).
+      show_truth_ll: if True, draw a horizontal dashed line at
+        ``truth_ll`` on the loglik panel. Default False — drawing this
+        line forces matplotlib to expand the y-axis to include
+        ``truth_ll``, which can flatten the profile curvature
+        visually when the truth ll sits far above (or below) the
+        profile-MLE neighbourhood.
     """
     if x_range is not None:
         p = p.filter((pl.col(x_col) >= x_range[0]) & (pl.col(x_col) <= x_range[1]))
@@ -263,8 +287,9 @@ def plot_profile_panels(
                 marker="o", markersize=6)
 
         if col == ll_col:
-            ax.axhline(truth_ll, color=TRUTH_COLOR, linestyle="--",
-                       linewidth=1, label=f"truth ℓ = {truth_ll:.0f}")
+            if show_truth_ll:
+                ax.axhline(truth_ll, color=TRUTH_COLOR, linestyle="--",
+                           linewidth=1, label=f"truth ℓ = {truth_ll:.0f}")
             ax.scatter([x_mle], [ll_mle], marker="*", color=MLE_COLOR,
                        s=200, zorder=10, edgecolor="black", linewidth=0.6,
                        label=f"profile MLE ({x_col}={x_mle:.3g}, ℓ={ll_mle:.0f})")

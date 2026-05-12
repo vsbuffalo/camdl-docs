@@ -1,0 +1,61 @@
+# Headline real-data fit: boarding-school SIR + Poisson, fixed initial
+# conditions (I(0) = 3 from BMJ source, R(0) = 0 implicit).
+#
+# Wide bounds (β ∈ [0.5, 5.0], γ ∈ [0.1, 1.0]) so we don't smuggle
+# prior beliefs through tight-bound pinning. Backend pinned to
+# chain_binomial dt = 1.0 so every downstream `camdl simulate --params
+# <mle>` runs the same dynamical system the fit saw (the new
+# mle_params.toml provenance block records this and `camdl simulate
+# --params` auto-matches, but we pin explicitly so the matching
+# command is visible to chapter readers).
+#
+# I(0) and R(0) are held fixed here. The companion chapter (priors and
+# initial conditions) explores what happens when we let them free —
+# the data on its own cannot identify (β, γ, I(0), R(0)) jointly.
+
+[model]
+camdl      = "../models/boarding_school_sir.camdl"
+output_dir = "../results/poisson_fixed_ic"
+scenario   = "baseline"
+
+[data.observations]
+in_bed = "../data/in_bed.tsv"
+
+[config]
+backend = "chain_binomial"
+dt      = 1.0
+
+[estimate]
+beta  = { bounds = [0.5, 5.0], start = 1.5 }
+gamma = { bounds = [0.1, 1.0], start = 0.4 }
+
+[fixed]
+# I(0) = 3 from the BMJ source: "On Sunday 22 January three boys
+# were in the college infirmary." (Anonymous 1978, BMJ 1:587).
+# R(0) = 0 is implicit — the model's `init` block sets
+# S = N0 - I0, I = I0, so R starts at 0 by construction.
+N0 = 763
+I0 = 3
+
+[stages.scout]
+algorithm     = "if2"
+backend     = "chain_binomial"
+chains     = 48
+particles  = 2000
+iterations = 250
+cooling    = 0.9
+
+[stages.refine]
+algorithm      = "if2"
+backend      = "chain_binomial"
+chains      = 12
+particles   = 4000
+iterations  = 400
+cooling     = 0.98
+starts_from = "scout"
+
+# Gate threshold relaxed from camdl's strict default (1.01) to 1.05 to
+# match the convergence band the chapter teaches: < 1.10 required, < 1.05
+# preferred (standard MCMC band, e.g. Gelman et al. BDA3 §11.4).
+[stages.refine.gate]
+a_thresh = 1.05

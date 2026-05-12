@@ -34,12 +34,18 @@ EXAMPLE_DIR = "boarding-school"
 MODEL = f"{EXAMPLE_DIR}/sirv.camdl"
 PARAMS = f"{EXAMPLE_DIR}/params.toml"
 
-def run_sim(model=MODEL, params=PARAMS, seed=42, extra_args=None, obs=False, scenario=None, show=False):
+def run_sim(model=MODEL, params=PARAMS, seed=42, dt=0.1, extra_args=None, obs=False, scenario=None, show=False):
     """Run camdl simulate, return polars DataFrame (and obs DataFrame if obs=True).
 
     When show=True (default), displays the CLI command in a collapsible panel.
+
+    ``dt`` defaults to 0.1: the boarding-school flu params (γ ≈ 0.44/day,
+    peak force of infection ≈ 0.66/day) violate the chain-binomial leap
+    condition r_max·dt ≲ 0.1 at the integrator's default dt = 1.0, so all
+    sims in this chapter use the finer step (matching the fitting chapters).
     """
-    cmd = ["camdl", "simulate", model, "--params", params, "--seed", str(seed)]
+    cmd = ["camdl", "simulate", model, "--params", params,
+           "--seed", str(seed), "--dt", str(dt)]
     if scenario:
         cmd.extend(["--scenario", scenario])
     if extra_args:
@@ -543,7 +549,7 @@ bs_prior = run_sim(model=BS_MODEL, params=BS_PARAMS, seed=42,
 #| code-fold: true
 #| code-summary: "Plotting code"
 #| label: fig-boarding-school-prior-pred
-#| fig-cap: "Prior predictive check for the boarding school model with informed influenza priors (200 draws). Compare to the vague-prior SIR above — the informed priors produce epidemics concentrated in the plausible range: peaks of 100–400 over 5–15 days, consistent with what we'd expect from flu in a school of 763."
+#| fig-cap: "Prior predictive check for the boarding school model with informed influenza priors (200 draws). Compare to the vague-prior SIR above — the informed priors produce epidemics concentrated in the plausible range: peaks of roughly 100–500 within the first two weeks, consistent with what we'd expect from flu in a school of 763."
 fig, ax = plt.subplots(figsize=(7, 3.5))
 for i, d in enumerate(bs_prior.partition_by(["replicate", "draw"])):
     ax.plot(d["t"], d["I"], color="#cc3333", alpha=0.1, linewidth=0.8)
@@ -738,7 +744,7 @@ Remember: we haven't fit to data yet. The parameters here ($\beta =
 posterior estimates. The 1978 data (black dots) is overlaid for
 orientation — to check that the model *can* produce trajectories
 consistent with reality at these values. Actual parameter estimation
-comes in [Fitting to Data](fitting.qmd).
+comes in [Fitting to Data](fitting/likelihood.qmd).
 
 
 ## The observation process — what the data actually looks like

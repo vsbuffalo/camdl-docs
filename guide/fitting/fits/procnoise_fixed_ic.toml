@@ -1,0 +1,49 @@
+# Process-noise comparison fit. Poisson observation + gamma-white-noise
+# multiplicative on the infection rate (He, Ionides & King 2010
+# overdispersed() primitive). σ_se controls the magnitude of
+# extra-demographic process variance.
+#
+# Same SIR dynamics + IF2 budget as fits/real.toml; an extra parameter
+# σ_se is estimated.
+
+[model]
+camdl      = "../models/boarding_school_sir_procnoise.camdl"
+output_dir = "../results/sir_procnoise"
+scenario   = "baseline"
+
+[data.observations]
+in_bed = "../data/in_bed.tsv"
+
+[config]
+backend = "chain_binomial"
+dt      = 0.1
+
+[estimate]
+beta     = { bounds = [0.5, 5.0],   start = 1.5 }
+gamma    = { bounds = [0.1, 1.0],   start = 0.4 }
+sigma_se = { bounds = [0.001, 2.0], start = 0.1 }
+
+[fixed]
+# I(0) = 3 from BMJ source (matches data day-0 observation).
+N0 = 763
+I0 = 3
+
+[stages.scout]
+algorithm     = "if2"
+backend     = "chain_binomial"
+chains     = 48
+particles  = 2000
+iterations = 250
+cooling    = 0.9
+
+[stages.refine]
+algorithm      = "if2"
+backend      = "chain_binomial"
+chains      = 12
+particles   = 4000
+iterations  = 400
+cooling     = 0.98
+starts_from = "scout"
+
+[stages.refine.gate]
+a_thresh = 1.05

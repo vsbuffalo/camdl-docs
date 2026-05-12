@@ -1,0 +1,93 @@
+# Production IF2 fit for the he2010-pomp external-validation chapter.
+#
+# Model: dt-aware he2010_london.camdl (post gh#54 — `beta_base` uses
+# the `dt` primitive, so the model is dt-invariant in effective R0
+# and matches pomp's csnippet exactly).
+#
+# Pipeline:
+#   1. Survey: `camdl survey models/he2010_london.camdl --fit survey_dynamic.toml`
+#   2. Scout:  `camdl fit run fit_lhs_seeded.toml --stage scout
+#               --survey-path results/surveys/<latest>`
+#   3. Refine: `camdl fit run fit_lhs_seeded.toml --stage refine`
+#
+# Bounds, [fixed], and the seven-estimate list match survey_dynamic.toml
+# verbatim — that's the cross-check `survey_top_k` enforces (gh#51), and
+# it pulls in the sbied profile.R rw_sd parameter set. Fix list approved
+# 2026-05-06 for sbied-exact external validation only.
+
+[model]
+camdl = "models/he2010_london.camdl"
+
+[data.observations]
+weekly_cases = "data/he2010_london_cases.tsv"
+
+[config]
+backend = "chain_binomial"
+dt      = 1.0
+
+[estimate.R0]
+bounds = [5.0, 100.0]
+start  = 56.8
+
+[estimate.sigma]
+bounds = [0.02, 0.2]
+start  = 0.0791
+
+[estimate.gamma]
+bounds = [0.02, 0.2]
+start  = 0.0832
+
+[estimate.sigma_se]
+bounds = [0.5, 5.0]
+start  = 2.816
+
+[estimate.psi]
+bounds = [0.05, 0.5]
+start  = 0.116
+
+[estimate.cohort]
+bounds = [0.1, 0.9]
+start  = 0.557
+
+[estimate.amplitude]
+bounds = [0.1, 0.9]
+start  = 0.554
+
+[fixed]
+mu     = 0.0000548
+alpha  = 0.976
+iota   = 2.9
+rho    = 0.488
+N0     = 2462500
+s0     = 0.0297
+e0     = 0.0000517
+i0     = 0.0000514
+
+# ─── Scout ────────────────────────────────────────────────────────────
+# 20 chains seeded from the top-20 LHS landscape rows. survey_path is
+# resolved at the CLI via `--survey-path <results/surveys/...>` so this
+# config stays decoupled from any specific survey hash.
+[stages.scout]
+algorithm      = "if2"
+backend        = "chain_binomial"
+chains         = 20
+particles      = 1000
+iterations     = 100
+cooling        = 0.5
+init_method    = "survey_top_k"
+survey_top_k_n = 20
+
+# ─── Refine ───────────────────────────────────────────────────────────
+# Top-5 scout chains continued with finer particles + cold cooling.
+# sbied analogue: round 2 (Np=5000) on the round-1 winners.
+[stages.refine]
+algorithm   = "if2"
+backend     = "chain_binomial"
+chains      = 5
+particles   = 2000
+iterations  = 150
+cooling     = 0.95
+starts_from = "scout"
+
+[stages.refine.gate]
+a_thresh = 1.05

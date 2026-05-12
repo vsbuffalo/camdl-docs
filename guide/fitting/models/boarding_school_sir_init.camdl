@@ -1,0 +1,55 @@
+# SIR with both I(0) and R(0) treated as free parameters.
+# Tests whether the daily in_bed counts alone can pin the initial
+# conditions, or whether they're weakly identified and trade off with
+# β and γ. Avilov et al. 2024 estimate R(0) ≈ 258 from 1978 seroprevalence
+# surveys (not vaccination — likely prior subclinical exposure and
+# cross-reactive antibodies from other contemporaneous flu strains).
+
+time_unit = 'days
+
+compartments { S, I, R }
+
+parameters {
+  beta   : rate     in [0.5, 5.0]
+  gamma  : rate     in [0.1, 1.0]
+  N0     : count
+  I0     : count    in [1, 20]
+  R_init : count    in [0, 400]
+}
+
+let N = S + I + R
+
+transitions {
+  infection : S --> I  @ beta * S * I / N
+  recovery  : I --> R  @ gamma * I
+}
+
+init {
+  S = N0 - I0 - R_init
+  I = I0
+  R = R_init
+}
+
+observations {
+  in_bed : {
+    projected  = prevalence(I)
+    every      = 1 'days
+    likelihood = poisson(rate = projected)
+  }
+}
+
+scenarios {
+  baseline {
+    label = "Boarding school flu 1978, I(0) and R(0) free"
+    set = {
+      N0     = 763
+      I0     = 3
+      R_init = 230
+    }
+  }
+}
+
+simulate {
+  from = 0 'days
+  to   = 14 'days
+}

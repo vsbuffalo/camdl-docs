@@ -1,0 +1,51 @@
+# NegBin observation comparison fit. Same SIR dynamics + IF2 budget
+# as fits/real.toml; observation model swapped to NegBin with estimable
+# dispersion k.
+#
+# Caveat. From 14 obs, k is structurally weakly identified above
+# k ≈ 30 (the chapter's 2D profile-likelihood section in the v1 chapter
+# diagnosed a near-flat ridge). Bounds [1, 50] keep the search inside
+# the informative region; if scout-Â on k fails the gate that's a
+# *finding* about the data, not a fit-budget problem.
+
+[model]
+camdl      = "../models/boarding_school_sir_negbin.camdl"
+output_dir = "../results/sir_negbin"
+scenario   = "baseline"
+
+[data.observations]
+in_bed = "../data/in_bed.tsv"
+
+[config]
+backend = "chain_binomial"
+dt      = 0.1
+
+[estimate]
+beta  = { bounds = [0.5, 5.0],  start = 1.5 }
+gamma = { bounds = [0.1, 1.0],  start = 0.4 }
+k     = { bounds = [1.0, 50.0], start = 10.0 }
+
+[fixed]
+# I(0) = 3 from BMJ source (matches data day-0 observation).
+N0 = 763
+I0 = 3
+
+[stages.scout]
+algorithm     = "if2"
+backend     = "chain_binomial"
+chains     = 48
+particles  = 2000
+iterations = 250
+cooling    = 0.9
+
+[stages.refine]
+algorithm      = "if2"
+backend      = "chain_binomial"
+chains      = 12
+particles   = 4000
+iterations  = 400
+cooling     = 0.98
+starts_from = "scout"
+
+[stages.refine.gate]
+a_thresh = 1.05

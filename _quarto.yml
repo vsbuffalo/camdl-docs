@@ -24,9 +24,10 @@ book:
         - guide/experiments.qmd
         - guide/scenarios.qmd
         - guide/dimensions.qmd
+        - guide/integrator-step.qmd
         - guide/fitting/likelihood.qmd
         - guide/fitting/model_comparison.qmd
-        - guide/fitting/priors.qmd
+        - guide/fitting/identifiability.qmd
     - part: "Inference"
       chapters:
         - inference/likelihood.qmd
@@ -34,6 +35,9 @@ book:
     - part: "Vignettes"
       chapters:
         - vignettes/he2010-synthetic.qmd
+        - vignettes/he2010-prelim.qmd
+        - vignettes/he2010-pomp.qmd
+        - vignettes/he2010-paper.qmd
         - vignettes/he2010-bayesian.qmd
         - vignettes/malaria.qmd
         - vignettes/ross-macdonald.qmd
