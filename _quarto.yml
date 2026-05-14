@@ -10,7 +10,7 @@ book:
   repo-url: https://github.com/vsbuffalo/camdl-book
   repo-actions: [edit]
   page-navigation: true
-  draft-mode: visible
+  draft-mode: gone
   page-footer:
     left: "© 2026 Vince Buffalo. Supported by the Institute for Disease Modeling, Bill & Melinda Gates Foundation."
     right: "License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)"
