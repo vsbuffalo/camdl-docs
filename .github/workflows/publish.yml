@@ -28,10 +28,10 @@ jobs:
       - name: Cache cargo build
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: camdl-src
+          workspaces: camdl-src/rust
 
       - name: Build and install camdl
-        run: cargo install --path camdl-src --locked
+        run: cargo install --path camdl-src/rust/crates/cli --locked
 
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
