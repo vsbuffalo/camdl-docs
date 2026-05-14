@@ -170,6 +170,15 @@ def _run_capture(
         cmd, capture_output=True, text=True, shell=shell, cwd=cwd, env=run_env,
     )
     if check and result.returncode != 0:
+        import sys as _sys
+        cmd_str = cmd if isinstance(cmd, str) else " ".join(map(str, cmd))
+        print(f"command failed (exit {result.returncode}): {cmd_str}", file=_sys.stderr)
+        if result.stdout:
+            print("--- stdout ---", file=_sys.stderr)
+            print(result.stdout, file=_sys.stderr)
+        if result.stderr:
+            print("--- stderr ---", file=_sys.stderr)
+            print(result.stderr, file=_sys.stderr)
         raise subprocess.CalledProcessError(
             result.returncode, cmd, result.stdout, result.stderr,
         )
