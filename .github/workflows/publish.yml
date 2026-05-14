@@ -1,6 +1,7 @@
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 name: Build and deploy Quarto site
 
@@ -12,9 +13,44 @@ jobs:
   build-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout camdl-docs
+        uses: actions/checkout@v5
 
-      - uses: quarto-dev/quarto-actions/setup@v2
+      - name: Checkout camdl (sibling)
+        uses: actions/checkout@v5
+        with:
+          repository: vsbuffalo/camdl
+          path: camdl-src
+
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: camdl-src
+
+      - name: Build and install camdl
+        run: cargo install --path camdl-src --locked
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Install Python dependencies
+        run: uv sync
+
+      - name: Expose uv venv to Quarto
+        run: echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
 
       - name: Render and publish
         uses: quarto-dev/quarto-actions/publish@v2
