@@ -31,7 +31,10 @@ jobs:
 
       - name: Install OCaml dependencies
         working-directory: camdl-src/ocaml
-        run: opam install . --deps-only --yes
+        # `--with-test` is needed even though we don't run tests: dune
+        # builds the whole workspace by default and ocaml/test/dune
+        # depends on alcotest + qcheck-alcotest.
+        run: opam install . --deps-only --with-test --yes
 
       # ── Rust (camdl runtime) ───────────────────────────
       - uses: actions-rust-lang/setup-rust-toolchain@v1
