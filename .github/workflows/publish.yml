@@ -22,17 +22,37 @@ jobs:
           repository: vsbuffalo/camdl
           path: camdl-src
 
-      - name: Set up Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+      # ── OCaml (camdlc compiler) ────────────────────────
+      - uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: "5.2"
+          dune-cache: true
+          opam-pin: false
+
+      - name: Install OCaml dependencies
+        working-directory: camdl-src/ocaml
+        run: opam install . --deps-only --yes
+
+      # ── Rust (camdl runtime) ───────────────────────────
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
 
       - name: Cache cargo build
         uses: Swatinem/rust-cache@v2
         with:
           workspaces: camdl-src/rust
 
-      - name: Build and install camdl
-        run: cargo install --path camdl-src/rust/crates/cli --locked
+      # ── Build & install both binaries (hash-matched) ───
+      # `make install` puts camdl + camdlc + camdlc-<git-hash> in
+      # ~/.local/bin/. The hash-suffixed copy is what `camdl` checks
+      # for at runtime to confirm exact-version match with camdlc.
+      - name: Build and install camdl + camdlc
+        working-directory: camdl-src
+        run: opam exec -- make install
 
+      - name: Add ~/.local/bin to PATH
+        run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      # ── Python (chapter cell execution) ────────────────
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
@@ -49,6 +69,7 @@ jobs:
       - name: Expose uv venv to Quarto
         run: echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
 
+      # ── Quarto render + publish ────────────────────────
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
 
