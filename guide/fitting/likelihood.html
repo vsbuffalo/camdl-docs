@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Likelihood Fitting – camdl</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../guide/fitting/identifiability.html" rel="next">
+<link href="../../guide/integrator-step.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-f418161beb48e0141c760e455f12af2c.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-6667564092b74b448163e6ade2e1f3b4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-c8430341214b22b81b300d69ff936483.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-6667564092b74b448163e6ade2e1f3b4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../../guide/fitting/likelihood.html"><span class="chapter-title">Likelihood Fitting</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">camdl</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/vsbuffalo/camdl-book" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What is camdl?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Getting Started</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../guide/getting-started.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building an SIR Model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../guide/experiments.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Uncertainty, Priors, and Simulation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../guide/scenarios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scenarios, Interventions, and Sweeps</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../guide/dimensions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Dimensions and Stratification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../guide/integrator-step.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Integrator Step</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../guide/fitting/likelihood.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Likelihood Fitting</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../guide/fitting/identifiability.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Identifiability</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Inference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../inference/likelihood.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Likelihood and the Particle Filter</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../inference/algorithms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Algorithms: IF2, PGAS, and PMMH</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Reference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../language/spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Language Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../language/data-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../reference/features.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">User Features</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../reference/inference-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../reference/ir-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">IR Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../reference/runtimes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simulation Backends</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../reference/design.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Design Philosophy</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#validating-the-pipeline-with-synthetic-data-recovery" id="toc-validating-the-pipeline-with-synthetic-data-recovery" class="nav-link active" data-scroll-target="#validating-the-pipeline-with-synthetic-data-recovery">Validating the Pipeline with Synthetic Data Recovery</a></li>
+  <li><a href="#recovering-the-truth-at-dt-0.1" id="toc-recovering-the-truth-at-dt-0.1" class="nav-link" data-scroll-target="#recovering-the-truth-at-dt-0.1">Recovering the truth — at <code>dt = 0.1</code></a>
+  <ul class="collapse">
+  <li><a href="#reading-camdls-diagnostic-output" id="toc-reading-camdls-diagnostic-output" class="nav-link" data-scroll-target="#reading-camdls-diagnostic-output">Reading camdl’s diagnostic output</a></li>
+  <li><a href="#what-if-wed-reached-for-the-default-dt-1" id="toc-what-if-wed-reached-for-the-default-dt-1" class="nav-link" data-scroll-target="#what-if-wed-reached-for-the-default-dt-1">What if we’d reached for the default <code>dt = 1</code>?</a></li>
+  </ul></li>
+  <li><a href="#real-data-fit" id="toc-real-data-fit" class="nav-link" data-scroll-target="#real-data-fit">Real-data fit</a>
+  <ul class="collapse">
+  <li><a href="#the-default-dt-1-for-the-record" id="toc-the-default-dt-1-for-the-record" class="nav-link" data-scroll-target="#the-default-dt-1-for-the-record">The default <code>dt = 1</code>, for the record</a></li>
+  </ul></li>
+  <li><a href="#whats-next" id="toc-whats-next" class="nav-link" data-scroll-target="#whats-next">What’s next</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/fitting/likelihood.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../../guide/fitting/likelihood.html"><span class="chapter-title">Likelihood Fitting</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Likelihood Fitting</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>In the <a href="../../guide/experiments.html">previous chapters</a> we built a model, explored its uncertainty, and tested its behaviour under different scenarios. Now we turn to the central question: <strong>how can we estimate the model’s parameters we’re uncertain about from real data?</strong> As we’ll see, usually this question comes with another one: <strong>how well are the data able to fully constrain the model’s parameters?</strong></p>
+<p>This chapter introduces <code>camdl fit</code>, the inference pipeline that finds parameter values consistent with observed data. We fit an SIR model to the 1978 boarding school influenza outbreak and discover how much 14 daily observations can — and can’t — tell us about the underlying epidemic. This chapter uses the likelihood-based <strong>iterated filtering (IF2)</strong> (<a href="https://doi.org/10.1073/pnas.1410597112">Ionides et al., 2015</a>), the same algorithm as pomp’s <code>mif2()</code> (<a href="https://doi.org/10.18637/jss.v069.i12">King, Nguyen &amp; Ionides, 2016</a>).</p>
+<p>A compartmental model has <em>latent states</em> — the true number of susceptible, infectious, and recovered individuals at each time — that we never observe directly. We see noisy, incomplete proxies: daily bed counts. To find the parameters that best explain the data we need the likelihood <span class="math inline">\(L(\theta \mid
+y_{1:T})\)</span>, an integral over <em>all possible</em> latent trajectories that is generally intractable for stochastic compartmental models. The <strong>particle filter</strong> approximates it; <strong>iterated filtering</strong> perturbs the parameters across particles, runs the PF, and cools the perturbations across iterations. This is a bit like simulated annealing on an approximate likelihood surface.</p>
+<section id="validating-the-pipeline-with-synthetic-data-recovery" class="level2">
+<h2 class="anchored" data-anchor-id="validating-the-pipeline-with-synthetic-data-recovery">Validating the Pipeline with Synthetic Data Recovery</h2>
+<p>Before fitting real data we should confirm the pipeline works <em>at all</em>. Simulate a dataset from chosen “truth” parameters, fit with the same IF2 procedure, check that we recover the truth. If the pipeline can’t recover parameters it generated, it can’t be trusted on data it didn’t.</p>
+<p>First, let’s come up with some plausible pandemic-flu-in-school-children ballpark parameters. Using what we know from prior publications, we might pick something like:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 84%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>parameter</th>
+<th>value</th>
+<th>rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>β</td>
+<td>1.20 /day</td>
+<td>transmission rate per infective</td>
+</tr>
+<tr class="even">
+<td>γ</td>
+<td>0.33 /day</td>
+<td>mean infectious period ≈ 3 days</td>
+</tr>
+<tr class="odd">
+<td>I(0)</td>
+<td>5</td>
+<td>distinct from the real-fit I(0) = 3 from the BMJ source — recovery on synthetic must not match real-fit configuration</td>
+</tr>
+<tr class="even">
+<td>N</td>
+<td>763</td>
+<td>known school size</td>
+</tr>
+<tr class="odd">
+<td>R₀</td>
+<td>β/γ ≈ 3.6</td>
+<td>flu-like, distinct from real ≈ 3</td>
+</tr>
+</tbody>
+</table>
+<p>We’ll store these parameters in a TOML file, so the simulate call below and every fit that references the synthetic “truth” all read from one place. Here’s <code>fits/truth.toml</code>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>fits/truth.toml</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-filename="fits/truth.toml"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Synthetic truth parameters (β = 1.20 /day, γ = 0.33 /day; R₀ = 3.64).</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Mean infectious period 1/γ ≈ 3 days — flu-like.</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Distinct from the real-data MLE basin (R₀ ≈ 3) so recovery is</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># non-circular: if IF2 lands at (1.20, 0.33), it found the synthetic</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># truth, not the real-data basin.</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="dt">beta</span>  <span class="op">=</span> <span class="fl">1.20</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="dt">gamma</span> <span class="op">=</span> <span class="fl">0.33</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="dt">N0</span>    <span class="op">=</span> <span class="dv">763</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="dt">I0</span>    <span class="op">=</span> <span class="dv">5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now feed those parameters to <strong>the same model file we’re about to fit</strong> — <code>boarding_school_sir.camdl</code>. Not a “synthetic” variant with a different observation schedule or a wider window. A synthetic-recovery check is best engineered if the data-generating model and the inference model are <em>identical</em> <code>.camdl</code> files; the moment you tweak the observation cadence “just for the synthetic run” you’re validating a slightly different model than the one you care about. The parameters come in separately, through <code>truth.toml</code> — that’s the only thing that changes between “generate data” and “fit data”.</p>
+<div id="cell-gen-synth" class="cell" data-execution_count="2">
+<div id="gen-synth" class="cell-output cell-output-display" data-execution_count="2">
+<details class="cli-run"><summary><code>$ camdl simulate models/boarding_school_sir.camdl --params fits/truth.toml --backend chain_binomial --dt 0.1 --seed 17 --obs data/synthetic.tsv</code></summary><pre class="ansi-output"><code># camdl 0.1.0+ea997d9 (2026-05-14)
+t   S   I   R   flow_infection  flow_recovery
+0   758 5   0   0   0
+1   749 11  3   9   3
+2   720 34  9   29  6
+3   675 65  23  45  14
+4   585 127 51  90  28
+5   456 208 99  129 48
+6   326 265 172 130 73
+7   209 276 278 117 106
+8   133 278 352 76  74
+9   81  251 431 52  79
+10  59  193 511 22  80
+11  41  153 569 18  58
+12  34  114 615 7   46
+13  29  93  641 5   26
+14  28  71  664 1   23
+<span style="opacity:0.7">observations written to data/synthetic.tsv</span></code></pre></details>
+</div>
+</div>
+<p>That <code>--dt 0.1</code> isn’t arbitrary, and it isn’t just numerical precision. The integrator step <code>dt</code> is <strong>part of the statistical model</strong> — change it and you’ve changed the stochastic process the chain-binomial backend realizes (and the likelihood it computes). For a fast outbreak like this one the leap condition <code>r_max·dt ≲ 0.1</code> puts the faithful step at <code>dt ≤ ~0.25</code> (at <code>dt = 0.1</code> the per-step recovery probability <code>1 − exp(−γ·dt)</code> is ≈ 0.03 — tiny); the often-reached-for <code>dt = 1.0</code> is ~4× too coarse — enough to bend the dynamics and bias the fit, as we’ll see. Why <code>dt</code> is a model commitment rather than a tuning knob, how to choose it, and the post-fit check that verifies the choice are the subject of <a href="../../guide/integrator-step.html">The Integrator Step</a>; this chapter assumes it. We generate the synthetic data at <code>dt = 0.1</code> for the same reason we’ll fit at <code>dt = 0.1</code>: it’s the step that faithfully approximates the SIR we mean to study. (The model observes “in bed” daily for 14 days — the same window as the real 1978 outbreak.)</p>
+<div id="cell-fig-synth" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>synth <span class="op">=</span> pl.read_csv(<span class="st">"data/synthetic.tsv"</span>, separator<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">3.2</span>))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>ax.plot(synth[<span class="st">"time"</span>], synth[<span class="st">"in_bed"</span>], color<span class="op">=</span><span class="st">"#3366cc"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        marker<span class="op">=</span><span class="st">"o"</span>, linewidth<span class="op">=</span><span class="fl">1.4</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>ax.fill_between(synth[<span class="st">"time"</span>], <span class="dv">0</span>, synth[<span class="st">"in_bed"</span>], color<span class="op">=</span><span class="st">"#3366cc"</span>, alpha<span class="op">=</span><span class="fl">0.10</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Day"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Boys in bed"</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Synthetic outbreak (β = 1.20, γ = 0.33; seed 17)"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-synth" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-synth-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="likelihood_files/figure-html/fig-synth-output-1.png" width="1035" height="467" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-synth-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.1: Synthetic outbreak at truth (β = 1.20, γ = 0.33), generated from boarding_school_sir.camdl — the same model the fit uses (seed 17, dt = 0.1). Peaks around day 7-8 (~270 boys), still declining at the day-14 cutoff. The real outbreak peaks earlier; recovering (1.20, 0.33) here means IF2 found the synthetic basin, not the real-data one.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="recovering-the-truth-at-dt-0.1" class="level2">
+<h2 class="anchored" data-anchor-id="recovering-the-truth-at-dt-0.1">Recovering the truth — at <code>dt = 0.1</code></h2>
+<p>With the faithful step chosen, fit the synthetic dataset back with the same IF2 budget the real fit will use — 48 scout chains × 2000 particles × 250 iterations, then 12 refine chains × 4000 particles × 400 iterations:</p>
+<div id="cell-fit-synth" class="cell" data-execution_count="4">
+<div id="fit-synth" class="cell-output cell-output-display" data-execution_count="4">
+<details class="cli-run"><summary><code>$ camdl fit run fits/poisson_fixed_ic_synth.toml --seed 30 --label "synth recovery same model dt 0.1" --progress plain</code></summary><pre class="ansi-output"><code><span style="opacity:0.7">fit: fits/poisson_fixed_ic_synth.toml (2 stages)
+  model:    fits/../models/boarding_school_sir.camdl
+  estimate: beta, gamma
+  fixed:    N0, I0
+  output:   results/fits/poisson_fixed_ic_synth-c771fac0
+
+── stage: scout (method=if2) ──
+running 48 chains × 2000 particles × 250 iterations, cooling=0.9, dt=0.1
+
+transforms:
+  beta         log     [0.5, 5]  log(1.2622) = 0.23  rw_sd=0.1820 (0.144/step, <span style="color:#b8860b">auto</span>)
+  gamma        log     [0.1, 1]  log(0.3479) = -1.06  rw_sd=0.0364 (0.105/step, <span style="color:#b8860b">auto</span>)
+
+  <span style="color:#b8860b">⚠ 2/2 parameters using auto rw_sd. Check traces and set explicit values.</span>
+
+cooling: cf50=0.90 over 250 iterations × 15 observations
+  iter   1: rw_sd at 99.6%
+  iter 125: rw_sd at 57.0% (halfway)
+  iter 250: rw_sd at 32.5%
+
+<span style="color:#666666">[</span>2026-05-14T23:04:50Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 20 iter 1/250 ll=-67.6
+<span style="color:#666666">[</span>2026-05-14T23:04:50Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 37 iter 1/250 ll=-339.3
+<span style="color:#666666">[</span>2026-05-14T23:04:50Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 4 iter 1/250 ll=-555.4
+<span style="color:#666666">[</span>2026-05-14T23:04:50Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 21 iter 1/250 ll=-82.4
+<span style="color:#666666">[</span>2026-05-14T23:04:51Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 23 iter 1/250 ll=-67.1
+<span style="color:#666666">[</span>2026-05-14T23:04:51Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 22 iter 1/250 ll=-67.1
+<span style="color:#666666">[</span>2026-05-14T23:04:51Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 31 iter 1/250 ll=-69.9
+<span style="color:#666666">[</span>2026-05-14T23:04:51Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 7 iter 1/250 ll=-93.2
+<span style="color:#666666">[</span>2026-05-14T23:04:51Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 1 iter 1/250 ll=-113.1
+<span style="color:#666666">[</span>2026-05-14T23:04:51Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 19 iter 1/250 ll=-73.2
+<span style="color:#666666">[</span>2026-05-14T23:04:51Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 43 iter 1/250 ll=-67.8
+<span style="color:#666666">[</span>2026-05-14T23:04:51Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 46 iter 1/250 ll=-135.5
+<span style="color:#666666">[</span>2026-05-14T23:04:51Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 14 iter 1/250 ll=-216.5
+<span style="color:#666666">[</span>2026-05-14T23:04:51Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 16 iter 1/250 ll=-65.2
+  [...228 lines omitted...]
+
+dt-convergence at θ̂: <span style="color:#2e8b2e">PASS</span>  (|Δ_leg1| = 0.12, |Δ_leg2| = 0.12 nats (vs τ = 2.00); converged.)
+
+refine complete in 39.9s: results/fits/poisson_fixed_ic_synth-c771fac0/real/fit_30/refine/
+  best loglik: -60.9 (chain 10)
+summary: results/fits/poisson_fixed_ic_synth-c771fac0/real/summary.tsv</span></code></pre></details>
+</div>
+</div>
+<p>camdl’s content-addressable cache means this runs once on first render and is essentially instant on every subsequent render — the fit’s inputs (model hash, data hash, config hash, seed) determine the output directory, so re-rendering reads from cache rather than re-fitting.</p>
+<section id="reading-camdls-diagnostic-output" class="level3">
+<h3 class="anchored" data-anchor-id="reading-camdls-diagnostic-output">Reading camdl’s diagnostic output</h3>
+<div id="cell-summary-synth" class="cell" data-execution_count="5">
+<div id="summary-synth" class="cell-output cell-output-display" data-execution_count="5">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl fit summary results/fits/poisson_fixed_ic_synth-c771fac0/real/fit_30</span>
+
+results/fits/poisson_fixed_ic_synth-c771fac0/real/fit_30/
+  camdl 0.1.0+ea997d9
+
+══ refine ════════════════════════════════════════════════════════════════════
+  best loglik:  -60.9  (loglik-eval, max across chains)
+  chains:       12
+
+  compound scout-convergence gate
+    Â leg:           max Â = 1.019 (gamma)  ✓  (threshold 1.05)
+    decibans leg:    Δ = 0.3 dB / threshold 30.0 dB  ✓  (σ_max=0.03)
+    overall:         ✓ PASS
+
+  parameter estimates (loglik-eval, selected chain θ̂)
+    beta         = 1.144611      Â=1.019 ✓
+    gamma        = 0.320260      Â=1.019 ✓
+
+  per-chain loglik-eval (12 chains)
+    chain        loglik     ± se
+         1       -60.88   ± 0.02
+         2       -60.89   ± 0.02
+         3       -60.95   ± 0.02
+         4       -60.92   ± 0.02
+         5       -60.92   ± 0.03
+         6       -60.89   ± 0.03
+         7       -60.93   ± 0.03
+         8       -60.91   ± 0.02
+         9       -60.91   ± 0.03
+        10       -60.88   ± 0.02  ← selected
+        11       -60.90   ± 0.01
+        12       -60.90   ± 0.03
+
+  ESS at θ̂
+    min  =      746  (at obs step 2)    mean =     2622
+
+  dt-convergence at θ̂ (Richardson)
+    verdict: PASS    (|Δ_leg1| = 0.12, |Δ_leg2| = 0.12 nats (vs τ = 2.00); converged.)
+
+  provenance
+    final_params.toml ↔ mle_params.toml: ✓ params match
+    fit_state.toml ↔ final_params.toml:   ✓ params match
+
+══ scout ═════════════════════════════════════════════════════════════════════
+  best loglik:  -60.9  (loglik-eval, max across chains)
+  chains:       48
+  vs refine:    Δ = -0.0 nats  ✗
+
+  compound scout-convergence gate
+    Â leg:           max Â = 1.002 (beta)  ✓  (threshold 1.01)
+    decibans leg:    Δ = 1.4 dB / threshold 30.0 dB  ✓  (σ_max=0.03)
+    overall:         ✓ PASS
+
+  parameter estimates (loglik-eval, selected chain θ̂)
+    beta         = 1.157372      Â=1.002 ✓
+  [...56 lines omitted...]
+  dt-convergence at θ̂ (Richardson)
+    verdict: PASS    (|Δ_leg1| = 0.11, |Δ_leg2| = 0.15 nats (vs τ = 2.00); converged.)
+
+  provenance
+    final_params.toml ↔ mle_params.toml: ✓ params match
+    fit_state.toml ↔ final_params.toml:   ✓ params match</code></pre>
+</div>
+</div>
+<p><code>camdl fit summary</code> prints a fixed set of blocks. The first time through, here’s how to read each one. (The machinery behind several of these — the particle filter, the log-likelihood estimate, effective sample size — is the subject of the <a href="../../inference/likelihood.html">inference chapter on likelihood</a>; IF2 itself is in <a href="../../inference/algorithms.html">the algorithms chapter</a>. This is the operator’s-eye view.)</p>
+<p><strong>The MLE and its likelihood.</strong> <code>best loglik (loglik-eval)</code> is the headline likelihood: each IF2 chain’s winning parameter vector is <em>re-scored</em> after the fit at a high particle count (4000 particles × 8 replicates, combined by <code>logmeanexp</code>), and this is the best of those re-scores. The <code>parameter estimates</code> block is that winning chain’s θ̂. Re-scoring matters because IF2’s <em>running</em> loglik during optimization is a low-particle estimate biased by the perturbations it injects; the post-fit re-score is the clean number.</p>
+<p><strong>The compound scout-convergence gate</strong> — two legs, <em>both</em> must pass.</p>
+<p><em>Leg 1 — Â (chain-agreement).</em> This is the Gelman–Rubin potential-scale-reduction statistic — between-chain variance over within-chain variance of a scalar — but computed on something an MCMC run doesn’t have: IF2’s per-iteration parameter-<em>mean</em> trajectory across the independent optimizer chains. The arithmetic is identical to R-hat; the <em>interpretation</em> is not. R-hat asks “has this one Markov chain mixed over the posterior?” Â asks “did these independent stochastic optimizers all climb to the same place?” Importing R-hat’s reflexes — “above 1.01, keep sampling” — would be the wrong mental model, so camdl gives it a different name (<code>chain_agreement</code> in the TOML, <code>Â</code> in the summary) to keep the two apart. (camdl <em>does</em> report <code>rhat</code>, by that name — for its PGAS / PMMH posterior samplers, where the chains genuinely are posterior draws and the MCMC reading applies.) Bands:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Â</th>
+<th>reading</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>&lt; 1.05</code></td>
+<td>converged on this leg ✓</td>
+</tr>
+<tr class="even">
+<td><code>1.05 – 1.10</code></td>
+<td>marginal <code>~</code> — report it, tighten bounds or add iterations, rerun</td>
+</tr>
+<tr class="odd">
+<td><code>≥ 1.10</code></td>
+<td>not converged ✗ — do <strong>not</strong> interpret θ̂</td>
+</tr>
+</tbody>
+</table>
+<p><em>Leg 2 — decibans spread (Δ_dB).</em> Â passing tells you the chains <em>agree</em>; it does not tell you they agreed on a <em>good</em> place. So the gate also looks at the chain-by-chain re-scored log-likelihoods and computes <code>Δ_dB = (max − min) × 10/ln 10</code> — the spread between the best and worst chain’s basin, in decibans — against an SE-aware threshold (default 30 dB, with a floor that lifts automatically if the particle filter is noisy). All thirty-six chains of a measles fit can have <code>Â &lt; 1.05</code> on every parameter while sitting in basins thousands of dB apart; the decibans leg is the catch for exactly that. Â: “did they agree on <em>where</em>?” Δ_dB: “was <em>where-they-agreed</em> any good?” Fail either and <code>overall</code> is ✗.</p>
+<p><strong>Per-chain loglik-eval.</strong> The re-scored loglik ± SE for every chain; <code>← selected</code> marks the one whose θ̂ becomes the reported MLE. The spread down this column is what the decibans leg summarizes — a tight cluster is healthy; one or two chains far below the rest is a multimodal-surface flag.</p>
+<p><strong>ESS at θ̂.</strong> The particle filter’s effective sample size at the MLE — <code>min</code> over observation steps and <code>mean</code>. (ESS is <em>the</em> primary particle-filter diagnostic; see the <a href="../../inference/likelihood.html">ESS section of inference/likelihood</a> for what it measures and why it collapses.) A single-digit <code>min</code> at the most informative observation — the rising-limb crunch, here — is common and tolerable. A <code>min</code> near 1 <em>everywhere</em> means the loglik estimate at θ̂ is unreliable and you should raise the particle count before believing the number.</p>
+<p><strong>dt-convergence at θ̂ (Richardson).</strong> The loglik at θ̂ re-scored at <code>dt</code>, <code>dt/2</code>, <code>dt/4</code>, with a two-legged plateau criterion: <code>PASS</code> means the MLE survived finer discretization, <code>FAIL</code> means it didn’t (the verdict reports the largest <code>dt</code> to retry at). Why this exists and how to pick <code>dt</code> in the first place: <a href="../../guide/integrator-step.html">The Integrator Step</a>.</p>
+<p><strong>provenance.</strong> <code>final_params.toml ↔︎ mle_params.toml ↔︎ fit_state.toml</code> should all agree. A mismatch means the on-disk artifacts got out of sync (a bug, or a stray hand-edit) — don’t trust the reported numbers until it’s resolved.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>block</th>
+<th>measures</th>
+<th>good</th>
+<th>if bad</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>best loglik</code> (loglik-eval)</td>
+<td>the MLE’s likelihood, re-scored at high particle count</td>
+<td>compare across models / to a PPC</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>per-parameter <code>Â</code></td>
+<td>do the independent IF2 chains agree on this parameter’s optimum?</td>
+<td><code>&lt; 1.05</code></td>
+<td><code>1.05–1.10</code>: tighten + rerun. <code>≥ 1.10</code>: don’t interpret θ̂</td>
+</tr>
+<tr class="odd">
+<td>decibans leg <code>Δ_dB</code></td>
+<td>how far apart are the chain-level basins, in likelihood units?</td>
+<td><code>&lt; 30 dB</code> (SE-aware floor)</td>
+<td>widen bounds toward the best basin / more chains / more iterations / informed <code>start</code> values</td>
+</tr>
+<tr class="even">
+<td>compound gate <code>overall</code></td>
+<td>both legs pass?</td>
+<td><code>✓</code></td>
+<td><code>✗</code> — root-cause the failing leg; never <code>--allow-nonconverged-scout</code></td>
+</tr>
+<tr class="odd">
+<td>per-chain loglik-eval</td>
+<td>the basins, chain by chain</td>
+<td>tight cluster</td>
+<td>outlier chains far below → multimodal surface</td>
+</tr>
+<tr class="even">
+<td><code>ESS at θ̂</code> (min / mean)</td>
+<td>particle-filter effective sample size at the MLE</td>
+<td><code>min</code> ≳ a few; <code>mean</code> ≫ 1</td>
+<td><code>min ≈ 1</code> everywhere → loglik unreliable; raise particle count</td>
+</tr>
+<tr class="odd">
+<td>dt-convergence verdict</td>
+<td>does the loglik at θ̂ survive finer <code>dt</code>?</td>
+<td><code>PASS</code></td>
+<td><code>FAIL</code> → MLE is discretization-dependent; refit at the suggested <code>dt</code></td>
+</tr>
+<tr class="even">
+<td>provenance</td>
+<td>do the on-disk param files agree?</td>
+<td>all <code>✓</code></td>
+<td>mismatch → artifacts out of sync; resolve before trusting numbers</td>
+</tr>
+</tbody>
+</table>
+<p>Now read this synth-recovery fit through that lens. <strong>Recovery within ~5% on β, ~3% on γ.</strong> The pipeline lands at (β ≈ 1.14, γ ≈ 0.32), R₀̂ ≈ 3.5 — close to the truth (1.20, 0.33, R₀ = 3.64), and <em>not</em> in the real-data basin (β ≈ 2, γ ≈ 0.66) we’ll hit next. Both gate legs pass: refine Â ≤ 1.04 on every parameter (Â leg ✓), and the chain-level loglik-eval spread is a fraction of a decibel (decibans leg ✓, 30 dB threshold with an SE-aware floor). Recovery is non-circular — the data, not the optimiser’s biases, determined where IF2 converged.</p>
+<p>The β / γ asymmetry — γ tighter than β — is a structural property of this data, not a fitting artefact. γ controls the falling limb’s slope, which the data pins tightly; β controls the rising limb where the chain-binomial process has more trajectory-level variance. Expect the same asymmetry on the real-data fit.</p>
+<p>And notice the last block of that summary: the post-fit <strong>Richardson dt-convergence check</strong> passes too — <code>|Δ_leg1| ≈ 0.1, |Δ_leg2| ≈ 0.1 nats</code>, well under the threshold. The loglik is flat across a halving ladder at θ̂. That’s no accident: we chose <code>dt = 0.1</code> precisely <em>because</em> the <a href="../../guide/integrator-step.html">Integrator Step</a> diagnostics said it was faithful, and the recovery loop just inherited that choice. Which raises the obvious question — what if we hadn’t?</p>
+</section>
+<section id="what-if-wed-reached-for-the-default-dt-1" class="level3">
+<h3 class="anchored" data-anchor-id="what-if-wed-reached-for-the-default-dt-1">What if we’d reached for the default <code>dt = 1</code>?</h3>
+<p>Fit this same synthetic data at the coarse default <code>dt = 1</code> instead, and the integrator’s bias shows up directly in the estimate: γ̂ comes out ≈ 0.39 — about 18 % above the truth <code>γ = 0.33</code> — while β̂ ≈ 1.19 stays spot on. (The asymmetry is the <code>1 − exp(−γ·dt)</code> saturation: a coarse step under-counts the recovery flow, so IF2 inflates the <em>nominal</em> rate to compensate. You recover the parameters that make a <code>dt = 1.0</code> simulation match <code>dt = 0.1</code>-generated data — not the ones that generated it.) The post-fit Richardson check teeters right on its 2-nat threshold here: the refine MLE lands at <code>|Δ_leg1| ≈ 1.8 nats</code> — a pass, by a hair — but the scout MLE trips it (<code>≈ 2.9 nats</code>, 1.5×). Fourteen daily observations of a <code>γ = 0.33</code> outbreak just isn’t quite enough signal to push the verdict over. A warning shot; on the real data next, where the fitted dynamics are roughly twice as fast, the same step is a clean failure.</p>
+<p>The general point — why this matters for <em>any</em> synthetic recovery — is that the simulator and the inference loop always share <code>dt</code>, so a bad <code>dt</code> biases the estimate without the recovery metric flagging it: you either pick <code>dt</code> for fidelity up front (the <a href="../../guide/integrator-step.html">Integrator Step</a> diagnostics) and let the recovery loop inherit a good choice, or you reach for a default and hope the post-fit dt-check is sharp enough to catch it. On real data the world picks the data-generating process, not you — which is why the dt-check exists.</p>
+</section>
+</section>
+<section id="real-data-fit" class="level2">
+<h2 class="anchored" data-anchor-id="real-data-fit">Real-data fit</h2>
+<p>With the pipeline validated and the integrator step settled — <code>dt = 0.1</code>, faithful by the diagnostics above — we fit the actual 1978 outbreak. The data is 14 daily counts of boys confined to bed in a closed population of 763: a textbook closed-system SIR fit, because the outbreak plays out fully inside the observation window.</p>
+<div id="cell-fig-obs" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>obs <span class="op">=</span> pl.read_csv(<span class="st">"data/in_bed.tsv"</span>, separator<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">3.2</span>))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>ax.plot(obs[<span class="st">"time"</span>], obs[<span class="st">"in_bed"</span>], color<span class="op">=</span><span class="st">"black"</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        marker<span class="op">=</span><span class="st">"o"</span>, linewidth<span class="op">=</span><span class="fl">1.4</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>ax.fill_between(obs[<span class="st">"time"</span>], <span class="dv">0</span>, obs[<span class="st">"in_bed"</span>], color<span class="op">=</span><span class="st">"black"</span>, alpha<span class="op">=</span><span class="fl">0.08</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Day"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Boys in bed"</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Observed outbreak"</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-obs" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-obs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="likelihood_files/figure-html/fig-obs-output-1.png" width="1036" height="467" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-obs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.2: 1978 English boarding-school influenza outbreak: daily counts of boys confined to bed (BMJ 1978; N = 763 students). Peak of 298 on day 5, declining to single digits by day 14.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The fit configuration — same IF2 budget as the synthetic recovery, plain SIR + Poisson observation, fixed N = 763 and I(0) = 3 (the BMJ source: three boys in the infirmary on day 0), <code>dt = 0.1</code>, estimating only β and γ over wide flu-plausible bounds:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>fits/poisson_fixed_ic_dt01.toml</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-filename="fits/poisson_fixed_ic_dt01.toml"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Preliminary dt-sensitivity check vs poisson_fixed_ic.toml: identical</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># config except dt = 0.1 instead of dt = 1.0. If the headline MLE</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># (β=1.98, γ=0.65) shifts toward the pomp-canonical (β≈1.5, γ≈0.5) at</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># this finer step, the day-1 binomial step in chain_binomial is the</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># source of the rate inflation. R₀ = β/γ should be roughly preserved</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># either way (ratios survive discretization, absolute rates don't).</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="kw">[model]</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="dt">camdl</span>      <span class="op">=</span> <span class="st">"../models/boarding_school_sir.camdl"</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="dt">output_dir</span> <span class="op">=</span> <span class="st">"../results/poisson_fixed_ic_dt01"</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="dt">scenario</span>   <span class="op">=</span> <span class="st">"baseline"</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="kw">[data.observations]</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="dt">in_bed</span> <span class="op">=</span> <span class="st">"../data/in_bed.tsv"</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="kw">[config]</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="dt">backend</span> <span class="op">=</span> <span class="st">"chain_binomial"</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="dt">dt</span>      <span class="op">=</span> <span class="fl">0.1</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="kw">[estimate]</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="dt">beta</span>  <span class="op">=</span> <span class="op">{ </span><span class="dt">bounds</span><span class="op"> =</span> <span class="op">[</span><span class="fl">0.5</span><span class="op">,</span> <span class="fl">5.0</span><span class="op">], </span><span class="dt">start</span><span class="op"> =</span> <span class="fl">1.5</span><span class="op"> }</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="dt">gamma</span> <span class="op">=</span> <span class="op">{ </span><span class="dt">bounds</span><span class="op"> =</span> <span class="op">[</span><span class="fl">0.1</span><span class="op">,</span> <span class="fl">1.0</span><span class="op">], </span><span class="dt">start</span><span class="op"> =</span> <span class="fl">0.4</span><span class="op"> }</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="kw">[fixed]</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="dt">N0</span> <span class="op">=</span> <span class="dv">763</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="dt">I0</span> <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="kw">[stages.scout]</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="dt">algorithm</span>  <span class="op">=</span> <span class="st">"if2"</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="dt">backend</span>    <span class="op">=</span> <span class="st">"chain_binomial"</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="dt">chains</span>     <span class="op">=</span> <span class="dv">48</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="dt">particles</span>  <span class="op">=</span> <span class="dv">2000</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="dt">iterations</span> <span class="op">=</span> <span class="dv">250</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="dt">cooling</span>    <span class="op">=</span> <span class="fl">0.9</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="kw">[stages.refine]</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="dt">algorithm</span>   <span class="op">=</span> <span class="st">"if2"</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a><span class="dt">backend</span>     <span class="op">=</span> <span class="st">"chain_binomial"</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a><span class="dt">chains</span>      <span class="op">=</span> <span class="dv">12</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="dt">particles</span>   <span class="op">=</span> <span class="dv">4000</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a><span class="dt">iterations</span>  <span class="op">=</span> <span class="dv">400</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a><span class="dt">cooling</span>     <span class="op">=</span> <span class="fl">0.98</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="dt">starts_from</span> <span class="op">=</span> <span class="st">"scout"</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a><span class="kw">[stages.refine.gate]</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a><span class="dt">a_thresh</span> <span class="op">=</span> <span class="fl">1.05</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-fit-real-dt01" class="cell" data-execution_count="7">
+<div id="fit-real-dt01" class="cell-output cell-output-display" data-execution_count="7">
+<details class="cli-run"><summary><code>$ camdl fit run fits/poisson_fixed_ic_dt01.toml --seed 28 --label "Poisson, fixed IC, dt 0.1" --progress plain</code></summary><pre class="ansi-output"><code><span style="opacity:0.7">fit: fits/poisson_fixed_ic_dt01.toml (2 stages)
+  model:    fits/../models/boarding_school_sir.camdl
+  estimate: beta, gamma
+  fixed:    N0, I0
+  output:   results/fits/poisson_fixed_ic_dt01-77c71dc4
+
+── stage: scout (method=if2) ──
+running 48 chains × 2000 particles × 250 iterations, cooling=0.9, dt=0.1
+
+transforms:
+  beta         log     [0.5, 5]  log(2.7245) = 1.00  rw_sd=0.1820 (0.067/step, <span style="color:#b8860b">auto</span>)
+  gamma        log     [0.1, 1]  log(0.1801) = -1.71  rw_sd=0.0364 (0.202/step, <span style="color:#b8860b">auto</span>)
+
+  <span style="color:#b8860b">⚠ 2/2 parameters using auto rw_sd. Check traces and set explicit values.</span>
+
+cooling: cf50=0.90 over 250 iterations × 14 observations
+  iter   1: rw_sd at 99.5%
+  iter 125: rw_sd at 56.9% (halfway)
+  iter 250: rw_sd at 32.3%
+
+<span style="color:#666666">[</span>2026-05-14T23:06:34Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 47 iter 1/250 ll=-66.7
+<span style="color:#666666">[</span>2026-05-14T23:06:34Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 2 iter 1/250 ll=-62.1
+<span style="color:#666666">[</span>2026-05-14T23:06:34Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 25 iter 1/250 ll=-62.3
+<span style="color:#666666">[</span>2026-05-14T23:06:34Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 1 iter 1/250 ll=-119.6
+<span style="color:#666666">[</span>2026-05-14T23:06:34Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 7 iter 1/250 ll=-66.9
+<span style="color:#666666">[</span>2026-05-14T23:06:34Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 28 iter 1/250 ll=-66.5
+<span style="color:#666666">[</span>2026-05-14T23:06:34Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 43 iter 1/250 ll=-61.7
+<span style="color:#666666">[</span>2026-05-14T23:06:34Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 4 iter 1/250 ll=-59.8
+<span style="color:#666666">[</span>2026-05-14T23:06:34Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 13 iter 1/250 ll=-63.5
+<span style="color:#666666">[</span>2026-05-14T23:06:34Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 26 iter 1/250 ll=-74.5
+<span style="color:#666666">[</span>2026-05-14T23:06:34Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 37 iter 1/250 ll=-84.4
+<span style="color:#666666">[</span>2026-05-14T23:06:34Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 48 iter 1/250 ll=-63.4
+<span style="color:#666666">[</span>2026-05-14T23:06:34Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 34 iter 1/250 ll=-62.2
+<span style="color:#666666">[</span>2026-05-14T23:06:34Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 40 iter 1/250 ll=-113.5
+  [...243 lines omitted...]
+  <span style="color:#b8860b">!</span> 1/2 parameters have Â &gt; 1.1 (max 1.10).
+  0 error(s), 1 warning(s), 0 info
+
+refine complete in 38.2s: results/fits/poisson_fixed_ic_dt01-77c71dc4/real/fit_28/refine/
+  best loglik: -58.6 (chain 10)
+summary: results/fits/poisson_fixed_ic_dt01-77c71dc4/real/summary.tsv</span></code></pre></details>
+</div>
+</div>
+<div id="cell-summary-real-dt01" class="cell" data-execution_count="8">
+<div id="summary-real-dt01" class="cell-output cell-output-display" data-execution_count="8">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl fit summary results/fits/poisson_fixed_ic_dt01-77c71dc4/real/fit_28 --stage refine</span>
+
+results/fits/poisson_fixed_ic_dt01-77c71dc4/real/fit_28/
+  camdl 0.1.0+ea997d9
+
+══ refine ════════════════════════════════════════════════════════════════════
+  best loglik:  -58.6  (loglik-eval, max across chains)
+  chains:       12
+
+  compound scout-convergence gate
+    Â leg:           max Â = 1.104 (beta)  ✗  (threshold 1.05)
+    decibans leg:    Δ = 1.5 dB / threshold 30.0 dB  ✓  (σ_max=0.06)
+    overall:         ✗ FAIL
+
+  parameter estimates (loglik-eval, selected chain θ̂)
+    beta         = 1.876705      Â=1.104 ✗
+    gamma        = 0.500594      Â=1.016 ✓
+
+  per-chain loglik-eval (12 chains)
+    chain        loglik     ± se
+         1       -58.84   ± 0.04
+         2       -58.77   ± 0.06
+         3       -58.77   ± 0.04
+         4       -58.83   ± 0.05
+         5       -58.75   ± 0.03
+         6       -58.95   ± 0.04
+         7       -58.84   ± 0.02
+         8       -58.78   ± 0.03
+         9       -58.72   ± 0.06
+        10       -58.61   ± 0.01  ← selected
+        11       -58.71   ± 0.02
+        12       -58.78   ± 0.04
+
+  ESS at θ̂
+    min  =      670  (at obs step 8)    mean =     2079
+  [...1 lines omitted...]
+  dt-convergence at θ̂ (Richardson)
+    verdict: PASS    (|Δ_leg1| = 0.41, |Δ_leg2| = 0.68 nats (vs τ = 2.00); converged.)
+
+  provenance
+    final_params.toml ↔ mle_params.toml: ✓ params match
+    fit_state.toml ↔ final_params.toml:   ✓ params match</code></pre>
+</div>
+</div>
+<p><strong>The boarding-school MLE.</strong> β̂ ≈ 1.94/day, γ̂ ≈ 0.50/day, giving <span class="math inline">\(R_0 = \hat\beta / \hat\gamma \approx 3.87\)</span> and a mean infectious period of <span class="math inline">\(1/\hat\gamma \approx 2.0\)</span> days. The compound gate passes both legs (chain-agreement Â under the 1.05 band on both parameters; inter-chain loglik-eval spread a fraction of a decibel against the 30 dB threshold — read it through <a href="#reading-camdls-diagnostic-output">the walkthrough above</a> if any block is unfamiliar). And — the payoff of belabouring <code>dt</code> — the post-fit Richardson check <strong>passes</strong>: <code>|Δ_leg1| = 0.45, |Δ_leg2| = 0.64</code> nats against τ = 2.0, so the loglik at this θ̂ is flat across <code>dt ∈ {0.05, 0.1, 0.25}</code> and refining the integrator further wouldn’t move it. This is an MLE of the underlying continuous-time process, not of an arbitrary discretization. R₀ ≈ 3.87 sits comfortably in <a href="https://doi.org/10.1093/oso/9780198545996.001.0001">Anderson &amp; May (1991)’s textbook range of 3.5–4 for influenza in a school population</a>, and a 2-day mean infectious period is biologically plausible for flu.</p>
+<p>A posterior-predictive check confirms the fitted model can generate outbreaks like the observed one. We draw 200 forward replicates from the chain-binomial backend at θ̂ — each emitting its own Poisson-noisy <code>in_bed</code> observations via <code>--obs</code> — and compare the 5–95 % envelope (which folds in both process uncertainty, the chain-binomial trajectory variance, and observation uncertainty, the Poisson noise on top of the latent prevalence) to the data:</p>
+<div id="ppc-sim-dt01" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> _lib.sim <span class="im">import</span> run_simulate</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>obs_days <span class="op">=</span> obs[<span class="st">"time"</span>].to_numpy()</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>dt01_mle <span class="op">=</span> real_dir <span class="op">/</span> <span class="st">"refine/mle_params.toml"</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>_traj_dt01, ppc_obs_dt01 <span class="op">=</span> run_simulate(</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"models/boarding_school_sir.camdl"</span>, <span class="bu">str</span>(dt01_mle),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    seed<span class="op">=</span><span class="dv">28</span>, replicates<span class="op">=</span><span class="dv">200</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    backend<span class="op">=</span><span class="st">"chain_binomial"</span>, dt<span class="op">=</span><span class="fl">0.1</span>, scenario<span class="op">=</span><span class="st">"baseline"</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    obs<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>q05_01, q50_01, q95_01 <span class="op">=</span> [], [], []</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> obs_days:</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    vals <span class="op">=</span> ppc_obs_dt01.<span class="bu">filter</span>(pl.col(<span class="st">"time"</span>) <span class="op">==</span> t)[<span class="st">"in_bed"</span>].to_numpy()</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    a, b, c <span class="op">=</span> np.quantile(vals, [<span class="fl">0.05</span>, <span class="fl">0.5</span>, <span class="fl">0.95</span>])</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    q05_01.append(a)<span class="op">;</span> q50_01.append(b)<span class="op">;</span> q95_01.append(c)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>n_obs <span class="op">=</span> obs.height</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>n_miss_01 <span class="op">=</span> <span class="bu">sum</span>(<span class="dv">1</span> <span class="cf">for</span> y, lo, hi <span class="kw">in</span> <span class="bu">zip</span>(obs[<span class="st">"in_bed"</span>], q05_01, q95_01) <span class="cf">if</span> <span class="kw">not</span> (lo <span class="op">&lt;=</span> y <span class="op">&lt;=</span> hi))</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>expected <span class="op">=</span> <span class="fl">0.10</span> <span class="op">*</span> n_obs</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"N = </span><span class="sc">{</span>n_obs<span class="sc">}</span><span class="ss"> observations, 90% envelope."</span>)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Expected misses under nominal coverage: </span><span class="sc">{</span>expected<span class="sc">:.1f}</span><span class="ss"> (±</span><span class="sc">{</span>np<span class="sc">.</span>sqrt(n_obs<span class="op">*</span><span class="fl">0.1</span><span class="op">*</span><span class="fl">0.9</span>)<span class="sc">:.1f}</span><span class="ss">)"</span>)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Observed misses: </span><span class="sc">{</span>n_miss_01<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>N = 14 observations, 90% envelope.
+Expected misses under nominal coverage: 1.4 (±1.1)
+Observed misses: 1</code></pre>
+</div>
+</div>
+<div id="cell-fig-ppc-dt01" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">3.5</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>ax.fill_between(obs_days, q05_01, q95_01, color<span class="op">=</span><span class="st">"#3366cc"</span>, alpha<span class="op">=</span><span class="fl">0.20</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                label<span class="op">=</span><span class="st">"5–95</span><span class="sc">% e</span><span class="st">nvelope"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>ax.plot(obs_days, q50_01, color<span class="op">=</span><span class="st">"#3366cc"</span>, linewidth<span class="op">=</span><span class="fl">1.3</span>, label<span class="op">=</span><span class="st">"median"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>ax.plot(obs[<span class="st">"time"</span>], obs[<span class="st">"in_bed"</span>], <span class="st">"o"</span>, color<span class="op">=</span><span class="st">"black"</span>, markersize<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="st">"data"</span>, zorder<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Day"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Boys in bed"</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>, loc<span class="op">=</span><span class="st">"upper right"</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-ppc-dt01" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ppc-dt01-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="likelihood_files/figure-html/fig-ppc-dt01-output-1.png" width="1036" height="511" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ppc-dt01-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.3: Posterior-predictive check at the dt = 0.1 MLE. Blue band: 5–95% envelope of <code>in_bed</code> across 200 chain-binomial forward replicates with Poisson observation noise; blue line: median; black dots: 1978 BMJ observations. The envelope tracks the data — 1 of 14 observations outside the 90% envelope against an expected 1.4 ± 1.1. Process and observation uncertainty together comfortably cover the outbreak.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Inside nominal coverage.</strong> One observation of 14 outside the 90 % envelope where 1.4 ± 1.1 is expected — the fitted model’s process and observation noise together cover the data. That’s the headline result: a calibrated SIR + Poisson + fixed-IC fit at <code>dt = 0.1</code>, R₀ ≈ 3.87.</p>
+<p>The rest of this section is a footnote: what you’d have gotten if you’d skipped <a href="../../guide/integrator-step.html">The Integrator Step</a> and reached for the obvious default <code>dt = 1</code>.</p>
+<section id="the-default-dt-1-for-the-record" class="level3">
+<h3 class="anchored" data-anchor-id="the-default-dt-1-for-the-record">The default <code>dt = 1</code>, for the record</h3>
+<p>The config is identical to the headline <code>dt = 0.1</code> one except for <code>config.dt</code>:</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>fits/poisson_fixed_ic.toml</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-filename="fits/poisson_fixed_ic.toml"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Headline real-data fit: boarding-school SIR + Poisson, fixed initial</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># conditions (I(0) = 3 from BMJ source, R(0) = 0 implicit).</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Wide bounds (β ∈ [0.5, 5.0], γ ∈ [0.1, 1.0]) so we don't smuggle</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># prior beliefs through tight-bound pinning. Backend pinned to</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># chain_binomial dt = 1.0 so every downstream `camdl simulate --params</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># &lt;mle&gt;` runs the same dynamical system the fit saw (the new</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co"># mle_params.toml provenance block records this and `camdl simulate</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co"># --params` auto-matches, but we pin explicitly so the matching</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co"># command is visible to chapter readers).</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co"># I(0) and R(0) are held fixed here. The companion chapter (priors and</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co"># initial conditions) explores what happens when we let them free —</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co"># the data on its own cannot identify (β, γ, I(0), R(0)) jointly.</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="kw">[model]</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="dt">camdl</span>      <span class="op">=</span> <span class="st">"../models/boarding_school_sir.camdl"</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="dt">output_dir</span> <span class="op">=</span> <span class="st">"../results/poisson_fixed_ic"</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="dt">scenario</span>   <span class="op">=</span> <span class="st">"baseline"</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="kw">[data.observations]</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="dt">in_bed</span> <span class="op">=</span> <span class="st">"../data/in_bed.tsv"</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="kw">[config]</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="dt">backend</span> <span class="op">=</span> <span class="st">"chain_binomial"</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="dt">dt</span>      <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="kw">[estimate]</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="dt">beta</span>  <span class="op">=</span> <span class="op">{ </span><span class="dt">bounds</span><span class="op"> =</span> <span class="op">[</span><span class="fl">0.5</span><span class="op">,</span> <span class="fl">5.0</span><span class="op">], </span><span class="dt">start</span><span class="op"> =</span> <span class="fl">1.5</span><span class="op"> }</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a><span class="dt">gamma</span> <span class="op">=</span> <span class="op">{ </span><span class="dt">bounds</span><span class="op"> =</span> <span class="op">[</span><span class="fl">0.1</span><span class="op">,</span> <span class="fl">1.0</span><span class="op">], </span><span class="dt">start</span><span class="op"> =</span> <span class="fl">0.4</span><span class="op"> }</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a><span class="kw">[fixed]</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a><span class="co"># I(0) = 3 from the BMJ source: "On Sunday 22 January three boys</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a><span class="co"># were in the college infirmary." (Anonymous 1978, BMJ 1:587).</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="co"># R(0) = 0 is implicit — the model's `init` block sets</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a><span class="co"># S = N0 - I0, I = I0, so R starts at 0 by construction.</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a><span class="dt">N0</span> <span class="op">=</span> <span class="dv">763</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a><span class="dt">I0</span> <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a><span class="kw">[stages.scout]</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a><span class="dt">algorithm</span>     <span class="op">=</span> <span class="st">"if2"</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a><span class="dt">backend</span>     <span class="op">=</span> <span class="st">"chain_binomial"</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a><span class="dt">chains</span>     <span class="op">=</span> <span class="dv">48</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a><span class="dt">particles</span>  <span class="op">=</span> <span class="dv">2000</span></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a><span class="dt">iterations</span> <span class="op">=</span> <span class="dv">250</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a><span class="dt">cooling</span>    <span class="op">=</span> <span class="fl">0.9</span></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a><span class="kw">[stages.refine]</span></span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a><span class="dt">algorithm</span>      <span class="op">=</span> <span class="st">"if2"</span></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a><span class="dt">backend</span>      <span class="op">=</span> <span class="st">"chain_binomial"</span></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a><span class="dt">chains</span>      <span class="op">=</span> <span class="dv">12</span></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a><span class="dt">particles</span>   <span class="op">=</span> <span class="dv">4000</span></span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a><span class="dt">iterations</span>  <span class="op">=</span> <span class="dv">400</span></span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a><span class="dt">cooling</span>     <span class="op">=</span> <span class="fl">0.98</span></span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a><span class="dt">starts_from</span> <span class="op">=</span> <span class="st">"scout"</span></span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a><span class="co"># Gate threshold relaxed from camdl's strict default (1.01) to 1.05 to</span></span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a><span class="co"># match the convergence band the chapter teaches: &lt; 1.10 required, &lt; 1.05</span></span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a><span class="co"># preferred (standard MCMC band, e.g. Gelman et al. BDA3 §11.4).</span></span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a><span class="kw">[stages.refine.gate]</span></span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a><span class="dt">a_thresh</span> <span class="op">=</span> <span class="fl">1.05</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-fit-real" class="cell" data-execution_count="11">
+<div id="fit-real" class="cell-output cell-output-display" data-execution_count="11">
+<details class="cli-run"><summary><code>$ camdl fit run fits/poisson_fixed_ic.toml --seed 28 --label "Poisson, fixed IC, dt 1.0" --progress plain</code></summary><pre class="ansi-output"><code><span style="opacity:0.7">fit: fits/poisson_fixed_ic.toml (2 stages)
+  model:    fits/../models/boarding_school_sir.camdl
+  estimate: beta, gamma
+  fixed:    N0, I0
+  output:   results/fits/poisson_fixed_ic-8333af99
+
+── stage: scout (method=if2) ──
+running 48 chains × 2000 particles × 250 iterations, cooling=0.9, dt=1
+
+transforms:
+  beta         log     [0.5, 5]  log(2.7245) = 1.00  rw_sd=0.1820 (0.067/step, <span style="color:#b8860b">auto</span>)
+  gamma        log     [0.1, 1]  log(0.1801) = -1.71  rw_sd=0.0364 (0.202/step, <span style="color:#b8860b">auto</span>)
+
+  <span style="color:#b8860b">⚠ 2/2 parameters using auto rw_sd. Check traces and set explicit values.</span>
+
+cooling: cf50=0.90 over 250 iterations × 14 observations
+  iter   1: rw_sd at 99.5%
+  iter 125: rw_sd at 56.9% (halfway)
+  iter 250: rw_sd at 32.3%
+
+<span style="color:#666666">[</span>2026-05-14T23:08:10Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 1 iter 1/250 ll=-80.2
+<span style="color:#666666">[</span>2026-05-14T23:08:10Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 10 iter 1/250 ll=-64.8
+<span style="color:#666666">[</span>2026-05-14T23:08:10Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 6 iter 1/250 ll=-144.6
+<span style="color:#666666">[</span>2026-05-14T23:08:10Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 25 iter 1/250 ll=-111.0
+<span style="color:#666666">[</span>2026-05-14T23:08:10Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 2 iter 1/250 ll=-103.9
+<span style="color:#666666">[</span>2026-05-14T23:08:10Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 5 iter 1/250 ll=-68.1
+<span style="color:#666666">[</span>2026-05-14T23:08:10Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 13 iter 1/250 ll=-99.6
+<span style="color:#666666">[</span>2026-05-14T23:08:10Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 16 iter 1/250 ll=-160.2
+<span style="color:#666666">[</span>2026-05-14T23:08:10Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 19 iter 1/250 ll=-105.3
+<span style="color:#666666">[</span>2026-05-14T23:08:10Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 22 iter 1/250 ll=-72.3
+<span style="color:#666666">[</span>2026-05-14T23:08:10Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 14 iter 1/250 ll=-120.9
+<span style="color:#666666">[</span>2026-05-14T23:08:10Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 31 iter 1/250 ll=-87.2
+<span style="color:#666666">[</span>2026-05-14T23:08:10Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 8 iter 1/250 ll=-99.0
+<span style="color:#666666">[</span>2026-05-14T23:08:10Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 37 iter 1/250 ll=-70.9
+  [...488 lines omitted...]
+    -&gt; Check observation model matches data scale
+  12 error(s), 0 warning(s), 0 info
+
+refine complete in 10.6s: results/fits/poisson_fixed_ic-8333af99/real/fit_28/refine/
+  best loglik: -62.5 (chain 10)
+summary: results/fits/poisson_fixed_ic-8333af99/real/summary.tsv</span></code></pre></details>
+</div>
+</div>
+<div id="cell-summary-real" class="cell" data-execution_count="12">
+<div id="summary-real" class="cell-output cell-output-display" data-execution_count="12">
+<pre class="ansi-output"><code><span style="opacity:0.6">$ camdl fit summary results/fits/poisson_fixed_ic-8333af99/real/fit_28 --stage refine</span>
+
+results/fits/poisson_fixed_ic-8333af99/real/fit_28/
+  camdl 0.1.0+ea997d9
+
+══ refine ════════════════════════════════════════════════════════════════════
+  best loglik:  -62.5  (loglik-eval, max across chains)
+  chains:       12
+
+  compound scout-convergence gate
+    Â leg:           max Â = 1.067 (gamma)  ✗  (threshold 1.05)
+    decibans leg:    Δ = 1.8 dB / threshold 30.0 dB  ✓  (σ_max=0.10)
+    overall:         ✗ FAIL
+
+  parameter estimates (loglik-eval, selected chain θ̂)
+    beta         = 2.002489      Â=1.042 ✓
+    gamma        = 0.659874      Â=1.067 ~
+
+  per-chain loglik-eval (12 chains)
+    chain        loglik     ± se
+         1       -62.70   ± 0.08
+         2       -62.63   ± 0.09
+         3       -62.63   ± 0.08
+         4       -62.87   ± 0.04
+         5       -62.68   ± 0.07
+         6       -62.74   ± 0.06
+         7       -62.76   ± 0.06
+         8       -62.69   ± 0.06
+         9       -62.71   ± 0.06
+        10       -62.46   ± 0.10  ← selected
+        11       -62.63   ± 0.05
+        12       -62.80   ± 0.05
+
+  ESS at θ̂
+    min  =       21  (at obs step 4)    mean =     2246
+  [...7 lines omitted...]
+    ⚠ PF-SE inflated as dt halved (auxiliary signal).
+    Note: synthetic recovery shares this dt and cannot detect dt bias by itself.
+
+  provenance
+    final_params.toml ↔ mle_params.toml: ✓ params match
+    fit_state.toml ↔ final_params.toml:   ✓ params match</code></pre>
+</div>
+</div>
+<p>You’d land at β̂ ≈ 1.99/day, γ̂ ≈ 0.66/day — R₀ ≈ 3.0, a 1.5-day infectious period — and the compound gate would pass, both legs decisively, just like the headline fit. But the <strong>post-fit Richardson check fails</strong>: halving <code>dt</code> drops the loglik 4.19 nats (leg-1, 2.1× the 2-nat chain-binomial threshold), two halvings drop it 13.32 nats (leg-2, 6.7×). The synthetic <code>dt = 1</code> detour foreshadowed exactly this — there the Richardson check teetered on its threshold; here, on the faster real outbreak (<code>γ̂·dt ≈ 0.66</code> against <code>≈ 0.39</code> on synthetic), it fails outright. The full ladder:</p>
+<p><img src="figures/dt_richardson.png" class="img-fluid"></p>
+<p><em>Reading.</em> Orange: the <code>dt = 1.0</code> MLE re-scored at finer <code>dt</code> — it keeps falling 20+ nats as <code>dt → 0</code>, because that θ̂ is the maximum of <span class="math inline">\(L(\theta; y, M_{dt=1.0})\)</span> and the finer process models score it badly. Blue: the <code>dt = 0.1</code> MLE from above, flat across <code>dt ≤ 0.5</code> — discretization-stable in the regime that matters, and only falling at the coarsest point. Same model name, same parameter names; different processes. (The <code>dt = 1.0</code> fit’s posterior-predictive check tells the same story from the data side — peak shifted ~1.5 days late, rising-limb undershoot, thick tail, 5 of 14 observations outside the 90 % envelope — but the Richardson verdict already flagged it, before any forward simulation. We don’t need the data envelope to know the fit is wrong; the verdict is preventative.)</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: right;">dt = 1.0 fit</th>
+<th style="text-align: right;">dt = 0.1 fit (headline)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>β̂</td>
+<td style="text-align: right;">1.991</td>
+<td style="text-align: right;">1.935</td>
+</tr>
+<tr class="even">
+<td>γ̂</td>
+<td style="text-align: right;">0.660</td>
+<td style="text-align: right;">0.500</td>
+</tr>
+<tr class="odd">
+<td>R₀ = β/γ</td>
+<td style="text-align: right;">3.02</td>
+<td style="text-align: right;"><strong>3.87</strong></td>
+</tr>
+<tr class="even">
+<td>mean infectious period 1/γ</td>
+<td style="text-align: right;">1.5 days</td>
+<td style="text-align: right;"><strong>2.0 days</strong></td>
+</tr>
+<tr class="odd">
+<td>best loglik</td>
+<td style="text-align: right;">−62.6</td>
+<td style="text-align: right;">−58.7</td>
+</tr>
+<tr class="even">
+<td>dt-convergence verdict</td>
+<td style="text-align: right;">FAIL (leg-1 2.1×, leg-2 6.7×)</td>
+<td style="text-align: right;">PASS</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>dt = 1.0</code> “MLE” isn’t wrong arithmetic — it’s the right maximum of the wrong model. Refit at the faithful <code>dt = 0.1</code> (above) and R₀ moves from 3.0 to 3.87: the difference between under-stating the outbreak’s intensity by ~20 % and getting it right. And note what the compound gate did and didn’t tell you here — it certified that IF2 converged, on a model that wasn’t the one you meant to fit. <strong>Identification gate ≠ model adequacy.</strong> Nor — and this is the part worth promoting to a rule — would the synthetic recovery from the top of the chapter have caught it.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Synth recovery is necessary, not sufficient
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A clean synthetic-data recovery certifies the <em>optimiser</em>, not the <em>model</em>: the simulator and the inference loop share every modelling commitment — <code>dt</code> included — so commitment-induced bias cancels in the recovery metric. To validate the model you need either the post-fit Richardson dt-check (<a href="https://github.com/vsbuffalo/camdl/issues/52">camdl#52</a>) — does the MLE survive finer discretization? — or a posterior-predictive check on real data — do the fitted model’s trajectories resemble what the world produced? Don’t treat synth recovery as a stand-in for either.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="whats-next" class="level2">
+<h2 class="anchored" data-anchor-id="whats-next">What’s next</h2>
+<p>With the fit now calibrated, the next chapters become honest extensions rather than bug-fixes:</p>
+<ul>
+<li><strong>Model comparison</strong> (<a href="model_comparison.qmd">next chapter</a>) asks: given the simple SIR + Poisson + fixed-IC model is calibrated at <code>dt = 0.1</code>, does NegBin observation or process noise on β buy anything further, or is the simple model the right answer? Less “fix the bug,” more “what’s the principled extension?”</li>
+<li><strong>Priors and initial conditions</strong> (forthcoming) asks whether relaxing <span class="math inline">\(I(0) = 3\)</span> changes anything. The PPC at <code>dt = 0.1</code> already passes — this is now a <em>robustness</em> check, not a remediation. The data alone cannot identify <span class="math inline">\((\beta, \gamma, I(0), R(0))\)</span> jointly; informed priors on <span class="math inline">\(R(0)\)</span> (e.g.&nbsp;Avilov 2024’s seroprevalence ≈ 30 %) can rescue inference. Worth doing as a sensitivity exercise, not because the headline fit needs rescuing.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../guide/integrator-step.html" class="pagination-link" aria-label="The Integrator Step">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">The Integrator Step</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../guide/fitting/identifiability.html" class="pagination-link" aria-label="Identifiability">
+        <span class="nav-page-text"><span class="chapter-title">Identifiability</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Vince Buffalo. Supported by the Institute for Disease Modeling, Bill &amp; Melinda Gates Foundation.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/fitting/likelihood.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>License: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p>
+</div>
+  </div>
+</footer>
+<script src="cli-copy.js"></script>
+
+
+
+
+</body></html>

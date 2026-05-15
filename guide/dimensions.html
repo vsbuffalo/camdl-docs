@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.9.36">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -68,7 +68,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../guide/fitting-data/report.html" rel="next">
+<link href="../guide/integrator-step.html" rel="next">
 <link href="../guide/scenarios.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -76,14 +76,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-f418161beb48e0141c760e455f12af2c.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-b981944dac36b7fff9ce3ceeec90f8de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-73b7f00512812729446172a063b47ee0.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-b981944dac36b7fff9ce3ceeec90f8de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-6667564092b74b448163e6ade2e1f3b4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-c8430341214b22b81b300d69ff936483.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-6667564092b74b448163e6ade2e1f3b4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -354,12 +354,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guide/fitting-data/report.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fitting to Data</span></a>
+  <a href="../guide/integrator-step.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Integrator Step</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guide/fitting-data/model_comparison.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Comparison</span></a>
+  <a href="../guide/fitting/likelihood.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Likelihood Fitting</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/fitting/identifiability.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Identifiability</span></a>
   </div>
 </li>
       </ul>
@@ -388,23 +393,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text">Vignettes</span></a>
+ <span class="menu-text">Reference</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
- <span class="menu-text">Reference</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../language/spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Language Specification</span></a>
@@ -554,7 +548,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The second form is a per-capita rate (dimension T⁻¹) rather than a total propensity (dimension P·T⁻¹). The compiler’s dimensional checker infers types from parameter declarations (<code>rate</code> → T⁻¹, <code>count</code> → P, <code>probability</code> → dimensionless), propagates them through arithmetic, and rejects the mismatch at compile time with error E300.</p>
 <p>This is the single most common modeling bug. In most other frameworks, it compiles without complaint and produces trajectories where infection happens at the wrong rate. The checker also verifies that arguments to <code>exp()</code> and <code>log()</code> are dimensionless, that additions don’t mix dimensions, and that table unit annotations are consistent.</p>
 <p>Here is what the compiler produces when it catches an undeclared name — a typo like <code>Q</code> where you meant <code>I</code>:</p>
-<div id="4169fd80" class="cell" data-execution_count="2">
+<div id="feed93d9" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-display">
 <pre class="ansi-output"><code><span style="opacity:0.6">$ camdl check error_test.camdl</span>
 <span style="opacity:0.7"><span style="color:#cc3333"><span style="font-weight:bold">error[E100]<span style="color:#cc3333"></span></span></span>: undeclared name 'Q'
@@ -633,7 +627,7 @@ east    south   0.08</code></pre>
 <section id="verifying-tables-with-camdl-inspect" class="level3">
 <h3 class="anchored" data-anchor-id="verifying-tables-with-camdl-inspect">Verifying tables with <code>camdl inspect</code></h3>
 <p>After compilation, <code>camdl inspect --tables</code> shows exactly what the compiler loaded — values, dimensions, and source file. This is the primary way to verify that external data parsed correctly before running simulation or inference:</p>
-<div id="a3195ac7" class="cell" data-execution_count="3">
+<div id="4e701630" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display">
 <pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect seir_spatial_data.camdl --tables</span>
 <span style="font-weight:bold"><span style="color:#b8860b">pop<span style="font-weight:bold"></span></span></span>  [<span style="color:#1abc9c">patch</span>]<span style="opacity:0.6">  loaded: data/demographics.tsv</span>
@@ -711,14 +705,14 @@ east    south   0.08</code></pre>
 </div>
 <p>The <code>sum(b in age, C_age[a, b] * I[b] / N[b])</code> computes the age-weighted force of infection: for each age group <code>a</code>, sum over all groups <code>b</code> the contact rate times the prevalence in <code>b</code>. The WAIFW matrix here is symmetric (contacts are reciprocal), but it need not be.</p>
 <p><code>camdl inspect</code> confirms the expansion — 3 age groups × 4 compartments = 12 expanded compartments, and the inline contact matrix:</p>
-<div id="a5bc6b98" class="cell" data-execution_count="4">
+<div id="e32e45d4" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect seir_age_measles.camdl</span>
 <span style="font-weight:bold"><span style="color:#3366cc">seir_age_measles<span style="font-weight:bold"></span></span></span>
 
 <span style="opacity:0.6">  compartments   </span><span style="font-weight:bold">4</span> base<span style="opacity:0.6"> × </span>3 age = <span style="font-weight:bold">12</span> expanded
 <span style="opacity:0.6">  transitions     </span><span style="font-weight:bold">3</span> base <span style="opacity:0.6">→ </span><span style="font-weight:bold">9</span> expanded (+ 0 filtered by where)
-<span style="opacity:0.6">  parameters      </span><span style="font-weight:bold">3</span> declared (<span style="color:#2e8b2e">beta: rate</span>, <span style="color:#2e8b2e">sigma: rate</span>, <span style="color:#2e8b2e">gamma: rate</span>)
+<span style="opacity:0.6">  parameters      </span><span style="font-weight:bold">3</span> declared (3 <span style="color:#2e8b2e">rate</span>)
 <span style="opacity:0.6">  tables          </span><span style="font-weight:bold">1</span> (<span style="color:#b8860b">C_age</span><span style="opacity:0.6">: </span><span style="opacity:0.6">age × age</span>)
 <span style="opacity:0.6">  let bindings    </span><span style="font-weight:bold">1</span> (<span style="color:#b8860b">N</span>[a in <span style="color:#1abc9c">age</span>])
 <span style="opacity:0.6">  dimensions      </span><span style="color:#1abc9c">age</span> = [under5, school_age, adult]
@@ -727,7 +721,7 @@ east    south   0.08</code></pre>
 </div>
 </div>
 <p>The <code>--dims</code> flag shows the dimensional analysis the compiler inferred for each parameter — useful for verifying that rate expressions have the right units:</p>
-<div id="9b82e136" class="cell" data-execution_count="5">
+<div id="d84ab41d" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect seir_age_measles.camdl --dims</span>
 <span style="font-weight:bold">parameters (inferred dimensions):</span>
@@ -921,14 +915,14 @@ east    south   0.08</code></pre>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  latent_e2 : E[e2] <span class="op">--&gt;</span> E[e3]  <span class="op">@</span> sigma_stage[e2] * E[e2]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>For an Erlang-3 the saving is modest; for an Erlang-10 it eliminates nine lines of boilerplate that differ only in the index. The compiler generates one transition per consecutive pair, and <code>--transitions</code> shows exactly what was produced (see below).</p>
 <p>Infection enters at <code>E[e1]</code>, progression walks through stages, and onset exits from the last stage. S, I, and R are unstratified — which <code>camdl inspect</code> confirms:</p>
-<div id="2631ffd1" class="cell" data-execution_count="6">
+<div id="2f083e3c" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display">
 <pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect seir_erlang.camdl</span>
 <span style="font-weight:bold"><span style="color:#3366cc">seir_erlang<span style="font-weight:bold"></span></span></span>
 
 <span style="opacity:0.6">  compartments   </span><span style="font-weight:bold">4</span> base<span style="opacity:0.6"> × </span>3 latent_stage = <span style="font-weight:bold">6</span> expanded
 <span style="opacity:0.6">  transitions     </span><span style="font-weight:bold">4</span> base <span style="opacity:0.6">→ </span><span style="font-weight:bold">5</span> expanded (+ 0 filtered by where)
-<span style="opacity:0.6">  parameters      </span><span style="font-weight:bold">5</span> declared (<span style="color:#2e8b2e">beta: rate</span>, <span style="color:#2e8b2e">gamma: rate</span>, <span style="color:#2e8b2e">sigma_e1: rate</span>, <span style="color:#2e8b2e">sigma_e2: rate</span>, <span style="color:#2e8b2e">sigma_e3: rate</span>)
+<span style="opacity:0.6">  parameters      </span><span style="font-weight:bold">5</span> declared (5 <span style="color:#2e8b2e">rate</span>)
 <span style="opacity:0.6">  tables          </span><span style="font-weight:bold">1</span> (<span style="color:#b8860b">sigma_stage</span><span style="opacity:0.6">: </span><span style="opacity:0.6">latent_stage</span>)
 <span style="opacity:0.6">  let bindings    </span><span style="font-weight:bold">1</span> (<span style="color:#b8860b">N</span>)
 <span style="opacity:0.6">  dimensions      </span><span style="color:#1abc9c">latent_stage</span> = [e1, e2, e3]
@@ -937,7 +931,7 @@ east    south   0.08</code></pre>
 </div>
 </div>
 <p>The summary reads “4 base × 3 latent_stage = 6 expanded” — not 12, because only E was stratified. <code>--compartments</code> makes the mixed arities visible — S, I, and R have no index (<code>[]</code>), while E has <code>[latent_stage]</code>:</p>
-<div id="64132595" class="cell" data-execution_count="7">
+<div id="df90fa21" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display">
 <pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect seir_erlang.camdl --compartments</span>
 <span style="color:#9b59b6"><span style="font-weight:bold">S<span style="color:#9b59b6"></span></span></span>   <span style="opacity:0.6">integer</span>   <span style="opacity:0.6">[]</span>   <span style="opacity:0.6">→ </span><span style="opacity:0.6"><span style="color:#9b59b6">S<span style="opacity:0.6"></span></span></span>
@@ -949,7 +943,7 @@ east    south   0.08</code></pre>
 </div>
 </div>
 <p>And <code>--transitions</code> shows how the compiler expanded the <code>consecutive()</code> chain and routed infection into <code>E[e1]</code>:</p>
-<div id="5c2eb076" class="cell" data-execution_count="8">
+<div id="b0557766" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display">
 <pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect seir_erlang.camdl --transitions</span>
 <span style="font-weight:bold"><span style="color:#3366cc">infection<span style="font-weight:bold"></span></span></span> → <span style="font-weight:bold">1</span> transition
@@ -1003,14 +997,14 @@ east    south   0.08</code></pre>
 <span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The <code>[c in compartments]</code> quantifier iterates over all compartments — every compartment gets aging and death transitions. <code>age_dur</code> is a dimensioned table with a unit annotation (<code>'years</code>), giving the duration spent in each age class. The combinatorial expansion is substantial:</p>
-<div id="aaf7c21f" class="cell" data-execution_count="9">
+<div id="7d8de7ba" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect sir_age_demography.camdl</span>
 <span style="font-weight:bold"><span style="color:#3366cc">sir_age_demography<span style="font-weight:bold"></span></span></span>
 
 <span style="opacity:0.6">  compartments   </span><span style="font-weight:bold">3</span> base<span style="opacity:0.6"> × </span>5 age = <span style="font-weight:bold">15</span> expanded
 <span style="opacity:0.6">  transitions     </span><span style="font-weight:bold">5</span> base <span style="opacity:0.6">→ </span><span style="font-weight:bold">38</span> expanded (+ 0 filtered by where)
-<span style="opacity:0.6">  parameters      </span><span style="font-weight:bold">3</span> declared (<span style="color:#2e8b2e">beta: rate</span>, <span style="color:#2e8b2e">gamma: rate</span>, <span style="color:#2e8b2e">mu: rate</span>)
+<span style="opacity:0.6">  parameters      </span><span style="font-weight:bold">3</span> declared (3 <span style="color:#2e8b2e">rate</span>)
 <span style="opacity:0.6">  tables          </span><span style="font-weight:bold">1</span> (<span style="color:#b8860b">age_dur</span><span style="opacity:0.6">: </span><span style="opacity:0.6">age</span>)
 <span style="opacity:0.6">  let bindings    </span><span style="font-weight:bold">1</span> (<span style="color:#b8860b">N_local</span>[a in <span style="color:#1abc9c">age</span>])
 <span style="opacity:0.6">  dimensions      </span><span style="color:#1abc9c">age</span> = [age_0_5, age_5_15, age_15_50, age_50_65, age_65p]
@@ -1069,14 +1063,14 @@ east    south   0.08</code></pre>
 <span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Each dimension contributes one <code>sum()</code>. The compiler expands the nested iteration at compile time — for 2 age groups and 50 patches, the infection rate for each <code>(a, p)</code> stratum becomes a sum of 100 terms, all type-checked against the declared dimensions of <code>C_age</code> and <code>W</code>.</p>
 <p>The <code>seir_cross_dim.camdl</code> example in this chapter’s files puts all of these features together — patch × age stratification, contact matrix, spatial adjacency, demography — and <code>camdl inspect</code> shows the full expansion:</p>
-<div id="77430966" class="cell" data-execution_count="10">
+<div id="413938a6" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect seir_cross_dim.camdl</span>
 <span style="font-weight:bold"><span style="color:#3366cc">seir_cross_dim<span style="font-weight:bold"></span></span></span>
 
 <span style="opacity:0.6">  compartments   </span><span style="font-weight:bold">4</span> base<span style="opacity:0.6"> × </span>4 patch<span style="opacity:0.6"> × </span>3 age = <span style="font-weight:bold">48</span> expanded
 <span style="opacity:0.6">  transitions     </span><span style="font-weight:bold">6</span> base <span style="opacity:0.6">→ </span><span style="font-weight:bold">120</span> expanded (+ 0 filtered by where)
-<span style="opacity:0.6">  parameters      </span><span style="font-weight:bold">5</span> declared (<span style="color:#2e8b2e">beta_local: rate</span>, <span style="color:#2e8b2e">beta_travel: rate</span>, <span style="color:#2e8b2e">sigma: rate</span>, <span style="color:#2e8b2e">gamma: rate</span>, <span style="color:#2e8b2e">mu: rate</span>)
+<span style="opacity:0.6">  parameters      </span><span style="font-weight:bold">5</span> declared (5 <span style="color:#2e8b2e">rate</span>)
 <span style="opacity:0.6">  tables          </span><span style="font-weight:bold">4</span> (<span style="color:#b8860b">pop_pa</span><span style="opacity:0.6">: </span><span style="opacity:0.6">patch × age</span>, <span style="color:#b8860b">adj</span><span style="opacity:0.6">: </span><span style="opacity:0.6">patch × patch</span>, <span style="color:#b8860b">age_dur</span><span style="opacity:0.6">: </span><span style="opacity:0.6">age</span>, <span style="color:#b8860b">C</span><span style="opacity:0.6">: </span><span style="opacity:0.6">age × age</span>)
 <span style="opacity:0.6">  let bindings    </span><span style="font-weight:bold">3</span> (<span style="color:#b8860b">N</span>[p in <span style="color:#1abc9c">patch</span>, a in <span style="color:#1abc9c">age</span>], <span style="color:#b8860b">N_total</span>[p in <span style="color:#1abc9c">patch</span>], <span style="color:#b8860b">I_total</span>[p in <span style="color:#1abc9c">patch</span>])
 <span style="opacity:0.6">  dimensions      </span><span style="color:#1abc9c">patch</span> = [north, south, east, west], <span style="color:#1abc9c">age</span> = [child, adult, elder]
@@ -1084,7 +1078,7 @@ east    south   0.08</code></pre>
 <span style="opacity:0.6">  interventions   </span><span style="font-weight:bold">0</span> (0 active by default)</code></pre>
 </div>
 </div>
-<div id="e99a4d5b" class="cell" data-execution_count="11">
+<div id="d537eed5" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-display">
 <pre class="ansi-output"><code><span style="opacity:0.6">$ camdl inspect seir_cross_dim.camdl --tables</span>
 <span style="font-weight:bold"><span style="color:#b8860b">pop_pa<span style="font-weight:bold"></span></span></span>  [<span style="color:#1abc9c">patch</span><span style="opacity:0.6"> × </span><span style="color:#1abc9c">age</span>]<span style="opacity:0.6">  loaded: data/patch_age_pop3.tsv</span>
@@ -1639,8 +1633,8 @@ east    south   0.08</code></pre>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../guide/fitting-data/report.html" class="pagination-link" aria-label="Fitting to Data">
-        <span class="nav-page-text"><span class="chapter-title">Fitting to Data</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../guide/integrator-step.html" class="pagination-link" aria-label="The Integrator Step">
+        <span class="nav-page-text"><span class="chapter-title">The Integrator Step</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

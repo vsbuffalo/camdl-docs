@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Identifiability – camdl</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../inference/likelihood.html" rel="next">
+<link href="../../guide/fitting/likelihood.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-f418161beb48e0141c760e455f12af2c.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-6667564092b74b448163e6ade2e1f3b4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-c8430341214b22b81b300d69ff936483.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-6667564092b74b448163e6ade2e1f3b4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../../guide/fitting/identifiability.html"><span class="chapter-title">Identifiability</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">camdl</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/vsbuffalo/camdl-book" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What is camdl?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Getting Started</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../guide/getting-started.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building an SIR Model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../guide/experiments.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Uncertainty, Priors, and Simulation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../guide/scenarios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scenarios, Interventions, and Sweeps</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../guide/dimensions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Dimensions and Stratification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../guide/integrator-step.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Integrator Step</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../guide/fitting/likelihood.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Likelihood Fitting</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../guide/fitting/identifiability.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Identifiability</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Inference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../inference/likelihood.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Likelihood and the Particle Filter</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../inference/algorithms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Algorithms: IF2, PGAS, and PMMH</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Reference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../language/spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Language Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../language/data-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../reference/features.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">User Features</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../reference/inference-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../reference/ir-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">IR Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../reference/runtimes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simulation Backends</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../reference/design.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Design Philosophy</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#the-fixed-ic-commitment-was-a-strong-claim" id="toc-the-fixed-ic-commitment-was-a-strong-claim" class="nav-link active" data-scroll-target="#the-fixed-ic-commitment-was-a-strong-claim">The fixed-IC commitment was a strong claim</a></li>
+  <li><a href="#the-data-alone-cannot-identify-beta-gamma-i0-r0" id="toc-the-data-alone-cannot-identify-beta-gamma-i0-r0" class="nav-link" data-scroll-target="#the-data-alone-cannot-identify-beta-gamma-i0-r0">The data alone cannot identify <span class="math inline">\((\beta, \gamma, I(0), R(0))\)</span></a>
+  <ul class="collapse">
+  <li><a href="#d-profile-i0-r0-with-beta-gamma-optimised-per-cell" id="toc-d-profile-i0-r0-with-beta-gamma-optimised-per-cell" class="nav-link" data-scroll-target="#d-profile-i0-r0-with-beta-gamma-optimised-per-cell">2D profile: <span class="math inline">\((I(0), R(0))\)</span> with <span class="math inline">\((\beta, \gamma)\)</span> optimised per cell</a></li>
+  <li><a href="#does-the-ridge-in-r0-uncertainty-matter-yes" id="toc-does-the-ridge-in-r0-uncertainty-matter-yes" class="nav-link" data-scroll-target="#does-the-ridge-in-r0-uncertainty-matter-yes">Does the ridge in <span class="math inline">\(R(0)\)</span> uncertainty matter? (yes)</a></li>
+  <li><a href="#d-profile-beta-gamma-with-i0-r0-optimised-per-cell" id="toc-d-profile-beta-gamma-with-i0-r0-optimised-per-cell" class="nav-link" data-scroll-target="#d-profile-beta-gamma-with-i0-r0-optimised-per-cell">2D profile: <span class="math inline">\((\beta, \gamma)\)</span> with <span class="math inline">\((I(0), R(0))\)</span> optimised per cell</a></li>
+  <li><a href="#d-profile-over-r0-with-beta-gamma-i0-all-free" id="toc-d-profile-over-r0-with-beta-gamma-i0-all-free" class="nav-link" data-scroll-target="#d-profile-over-r0-with-beta-gamma-i0-all-free">1D profile over <span class="math inline">\(R(0)\)</span> with <span class="math inline">\(\beta, \gamma, I(0)\)</span> all free</a></li>
+  </ul></li>
+  <li><a href="#reflections" id="toc-reflections" class="nav-link" data-scroll-target="#reflections">Reflections</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/fitting/identifiability.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../../guide/fitting/identifiability.html"><span class="chapter-title">Identifiability</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Identifiability</span></h1>
+<p class="subtitle lead">Diagnosing when the data isn’t enough — joint IF2 failure, profile likelihoods, and the ridge problem</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>The <a href="../../guide/fitting/likelihood.html">Likelihood Fitting</a> chapter landed on a calibrated fit: SIR + Poisson with fixed initial conditions (<span class="math inline">\(I(0) = 3\)</span>, <span class="math inline">\(R(0) = 0\)</span>), at the faithful <span class="math inline">\(dt = 0.1\)</span>, converged on the gate (Â and decibans both ✓) with a posterior-predictive envelope that comfortably covers the data (<span class="math inline">\(R_0 \approx 3.87\)</span>). That fit is <em>adequate</em>. But adequacy is not the same as <em>identification</em>: <span class="math inline">\(I(0) = 3\)</span> and <span class="math inline">\(R(0) = 0\)</span> were modelling commitments the fit never tested, and “the model with those values fits” doesn’t tell us “the data picks those values.”</p>
+<p>This chapter asks the question the calibrated fit didn’t have to: <strong>what if we let the initial conditions free?</strong> We’ll show with a failed joint fit and a sequence of profile likelihoods that the data on its own <em>cannot</em> identify <span class="math inline">\((\beta, \gamma, I(0), R(0))\)</span> jointly from 14 observations — there’s a ridge in <span class="math inline">\((I(0), R(0))\)</span> along which the likelihood is nearly flat, and the dynamical parameters <span class="math inline">\((\beta,
+\gamma)\)</span> ride along it. The chapter’s central finding is geometric: <strong>two pictures (a 2D profile in initial conditions, a 2D profile in dynamical rates) make the data’s identifiability budget visible</strong> — what the data tightly identifies, what it loosely identifies, and the operational consequences when “loosely” maps to “<span class="math inline">\(R_0\)</span> swings by ~40 % across the Wilks-95 % ridge, and out to <span class="math inline">\(R_0 \approx 7\)</span> if you follow the ridge to where the data finally objects.”</p>
+<p>How to <em>break</em> the ridge — informed priors, joint fits to multiple outbreaks, additional measurements like seroprevalence — is left for its own chapter. This one stops at the diagnosis: the data is not enough, and here is exactly what “not enough” looks like.</p>
+<section id="the-fixed-ic-commitment-was-a-strong-claim" class="level2">
+<h2 class="anchored" data-anchor-id="the-fixed-ic-commitment-was-a-strong-claim">The fixed-IC commitment was a strong claim</h2>
+<p>Recap the BMJ source (<a href="data/source/bmj_1978_influenza_boarding_school.pdf">Anonymous 1978</a>):</p>
+<blockquote class="blockquote">
+<p>On Sunday 22 January three boys were in the college infirmary.</p>
+</blockquote>
+<p>Three boys <em>in the infirmary</em>. The model maps <code>prevalence(I)</code> ↔︎ <code>in_bed</code>, treating the infirmary count as the entire infectious compartment. But:</p>
+<ul>
+<li><strong>Pre-bed-confined infectious cases</strong>: a boy could be infectious for ~12-24 hours before being sent to the infirmary. If 4-6 such boys exist on the morning of 22 January, the true <span class="math inline">\(I(0)\)</span> for transmission modelling is closer to 7-9 than to 3.</li>
+<li><strong>R(0) is <em>not</em> necessarily zero</strong>. The BMJ note records that Fluvirin had been given to 630 of 763 boys in October 1977, but notes the vaccine <em>did not include the H1N1 strain</em>. Cross-reactive immunity from earlier flu exposures might still leave a fraction of the school in the recovered/immune compartment from the model’s perspective. R(0) = 0 in the previous chapter was an explicit modelling assumption — defensible (no documented prior outbreak at the school in the term before), but a commitment we should test by letting the data weigh in.</li>
+</ul>
+<p>The fixed-IC chapter quietly committed to both: <span class="math inline">\(I(0) = 3\)</span>, <span class="math inline">\(R(0) = 0\)</span>. That those values give a calibrated fit doesn’t mean they’re the only values that do — and as the profiles below show, they aren’t even close to unique.</p>
+</section>
+<section id="the-data-alone-cannot-identify-beta-gamma-i0-r0" class="level2">
+<h2 class="anchored" data-anchor-id="the-data-alone-cannot-identify-beta-gamma-i0-r0">The data alone cannot identify <span class="math inline">\((\beta, \gamma, I(0), R(0))\)</span></h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Notation: <span class="math inline">\(R(0)\)</span> vs.&nbsp;<span class="math inline">\(R_0\)</span>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Two quantities share an “R” letter and are easy to confuse:</p>
+<ul>
+<li><strong><span class="math inline">\(R(0)\)</span></strong> — the <em>initial recovered population</em> at time zero (model parameter <code>R_init</code>). A count of boys in the recovered compartment at <span class="math inline">\(t = 0\)</span>. Values range from 0 to ~400 in this chapter. Free to estimate.</li>
+<li><strong><span class="math inline">\(R_0\)</span></strong> (basic reproduction number) — a derived dimensionless quantity, <span class="math inline">\(R_0 = \beta / \gamma\)</span>. The expected number of secondary infections from one index case in a fully-susceptible population. Values 2–7 here.</li>
+</ul>
+<p>This chapter is mostly about <span class="math inline">\(R(0)\)</span> — the initial-condition parameter the data fails to identify alongside <span class="math inline">\(\beta, \gamma, I(0)\)</span>. <span class="math inline">\(R_0\)</span> shows up only as a derived summary at the end. We use parentheses, <span class="math inline">\(R(0)\)</span>, throughout to keep them distinct.</p>
+</div>
+</div>
+<p>The fit configuration: same Poisson SIR, same backend, same IF2 budget, but with <span class="math inline">\(I(0)\)</span> and <span class="math inline">\(R(0)\)</span> now in <code>[estimate]</code> instead of <code>[fixed]</code>.</p>
+<div class="code-with-filename">
+<div class="code-with-filename-file">
+<pre><strong>fits/poisson_free_ic.toml</strong></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-filename="fits/poisson_free_ic.toml"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Free-initial-conditions fit: Poisson SIR with I(0) and R(0) estimated</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># alongside β and γ. Same IF2 budget as the fixed-IC fit, but four</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># parameters instead of two.</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Expected outcome: scout's compound gate will refuse to run refine —</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># the joint surface has a wide ridge in (I(0), R(0)) along which (β, γ)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># re-tune. This is a *finding about the data*, demonstrating that 14</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># daily counts do not identify all four parameters jointly. The</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># priors chapter (forthcoming) shows how informed external priors on</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># R(0) collapse this ridge into a coherent posterior.</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># We do NOT use --allow-nonconverged-scout. The principled response</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># to a failed gate here is profile likelihoods (run via `camdl profile`</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># in a separate cell), not laundering scout output.</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="kw">[model]</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="dt">camdl</span>      <span class="op">=</span> <span class="st">"../models/boarding_school_sir_init.camdl"</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="dt">output_dir</span> <span class="op">=</span> <span class="st">"../results/poisson_free_ic"</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="dt">scenario</span>   <span class="op">=</span> <span class="st">"baseline"</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="kw">[data.observations]</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="dt">in_bed</span> <span class="op">=</span> <span class="st">"../data/in_bed.tsv"</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="kw">[config]</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="dt">backend</span> <span class="op">=</span> <span class="st">"chain_binomial"</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="dt">dt</span>      <span class="op">=</span> <span class="fl">0.1</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="kw">[estimate]</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="dt">beta</span>   <span class="op">=</span> <span class="op">{ </span><span class="dt">bounds</span><span class="op"> =</span> <span class="op">[</span><span class="fl">0.5</span><span class="op">,</span> <span class="fl">5.0</span><span class="op">],   </span><span class="dt">start</span><span class="op"> =</span> <span class="fl">1.5</span><span class="op"> }</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="dt">gamma</span>  <span class="op">=</span> <span class="op">{ </span><span class="dt">bounds</span><span class="op"> =</span> <span class="op">[</span><span class="fl">0.1</span><span class="op">,</span> <span class="fl">1.0</span><span class="op">],   </span><span class="dt">start</span><span class="op"> =</span> <span class="fl">0.4</span><span class="op"> }</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># I(0) and R(0) flagged as ivp = true: still gated for chain agreement</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># (Â reported), but the gate's pass criterion is more lenient on these</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co"># than on dynamical parameters — Â failures on ivp parameters are</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co"># expected and don't block refine. (The chapter's whole point is that</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># they fail anyway, joint with β-γ.)</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="dt">I0</span>     <span class="op">=</span> <span class="op">{ </span><span class="dt">bounds</span><span class="op"> =</span> <span class="op">[</span><span class="fl">1.0</span><span class="op">,</span> <span class="fl">20.0</span><span class="op">],  </span><span class="dt">start</span><span class="op"> =</span> <span class="fl">3.0</span><span class="op">,   </span><span class="dt">ivp</span><span class="op"> =</span> <span class="cn">true</span><span class="op">, </span><span class="dt">rw_sd</span><span class="op"> =</span> <span class="fl">0.10</span><span class="op"> }</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="dt">R_init</span> <span class="op">=</span> <span class="op">{ </span><span class="dt">bounds</span><span class="op"> =</span> <span class="op">[</span><span class="fl">0.0</span><span class="op">,</span> <span class="fl">400.0</span><span class="op">], </span><span class="dt">start</span><span class="op"> =</span> <span class="fl">0.0</span><span class="op">,   </span><span class="dt">ivp</span><span class="op"> =</span> <span class="cn">true</span><span class="op">, </span><span class="dt">rw_sd</span><span class="op"> =</span> <span class="fl">5.0</span><span class="op"> }</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="kw">[fixed]</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="dt">N0</span> <span class="op">=</span> <span class="dv">763</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="kw">[stages.scout]</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="dt">algorithm</span>     <span class="op">=</span> <span class="st">"if2"</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="dt">backend</span>     <span class="op">=</span> <span class="st">"chain_binomial"</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="dt">chains</span>     <span class="op">=</span> <span class="dv">48</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="dt">particles</span>  <span class="op">=</span> <span class="dv">2000</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="dt">iterations</span> <span class="op">=</span> <span class="dv">250</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="dt">cooling</span>    <span class="op">=</span> <span class="fl">0.9</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="kw">[stages.refine]</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="dt">algorithm</span>      <span class="op">=</span> <span class="st">"if2"</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="dt">backend</span>      <span class="op">=</span> <span class="st">"chain_binomial"</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="dt">chains</span>      <span class="op">=</span> <span class="dv">12</span></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="dt">particles</span>   <span class="op">=</span> <span class="dv">4000</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="dt">iterations</span>  <span class="op">=</span> <span class="dv">400</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="dt">cooling</span>     <span class="op">=</span> <span class="fl">0.98</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="dt">starts_from</span> <span class="op">=</span> <span class="st">"scout"</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="kw">[stages.refine.gate]</span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="dt">a_thresh</span> <span class="op">=</span> <span class="fl">1.05</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>ivp = true</code> flags both as initial-value-problem parameters: still reported (Â shown in the gate output) but not part of the gate’s pass criterion. Even with that latitude on <span class="math inline">\(I(0)\)</span> and <span class="math inline">\(R(0)\)</span> the gate fails on <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\gamma\)</span> as we’ll see now.</p>
+<div id="cell-fit-free-ic" class="cell" data-execution_count="2">
+<div id="fit-free-ic" class="cell-output cell-output-display" data-execution_count="2">
+<details class="cli-run"><summary><code>$ camdl fit run fits/poisson_free_ic.toml --seed 28 --label "Poisson, free I0 R0"</code></summary><pre class="ansi-output"><code><span style="opacity:0.7">fit: fits/poisson_free_ic.toml (2 stages)
+  model:    fits/../models/boarding_school_sir_init.camdl
+  estimate: beta, gamma, I0, R_init
+  fixed:    N0
+  output:   results/fits/poisson_free_ic-e468a481
+
+── stage: scout (method=if2) ──
+running 48 chains × 2000 particles × 250 iterations, cooling=0.9, dt=0.1
+
+transforms:
+  I0           log     [1, 20]  log(10.3924) = 2.34  rw_sd=0.1000 (0.010/step, explicit)
+  R_init       log     [0, 400]  log(35.5895) = 3.57  rw_sd=5.0000 (0.140/step, explicit)
+  beta         log     [0.5, 5]  log(0.8206) = -0.20  rw_sd=0.1820 (0.222/step, <span style="color:#b8860b">auto</span>)
+  gamma        log     [0.1, 1]  log(0.2432) = -1.41  rw_sd=0.0364 (0.150/step, <span style="color:#b8860b">auto</span>)
+
+  <span style="color:#b8860b">⚠ 2/4 parameters using auto rw_sd. Check traces and set explicit values.</span>
+
+cooling: cf50=0.90 over 250 iterations × 14 observations
+  iter   1: rw_sd at 99.5%
+  iter 125: rw_sd at 56.9% (halfway)
+  iter 250: rw_sd at 32.3%
+
+<span style="color:#666666">[</span>2026-05-14T23:11:27Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 22 iter 1/250 ll=-66.5
+<span style="color:#666666">[</span>2026-05-14T23:11:27Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 7 iter 1/250 ll=-66.3
+<span style="color:#666666">[</span>2026-05-14T23:11:27Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 37 iter 1/250 ll=-84.2
+<span style="color:#666666">[</span>2026-05-14T23:11:27Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 1 iter 1/250 ll=-127.2
+<span style="color:#666666">[</span>2026-05-14T23:11:27Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 19 iter 1/250 ll=-64.7
+<span style="color:#666666">[</span>2026-05-14T23:11:27Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 24 iter 1/250 ll=-68.4
+<span style="color:#666666">[</span>2026-05-14T23:11:27Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 21 iter 1/250 ll=-71.3
+<span style="color:#666666">[</span>2026-05-14T23:11:27Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 13 iter 1/250 ll=-67.4
+<span style="color:#666666">[</span>2026-05-14T23:11:27Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 18 iter 1/250 ll=-67.9
+<span style="color:#666666">[</span>2026-05-14T23:11:27Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 25 iter 1/250 ll=-66.3
+<span style="color:#666666">[</span>2026-05-14T23:11:27Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 20 iter 1/250 ll=-64.3
+<span style="color:#666666">[</span>2026-05-14T23:11:27Z <span style="color:#2e8b2e">INFO </span> camdl::fit::runner<span style="color:#666666">]</span> fit chain 23 iter 1/250 ll=-167.9
+  [...318 lines omitted...]
+    - narrow bounds to the basin scout's best chain found
+    - mark weakly-identified params as `ivp = true`
+      (reported but not gated)
+
+  To run refine anyway (results may launder multi-modality):
+    camdl fit run fit.toml --allow-nonconverged-scout</span></code></pre></details>
+</div>
+</div>
+<p><strong>Outcome — exactly as predicted.</strong> Scout’s compound gate refuses to run refine: chain-agreement Â reaches <strong>2.96 on <span class="math inline">\(\beta\)</span> and 2.54 on <span class="math inline">\(\gamma\)</span></strong> (the ivp parameters are even worse — Â ≈ 37 on <span class="math inline">\(I(0)\)</span>, ≈ 15 on <span class="math inline">\(R(0)\)</span> — but those aren’t gated), and the across-chain log-likelihood spread is <strong>88 nats</strong> with 14 of 48 chains diverging. That’s not a budget problem — chains are settling in genuinely different basins, and the gate is correctly refusing to launder the multimodality into a single point estimate.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>We do <strong>not</strong> bypass the gate with <code>--allow-nonconverged-scout</code>. The gate is doing its job; the principled response is profile likelihoods (here) or informed priors (Section 2 below), not laundering a multimodal scout into a single MLE.</p>
+</div>
+</div>
+<section id="d-profile-i0-r0-with-beta-gamma-optimised-per-cell" class="level3">
+<h3 class="anchored" data-anchor-id="d-profile-i0-r0-with-beta-gamma-optimised-per-cell">2D profile: <span class="math inline">\((I(0), R(0))\)</span> with <span class="math inline">\((\beta, \gamma)\)</span> optimised per cell</h3>
+<p>Sweep over <span class="math inline">\((I(0), R(0))\)</span> on a 12 × 12 grid; at each cell, run IF2 to optimise <span class="math inline">\((\beta, \gamma)\)</span>. Each cell’s reported log-likelihood is the <em>conditional</em> maximum — what the data prefers at that fixed <span class="math inline">\((I(0),
+R(0))\)</span> point with the dynamical parameters re-tuned. The two nuisance-MLE panels show <em>what β and γ had to become</em> at each cell to achieve that conditional max — that’s where the ridge geometry becomes visible.</p>
+<div id="cell-profile-i0-r0" class="cell" data-execution_count="3">
+<div id="profile-i0-r0" class="cell-output cell-output-display" data-execution_count="3">
+<details class="cli-run"><summary><code>$ camdl profile models/boarding_school_sir_init.camdl --params output/profile_start_init.toml --dt 0.1 --sweep I0=1,1.5,2,...,19  (24 vals) --sweep R_init=0,10,...,380  (22 vals) --rw-sd 'beta=0.05,gamma=0.02' --particles 1500 --iterations 80 -o output/profile_i0_r0.tsv</code></summary><pre class="ansi-output"><code><span style="opacity:0.7">profile: using observation model 'in_bed' from IR
+profile (1 replicate): results/profiles/boarding_school_sir_init-92be0d97
+profile: 528 grid (I0=24 × R_init=22) × 3 starts × 1 seeds = 1584 IF2 runs (1500 particles × 80 iter each)
+<span style="color:#666666">[</span>2026-05-14T23:12:22Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 528 grid points × 3 starts × 1 seeds = 1584 jobs
+<span style="color:#666666">[</span>2026-05-14T23:12:25Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:12:56Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 98/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:13:26Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 195/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:13:56Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 292/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:14:26Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 388/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:14:57Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 497/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:15:27Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 593/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:15:57Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 689/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:16:28Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 785/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:16:58Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 883/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:17:28Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 986/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:17:59Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1090/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:18:29Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1186/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:18:59Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1283/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:19:30Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1384/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:20:01Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1484/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:20:31Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1577/1584 jobs complete
+  [...19 lines omitted...]
+<span style="color:#666666">[</span>2026-05-14T23:18:59Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1283/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:19:30Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1384/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:20:01Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1484/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:20:31Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1577/1584 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:20:35Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1584/1584 jobs complete
+written to output/profile_i0_r0.tsv</span></code></pre></details>
+</div>
+</div>
+<div id="cell-fig-profile-i0-r0" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>i0r0 <span class="op">=</span> pl.read_csv(<span class="st">"output/profile_i0_r0.tsv"</span>, separator<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>,</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                   comment_prefix<span class="op">=</span><span class="st">"#"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plot_profile_2d(</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    i0r0,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    focal_x<span class="op">=</span><span class="st">"I0"</span>, focal_y<span class="op">=</span><span class="st">"R_init"</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    nuisance_params<span class="op">=</span>[<span class="st">"beta"</span>, <span class="st">"gamma"</span>],</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    labels<span class="op">=</span>{<span class="st">"I0"</span>: <span class="st">"$I(0)$"</span>, <span class="st">"R_init"</span>: <span class="st">"$R(0)$"</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">"beta"</span>: <span class="st">"$</span><span class="ch">\\</span><span class="st">hat</span><span class="ch">\\</span><span class="st">beta$"</span>, <span class="st">"gamma"</span>: <span class="st">"$</span><span class="ch">\\</span><span class="st">hat</span><span class="ch">\\</span><span class="st">gamma$"</span>},</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    reference_points<span class="op">=</span>[</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        (<span class="dv">3</span>, <span class="dv">0</span>, MARKER_SQUARE, <span class="st">"fixed-IC scenario</span><span class="ch">\n</span><span class="st">$(I(0)=3, R(0)=0)$"</span>),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Focus on the informative range — the I(0) ridge runs through low</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># values, the high-I(0) end is uniformly flat.</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax <span class="kw">in</span> axes:</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    ax.set_xlim(right<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-profile-i0-r0" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-profile-i0-r0-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="identifiability_files/figure-html/fig-profile-i0-r0-output-1.png" width="1938" height="590" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-profile-i0-r0-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.1: 2D profile likelihood over <span class="math inline">\((I(0), R(0))\)</span> with <span class="math inline">\((\beta, \gamma)\)</span> IF2-optimised per cell. <strong>Top-left:</strong> Δ log-likelihood from the profile maximum (red star). Wilks 2D contours mark 95 / 99 / 99.9 % joint CIs (Δll = 3.00 / 4.61 / 6.91). <strong>Top-right &amp; bottom:</strong> the conditional MLEs <span class="math inline">\(\hat\beta(I(0), R(0))\)</span> and <span class="math inline">\(\hat\gamma(I(0), R(0))\)</span>. β̂ trades off systematically along the ridge — low <span class="math inline">\(R(0)\)</span> pairs with low β̂; high <span class="math inline">\(R(0)\)</span> requires higher β̂ to compensate for the shrunk susceptible pool. γ̂ is more stable. The blue square marks the fixed-IC scenario <span class="math inline">\((I(0)=3, R(0)=0)\)</span> used in the <a href="../../guide/fitting/likelihood.html">likelihood chapter</a> — essentially <em>at</em> the profile maximum here, but the ridge in <span class="math inline">\(R(0)\)</span> extends well above it without the log-lik moving much.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="does-the-ridge-in-r0-uncertainty-matter-yes" class="level3">
+<h3 class="anchored" data-anchor-id="does-the-ridge-in-r0-uncertainty-matter-yes">Does the ridge in <span class="math inline">\(R(0)\)</span> uncertainty matter? (yes)</h3>
+<p>The profile log-likelihood says all points along the ridge fit the data about equally well. <strong>But do they predict the same outbreak dynamics?</strong> Sloppy directions in a likelihood are not always sloppy in <em>observables</em>. If the ridge is sloppy in fit but tight in prediction, the identifiability problem is academic — every defensible point on the ridge gives the same forecast and the choice of <span class="math inline">\(R(0)\)</span> doesn’t matter operationally. If the ridge is sloppy in prediction <em>too</em>, then the choice of <span class="math inline">\(R(0)\)</span> is a load-bearing modelling commitment that the data alone refuses to settle. Below we show the second case is what holds here.</p>
+<p>We test this by picking three (I(0), R(0)) points along the ridge, all inside the 95 % Wilks 2D region (Δll &lt; 3.0 of the profile max — any of them would be a defensible MLE), and forward-simulating 10 chain-binomial trajectories at each point’s conditional MLE <span class="math inline">\((\hat\beta, \hat\gamma)\)</span>:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>label</th>
+<th>I(0)</th>
+<th>R(0)</th>
+<th>β̂ (cond.)</th>
+<th>γ̂ (cond.)</th>
+<th><span class="math inline">\(R_0 = \hat\beta / \hat\gamma\)</span></th>
+<th>Δll</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Low (no immunity)</td>
+<td>3</td>
+<td>0</td>
+<td>1.85</td>
+<td>0.54</td>
+<td><strong>3.41</strong></td>
+<td>0.08</td>
+</tr>
+<tr class="even">
+<td>Mid (~10 % immunity)</td>
+<td>4</td>
+<td>75</td>
+<td>2.09</td>
+<td>0.56</td>
+<td><strong>3.74</strong></td>
+<td>1.72</td>
+</tr>
+<tr class="odd">
+<td>High (~18 % immunity)</td>
+<td>4</td>
+<td>140</td>
+<td>2.43</td>
+<td>0.50</td>
+<td><strong>4.83</strong></td>
+<td>2.62</td>
+</tr>
+</tbody>
+</table>
+<p>(Note the column distinction: <span class="math inline">\(R(0)\)</span> is the initial recovered count; <span class="math inline">\(R_0\)</span> is the basic reproduction number <span class="math inline">\(\hat\beta / \hat\gamma\)</span>. These are different quantities — see the callout above.)</p>
+<div id="ridge-sims" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>show forward-simulation code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tempfile</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> _lib.sim <span class="im">import</span> run_simulate</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Three ridge points (read from the profile data — these are the</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># conditional MLE values so each scenario is "the best fit at that</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># IC pair").</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>points <span class="op">=</span> [</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Low  (R(0)=0)"</span>,   <span class="dv">3</span>,   <span class="dv">0</span>,  <span class="fl">1.846</span>, <span class="fl">0.542</span>),</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Mid  (R(0)=75)"</span>,  <span class="dv">4</span>,  <span class="dv">75</span>,  <span class="fl">2.094</span>, <span class="fl">0.559</span>),</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"High (R(0)=140)"</span>, <span class="dv">4</span>, <span class="dv">140</span>,  <span class="fl">2.433</span>, <span class="fl">0.503</span>),</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _params_toml(I0, R_init, beta, gamma):</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Write a one-shot params toml; returns path."""</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    f <span class="op">=</span> tempfile.NamedTemporaryFile(<span class="st">"w"</span>, suffix<span class="op">=</span><span class="st">".toml"</span>, delete<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    f.write(<span class="ss">f"beta = </span><span class="sc">{</span>beta<span class="sc">}</span><span class="ch">\n</span><span class="ss">gamma = </span><span class="sc">{</span>gamma<span class="sc">}</span><span class="ch">\n</span><span class="ss">N0 = 763</span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"I0 = </span><span class="sc">{</span>I0<span class="sc">}</span><span class="ch">\n</span><span class="ss">R_init = </span><span class="sc">{</span>R_init<span class="sc">}</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    f.close()</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> f.name</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>scenarios <span class="op">=</span> {</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    label: run_simulate(</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">"models/boarding_school_sir_init.camdl"</span>,</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>        _params_toml(I0, R0, b, g),</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        seed<span class="op">=</span><span class="dv">28</span>, replicates<span class="op">=</span><span class="dv">10</span>, scenario<span class="op">=</span><span class="st">"baseline"</span>,</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>        backend<span class="op">=</span><span class="st">"chain_binomial"</span>, dt<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> label, I0, R0, b, g <span class="kw">in</span> points</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-fig-ridge-predictions" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>scenario_colors <span class="op">=</span> {</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Low  (R(0)=0)"</span>:   <span class="st">"#3366cc"</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Mid  (R(0)=75)"</span>:  <span class="st">"#e67e22"</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"High (R(0)=140)"</span>: <span class="st">"#c0392b"</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.5</span>))</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label, _, _, _, _ <span class="kw">in</span> points:</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> scenarios[label]</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    color <span class="op">=</span> scenario_colors[label]</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    reps <span class="op">=</span> df[<span class="st">"replicate"</span>].unique().to_list()</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, rep <span class="kw">in</span> <span class="bu">enumerate</span>(reps):</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        sub <span class="op">=</span> df.<span class="bu">filter</span>(pl.col(<span class="st">"replicate"</span>) <span class="op">==</span> rep).sort(<span class="st">"t"</span>)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        ax.plot(sub[<span class="st">"t"</span>], sub[<span class="st">"flow_infection"</span>],</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                color<span class="op">=</span>color, alpha<span class="op">=</span><span class="fl">0.55</span>, linewidth<span class="op">=</span><span class="fl">1.1</span>,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                label<span class="op">=</span>label <span class="cf">if</span> k <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="va">None</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Day"</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"New infections per day  (incidence)"</span>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, <span class="dv">14</span>)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>leg <span class="op">=</span> ax.legend(frameon<span class="op">=</span><span class="va">True</span>, facecolor<span class="op">=</span><span class="st">"white"</span>, edgecolor<span class="op">=</span><span class="st">"#888888"</span>,</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>                framealpha<span class="op">=</span><span class="fl">1.0</span>, fontsize<span class="op">=</span><span class="dv">9</span>, loc<span class="op">=</span><span class="st">"upper right"</span>,</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>                title<span class="op">=</span><span class="st">"Ridge point"</span>)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>leg.get_title().set_fontsize(<span class="dv">9</span>)</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="co"># A quick numeric summary</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="st">'scenario'</span><span class="sc">:&gt;16}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'peak day'</span><span class="sc">:&gt;10}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'peak inc'</span><span class="sc">:&gt;10}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'final size'</span><span class="sc">:&gt;12}</span><span class="ss">"</span>)</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label, I0, R0, b, g <span class="kw">in</span> points:</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> scenarios[label]</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    medians <span class="op">=</span> (df.group_by(<span class="st">"t"</span>)</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>                 .agg(pl.col(<span class="st">"flow_infection"</span>).median().alias(<span class="st">"med"</span>))</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>                 .sort(<span class="st">"t"</span>))</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    peak_t <span class="op">=</span> <span class="bu">int</span>(medians.sort(<span class="st">"med"</span>, descending<span class="op">=</span><span class="va">True</span>)[<span class="st">"t"</span>][<span class="dv">0</span>])</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    peak_v <span class="op">=</span> <span class="bu">int</span>(medians.sort(<span class="st">"med"</span>, descending<span class="op">=</span><span class="va">True</span>)[<span class="st">"med"</span>][<span class="dv">0</span>])</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    fsize <span class="op">=</span> <span class="bu">int</span>(df.<span class="bu">filter</span>(pl.col(<span class="st">"t"</span>) <span class="op">==</span> <span class="dv">14</span>)[<span class="st">"R"</span>].median()) <span class="cf">if</span> <span class="dv">14</span> <span class="kw">in</span> df[<span class="st">"t"</span>] <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    final <span class="op">=</span> (df.group_by(<span class="st">"replicate"</span>)</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>               .agg(pl.col(<span class="st">"R"</span>).last().alias(<span class="st">"R_final"</span>))</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>               [<span class="st">"R_final"</span>].median())</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>label<span class="sc">:&gt;16}</span><span class="ss"> </span><span class="sc">{</span>peak_t<span class="sc">:&gt;10}</span><span class="ss"> </span><span class="sc">{</span>peak_v<span class="sc">:&gt;10}</span><span class="ss"> </span><span class="sc">{</span>final<span class="sc">:&gt;12.0f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+        scenario   peak day   peak inc   final size
+   Low  (R(0)=0)          6         75          672
+  Mid  (R(0)=75)          5         90          700
+ High (R(0)=140)          4        117          736</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div id="fig-ridge-predictions" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ridge-predictions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="identifiability_files/figure-html/fig-ridge-predictions-output-2.png" width="1185" height="662" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ridge-predictions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.2: Forward-simulated incidence (<code>flow_infection</code>, new infections per day) at three points along the <span class="math inline">\((I(0), R(0))\)</span> ridge — all inside the 95 % Wilks 2D CI of the profile, any of which would be a defensible MLE if we accepted the data alone. Each scenario contributes 10 chain-binomial replicates at its conditional <span class="math inline">\((\hat\beta, \hat\gamma, I(0), R(0))\)</span>. Cool-to-warm colour: <span class="math inline">\(R(0) = 0\)</span> (blue) → <span class="math inline">\(R(0) = 140\)</span> (red). The trajectories <em>visibly</em> separate: the high-<span class="math inline">\(R(0)\)</span> scenario peaks ~1.5× higher and 2 days earlier than the low-<span class="math inline">\(R(0)\)</span> one. The data on its own can’t pick between them.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Reading.</strong> Three scenarios the likelihood barely separates (all Δll &lt; 3, well inside the Wilks 2D 95 % region) produce visibly different incidence trajectories. The high-<span class="math inline">\(R(0)\)</span> point has <span class="math inline">\(R_0 \approx 4.8\)</span> and peaks early at ~120 new infections per day; the low-<span class="math inline">\(R(0)\)</span> point has <span class="math inline">\(R_0 \approx 3.4\)</span> and peaks two days later at ~75. <em>Both</em> fit the in-bed prevalence data nearly equally well — the data sees the prevalence trajectory, which can be matched at different <span class="math inline">\((\beta, R(0))\)</span> combinations because high-<span class="math inline">\(\beta\)</span> + small-susceptible and low-<span class="math inline">\(\beta\)</span> + large-susceptible can both produce a similar peak height in the <em>current</em> infectious population.</p>
+<p>But the <em>basic reproduction number</em> — the headline epidemiological summary you’d report to a public-health audience — varies by about <strong>40 %</strong> across the Wilks-95 % ridge (≈3.4 to ≈4.8), and that spread keeps widening past the 95 % edge (the 1D <span class="math inline">\(R(0)\)</span> profile below reaches <span class="math inline">\(R_0 \approx 7\)</span> before the data finally objects). And the <em>incidence</em> trajectory differs by ~50 % in peak height and 2 days in peak timing.</p>
+<p>That’s the operational consequence of an unidentified ridge in <span class="math inline">\((I(0), R(0))\)</span>: <strong>absent external information, you cannot pin down <span class="math inline">\(R_0\)</span> either, because <span class="math inline">\(R_0 = \beta / \gamma\)</span> inherits the trade-off that <span class="math inline">\(\beta\)</span> takes on along the ridge.</strong> Section 2’s prior on <span class="math inline">\(R(0)\)</span> has to fix this if the chapter’s headline answer is going to be a defensible <span class="math inline">\(R_0\)</span> at all.</p>
+</section>
+<section id="d-profile-beta-gamma-with-i0-r0-optimised-per-cell" class="level3">
+<h3 class="anchored" data-anchor-id="d-profile-beta-gamma-with-i0-r0-optimised-per-cell">2D profile: <span class="math inline">\((\beta, \gamma)\)</span> with <span class="math inline">\((I(0), R(0))\)</span> optimised per cell</h3>
+<p>The mirror profile: now <span class="math inline">\((\beta, \gamma)\)</span> is the swept axis pair, and the <em>initial conditions</em> re-tune at each cell.</p>
+<div id="cell-profile-bg" class="cell" data-execution_count="7">
+<div id="profile-bg" class="cell-output cell-output-display" data-execution_count="7">
+<details class="cli-run"><summary><code>$ camdl profile models/boarding_school_sir_init.camdl --params output/profile_start_init.toml --dt 0.1 --sweep beta=1.0,1.15,...,4.0  (21 vals) --sweep gamma=0.30,0.35,...,1.0  (18 vals) --rw-sd 'I0=0.10,R_init=5.0' --particles 1500 --iterations 80 -o output/profile_bg_free_ic.tsv</code></summary><pre class="ansi-output"><code><span style="opacity:0.7">profile: using observation model 'in_bed' from IR
+profile (1 replicate): results/profiles/boarding_school_sir_init-66302bda
+profile: 378 grid (beta=21 × gamma=18) × 3 starts × 1 seeds = 1134 IF2 runs (1500 particles × 80 iter each)
+<span style="color:#666666">[</span>2026-05-14T23:20:35Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 378 grid points × 3 starts × 1 seeds = 1134 jobs
+<span style="color:#666666">[</span>2026-05-14T23:20:38Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1/1134 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:21:08Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 108/1134 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:21:38Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 210/1134 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:22:08Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 313/1134 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:22:38Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 416/1134 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:23:08Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 515/1134 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:23:38Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 615/1134 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:24:09Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 716/1134 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:24:39Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 817/1134 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:25:10Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 920/1134 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:25:41Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1021/1134 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:26:12Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1116/1134 jobs complete
+  [...14 lines omitted...]
+<span style="color:#666666">[</span>2026-05-14T23:24:39Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 817/1134 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:25:10Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 920/1134 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:25:41Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1021/1134 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:26:12Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1116/1134 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:26:14Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1134/1134 jobs complete
+written to output/profile_bg_free_ic.tsv</span></code></pre></details>
+</div>
+</div>
+<div id="cell-fig-profile-bg" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>bg <span class="op">=</span> pl.read_csv(<span class="st">"output/profile_bg_free_ic.tsv"</span>, separator<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                 comment_prefix<span class="op">=</span><span class="st">"#"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plot_profile_2d(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    bg,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    focal_x<span class="op">=</span><span class="st">"beta"</span>, focal_y<span class="op">=</span><span class="st">"gamma"</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    nuisance_params<span class="op">=</span>[<span class="st">"I0"</span>, <span class="st">"R_init"</span>],</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    labels<span class="op">=</span>{<span class="st">"beta"</span>: <span class="st">"$</span><span class="ch">\\</span><span class="st">beta$"</span>, <span class="st">"gamma"</span>: <span class="st">"$</span><span class="ch">\\</span><span class="st">gamma$"</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">"I0"</span>: <span class="st">"$</span><span class="ch">\\</span><span class="st">hat I(0)$"</span>, <span class="st">"R_init"</span>: <span class="st">"$</span><span class="ch">\\</span><span class="st">hat R(0)$"</span>},</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    reference_points<span class="op">=</span>[</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        (<span class="fl">1.94</span>, <span class="fl">0.50</span>, MARKER_SQUARE, <span class="st">"fixed-IC MLE</span><span class="ch">\n</span><span class="st">$(</span><span class="ch">\\</span><span class="st">beta=1.94, </span><span class="ch">\\</span><span class="st">gamma=0.50)$"</span>),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Focus on the informative basin around the MLE.</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax <span class="kw">in</span> axes:</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    ax.set_xlim(<span class="fl">1.5</span>, <span class="fl">3.2</span>)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    ax.set_ylim(<span class="fl">0.3</span>, <span class="fl">0.7</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-profile-bg" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-profile-bg-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="identifiability_files/figure-html/fig-profile-bg-output-1.png" width="1940" height="591" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-profile-bg-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.3: 2D profile likelihood over <span class="math inline">\((\beta, \gamma)\)</span> with <span class="math inline">\((I(0), R(0))\)</span> IF2-optimised per cell. <strong>Top-left:</strong> Δ log-lik with Wilks contours and profile-max star. <strong>Top-right &amp; bottom:</strong> <span class="math inline">\(\hat I(0)(\beta, \gamma)\)</span> and <span class="math inline">\(\hat R(0)(\beta, \gamma)\)</span> — at low-β cells the optimiser pushes <span class="math inline">\(R(0)\)</span> high and vice versa, the same trade-off as the previous figure but viewed from the orthogonal axis. The blue square marks the fixed-IC MLE from the <a href="../../guide/fitting/likelihood.html">likelihood chapter</a> at <span class="math inline">\((\beta=1.94, \gamma=0.50)\)</span> — a point inside the 95 % CI but <em>not</em> the profile max because the profile lets <span class="math inline">\((I(0), R(0))\)</span> readjust away from the fixed values.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Reading.</strong></p>
+<ul>
+<li><strong><span class="math inline">\((I(0), R(0))\)</span></strong> profile maximum sits at <span class="math inline">\((I(0) = 2.5, R(0) = 0)\)</span> with ll = <strong>−58.6</strong> — essentially the fixed-IC scenario. The 95 % Wilks region covers <strong>102 of 528 cells (19 %)</strong> — a diagonal ridge running from low-<span class="math inline">\(I(0)\)</span> low-<span class="math inline">\(R(0)\)</span> up through moderate <span class="math inline">\(R(0)\)</span>. The β̂-MLE panel shows β rising from ~1.85 to ~3.5 along the ridge as <span class="math inline">\(R(0)\)</span> increases (and on out toward β ≈ 4 at the far, sub-95 % end).</li>
+<li><strong><span class="math inline">\((\beta, \gamma)\)</span></strong> profile maximum sits at <span class="math inline">\((\beta = 2.20, \gamma = 0.40)\)</span> with ll = <strong>−61.5</strong> (the conditional re-optimisation of <span class="math inline">\((I(0), R(0))\)</span> per cell doesn’t quite reach the basin the orthogonal sweep finds — hence the ~3-nat offset), with conditional MLEs <span class="math inline">\(\hat I(0) \approx 4.3\)</span>, <span class="math inline">\(\hat R(0) \approx 80\)</span>. The 95 % region covers only <strong>11 of 378 cells (3 %)</strong> — a tight ellipse.</li>
+</ul>
+<p>The geometry is the <strong>identifiability story</strong> in two pictures: the data identifies <em>transmission rates tightly</em> (small region in <span class="math inline">\((\beta, \gamma)\)</span>) but identifies <em>initial conditions loosely</em> (a ridge in <span class="math inline">\((I(0), R(0))\)</span> six times broader than the <span class="math inline">\((\beta, \gamma)\)</span> region). The β̂ panel of the first figure makes the trade-off concrete — at fixed <span class="math inline">\(I(0) = 3\)</span>, sweeping <span class="math inline">\(R(0)\)</span> from 0 to ~160 along the ridge takes β̂ from <strong>1.85 to ~2.5</strong> (a ~1.4× swing) while the conditional log-likelihood drops by <strong>only ~2.5 nats</strong> — still inside the 95 % CI threshold of 3 nats. Push <span class="math inline">\(R(0)\)</span> to ~285 and β̂ reaches ~3.5, but now the log-lik penalty is ~9 nats and you’ve left the 95 % region.</p>
+<p>That’s why scout’s joint IF2 failed: chains starting from random <span class="math inline">\((I(0), R(0))\)</span> values land at different cells along the ridge, with <span class="math inline">\((\beta, \gamma)\)</span> adjusted to match. Across chains, β̂ disagrees by a large factor (Â ≈ 3) even though each chain’s local fit is fine. The compound gate correctly refuses to call any single chain’s endpoint “the MLE.”</p>
+<p>What the profile <em>cannot</em> tell us: where on the ridge the right answer sits. <span class="math inline">\((I(0) = 2.5, R(0) = 0)\)</span> is the marginal maximum <em>given this data alone</em> — but cells out to <span class="math inline">\(R(0) \approx 150\)</span>–<span class="math inline">\(180\)</span> are within 3 nats, and the log-lik degrades only gently beyond that. The data is consistent with a range of <span class="math inline">\((I(0), R(0))\)</span> values, including ones with ~15–20 % prior immunity.</p>
+</section>
+<section id="d-profile-over-r0-with-beta-gamma-i0-all-free" class="level3">
+<h3 class="anchored" data-anchor-id="d-profile-over-r0-with-beta-gamma-i0-all-free">1D profile over <span class="math inline">\(R(0)\)</span> with <span class="math inline">\(\beta, \gamma, I(0)\)</span> all free</h3>
+<p>The 2D profiles told us <em>which axes are sloppy</em>. The third question worth asking explicitly: <strong>how broad is the <span class="math inline">\(R(0)\)</span> direction once we let <em>every other parameter</em> re-tune?</strong> Sweep <span class="math inline">\(R(0)\)</span> on a 1D grid with <span class="math inline">\(\beta, \gamma, I(0)\)</span> all IF2-optimised per cell — that’s three nuisance parameters re-fitting at every <span class="math inline">\(R(0)\)</span> value, the maximum flexibility the model has to compensate.</p>
+<div id="cell-profile-R-init" class="cell" data-execution_count="9">
+<div id="profile-r-init" class="cell-output cell-output-display" data-execution_count="9">
+<details class="cli-run"><summary><code>$ camdl profile models/boarding_school_sir_init.camdl --params output/profile_start_init.toml --dt 0.1 --sweep R_init=0,15,...,380  (18 vals) --rw-sd 'beta=0.05,gamma=0.04,I0=0.10' --particles 4000 --iterations 150 --starts 5 -o output/profile_R_init.tsv</code></summary><pre class="ansi-output"><code><span style="opacity:0.7">profile: using observation model 'in_bed' from IR
+profile (1 replicate): results/profiles/boarding_school_sir_init-36f838cd
+profile: 18 grid (R_init=18) × 5 starts × 1 seeds = 90 IF2 runs (4000 particles × 150 iter each)
+<span style="color:#666666">[</span>2026-05-14T23:26:15Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 18 grid points × 5 starts × 1 seeds = 90 jobs
+<span style="color:#666666">[</span>2026-05-14T23:26:27Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 1/90 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:27:05Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 25/90 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:27:41Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 48/90 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:28:14Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 69/90 jobs complete
+<span style="color:#666666">[</span>2026-05-14T23:28:35Z <span style="color:#2e8b2e">INFO </span> camdl::profile<span style="color:#666666">]</span> profile: 90/90 jobs complete
+written to output/profile_R_init.tsv</span></code></pre></details>
+</div>
+</div>
+<div id="cell-fig-profile-R-init" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> pl.read_csv(<span class="st">"output/profile_R_init.tsv"</span>, separator<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                comment_prefix<span class="op">=</span><span class="st">"#"</span>).sort(<span class="st">"R_init"</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>R0_init <span class="op">=</span> p[<span class="st">"R_init"</span>].to_numpy()</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>ll      <span class="op">=</span> p[<span class="st">"loglik"</span>].to_numpy()</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>beta    <span class="op">=</span> p[<span class="st">"beta"</span>].to_numpy()</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>gamma   <span class="op">=</span> p[<span class="st">"gamma"</span>].to_numpy()</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>i0_     <span class="op">=</span> p[<span class="st">"I0"</span>].to_numpy()</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>ll_max <span class="op">=</span> ll.<span class="bu">max</span>()</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>i_star <span class="op">=</span> <span class="bu">int</span>(np.argmax(ll))</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">4</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">10</span>), sharex<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>                          gridspec_kw<span class="op">=</span>{<span class="st">"hspace"</span>: <span class="fl">0.20</span>,</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">"height_ratios"</span>: [<span class="fl">1.6</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>]})</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].plot(R0_init, ll, <span class="st">"-o"</span>, color<span class="op">=</span><span class="st">"#444444"</span>, linewidth<span class="op">=</span><span class="fl">1.4</span>,</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>             markerfacecolor<span class="op">=</span><span class="st">"white"</span>, markeredgecolor<span class="op">=</span><span class="st">"#444444"</span>,</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>             markeredgewidth<span class="op">=</span><span class="fl">1.2</span>, markersize<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].scatter([R0_init[i_star]], [ll[i_star]], marker<span class="op">=</span><span class="st">"*"</span>,</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>                color<span class="op">=</span><span class="st">"red"</span>, s<span class="op">=</span><span class="dv">240</span>, edgecolor<span class="op">=</span><span class="st">"white"</span>, linewidth<span class="op">=</span><span class="fl">0.9</span>,</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>                zorder<span class="op">=</span><span class="dv">10</span>, label<span class="op">=</span><span class="ss">f"profile max  $R(0)$=</span><span class="sc">{</span>R0_init[i_star]<span class="sc">:.0f}</span><span class="ss">"</span>)</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> lvl, col, lbl <span class="kw">in</span> [(<span class="fl">1.92</span>, <span class="st">"cornflowerblue"</span>, <span class="st">"95%"</span>),</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>                      (<span class="fl">4.61</span>, <span class="st">"#e67e22"</span>,        <span class="st">"99%"</span>),</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>                      (<span class="fl">9.21</span>, <span class="st">"#c0392b"</span>,        <span class="st">"99.9%"</span>)]:</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">0</span>].axhline(ll_max <span class="op">-</span> lvl, color<span class="op">=</span>col, linestyle<span class="op">=</span><span class="st">"--"</span>,</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>                    linewidth<span class="op">=</span><span class="dv">1</span>, label<span class="op">=</span><span class="ss">f"Wilks 1D </span><span class="sc">{</span>lbl<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"profile log-lik"</span>)</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Profile log-lik over $R(0)$ "</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>                  <span class="st">"($</span><span class="ch">\\</span><span class="st">beta, </span><span class="ch">\\</span><span class="st">gamma, I(0)$ optimised per cell)"</span>,</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>                  fontsize<span class="op">=</span><span class="dv">10</span>, pad<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylim(top<span class="op">=</span>ll_max <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].legend(loc<span class="op">=</span><span class="st">"lower right"</span>, fontsize<span class="op">=</span><span class="dv">8</span>, frameon<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>               facecolor<span class="op">=</span><span class="st">"white"</span>, edgecolor<span class="op">=</span><span class="st">"#888"</span>, framealpha<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, ydata, ylabel <span class="kw">in</span> [</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>    (axes[<span class="dv">1</span>], beta,  <span class="st">"$</span><span class="ch">\\</span><span class="st">hat</span><span class="ch">\\</span><span class="st">beta$"</span>),</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>    (axes[<span class="dv">2</span>], gamma, <span class="st">"$</span><span class="ch">\\</span><span class="st">hat</span><span class="ch">\\</span><span class="st">gamma$"</span>),</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    (axes[<span class="dv">3</span>], i0_,   <span class="st">"$</span><span class="ch">\\</span><span class="st">hat I(0)$"</span>),</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>]:</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>    ax.plot(R0_init, ydata, <span class="st">"-o"</span>, color<span class="op">=</span><span class="st">"#3366cc"</span>, linewidth<span class="op">=</span><span class="fl">1.3</span>,</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>            markerfacecolor<span class="op">=</span><span class="st">"white"</span>, markeredgecolor<span class="op">=</span><span class="st">"#3366cc"</span>,</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>            markeredgewidth<span class="op">=</span><span class="fl">1.0</span>, markersize<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>    ax.axvline(R0_init[i_star], color<span class="op">=</span><span class="st">"red"</span>, linestyle<span class="op">=</span><span class="st">":"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>    ax.set_ylabel(ylabel)</span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>    ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">3</span>].set_xlabel(<span class="st">"$R(0)$  (initial recovered)"</span>)</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a><span class="co"># Wilks 95% CI on R(0)</span></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>within95 <span class="op">=</span> [(r, l) <span class="cf">for</span> r, l <span class="kw">in</span> <span class="bu">zip</span>(R0_init, ll) <span class="cf">if</span> ll_max <span class="op">-</span> l <span class="op">&lt;</span> <span class="fl">1.92</span>]</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>r95_lo, r95_hi <span class="op">=</span> <span class="bu">min</span>(r <span class="cf">for</span> r, _ <span class="kw">in</span> within95), <span class="bu">max</span>(r <span class="cf">for</span> r, _ <span class="kw">in</span> within95)</span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Profile max:  R(0) = </span><span class="sc">{</span>R0_init[i_star]<span class="sc">:.0f}</span><span class="ss">, "</span></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"β̂ = </span><span class="sc">{</span>beta[i_star]<span class="sc">:.3f}</span><span class="ss">, "</span></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"γ̂ = </span><span class="sc">{</span>gamma[i_star]<span class="sc">:.3f}</span><span class="ss">, "</span></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"Î(0) = </span><span class="sc">{</span>i0_[i_star]<span class="sc">:.2f}</span><span class="ss">, "</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"ll = </span><span class="sc">{</span>ll_max<span class="sc">:.2f}</span><span class="ss">, "</span></span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"implied R₀ = </span><span class="sc">{</span>beta[i_star]<span class="op">/</span>gamma[i_star]<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Wilks 95 % CI on R(0): [</span><span class="sc">{</span>r95_lo<span class="sc">:.0f}</span><span class="ss">, </span><span class="sc">{</span>r95_hi<span class="sc">:.0f}</span><span class="ss">]  "</span></span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"(</span><span class="sc">{</span><span class="bu">len</span>(within95)<span class="sc">}</span><span class="ss">/</span><span class="sc">{</span><span class="bu">len</span>(R0_init)<span class="sc">}</span><span class="ss"> cells)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Profile max:  R(0) = 0, β̂ = 1.992, γ̂ = 0.579, Î(0) = 4.44, ll = -59.69, implied R₀ = 3.44
+Wilks 95 % CI on R(0): [0, 60]  (5/18 cells)</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div id="fig-profile-r-init" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-profile-r-init-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="identifiability_files/figure-html/fig-profile-r-init-output-2.png" width="1054" height="1275" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-profile-r-init-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.4: 1D profile log-likelihood over <span class="math inline">\(R(0)\)</span> (the <em>initial recovered count</em>, model parameter <code>R_init</code>) with <span class="math inline">\(\beta, \gamma, I(0)\)</span> all IF2-optimised at each cell (4000 particles × 150 iterations × 5 starts per cell). <strong>Top:</strong> profile log-lik (red star = max). Dashed lines = Wilks 1D thresholds (1.92 = 95%, 4.61 = 99%, 9.21 = 99.9%) below the profile maximum. <strong>Below:</strong> the conditional MLEs <span class="math inline">\(\hat\beta, \hat\gamma, \hat I(0)\)</span> at each <span class="math inline">\(R(0)\)</span> — what the optimiser had to set them to to fit each cell. The profile is <strong>flat across <span class="math inline">\(R(0) \in [0, 150]\)</span></strong> and then declines steadily: 9 of 18 cells sit inside the 95 % CI. The data does not pin <span class="math inline">\(R(0)\)</span> once the dynamical parameters and <span class="math inline">\(I(0)\)</span> are free. β̂ climbs from ~1.9 to ~4.1 along the profile while γ̂ drifts down from ~0.63 to ~0.55 — the (β–R(0)) trade-off identified in the 2D profile re-appears as a 1D-conditional finding.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Reading.</strong> The profile is <strong>flat across <span class="math inline">\(R(0) \in [0, 150]\)</span></strong> and then declines roughly linearly. The Wilks 95 % CI on <span class="math inline">\(R(0)\)</span> runs from 0 to ≈150 — that’s still up to ~20 % of the school declared a priori as plausibly recovered, with the data unable to choose. At the profile maximum (<span class="math inline">\(R(0) = 0\)</span>) the conditional MLE has <span class="math inline">\(\hat\beta \approx 1.87\)</span>, <span class="math inline">\(\hat\gamma \approx 0.63\)</span> giving an implied <span class="math inline">\(R_0 \approx 3.0\)</span>; at the upper edge of the 95 % CI (<span class="math inline">\(R(0) = 150\)</span>) it has climbed to <span class="math inline">\(R_0
+\approx 4.2\)</span>, and out at <span class="math inline">\(R(0) = 380\)</span> — where the data finally objects (Δll ≈ 13) — the implied <span class="math inline">\(R_0\)</span> reaches ≈7.4, mirroring the 2D ridge.</p>
+<p>The conditional-MLE panels make the trade-off concrete: as <span class="math inline">\(R(0)\)</span> rises, the optimiser pushes <span class="math inline">\(\hat\beta\)</span> up (steeper transmission to compensate for shrinking susceptible pool) and <span class="math inline">\(\hat\gamma\)</span> down (longer infectious period). <span class="math inline">\(\hat I(0)\)</span> stays near 3–4 across the entire well-fitting range — the <em>initial bedridden count</em> is modestly identified, but the <em>initial recovered count</em> is not.</p>
+<p>This is the chapter’s central negative finding: <strong>the data identifies neither <span class="math inline">\(R(0)\)</span> on its own, nor the (β, γ, I(0), R(0)) parameters jointly, nor the implied <span class="math inline">\(R_0 = \hat\beta / \hat\gamma\)</span> as a derived summary</strong>. The likelihood alone is not enough.</p>
+</section>
+</section>
+<section id="reflections" class="level2">
+<h2 class="anchored" data-anchor-id="reflections">Reflections</h2>
+<p>Two lessons this chapter aims to teach:</p>
+<ol type="1">
+<li><p><strong>Model adequacy ≠ parameter identification.</strong> The previous chapter’s fixed-IC fit passed both legs of the compound gate <em>and</em> produced a calibrated posterior-predictive envelope — it is an adequate model. But “adequate at <span class="math inline">\(I(0) = 3, R(0) = 0\)</span>” is silent on whether the data <em>picks</em> those values. Letting the silently-fixed parameters go free exposes a ridge that the fixed choice hid: many <span class="math inline">\((I(0), R(0))\)</span> pairs fit about as well, and they imply materially different <span class="math inline">\(R_0\)</span>. A passing gate and a clean PPC are necessary, not sufficient, for trusting a derived summary like <span class="math inline">\(R_0\)</span>.</p></li>
+<li><p><strong>Profile likelihoods rescue identification when joint IF2 fails.</strong> Same lesson as in <a href="model_comparison.qmd">model_comparison.qmd</a> — when the joint surface is ridged, sweep the sloppy direction and read off the conditional maximum + Wilks CI per cell. The ridge geometry itself is a finding worth reporting: showing that <span class="math inline">\(R_0 = \hat\beta/\hat\gamma\)</span> swings ~40 % across the flat (Wilks-95 %) part of the ridge — and far more if you follow the ridge out to where the data finally objects — is a stronger statement than “the fit is uncertain.”</p></li>
+</ol>
+<p>What the data alone cannot do — pin down which point on the ridge is the right one — falls to either <em>more data</em> (a second outbreak, a seroprevalence measurement, a different observation modality) or <em>external information formalised as a prior</em>. Both directions are their own chapters; this one’s job is to show that the ridge is real, geometric, and consequential.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../guide/fitting/likelihood.html" class="pagination-link" aria-label="Likelihood Fitting">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Likelihood Fitting</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../inference/likelihood.html" class="pagination-link" aria-label="Likelihood and the Particle Filter">
+        <span class="nav-page-text"><span class="chapter-title">Likelihood and the Particle Filter</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Vince Buffalo. Supported by the Institute for Disease Modeling, Bill &amp; Melinda Gates Foundation.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/fitting/identifiability.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>License: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p>
+</div>
+  </div>
+</footer>
+<script src="cli-copy.js"></script>
+
+
+
+
+</body></html>
