@@ -186,9 +186,9 @@ plt.show()
 
 ## Bursts and superspreaders: what a tree can and can't see
 
-This section is the chapter's central lesson: two models that both make the
-epidemic *burstier* — but only one of which leaves a mark on the genealogy. It
-turns on exactly where the extra variability lives.
+The two models below both make the epidemic *burstier* — but only one of them
+leaves a mark on the genealogy. It turns on exactly where the extra variability
+lives.
 
 A common modelling choice is **environmental (extra-demographic) noise** on the
 transmission rate — gamma white noise of intensity $\sigma_{se}$ multiplying the
@@ -447,7 +447,7 @@ shared-environment model, despite a far burstier epidemic curve, leaves no such
 mark. **A transmission tree is blind to *when* transmission is variable, and
 sharp-eyed about *who*.**
 
-## The centerpiece: who you sequence shapes what you see
+## Who you sequence shapes what you see
 
 The genealogy you actually observe is filtered by **sampling** — which infected
 individuals get sequenced. camdl samples over *all* individuals (an infector can
@@ -570,9 +570,13 @@ figure. **Lineages-through-time** counts the sampled tree's ancestral lineages
 at each moment, and its early near-exponential rise tracks the epidemic growth
 rate. Push that one step further and you get a **skyline**: in each interval
 between coalescent events, $\Delta t \cdot \binom{A}{2}$ estimates a coalescent
-$N_e$ that — because the SIR pairwise coalescent rate is
-$\lambda = 2\beta S/(NI) \propto 1/I$ — is proportional to **prevalence**. So the
-tree alone can reconstruct the prevalence trajectory. Let us check it against the
+$N_e$. For an SIR genealogy the pairwise coalescent rate is
+$\lambda = 2f/I^2 = 2\beta S/(NI)$, where $f = \beta SI/N$ is incidence and $I$
+is prevalence, so $N_e \propto I^2/f$. During exponential growth $S \approx N$
+and that collapses to $N_e \propto I$ — **prevalence** (not incidence, and not
+$I^2/f$ in general; the proportionality to prevalence is a growth-phase result,
+which is exactly the regime where the tree carries signal). So the tree alone
+can reconstruct the prevalence trajectory. Let us check it against the
 truth, on a cleanly single-introduction epidemic (so the whole epidemic is one
 tree):
 
