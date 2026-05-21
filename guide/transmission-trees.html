@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Transmission Trees – camdl</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../guide/fitting/likelihood.html" rel="next">
+<link href="../guide/integrator-step.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-f418161beb48e0141c760e455f12af2c.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-6667564092b74b448163e6ade2e1f3b4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-c8430341214b22b81b300d69ff936483.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-6667564092b74b448163e6ade2e1f3b4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<meta name="quarto:status" content="draft">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><div id="quarto-draft-alert" class="alert alert-warning"><i class="bi bi-pencil-square"></i>Draft</div>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/transmission-trees.html"><span class="chapter-title">Transmission Trees</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">camdl</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/vsbuffalo/camdl-book" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What is camdl?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Getting Started</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/getting-started.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building an SIR Model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/experiments.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Uncertainty, Priors, and Simulation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/scenarios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scenarios, Interventions, and Sweeps</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/dimensions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Dimensions and Stratification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/integrator-step.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Integrator Step</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/fitting/likelihood.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Likelihood Fitting</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guide/fitting/identifiability.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Identifiability</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Inference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/likelihood.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Likelihood and the Particle Filter</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../inference/algorithms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Algorithms: IF2, PGAS, and PMMH</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Reference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Language Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../language/data-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Model</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/features.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">User Features</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/inference-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/ir-spec.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">IR Specification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/runtimes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simulation Backends</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/design.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Design Philosophy</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#counts-fix-the-epidemic-identity-is-a-second-draw" id="toc-counts-fix-the-epidemic-identity-is-a-second-draw" class="nav-link active" data-scroll-target="#counts-fix-the-epidemic-identity-is-a-second-draw">Counts fix the epidemic; identity is a second draw</a></li>
+  <li><a href="#the-pipeline-end-to-end" id="toc-the-pipeline-end-to-end" class="nav-link" data-scroll-target="#the-pipeline-end-to-end">The pipeline, end to end</a></li>
+  <li><a href="#bursts-and-superspreaders-what-a-tree-can-and-cant-see" id="toc-bursts-and-superspreaders-what-a-tree-can-and-cant-see" class="nav-link" data-scroll-target="#bursts-and-superspreaders-what-a-tree-can-and-cant-see">Bursts and superspreaders: what a tree can and can’t see</a>
+  <ul class="collapse">
+  <li><a href="#a-burst-in-the-counts-is-not-a-star-in-the-tree" id="toc-a-burst-in-the-counts-is-not-a-star-in-the-tree" class="nav-link" data-scroll-target="#a-burst-in-the-counts-is-not-a-star-in-the-tree">A burst in the counts is not a star in the tree</a></li>
+  <li><a href="#why-the-tree-is-blind-an-information-argument" id="toc-why-the-tree-is-blind-an-information-argument" class="nav-link" data-scroll-target="#why-the-tree-is-blind-an-information-argument">Why the tree is blind: an information argument</a></li>
+  <li><a href="#putting-the-heterogeneity-on-individuals" id="toc-putting-the-heterogeneity-on-individuals" class="nav-link" data-scroll-target="#putting-the-heterogeneity-on-individuals">Putting the heterogeneity on individuals</a></li>
+  </ul></li>
+  <li><a href="#the-centerpiece-who-you-sequence-shapes-what-you-see" id="toc-the-centerpiece-who-you-sequence-shapes-what-you-see" class="nav-link" data-scroll-target="#the-centerpiece-who-you-sequence-shapes-what-you-see">The centerpiece: who you sequence shapes what you see</a></li>
+  <li><a href="#tree-statistics-through-an-epidemiological-lens" id="toc-tree-statistics-through-an-epidemiological-lens" class="nav-link" data-scroll-target="#tree-statistics-through-an-epidemiological-lens">Tree statistics through an epidemiological lens</a></li>
+  <li><a href="#what-this-is-and-isnt" id="toc-what-this-is-and-isnt" class="nav-link" data-scroll-target="#what-this-is-and-isnt">What this is — and isn’t</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/transmission-trees.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guide/getting-started.html">Getting Started</a></li><li class="breadcrumb-item"><a href="../guide/transmission-trees.html"><span class="chapter-title">Transmission Trees</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Transmission Trees</span></h1>
+<p class="subtitle lead">Attaching individual identity to a compartmental epidemic — and why the genealogy is a sample, not a readout</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>A compartmental simulation tells you <em>how many</em> individuals are in each state through time — <code>S(t)</code>, <code>I(t)</code>, <code>R(t)</code>. It does <strong>not</strong> tell you <em>who infected whom</em>. That genealogy — the transmission tree — is the object phylodynamics works with: it is what you reconstruct from pathogen sequences, and what methods like the structured coalescent try to fit. To <strong>validate</strong> such a method you need synthetic data with a <em>known</em> true tree, which means a simulator that can attach individual identity to a compartmental run.</p>
+<p>camdl’s lineage layer does this. The essential idea, and the reason it is worth a chapter rather than a flag, is that <strong>the tree is not a deterministic readout of the epidemic</strong> — one epidemic defines a <em>distribution</em> over genealogies.</p>
+<section id="counts-fix-the-epidemic-identity-is-a-second-draw" class="level2">
+<h2 class="anchored" data-anchor-id="counts-fix-the-epidemic-identity-is-a-second-draw">Counts fix the epidemic; identity is a second draw</h2>
+<p>The augmented process factorises:</p>
+<p><span class="math display">\[
+P(\text{augmented trajectory}) \;=\; \underbrace{P(\text{count trajectory})}_{\text{the epidemic}} \;\times\; \underbrace{P(\text{identity} \mid \text{counts})}_{\text{the genealogy}}.
+\]</span></p>
+<p>The compartmental backend draws the first factor: it fixes the ordered event sequence (a transmission fired at <span class="math inline">\(t_1\)</span>, a recovery at <span class="math inline">\(t_2\)</span>, …). It does <em>not</em> fix the second — given that an infection happened at <span class="math inline">\(t_1\)</span>, <em>which</em> infectious individual was the parent is a separate stochastic choice, and many attributions are equally consistent with the same counts. So camdl separates three independently cacheable layers:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Layer</th>
+<th>Command</th>
+<th>Produces</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>1. Event log</strong></td>
+<td><code>simulate --event-log</code></td>
+<td>the epidemic: ordered events, identity-free</td>
+</tr>
+<tr class="even">
+<td><strong>2. Line list</strong></td>
+<td><code>lineage realize --identity-seed</code></td>
+<td>one genealogy realisation + its exact log-probability</td>
+</tr>
+<tr class="odd">
+<td><strong>3. Tree</strong></td>
+<td><code>lineage tree --scheme --sample-seed</code></td>
+<td>a sampled, pruned, Newick transmission tree</td>
+</tr>
+</tbody>
+</table>
+<p>One expensive epidemic → many cheap identity realisations → many cheap sampled trees. Three seeds, three cache keys: <code>--seed</code> (dynamics), <code>--identity-seed</code> (genealogy), <code>--sample-seed</code> (observation). Changing the identity seed or sampling scheme never re-runs the epidemic.</p>
+<p>A transition becomes a parent→child event by marking it <code>#[lineage]</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">#[lineage]</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">infection </span>: S <span class="op">--&gt;</span> I  <span class="op">@</span> beta * S * I / N</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recovery  </span>: I <span class="op">--&gt;</span> R  <span class="op">@</span> gamma * I</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Enabling lineage tracking never changes the count dynamics — a <code>--event-log</code> run is byte-identical to a plain run at the same seed.</p>
+</section>
+<section id="the-pipeline-end-to-end" class="level2">
+<h2 class="anchored" data-anchor-id="the-pipeline-end-to-end">The pipeline, end to end</h2>
+<p>We start with a plain single-population SIR (<code>R₀ = β/γ = 3</code>), simulated with the <strong>exact Gillespie</strong> backend so the genealogy carries no sub-step approximation.</p>
+<div id="cell-layer1-sim" class="cell" data-execution_count="2">
+<div id="layer1-sim" class="cell-output cell-output-display" data-execution_count="2">
+<details class="cli-run"><summary><code>$ $ camdl simulate sir_lineage.camdl --params sir.toml --seed 42 --backend gillespie --event-log epi.parquet</code></summary><pre class="ansi-output"><code># camdl 0.1.0+dc225cb (2026-05-20)
+t   S   I   R   flow_infection  flow_recovery
+0   1992    8   0   0   0
+1   1987    10  3   5   3
+2   1968    26  6   19  3
+3   1954    33  13  14  7
+4   1940    42  18  14  5
+5   1908    58  34  32  16
+6   1877    77  46  31  12
+7   1805    133 62  72  16
+8   1726    186 88  79  26
+9   1622    250 128 104 40
+10  1491    335 174 131 46
+11  1314    432 254 177 80
+12  1139    505 356 175 102
+13  972 575 453 167 97
+14  818 617 565 154 112
+15  659 645 696 159 131
+16  553 626 821 106 125
+17  459 576 965 94  144
+18  386 549 1065    73  100
+19  325 519 1156    61  91
+20  279 457 1264    46  108
+21  240 400 1360    39  96
+22  211 344 1445    29  85
+23  197 300 1503    14  58
+24  178 249 1573    19  70
+25  167 215 1618    11  45
+26  158 189 1653    9   35
+27  151 159 1690    7   37
+28  140 147 1713    11  23
+29  138 134 1728    2   15
+30  128 120 1752    10  24
+31  127 100 1773    1   21
+32  125 86  1789    2   16
+33  124 75  1801    1   12
+34  117 68  1815    7   14
+35  114 62  1824    3   9
+36  111 56  1833    3   9
+37  110 48  1842    1   9
+38  109 41  1850    1   8
+39  109 35  1856    0   6
+40  108 29  1863    1   7
+41  108 23  1869    0   6
+42  108 19  1873    0   4
+43  107 15  1878    1   5
+44  106 15  1879    1   1
+45  106 15  1879    0   0
+46  105 12  1883    1   4
+47  104 13  1883    1   0
+48  104 10  1886    0   3
+49  104 9   1887    0   1
+50  103 9   1888    1   1
+51  103 6   1891    0   3
+52  103 3   1894    0   3
+53  103 2   1895    0   1
+54  103 1   1896    0   1
+55  103 1   1896    0   0
+56  103 1   1896    0   0
+57  103 0   1897    0   1
+58  103 0   1897    0   0
+59  103 0   1897    0   0
+60  103 0   1897    0   0
+61  103 0   1897    0   0
+62  103 0   1897    0   0
+63  103 0   1897    0   0
+64  103 0   1897    0   0
+65  103 0   1897    0   0
+66  103 0   1897    0   0
+67  103 0   1897    0   0
+68  103 0   1897    0   0
+69  103 0   1897    0   0
+70  103 0   1897    0   0
+71  103 0   1897    0   0
+72  103 0   1897    0   0
+73  103 0   1897    0   0
+74  103 0   1897    0   0
+75  103 0   1897    0   0
+76  103 0   1897    0   0
+77  103 0   1897    0   0
+78  103 0   1897    0   0
+  [...79 lines omitted...]
+75  103 0   1897    0   0
+76  103 0   1897    0   0
+77  103 0   1897    0   0
+78  103 0   1897    0   0
+79  103 0   1897    0   0
+80  103 0   1897    0   0
+<span style="opacity:0.7">event log: wrote 3786 events (1889 lineage) to transmission-trees/results/epi.parquet (parquet); exact (Gillespie)
+  next: camdl lineage realize transmission-trees/results/epi.parquet --identity-seed &lt;N&gt; -o line_list.parquet</span></code></pre></details>
+</div>
+</div>
+<p>The <strong>event log</strong> is identity-free: per event it stores the time, the transition, and — at <code>#[lineage]</code> events — the evaluated per-pool infector masses. It is self-contained; replay needs only the log. <strong>Realising</strong> it under an identity seed samples a concrete parent for every transmission and reports the exact log-probability of that attribution:</p>
+<div id="cell-layer2-realize" class="cell" data-execution_count="3">
+<div id="layer2-realize" class="cell-output cell-output-display" data-execution_count="3">
+<details class="cli-run"><summary><code>$ $ camdl lineage realize epi.parquet --identity-seed 7 -o line_list.parquet</code></summary><pre class="ansi-output"><code><span style="opacity:0.7">lineage realize: wrote line list to transmission-trees/results/line_list.parquet (parquet); identity-seed 7, 1889 edges, log P(line list | event log) = -22025.186546
+  sub-dt bias: 0.000 (exact — Gillespie event log)</span></code></pre></details>
+</div>
+</div>
+<p>That log-probability, <span class="math inline">\(\log P(\text{line list}\mid\text{event log}) = \sum_{\text{events}} \log P(\text{attribution})\)</span>, is the <strong>only</strong> clean exact likelihood the architecture provides. There is no cheap full-tree likelihood: recovery attributions are not independent of the tree, so any tree likelihood needs a combinatorial marginalisation — which is exactly what structured-coalescent methods approximate.</p>
+<p>Finally, <strong>project</strong> the line list to a sampled Newick tree. Because the seed infectives (<span class="math inline">\(I_0 = 8\)</span>) each found their own lineage, the result is in general a <strong>forest</strong> — one tree per independent introduction:</p>
+<div id="cell-layer3-tree" class="cell" data-execution_count="4">
+<div id="layer3-tree" class="cell-output cell-output-display" data-execution_count="4">
+<details class="cli-run"><summary><code>$ $ camdl lineage tree line_list.parquet --scheme flat:0.5 --sample-seed 3 -o tree.nwk</code></summary><pre class="ansi-output"><code><span style="opacity:0.7">lineage tree: 1897 candidate individuals, 930 sampled tips, 5 tree(s)</span></code></pre></details>
+</div>
+</div>
+<div id="cell-fig-single-tree" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>forest <span class="op">=</span> parse_newick(Path(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/tree.nwk"</span>).read_text())</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>forest.sort(key<span class="op">=</span><span class="kw">lambda</span> r: r.n_tips(), reverse<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>plot_forest(forest, ax, max_components<span class="op">=</span><span class="dv">6</span>, linewidth<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(forest)<span class="sc">}</span><span class="ss"> forest components; "</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>             <span class="ss">f"</span><span class="sc">{</span><span class="bu">sum</span>(r.n_tips() <span class="cf">for</span> r <span class="kw">in</span> forest)<span class="sc">}</span><span class="ss"> sampled tips"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-single-tree" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-single-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="transmission-trees_files/figure-html/fig-single-tree-output-1.png" width="1185" height="737" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-single-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.1: One realised transmission forest from the SIR epidemic (50% flat sampling, Gillespie — exact). Each connected component descends from a distinct seed infective; branch lengths are calibrated in days, tips placed at sampling (removal) time. The largest few components are shown.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="bursts-and-superspreaders-what-a-tree-can-and-cant-see" class="level2">
+<h2 class="anchored" data-anchor-id="bursts-and-superspreaders-what-a-tree-can-and-cant-see">Bursts and superspreaders: what a tree can and can’t see</h2>
+<p>This section is the chapter’s central lesson: two models that both make the epidemic <em>burstier</em> — but only one of which leaves a mark on the genealogy. It turns on exactly where the extra variability lives.</p>
+<p>A common modelling choice is <strong>environmental (extra-demographic) noise</strong> on the transmission rate — gamma white noise of intensity <span class="math inline">\(\sigma_{se}\)</span> multiplying the force of infection, following He, Ionides &amp; King (2010, <em>J. R. Soc. Interface</em> <strong>7</strong>:271–283). The two models below are identical except that the second wraps the infection rate in <code>overdispersed(·, sigma_se)</code>:</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sir_lineage.camdl — plain</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#[lineage]</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>infection : S <span class="op">--&gt;</span> I</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">@</span> beta * S * I / N</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sir_lineage_od.camdl — overdispersed</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#[lineage]</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>infection : S <span class="op">--&gt;</span> I</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">@</span> <span class="bu">overdispersed</span>(beta * S * I / N, sigma_se)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<p>The noise wrapper is <strong>transparent to attribution</strong> — the classifier extracts the same linear weight <span class="math inline">\(\beta S/N\)</span> — so the genealogy is still well-defined. But <code>overdispersed()</code> requires the <strong>chain-binomial</strong> (or tau-leap) backend; the exact Gillespie scheme cannot inject environmental noise. Chain-binomial trees are <em>approximate</em>: they batch events per <code>dt</code> step and <strong>lose parent→child edges shorter than <code>dt</code></strong>, and <code>realize</code> reports that loss fraction. So we run <strong>both</strong> models on chain-binomial at the same small <code>dt = 0.05</code> — the sub-<code>dt</code> bias is then common to both and the comparison isolates the noise.</p>
+<p>You might expect that adding noise to the transmission rate would create <strong>superspreading</strong> — a few individuals throwing off many secondary cases, the heavy-tailed offspring distribution measured by the dispersion parameter <span class="math inline">\(k\)</span> (negative binomial; Lloyd-Smith, Schreiber, Kopp &amp; Getz, 2005, <em>Nature</em> <strong>438</strong>:355–359, where <span class="math inline">\(k&lt;1\)</span> signals a minority of cases driving most transmission). It does not — and the reason is structural. The environmental noise <span class="math inline">\(\xi(t)\)</span> is a <em>shared</em> multiplier on the whole population’s force of infection, so in the parent-attribution probability for any infection event,</p>
+<p><span class="math display">\[
+P(\text{parent} = j) \;=\; \frac{w_j\, I_j}{\sum_b w_b\, I_b},
+\]</span></p>
+<p>the factor <span class="math inline">\(\xi(t)\)</span> appears in every term and <strong>cancels</strong>. Conditional on an infection occurring, <em>who</em> the parent is does not depend on the noise — so the genealogy’s shape should be statistically identical with and without it. Measuring across several genealogy realisations confirms it (<span class="math inline">\(k\)</span> over <strong>all</strong> infected individuals including the ~half who infect nobody; tree-shape indices on the largest sampled component):</p>
+<div id="tbl-genealogy-invariance" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="7">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-genealogy-invariance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7.1
+</figcaption>
+<div aria-describedby="tbl-genealogy-invariance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-stdout">
+<pre><code>shape: (2, 4)
+┌────────────────────────────┬─────────────┬─────────────────────┬────────────────┐
+│ model                      ┆ offspring k ┆ Sackin (mean depth) ┆ Colless (norm) │
+│ ---                        ┆ ---         ┆ ---                 ┆ ---            │
+│ str                        ┆ str         ┆ str                 ┆ str            │
+╞════════════════════════════╪═════════════╪═════════════════════╪════════════════╡
+│ plain (σ_se = 0)           ┆ 0.99 ± 0.04 ┆ 7.51 ± 1.11         ┆ 0.018 ± 0.003  │
+│ overdispersed (σ_se = 1.5) ┆ 0.94 ± 0.11 ┆ 7.80 ± 0.81         ┆ 0.027 ± 0.008  │
+└────────────────────────────┴─────────────┴─────────────────────┴────────────────┘
+
+sub-dt edge loss (chain-binomial, dt=0.05): plain 0.021, overdispersed 0.098</code></pre>
+</div>
+</div>
+</figure>
+</div>
+<p>Every genealogical statistic overlaps within its across-realisation spread: the transmission tree is essentially <strong>blind</strong> to environmental overdispersion. The noisy model shows a slightly wider, slightly lower <span class="math inline">\(k\)</span> — a second-order effect, because an individual whose infectious window happens to overlap a burst accumulates a few more offspring — but there is no systematic shift into the superspreading regime, and the topology indices do not move at all. <strong>If you want individual superspreading in a tree you need individual-level heterogeneity (a contact network, an individual-rate model), not a shared rate multiplier.</strong></p>
+<p>The noise has to go <em>somewhere</em> — and it goes into the <strong>count trajectory</strong>, not the genealogy. The same two runs produce visibly different incidence curves: the overdispersed run is far burstier, with sharper peaks and day-to-day swings the plain run never shows.</p>
+<div id="cell-fig-od-incidence" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> daily_incidence(tag):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    tr <span class="op">=</span> load_line_list(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/ll_</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">.parquet"</span>).<span class="bu">filter</span>(pl.col(<span class="st">"parent_kind"</span>) <span class="op">==</span> <span class="st">"individual"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    inc <span class="op">=</span> tr.with_columns(pl.col(<span class="st">"time"</span>).floor().alias(<span class="st">"d"</span>)).group_by(<span class="st">"d"</span>).<span class="bu">len</span>().sort(<span class="st">"d"</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> inc[<span class="st">"d"</span>].to_numpy(), inc[<span class="st">"len"</span>].to_numpy()</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>, <span class="fl">3.6</span>))</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> tag, col <span class="kw">in</span> [(<span class="st">"plain"</span>, <span class="st">"#3366cc"</span>), (<span class="st">"od"</span>, <span class="st">"#d62728"</span>)]:</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    d, c <span class="op">=</span> daily_incidence(tag)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    ax.plot(d, c, color<span class="op">=</span>col, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span>{<span class="st">"plain"</span>: <span class="st">"plain (σ_se = 0)"</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">"od"</span>: <span class="st">"overdispersed (σ_se = 1.5)"</span>}[tag])</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"time (days)"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"daily infections"</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>ax.legend(loc<span class="op">=</span><span class="st">"center left"</span>, bbox_to_anchor<span class="op">=</span>(<span class="fl">1.02</span>, <span class="fl">0.5</span>), frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-od-incidence" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-od-incidence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="transmission-trees_files/figure-html/fig-od-incidence-output-1.png" width="1104" height="527" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-od-incidence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.2: Daily incidence from the two runs (chain-binomial, dt = 0.05, same dynamics seed). Environmental overdispersion lives here — in the variability of the count trajectory — not in the transmission tree. <code>overdispersed()</code> is the right tool for fitting noisy incidence time series (its purpose in He et al.); it is the wrong tool for generating heavy-tailed individual offspring.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="a-burst-in-the-counts-is-not-a-star-in-the-tree" class="level3">
+<h3 class="anchored" data-anchor-id="a-burst-in-the-counts-is-not-a-star-in-the-tree">A burst in the counts is not a star in the tree</h3>
+<p>The overdispersed curve has a pronounced spike — a <em>burst</em> of infections in a narrow window. The instinct from outbreak investigation is to read a burst as a <strong>superspreader event</strong>: one infectious individual throwing off many secondary cases, which in a transmission tree is a <strong>star</strong> — a single node with a fan of children. Dissect the biggest burst, though, and that instinct fails:</p>
+<div id="tbl-burst" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="9">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-burst-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7.2
+</figcaption>
+<div aria-describedby="tbl-burst-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-stdout">
+<pre><code>overdispersed run — biggest single-day burst (day 19):
+  289 infections, traced to 222 distinct parents (1.30 each)
+  most attributed to any single individual: 4</code></pre>
+</div>
+</div>
+</figure>
+</div>
+<p>The burst traces back to nearly as many <em>distinct</em> parents as there are infections — barely more than one each, a handful at most from any individual. It is not a star. It is a <strong>horizontal band</strong> across the tree: when <span class="math inline">\(\xi(t)\)</span> spikes, the force of infection rises for <em>everyone at once</em>, so many ordinary infectives each transmit one extra time in the same window.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="A burst in the counts need not be a burst in the tree">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A burst in the counts need not be a burst in the tree
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>We reflexively equate a transmission burst with a superspreader — one node spraying out children, a star. But a <strong>shared-environment</strong> burst is the opposite shape: many separate lineages each gaining a tip at the same time, a horizontal band, not a star. The incidence time series cannot tell the two apart — both are a spike in daily cases. The genealogy can: a star concentrates parentage on one individual; a band spreads it across the whole infectious pool. This is exactly why fitting noisy incidence with <code>overdispersed()</code> is sound, yet reading <em>superspreading</em> off that same noise would be a mistake.</p>
+</div>
+</div>
+</section>
+<section id="why-the-tree-is-blind-an-information-argument" class="level3">
+<h3 class="anchored" data-anchor-id="why-the-tree-is-blind-an-information-argument">Why the tree is blind: an information argument</h3>
+<p>Make it precise. The genealogy is assembled entirely from the per-event attribution <span class="math inline">\(P(\text{parent}=j) = w_j I_j / \sum_b w_b I_b\)</span> — the <em>only</em> channel through which individual-level structure enters the tree. A shared multiplier <span class="math inline">\(\xi(t)\)</span> scales every <span class="math inline">\(w_j\)</span> identically and cancels, so it carries <strong>zero information</strong> about <em>which</em> individual is the parent: the mutual information between “a burst occurred” and “individual <span class="math inline">\(j\)</span> transmitted” is zero, and a zero-capacity channel cannot encode it. For heterogeneity to show up in the tree it must live in the weights <span class="math inline">\(w_j\)</span> themselves — it must be <strong>attached to individuals</strong>, so that conditioning on a transmission <em>concentrates</em> the attribution (low entropy) onto the high-<span class="math inline">\(w_j\)</span> individuals. Shared-in-time variation has no capacity through this channel; individual variation has full capacity.</p>
+</section>
+<section id="putting-the-heterogeneity-on-individuals" class="level3">
+<h3 class="anchored" data-anchor-id="putting-the-heterogeneity-on-individuals">Putting the heterogeneity on individuals</h3>
+<p>So move the dispersion from the environment to the individual. A fraction <span class="math inline">\(p_{hi}\)</span> of infections become <strong>superspreaders</strong> (compartment <code>I_hi</code>) with transmission weight <span class="math inline">\(c\)</span> times an ordinary case — the heterogeneity now lives in the per-individual weight, exactly where the information argument says it must:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="pp">let</span> force = beta * S * (I_lo + c * I_hi) / N      <span class="co"># I_hi carries weight c, I_lo weight 1</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#[lineage] infect_lo : S --&gt; I_lo @ force * (1 - p_hi)</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#[lineage] infect_hi : S --&gt; I_hi @ force * p_hi</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Now the genealogy lights up. The offspring distribution grows a heavy tail that the shared-environment run never did:</p>
+<div id="cell-fig-offspring" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> offs(tag):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    ll <span class="op">=</span> load_line_list(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/ll_</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">.parquet"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    tr, uni <span class="op">=</span> infected_universe(ll)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> offspring_counts(tr[<span class="st">"parent_id"</span>].to_list(), uni)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">3.8</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, tag, title, col <span class="kw">in</span> [(axes[<span class="dv">0</span>], <span class="st">"od"</span>, <span class="st">"shared-env overdispersion"</span>, <span class="st">"#3366cc"</span>),</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                            (axes[<span class="dv">1</span>], <span class="st">"ss"</span>, <span class="st">"individual heterogeneity"</span>, <span class="st">"#d62728"</span>)]:</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    o <span class="op">=</span> offs(tag)<span class="op">;</span> k <span class="op">=</span> dispersion_k(o)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    ax.hist(o, bins<span class="op">=</span><span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">int</span>(o.<span class="bu">max</span>()) <span class="op">+</span> <span class="dv">2</span>), color<span class="op">=</span>col)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    ax.set_yscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"secondary cases"</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"</span><span class="sc">{</span>title<span class="sc">}</span><span class="ch">\n</span><span class="ss">k = </span><span class="sc">{</span>k<span class="sc">:.2f}</span><span class="ss">, max = </span><span class="sc">{</span><span class="bu">int</span>(o.<span class="bu">max</span>())<span class="sc">}</span><span class="ss">"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"individuals (log scale)"</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-offspring" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-offspring-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="transmission-trees_files/figure-html/fig-offspring-output-1.png" width="1634" height="558" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-offspring-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.3: Offspring distributions — secondary cases per infected individual, over all infected (including the non-transmitters), counts log-scaled. Shared-environment overdispersion (left) stays near-Poisson, k ≈ 1, indistinguishable from no noise. Individual heterogeneity (right) is heavy-tailed: a few superspreaders with dozens of offspring drag k far below 1.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="cell-fig-ss-trees" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> max_outdeg(n):</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">max</span>([<span class="bu">len</span>(n.children)] <span class="op">+</span> [max_outdeg(c) <span class="cf">for</span> c <span class="kw">in</span> n.children]) <span class="cf">if</span> n.children <span class="cf">else</span> <span class="dv">0</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">5</span>))</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, tag, title <span class="kw">in</span> [(axes[<span class="dv">0</span>], <span class="st">"od"</span>, <span class="st">"shared-env overdispersion"</span>),</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                       (axes[<span class="dv">1</span>], <span class="st">"ss"</span>, <span class="st">"individual superspreaders"</span>)]:</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    camdl(<span class="st">"lineage"</span>, <span class="st">"tree"</span>, <span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/ll_</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">.parquet"</span>, <span class="st">"--scheme"</span>, <span class="st">"flat:0.5"</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>          <span class="st">"--sample-seed"</span>, <span class="st">"3"</span>, <span class="st">"-o"</span>, <span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/tree_</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">.nwk"</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    big <span class="op">=</span> <span class="bu">max</span>(parse_newick(Path(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/tree_</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">.nwk"</span>).read_text()), key<span class="op">=</span><span class="kw">lambda</span> r: r.n_tips())</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    plot_forest([big], ax, linewidth<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"</span><span class="sc">{</span>title<span class="sc">}</span><span class="ch">\n</span><span class="sc">{</span>big<span class="sc">.</span>n_tips()<span class="sc">}</span><span class="ss"> tips, max children of one node = </span><span class="sc">{</span>max_outdeg(big)<span class="sc">}</span><span class="ss">"</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>                 fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-ss-trees" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ss-trees-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="transmission-trees_files/figure-html/fig-ss-trees-output-1.png" width="1635" height="738" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ss-trees-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.4: Largest transmission tree: shared-environment overdispersion (left) vs individual superspreaders (right), sampled at flat 50%. The superspreader tree carries visible stars — single individuals with a fan of children (max out-degree annotated) — that the shared-environment tree lacks.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The superspreader model puts a heavy tail on the offspring distribution — a handful of individuals cause a large share of all transmission — and grows visible stars in the tree, <em>because</em> the heterogeneity is carried by the individual attribution weights, the one place the genealogy can see. The shared-environment model, despite a far burstier epidemic curve, leaves no such mark. <strong>A transmission tree is blind to <em>when</em> transmission is variable, and sharp-eyed about <em>who</em>.</strong></p>
+</section>
+</section>
+<section id="the-centerpiece-who-you-sequence-shapes-what-you-see" class="level2">
+<h2 class="anchored" data-anchor-id="the-centerpiece-who-you-sequence-shapes-what-you-see">The centerpiece: who you sequence shapes what you see</h2>
+<p>The genealogy you actually observe is filtered by <strong>sampling</strong> — which infected individuals get sequenced. camdl samples over <em>all</em> individuals (an infector can be a tip), at a per-deme rate. To see how decisive sampling is, we use a deliberately <strong>asymmetric two-patch SIR</strong>: patch <em>a</em> and patch <em>b</em> mix through an asymmetric contact matrix (<span class="math inline">\(C_{ba}=1.5 \gg C_{ab}=0.3\)</span>) and start with unequal infectious seeds. We simulate it once (Gillespie, exact), realise one genealogy, then project the <em>same</em> line list under two sampling regimes.</p>
+<p>First, the <strong>truth</strong>: where does transmission actually happen? From the line list’s <code>parent_deme → deme</code> flows:</p>
+<div id="tbl-flow" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="14">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-flow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7.3
+</figcaption>
+<div aria-describedby="tbl-flow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-stdout">
+<pre><code>shape: (4, 3)
+┌────────────────┬────────┬───────┐
+│ flow           ┆ events ┆ share │
+│ ---            ┆ ---    ┆ ---   │
+│ str            ┆ i64    ┆ str   │
+╞════════════════╪════════╪═══════╡
+│ within a (0→0) ┆ 2911   ┆ 49.1% │
+│ within b (1→1) ┆ 279    ┆ 4.7%  │
+│ a→b (0→1)      ┆ 1713   ┆ 28.9% │
+│ b→a (1→0)      ┆ 1022   ┆ 17.2% │
+└────────────────┴────────┴───────┘
+
+True case composition: deme 0 = 66.4%, deme 1 = 33.6%</code></pre>
+</div>
+</div>
+</figure>
+</div>
+<p>Transmission is <strong>not</strong> balanced — patch <em>a</em> is the dominant hub, originating the large majority of infections and accumulating about two-thirds of cases. Now compare what two sampling designs <em>recover</em> about that composition:</p>
+<div id="cell-fig-sampling-bars" class="cell" data-execution_count="15">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>id2deme <span class="op">=</span> <span class="bu">dict</span>(<span class="bu">zip</span>(ll2[<span class="st">"individual"</span>].to_list(), ll2[<span class="st">"deme"</span>].to_list()))</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tip_composition(nwk):</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    forest <span class="op">=</span> parse_newick(Path(nwk).read_text())</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    ids <span class="op">=</span> tip_ids(forest)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    d0 <span class="op">=</span> <span class="bu">sum</span>(<span class="dv">1</span> <span class="cf">for</span> i <span class="kw">in</span> ids <span class="cf">if</span> id2deme.get(i) <span class="op">==</span> <span class="dv">0</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">len</span>(ids), d0</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>labels, d0s, d1s <span class="op">=</span> [], [], []</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>labels.append(<span class="st">"TRUE</span><span class="ch">\n</span><span class="st">(all infections)"</span>)<span class="op">;</span> d0s.append(true0)<span class="op">;</span> d1s.append(tot<span class="op">-</span>true0)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> nwk, lab <span class="kw">in</span> [(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/uniform.nwk"</span>, <span class="st">"uniform</span><span class="ch">\n</span><span class="st">flat:0.3"</span>),</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>                 (<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/biased.nwk"</span>, <span class="st">"biased</span><span class="ch">\n</span><span class="st">0=0.4, 1=0.03"</span>)]:</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    n, d0 <span class="op">=</span> tip_composition(nwk)<span class="op">;</span> labels.append(lab)<span class="op">;</span> d0s.append(d0)<span class="op">;</span> d1s.append(n<span class="op">-</span>d0)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>d0s <span class="op">=</span> np.array(d0s, <span class="bu">float</span>)<span class="op">;</span> d1s <span class="op">=</span> np.array(d1s, <span class="bu">float</span>)<span class="op">;</span> tots <span class="op">=</span> d0s <span class="op">+</span> d1s</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">4</span>))</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>ax.bar(labels, <span class="dv">100</span><span class="op">*</span>d0s<span class="op">/</span>tots, color<span class="op">=</span>DEME_COLOR[<span class="dv">0</span>], label<span class="op">=</span><span class="st">"patch a (deme 0)"</span>)</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>ax.bar(labels, <span class="dv">100</span><span class="op">*</span>d1s<span class="op">/</span>tots, bottom<span class="op">=</span><span class="dv">100</span><span class="op">*</span>d0s<span class="op">/</span>tots, color<span class="op">=</span>DEME_COLOR[<span class="dv">1</span>], label<span class="op">=</span><span class="st">"patch b (deme 1)"</span>)</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, (a, t) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(d0s, tots)):</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    ax.text(i, <span class="dv">100</span><span class="op">*</span>a<span class="op">/</span>t <span class="op">-</span> <span class="dv">5</span>, <span class="ss">f"</span><span class="sc">{</span><span class="dv">100</span><span class="op">*</span>a<span class="op">/</span>t<span class="sc">:.0f}</span><span class="ss">%"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    ax.text(i, <span class="dv">100</span> <span class="op">-</span> <span class="dv">3</span>, <span class="ss">f"</span><span class="sc">{</span><span class="dv">100</span><span class="op">*</span>(t<span class="op">-</span>a)<span class="op">/</span>t<span class="sc">:.0f}</span><span class="ss">%"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"</span><span class="sc">% o</span><span class="st">f sampled tips"</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>, <span class="dv">100</span>)</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>ax.legend(loc<span class="op">=</span><span class="st">"center left"</span>, bbox_to_anchor<span class="op">=</span>(<span class="fl">1.02</span>, <span class="fl">0.5</span>), frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-sampling-bars" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sampling-bars-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="transmission-trees_files/figure-html/fig-sampling-bars-output-1.png" width="1032" height="587" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sampling-bars-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.5: Apparent deme composition of the sampled tips under uniform vs deme-0-heavy sampling, against the true infection composition. Uniform sampling recovers the truth; biased sampling collapses patch b from a real third of all transmission down to a few percent — making a major compartment look like a negligible sink.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="cell-fig-sampling-trees" class="cell" data-execution_count="16">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">7</span>))</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, nwk, title <span class="kw">in</span> [(axes[<span class="dv">0</span>], <span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/uniform.nwk"</span>, <span class="st">"uniform"</span>),</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                       (axes[<span class="dv">1</span>], <span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/biased.nwk"</span>, <span class="st">"biased (deme-0 heavy)"</span>)]:</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    forest <span class="op">=</span> parse_newick(Path(nwk).read_text())<span class="op">;</span> annotate_demes(forest, id2deme)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    forest.sort(key<span class="op">=</span><span class="kw">lambda</span> r: r.n_tips(), reverse<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    plot_forest(forest, ax, color_by_deme<span class="op">=</span><span class="va">True</span>, palette<span class="op">=</span>DEME_COLOR,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                max_components<span class="op">=</span><span class="dv">4</span>, linewidth<span class="op">=</span><span class="fl">0.4</span>, tip_size<span class="op">=</span><span class="dv">14</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-sampling-trees" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sampling-trees-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="transmission-trees_files/figure-html/fig-sampling-trees-output-1.png" width="1635" height="1037" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sampling-trees-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.6: The same epidemic, two sampling designs, tips coloured by patch (red = a, blue = b); the four largest forest components shown. Uniform sampling (left) preserves the true red/blue mixture; the deme-0-heavy design (right) yields an almost entirely red tree — read naively, patch b looks like a minor sink when it is in fact a third of all transmission.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>This is the motivation for modelling the sampling process in inference: the observed tree is a convolution of true transmission and observation effort, and you cannot read transmission structure off a tree without knowing who was sequenced.</p>
+</section>
+<section id="tree-statistics-through-an-epidemiological-lens" class="level2">
+<h2 class="anchored" data-anchor-id="tree-statistics-through-an-epidemiological-lens">Tree statistics through an epidemiological lens</h2>
+<p>Three families of summary statistic recur in phylodynamics. Computed here on the uniform-sampling forest above:</p>
+<div id="tbl-stats" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="17">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-stats-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7.4
+</figcaption>
+<div aria-describedby="tbl-stats-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-stdout">
+<pre><code>shape: (3, 3)
+┌─────────────────────────┬───────┬────────────────────────────────┐
+│ statistic               ┆ value ┆ captures                       │
+│ ---                     ┆ ---   ┆ ---                            │
+│ str                     ┆ f64   ┆ str                            │
+╞═════════════════════════╪═══════╪════════════════════════════════╡
+│ Sackin (mean tip depth) ┆ 6.14  ┆ tree imbalance / heterogeneity │
+│ Colless (normalised)    ┆ 0.017 ┆ tree imbalance                 │
+│ offspring dispersion k  ┆ 0.83  ┆ superspreading (epi headline)  │
+└─────────────────────────┴───────┴────────────────────────────────┘</code></pre>
+</div>
+</div>
+</figure>
+</div>
+<p>The first two are computed above; the third — the most useful — deserves its own figure. <strong>Lineages-through-time</strong> counts the sampled tree’s ancestral lineages at each moment, and its early near-exponential rise tracks the epidemic growth rate. Push that one step further and you get a <strong>skyline</strong>: in each interval between coalescent events, <span class="math inline">\(\Delta t \cdot \binom{A}{2}\)</span> estimates a coalescent <span class="math inline">\(N_e\)</span> that — because the SIR pairwise coalescent rate is <span class="math inline">\(\lambda = 2\beta S/(NI) \propto 1/I\)</span> — is proportional to <strong>prevalence</strong>. So the tree alone can reconstruct the prevalence trajectory. Let us check it against the truth, on a cleanly single-introduction epidemic (so the whole epidemic is one tree):</p>
+<div id="cell-fig-skyline" class="cell" data-execution_count="19">
+<details class="code-fold">
+<summary>show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> _lib.trees <span class="im">import</span> plot_tree_with_skyline, skyline_from_tree</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>traj <span class="op">=</span> pl.read_csv(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/single_traj.tsv"</span>, separator<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>, comment_prefix<span class="op">=</span><span class="st">"#"</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>big_s <span class="op">=</span> <span class="bu">max</span>(parse_newick(Path(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/single_tree.nwk"</span>).read_text()), key<span class="op">=</span><span class="kw">lambda</span> r: r.n_tips())</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>fig, (axt, axb) <span class="op">=</span> plot_tree_with_skyline(</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    big_s, traj[<span class="st">"t"</span>].to_numpy(), traj[<span class="st">"I"</span>].to_numpy(),</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>), window<span class="op">=</span><span class="dv">25</span>, linewidth<span class="op">=</span><span class="fl">0.35</span>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>st, _ <span class="op">=</span> skyline_from_tree(big_s, window<span class="op">=</span><span class="dv">25</span>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>axt.set_xlim(<span class="dv">0</span>, <span class="bu">float</span>(st.<span class="bu">max</span>()) <span class="op">+</span> <span class="dv">3</span>)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>axt.set_title(<span class="ss">f"single-introduction epidemic, </span><span class="sc">{</span>big_s<span class="sc">.</span>n_tips()<span class="sc">}</span><span class="ss"> sampled tips (30%)"</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-skyline" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-skyline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="transmission-trees_files/figure-html/fig-skyline-output-1.png" width="1186" height="913" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-skyline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.7: Top: the skyline reconstructed from the tree (rescaled, since the absolute level is sampling- and rate-dependent) against the true prevalence I(t) from the simulation. Bottom: the same tree, sharing the time axis. The skyline rises with prevalence through the growth phase as lineages accumulate, gets noisy near the peak (coalescences become rapid), and loses signal in the decline — by then the sampled lineages have already found their common ancestors. The genealogy is most informative about epidemic <em>growth</em>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>That figure is the chapter’s thesis in one frame: the transmission tree is a lens on the epidemic — it carries the growth trajectory, and through <span class="math inline">\(k\)</span> the superspreading structure — but only what the sampling lets through, and only where the coalescent had events to inform it. Of the three statistics, <strong>offspring dispersion <span class="math inline">\(k\)</span></strong> has the most direct epidemiological cargo: it is the superspreading parameter that governs whether targeted control beats blanket control, and it responds to mechanism. Sackin and Colless are shape descriptors useful for <em>comparing</em> trees, without a one-to-one epidemiological reading.</p>
+</section>
+<section id="what-this-is-and-isnt" class="level2">
+<h2 class="anchored" data-anchor-id="what-this-is-and-isnt">What this is — and isn’t</h2>
+<p>Be clear about the boundaries of the current feature:</p>
+<ul>
+<li>These are <strong>transmission trees</strong> (infection-time / sampling-time branch lengths), <strong>not viral phylogenies</strong> — there is no within-host coalescent and no sequence evolution.</li>
+<li>Stratified sampling keys on the <strong>integer deme index</strong> (<code>0</code>, <code>1</code>), not stratum names; a model-level <code>lineage { sampling }</code> block with named strata and rates-as-parameters is a future milestone.</li>
+<li>Only the <strong>line-list log-probability</strong> exists. There is no tree-likelihood scoring and no native tree inference yet — the architecture deliberately stops at synthetic-data generation, which is what validating a phylodynamic method needs.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../guide/integrator-step.html" class="pagination-link" aria-label="The Integrator Step">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">The Integrator Step</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../guide/fitting/likelihood.html" class="pagination-link" aria-label="Likelihood Fitting">
+        <span class="nav-page-text"><span class="chapter-title">Likelihood Fitting</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Vince Buffalo. Supported by the Institute for Disease Modeling, Bill &amp; Melinda Gates Foundation.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/transmission-trees.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>License: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p>
+</div>
+  </div>
+</footer>
+<script src="cli-copy.js"></script>
+
+
+
+
+</body></html>
