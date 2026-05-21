@@ -1,0 +1,42 @@
+# SIR where infectiousness is heterogeneous ACROSS INDIVIDUALS, not shared in
+# time. A fraction p_hi of infections become "superspreaders" (compartment I_hi)
+# with transmission weight c times that of an ordinary case (I_lo). The
+# #[lineage] classifier reads the per-pool weights straight off the rate, so an
+# I_hi individual is c times likelier to be drawn as a parent — and accumulates
+# a heavy-tailed number of offspring. This is the individual-level heterogeneity
+# that produces genuine superspreader trees, in contrast to the shared
+# environmental noise of sir_lineage_od.camdl (which the genealogy is blind to).
+time_unit = 'days
+
+compartments { S, I_lo, I_hi, R }
+
+parameters {
+  beta  : rate        in [0.001, 5.0]
+  gamma : rate        in [0.001, 1.0]
+  c     : positive    in [1.0, 100.0]   # infectivity multiplier for superspreaders
+  p_hi  : probability in [0.0, 1.0]      # fraction of infections that are superspreaders
+  N0    : count       in [100, 1000000]
+  I0    : count       in [1, 1000]
+}
+
+let N    = S + I_lo + I_hi + R
+let force = beta * S * (I_lo + c * I_hi) / N   # I_hi carries weight c; I_lo weight 1
+
+transitions {
+  #[lineage]
+  infect_lo : S --> I_lo  @ force * (1 - p_hi)
+  #[lineage]
+  infect_hi : S --> I_hi  @ force * p_hi
+  recover_lo : I_lo --> R @ gamma * I_lo
+  recover_hi : I_hi --> R @ gamma * I_hi
+}
+
+init {
+  S    = N0 - I0
+  I_lo = I0
+}
+
+simulate {
+  from = 0 'days
+  to   = 80 'days
+}

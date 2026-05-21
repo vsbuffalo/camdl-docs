@@ -1,0 +1,629 @@
+---
+title: "Transmission Trees"
+subtitle: "Attaching individual identity to a compartmental epidemic — and why the genealogy is a sample, not a readout"
+draft: true
+execute:
+  echo: true
+  warning: false
+code-fold: true
+code-summary: "show code"
+---
+
+```{python}
+#| label: setup
+#| echo: false
+#| output: false
+import sys, subprocess
+from pathlib import Path
+import polars as pl
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+GREY = "#555555"
+mpl.rcParams.update({
+    "figure.facecolor": "none", "axes.facecolor": "none", "savefig.facecolor": "none",
+    "figure.dpi": 150, "font.size": 10,
+    "text.color": GREY, "axes.labelcolor": GREY, "xtick.color": GREY,
+    "ytick.color": GREY, "axes.edgecolor": GREY, "legend.edgecolor": GREY,
+    "axes.spines.top": False, "axes.spines.right": False,
+})
+
+sys.path.insert(0, str(Path("/Users/vsb/projects/work/camdl-book")))
+from _lib.cli import run_cli
+from _lib.trees import (parse_newick, annotate_demes, plot_forest, tip_ids,
+                        sackin_index, colless_index, ltt,
+                        offspring_counts, dispersion_k)
+
+DIR = "transmission-trees"
+RES = f"{DIR}/results"
+Path(RES).mkdir(exist_ok=True)
+
+# Deme colour map, reused everywhere a tree or bar is coloured by patch.
+DEME_COLOR = {0: "#d62728", 1: "#1f77b4"}
+
+def camdl(*args):
+    """Run a camdl command from the chapter's working directory, raising with
+    captured stderr on failure so render fails loudly and legibly."""
+    r = subprocess.run(["camdl", *map(str, args)], capture_output=True, text=True)
+    if r.returncode != 0:
+        raise RuntimeError(f"camdl {' '.join(map(str,args))}\n{r.stderr}")
+    return r
+
+def load_line_list(path):
+    return pl.read_parquet(path)
+
+def infected_universe(ll):
+    """All individuals who were ever infected (children of a transmission, plus
+    any individual that appears as a parent)."""
+    tr = ll.filter(pl.col("parent_kind") == "individual")
+    ids = set(tr["individual"].to_list())
+    ids |= {int(p) for p in tr["parent_id"].to_list() if p is not None and p >= 0}
+    return tr, ids
+```
+
+A compartmental simulation tells you *how many* individuals are in each state
+through time — `S(t)`, `I(t)`, `R(t)`. It does **not** tell you *who infected
+whom*. That genealogy — the transmission tree — is the object phylodynamics
+works with: it is what you reconstruct from pathogen sequences, and what
+methods like the structured coalescent try to fit. To **validate** such a
+method you need synthetic data with a *known* true tree, which means a
+simulator that can attach individual identity to a compartmental run.
+
+camdl's lineage layer does this. The essential idea, and the reason it is worth
+a chapter rather than a flag, is that **the tree is not a deterministic readout
+of the epidemic** — one epidemic defines a *distribution* over genealogies.
+
+## Counts fix the epidemic; identity is a second draw
+
+The augmented process factorises:
+
+$$
+P(\text{augmented trajectory}) \;=\; \underbrace{P(\text{count trajectory})}_{\text{the epidemic}} \;\times\; \underbrace{P(\text{identity} \mid \text{counts})}_{\text{the genealogy}}.
+$$
+
+The compartmental backend draws the first factor: it fixes the ordered event
+sequence (a transmission fired at $t_1$, a recovery at $t_2$, …). It does *not*
+fix the second — given that an infection happened at $t_1$, *which* infectious
+individual was the parent is a separate stochastic choice, and many
+attributions are equally consistent with the same counts. So camdl separates
+three independently cacheable layers:
+
+| Layer | Command | Produces |
+|---|---|---|
+| **1. Event log** | `simulate --event-log` | the epidemic: ordered events, identity-free |
+| **2. Line list** | `lineage realize --identity-seed` | one genealogy realisation + its exact log-probability |
+| **3. Tree** | `lineage tree --scheme --sample-seed` | a sampled, pruned, Newick transmission tree |
+
+One expensive epidemic → many cheap identity realisations → many cheap sampled
+trees. Three seeds, three cache keys: `--seed` (dynamics), `--identity-seed`
+(genealogy), `--sample-seed` (observation). Changing the identity seed or
+sampling scheme never re-runs the epidemic.
+
+A transition becomes a parent→child event by marking it `#[lineage]`:
+
+```camdl
+transitions {
+  #[lineage]
+  infection : S --> I  @ beta * S * I / N
+  recovery  : I --> R  @ gamma * I
+}
+```
+
+Enabling lineage tracking never changes the count dynamics — a `--event-log`
+run is byte-identical to a plain run at the same seed.
+
+## The pipeline, end to end
+
+We start with a plain single-population SIR (`R₀ = β/γ = 3`), simulated with the
+**exact Gillespie** backend so the genealogy carries no sub-step approximation.
+
+```{python}
+#| label: layer1-sim
+#| echo: false
+#| code-fold: false
+run_cli(
+    f"camdl simulate {DIR}/models/sir_lineage.camdl --params {DIR}/sir.toml "
+    f"--seed 42 --backend gillespie --event-log {RES}/epi.parquet",
+    echo=("$ camdl simulate sir_lineage.camdl --params sir.toml "
+          "--seed 42 --backend gillespie --event-log epi.parquet"),
+    max_lines=4,
+)
+```
+
+The **event log** is identity-free: per event it stores the time, the
+transition, and — at `#[lineage]` events — the evaluated per-pool infector
+masses. It is self-contained; replay needs only the log. **Realising** it under
+an identity seed samples a concrete parent for every transmission and reports
+the exact log-probability of that attribution:
+
+```{python}
+#| label: layer2-realize
+#| echo: false
+#| code-fold: false
+run_cli(
+    f"camdl lineage realize {RES}/epi.parquet --identity-seed 7 -o {RES}/line_list.parquet",
+    echo="$ camdl lineage realize epi.parquet --identity-seed 7 -o line_list.parquet",
+    max_lines=4,
+)
+```
+
+That log-probability,
+$\log P(\text{line list}\mid\text{event log}) = \sum_{\text{events}} \log P(\text{attribution})$,
+is the **only** clean exact likelihood the architecture provides. There is no
+cheap full-tree likelihood: recovery attributions are not independent of the
+tree, so any tree likelihood needs a combinatorial marginalisation — which is
+exactly what structured-coalescent methods approximate.
+
+Finally, **project** the line list to a sampled Newick tree. Because the seed
+infectives ($I_0 = 8$) each found their own lineage, the result is in general a
+**forest** — one tree per independent introduction:
+
+```{python}
+#| label: layer3-tree
+#| echo: false
+#| code-fold: false
+run_cli(
+    f"camdl lineage tree {RES}/line_list.parquet --scheme flat:0.5 "
+    f"--sample-seed 3 -o {RES}/tree.nwk",
+    echo="$ camdl lineage tree line_list.parquet --scheme flat:0.5 --sample-seed 3 -o tree.nwk",
+    max_lines=3,
+)
+```
+
+```{python}
+#| label: fig-single-tree
+#| fig-cap: "One realised transmission forest from the SIR epidemic (50% flat sampling, Gillespie — exact). Each connected component descends from a distinct seed infective; branch lengths are calibrated in days, tips placed at sampling (removal) time. The largest few components are shown."
+forest = parse_newick(Path(f"{RES}/tree.nwk").read_text())
+forest.sort(key=lambda r: r.n_tips(), reverse=True)
+fig, ax = plt.subplots(figsize=(8, 5))
+plot_forest(forest, ax, max_components=6, linewidth=0.7)
+ax.set_title(f"{len(forest)} forest components; "
+             f"{sum(r.n_tips() for r in forest)} sampled tips", fontsize=10)
+fig.tight_layout()
+plt.show()
+```
+
+## Bursts and superspreaders: what a tree can and can't see
+
+This section is the chapter's central lesson: two models that both make the
+epidemic *burstier* — but only one of which leaves a mark on the genealogy. It
+turns on exactly where the extra variability lives.
+
+A common modelling choice is **environmental (extra-demographic) noise** on the
+transmission rate — gamma white noise of intensity $\sigma_{se}$ multiplying the
+force of infection, following He, Ionides & King (2010, *J. R. Soc. Interface*
+**7**:271–283). The two models below are identical except
+that the second wraps the infection rate in `overdispersed(·, sigma_se)`:
+
+::: {layout-ncol=2}
+```camdl
+# sir_lineage.camdl — plain
+#[lineage]
+infection : S --> I
+  @ beta * S * I / N
+```
+
+```camdl
+# sir_lineage_od.camdl — overdispersed
+#[lineage]
+infection : S --> I
+  @ overdispersed(beta * S * I / N, sigma_se)
+```
+:::
+
+The noise wrapper is **transparent to attribution** — the classifier extracts
+the same linear weight $\beta S/N$ — so the genealogy is still well-defined. But
+`overdispersed()` requires the **chain-binomial** (or tau-leap) backend; the
+exact Gillespie scheme cannot inject environmental noise. Chain-binomial trees
+are *approximate*: they batch events per `dt` step and **lose parent→child edges
+shorter than `dt`**, and `realize` reports that loss fraction. So we run **both**
+models on chain-binomial at the same small `dt = 0.05` — the sub-`dt` bias is
+then common to both and the comparison isolates the noise.
+
+```{python}
+#| label: od-generate
+#| echo: false
+#| output: false
+DT = "0.05"
+camdl("simulate", f"{DIR}/models/sir_lineage.camdl", "--params", f"{DIR}/sir.toml",
+      "--seed", "42", "--backend", "chain_binomial", "--dt", DT,
+      "--event-log", f"{RES}/epi_plain.parquet")
+camdl("simulate", f"{DIR}/models/sir_lineage_od.camdl", "--params", f"{DIR}/sir_od.toml",
+      "--seed", "42", "--backend", "chain_binomial", "--dt", DT,
+      "--event-log", f"{RES}/epi_od.parquet")
+bias = {}
+for tag in ("plain", "od"):
+    r = camdl("lineage", "realize", f"{RES}/epi_{tag}.parquet",
+              "--identity-seed", "7", "-o", f"{RES}/ll_{tag}.parquet")
+    import re
+    m = re.search(r"sub-dt bias:\s*([0-9.]+)", r.stderr)
+    bias[tag] = float(m.group(1)) if m else float("nan")
+```
+
+You might expect that adding noise to the transmission rate would create
+**superspreading** — a few individuals throwing off many secondary cases, the
+heavy-tailed offspring distribution measured by the dispersion parameter $k$
+(negative binomial; Lloyd-Smith, Schreiber, Kopp & Getz, 2005, *Nature*
+**438**:355–359, where $k<1$ signals a minority of cases driving most
+transmission). It does not — and the reason is structural. The environmental
+noise $\xi(t)$ is a *shared* multiplier on the whole population's force of
+infection, so in the parent-attribution probability for any infection event,
+
+$$
+P(\text{parent} = j) \;=\; \frac{w_j\, I_j}{\sum_b w_b\, I_b},
+$$
+
+the factor $\xi(t)$ appears in every term and **cancels**. Conditional on an
+infection occurring, *who* the parent is does not depend on the noise — so the
+genealogy's shape should be statistically identical with and without it.
+Measuring across several genealogy realisations confirms it ($k$ over **all**
+infected individuals including the ~half who infect nobody; tree-shape indices
+on the largest sampled component):
+
+```{python}
+#| label: tbl-genealogy-invariance
+#| echo: false
+import tempfile
+LABEL = {"plain": "plain (σ_se = 0)", "od": "overdispersed (σ_se = 1.5)"}
+def genealogy_stats(tag, seeds=range(1, 6)):
+    tmp = Path(tempfile.mkdtemp())
+    ks, sas, cos = [], [], []
+    for s in seeds:
+        ll_p, nwk = tmp / f"{tag}_{s}.parquet", tmp / f"{tag}_{s}.nwk"
+        camdl("lineage", "realize", f"{RES}/epi_{tag}.parquet",
+              "--identity-seed", str(s), "-o", str(ll_p))
+        ll = load_line_list(str(ll_p))
+        tr, uni = infected_universe(ll)
+        k = dispersion_k(offspring_counts(tr["parent_id"].to_list(), uni))
+        if np.isfinite(k):
+            ks.append(k)
+        camdl("lineage", "tree", str(ll_p), "--scheme", "flat:0.5",
+              "--sample-seed", "3", "-o", str(nwk))
+        big = max(parse_newick(nwk.read_text()), key=lambda r: r.n_tips())
+        sas.append(sackin_index(big, normalize=True))
+        cos.append(colless_index(big, normalize=True))
+    pm = lambda a, d: f"{np.mean(a):.{d}f} ± {np.std(a):.{d}f}"
+    return {"model": LABEL[tag], "offspring k": pm(ks, 2),
+            "Sackin (mean depth)": pm(sas, 2), "Colless (norm)": pm(cos, 3)}
+print(pl.DataFrame([genealogy_stats("plain"), genealogy_stats("od")]))
+print(f"\nsub-dt edge loss (chain-binomial, dt=0.05): "
+      f"plain {bias['plain']:.3f}, overdispersed {bias['od']:.3f}")
+```
+
+Every genealogical statistic overlaps within its across-realisation spread: the
+transmission tree is essentially **blind** to environmental overdispersion. The
+noisy model shows a slightly wider, slightly lower $k$ — a second-order effect,
+because an individual whose infectious window happens to overlap a burst
+accumulates a few more offspring — but there is no systematic shift into the
+superspreading regime, and the topology indices do not move at all. **If you
+want individual superspreading in a tree you need individual-level heterogeneity
+(a contact network, an individual-rate model), not a shared rate multiplier.**
+
+The noise has to go *somewhere* — and it goes into the **count trajectory**, not
+the genealogy. The same two runs produce visibly different incidence curves: the
+overdispersed run is far burstier, with sharper peaks and day-to-day swings the
+plain run never shows.
+
+```{python}
+#| label: fig-od-incidence
+#| fig-cap: "Daily incidence from the two runs (chain-binomial, dt = 0.05, same dynamics seed). Environmental overdispersion lives here — in the variability of the count trajectory — not in the transmission tree. `overdispersed()` is the right tool for fitting noisy incidence time series (its purpose in He et al.); it is the wrong tool for generating heavy-tailed individual offspring."
+def daily_incidence(tag):
+    tr = load_line_list(f"{RES}/ll_{tag}.parquet").filter(pl.col("parent_kind") == "individual")
+    inc = tr.with_columns(pl.col("time").floor().alias("d")).group_by("d").len().sort("d")
+    return inc["d"].to_numpy(), inc["len"].to_numpy()
+fig, ax = plt.subplots(figsize=(7.5, 3.6))
+for tag, col in [("plain", "#3366cc"), ("od", "#d62728")]:
+    d, c = daily_incidence(tag)
+    ax.plot(d, c, color=col, lw=1.5, label={"plain": "plain (σ_se = 0)",
+            "od": "overdispersed (σ_se = 1.5)"}[tag])
+ax.set_xlabel("time (days)"); ax.set_ylabel("daily infections")
+ax.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
+fig.tight_layout(); plt.show()
+```
+
+### A burst in the counts is not a star in the tree
+
+The overdispersed curve has a pronounced spike — a *burst* of infections in a
+narrow window. The instinct from outbreak investigation is to read a burst as a
+**superspreader event**: one infectious individual throwing off many secondary
+cases, which in a transmission tree is a **star** — a single node with a fan of
+children. Dissect the biggest burst, though, and that instinct fails:
+
+```{python}
+#| label: tbl-burst
+#| echo: false
+tr_od = load_line_list(f"{RES}/ll_od.parquet").filter(pl.col("parent_kind") == "individual")
+bday = (tr_od.with_columns(pl.col("time").floor().alias("d"))
+             .group_by("d").len().sort("len", descending=True)["d"][0])
+burst = tr_od.filter((pl.col("time") >= bday) & (pl.col("time") < bday + 1))
+npar = burst["parent_id"].n_unique()
+mx = burst.group_by("parent_id").len()["len"].max()
+print(f"overdispersed run — biggest single-day burst (day {bday:.0f}):")
+print(f"  {burst.height} infections, traced to {npar} distinct parents "
+      f"({burst.height/npar:.2f} each)")
+print(f"  most attributed to any single individual: {mx}")
+```
+
+The burst traces back to nearly as many *distinct* parents as there are
+infections — barely more than one each, a handful at most from any individual.
+It is not a star. It is a **horizontal band** across the tree: when $\xi(t)$
+spikes, the force of infection rises for *everyone at once*, so many ordinary
+infectives each transmit one extra time in the same window.
+
+::: {.callout-important title="A burst in the counts need not be a burst in the tree"}
+We reflexively equate a transmission burst with a superspreader — one node
+spraying out children, a star. But a **shared-environment** burst is the
+opposite shape: many separate lineages each gaining a tip at the same time, a
+horizontal band, not a star. The incidence time series cannot tell the two apart
+— both are a spike in daily cases. The genealogy can: a star concentrates
+parentage on one individual; a band spreads it across the whole infectious pool.
+This is exactly why fitting noisy incidence with `overdispersed()` is sound, yet
+reading *superspreading* off that same noise would be a mistake.
+:::
+
+### Why the tree is blind: an information argument
+
+Make it precise. The genealogy is assembled entirely from the per-event
+attribution $P(\text{parent}=j) = w_j I_j / \sum_b w_b I_b$ — the *only* channel
+through which individual-level structure enters the tree. A shared multiplier
+$\xi(t)$ scales every $w_j$ identically and cancels, so it carries **zero
+information** about *which* individual is the parent: the mutual information
+between "a burst occurred" and "individual $j$ transmitted" is zero, and a
+zero-capacity channel cannot encode it. For heterogeneity to show up in the tree
+it must live in the weights $w_j$ themselves — it must be **attached to
+individuals**, so that conditioning on a transmission *concentrates* the
+attribution (low entropy) onto the high-$w_j$ individuals. Shared-in-time
+variation has no capacity through this channel; individual variation has full
+capacity.
+
+### Putting the heterogeneity on individuals
+
+So move the dispersion from the environment to the individual. A fraction
+$p_{hi}$ of infections become **superspreaders** (compartment `I_hi`) with
+transmission weight $c$ times an ordinary case — the heterogeneity now lives in
+the per-individual weight, exactly where the information argument says it must:
+
+```camdl
+let force = beta * S * (I_lo + c * I_hi) / N      # I_hi carries weight c, I_lo weight 1
+#[lineage] infect_lo : S --> I_lo @ force * (1 - p_hi)
+#[lineage] infect_hi : S --> I_hi @ force * p_hi
+```
+
+```{python}
+#| label: ss-generate
+#| echo: false
+#| output: false
+camdl("simulate", f"{DIR}/models/sir_superspreader.camdl", "--params",
+      f"{DIR}/superspreader.toml", "--seed", "42", "--backend", "gillespie",
+      "--event-log", f"{RES}/epi_ss.parquet")
+camdl("lineage", "realize", f"{RES}/epi_ss.parquet", "--identity-seed", "7",
+      "-o", f"{RES}/ll_ss.parquet")
+```
+
+Now the genealogy lights up. The offspring distribution grows a heavy tail that
+the shared-environment run never did:
+
+```{python}
+#| label: fig-offspring
+#| fig-cap: "Offspring distributions — secondary cases per infected individual, over all infected (including the non-transmitters), counts log-scaled. Shared-environment overdispersion (left) stays near-Poisson, k ≈ 1, indistinguishable from no noise. Individual heterogeneity (right) is heavy-tailed: a few superspreaders with dozens of offspring drag k far below 1."
+def offs(tag):
+    ll = load_line_list(f"{RES}/ll_{tag}.parquet")
+    tr, uni = infected_universe(ll)
+    return offspring_counts(tr["parent_id"].to_list(), uni)
+fig, axes = plt.subplots(1, 2, figsize=(11, 3.8), sharey=True)
+for ax, tag, title, col in [(axes[0], "od", "shared-env overdispersion", "#3366cc"),
+                            (axes[1], "ss", "individual heterogeneity", "#d62728")]:
+    o = offs(tag); k = dispersion_k(o)
+    ax.hist(o, bins=range(0, int(o.max()) + 2), color=col)
+    ax.set_yscale("log"); ax.set_xlabel("secondary cases")
+    ax.set_title(f"{title}\nk = {k:.2f}, max = {int(o.max())}", fontsize=10)
+axes[0].set_ylabel("individuals (log scale)")
+fig.tight_layout(); plt.show()
+```
+
+```{python}
+#| label: fig-ss-trees
+#| fig-cap: "Largest transmission tree: shared-environment overdispersion (left) vs individual superspreaders (right), sampled at flat 50%. The superspreader tree carries visible stars — single individuals with a fan of children (max out-degree annotated) — that the shared-environment tree lacks."
+def max_outdeg(n):
+    return max([len(n.children)] + [max_outdeg(c) for c in n.children]) if n.children else 0
+fig, axes = plt.subplots(1, 2, figsize=(11, 5))
+for ax, tag, title in [(axes[0], "od", "shared-env overdispersion"),
+                       (axes[1], "ss", "individual superspreaders")]:
+    camdl("lineage", "tree", f"{RES}/ll_{tag}.parquet", "--scheme", "flat:0.5",
+          "--sample-seed", "3", "-o", f"{RES}/tree_{tag}.nwk")
+    big = max(parse_newick(Path(f"{RES}/tree_{tag}.nwk").read_text()), key=lambda r: r.n_tips())
+    plot_forest([big], ax, linewidth=0.6)
+    ax.set_title(f"{title}\n{big.n_tips()} tips, max children of one node = {max_outdeg(big)}",
+                 fontsize=10)
+fig.tight_layout(); plt.show()
+```
+
+The superspreader model puts a heavy tail on the offspring distribution — a
+handful of individuals cause a large share of all transmission — and grows
+visible stars in the tree, *because* the heterogeneity is carried by the
+individual attribution weights, the one place the genealogy can see. The
+shared-environment model, despite a far burstier epidemic curve, leaves no such
+mark. **A transmission tree is blind to *when* transmission is variable, and
+sharp-eyed about *who*.**
+
+## The centerpiece: who you sequence shapes what you see
+
+The genealogy you actually observe is filtered by **sampling** — which infected
+individuals get sequenced. camdl samples over *all* individuals (an infector can
+be a tip), at a per-deme rate. To see how decisive sampling is, we use a
+deliberately **asymmetric two-patch SIR**: patch *a* and patch *b* mix through
+an asymmetric contact matrix ($C_{ba}=1.5 \gg C_{ab}=0.3$) and start with
+unequal infectious seeds. We simulate it once (Gillespie, exact), realise one
+genealogy, then project the *same* line list under two sampling regimes.
+
+```{python}
+#| label: twopatch-generate
+#| echo: false
+#| output: false
+camdl("simulate", f"{DIR}/models/two_patch.camdl", "--params", f"{DIR}/two_patch.toml",
+      "--seed", "42", "--backend", "gillespie", "--event-log", f"{RES}/epi_2p.parquet")
+camdl("lineage", "realize", f"{RES}/epi_2p.parquet", "--identity-seed", "7",
+      "-o", f"{RES}/ll_2p.parquet")
+camdl("lineage", "tree", f"{RES}/ll_2p.parquet", "--scheme", "flat:0.3",
+      "--sample-seed", "1", "-o", f"{RES}/uniform.nwk")
+camdl("lineage", "tree", f"{RES}/ll_2p.parquet",
+      "--scheme", "stratified:0=0.4,1=0.03,default=0.0",
+      "--sample-seed", "1", "-o", f"{RES}/biased.nwk")
+```
+
+First, the **truth**: where does transmission actually happen? From the line
+list's `parent_deme → deme` flows:
+
+```{python}
+#| label: tbl-flow
+#| echo: false
+ll2 = load_line_list(f"{RES}/ll_2p.parquet")
+tr2 = ll2.filter(pl.col("parent_kind") == "individual")
+tot = tr2.height
+flow = []
+for (pd_, cd), name in [((0,0),"within a (0→0)"), ((1,1),"within b (1→1)"),
+                        ((0,1),"a→b (0→1)"), ((1,0),"b→a (1→0)")]:
+    n = tr2.filter((pl.col("parent_deme")==pd_) & (pl.col("deme")==cd)).height
+    flow.append({"flow": name, "events": n, "share": f"{100*n/tot:.1f}%"})
+print(pl.DataFrame(flow))
+true0 = tr2.filter(pl.col("deme")==0).height
+print(f"\nTrue case composition: deme 0 = {100*true0/tot:.1f}%, deme 1 = {100*(tot-true0)/tot:.1f}%")
+```
+
+Transmission is **not** balanced — patch *a* is the dominant hub, originating
+the large majority of infections and accumulating about two-thirds of cases.
+Now compare what two sampling designs *recover* about that composition:
+
+```{python}
+#| label: fig-sampling-bars
+#| fig-cap: "Apparent deme composition of the sampled tips under uniform vs deme-0-heavy sampling, against the true infection composition. Uniform sampling recovers the truth; biased sampling collapses patch b from a real third of all transmission down to a few percent — making a major compartment look like a negligible sink."
+id2deme = dict(zip(ll2["individual"].to_list(), ll2["deme"].to_list()))
+
+def tip_composition(nwk):
+    forest = parse_newick(Path(nwk).read_text())
+    ids = tip_ids(forest)
+    d0 = sum(1 for i in ids if id2deme.get(i) == 0)
+    return len(ids), d0
+
+labels, d0s, d1s = [], [], []
+labels.append("TRUE\n(all infections)"); d0s.append(true0); d1s.append(tot-true0)
+for nwk, lab in [(f"{RES}/uniform.nwk", "uniform\nflat:0.3"),
+                 (f"{RES}/biased.nwk", "biased\n0=0.4, 1=0.03")]:
+    n, d0 = tip_composition(nwk); labels.append(lab); d0s.append(d0); d1s.append(n-d0)
+
+d0s = np.array(d0s, float); d1s = np.array(d1s, float); tots = d0s + d1s
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.bar(labels, 100*d0s/tots, color=DEME_COLOR[0], label="patch a (deme 0)")
+ax.bar(labels, 100*d1s/tots, bottom=100*d0s/tots, color=DEME_COLOR[1], label="patch b (deme 1)")
+for i, (a, t) in enumerate(zip(d0s, tots)):
+    ax.text(i, 100*a/t - 5, f"{100*a/t:.0f}%", ha="center", color="white", fontsize=9)
+    ax.text(i, 100 - 3, f"{100*(t-a)/t:.0f}%", ha="center", color="white", fontsize=9)
+ax.set_ylabel("% of sampled tips"); ax.set_ylim(0, 100)
+ax.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
+fig.tight_layout(); plt.show()
+```
+
+```{python}
+#| label: fig-sampling-trees
+#| fig-cap: "The same epidemic, two sampling designs, tips coloured by patch (red = a, blue = b); the four largest forest components shown. Uniform sampling (left) preserves the true red/blue mixture; the deme-0-heavy design (right) yields an almost entirely red tree — read naively, patch b looks like a minor sink when it is in fact a third of all transmission."
+fig, axes = plt.subplots(1, 2, figsize=(11, 7))
+for ax, nwk, title in [(axes[0], f"{RES}/uniform.nwk", "uniform"),
+                       (axes[1], f"{RES}/biased.nwk", "biased (deme-0 heavy)")]:
+    forest = parse_newick(Path(nwk).read_text()); annotate_demes(forest, id2deme)
+    forest.sort(key=lambda r: r.n_tips(), reverse=True)
+    plot_forest(forest, ax, color_by_deme=True, palette=DEME_COLOR,
+                max_components=4, linewidth=0.4, tip_size=14)
+    ax.set_title(title, fontsize=10)
+fig.tight_layout(); plt.show()
+```
+
+This is the motivation for modelling the sampling process in inference: the
+observed tree is a convolution of true transmission and observation effort, and
+you cannot read transmission structure off a tree without knowing who was
+sequenced.
+
+## Tree statistics through an epidemiological lens
+
+Three families of summary statistic recur in phylodynamics. Computed here on the
+uniform-sampling forest above:
+
+```{python}
+#| label: tbl-stats
+#| echo: false
+forest = parse_newick(Path(f"{RES}/uniform.nwk").read_text())
+big = max(forest, key=lambda r: r.n_tips())
+tr2u, universe2 = infected_universe(ll2)
+k2 = dispersion_k(offspring_counts(tr2u["parent_id"].to_list(), universe2))
+print(pl.DataFrame([
+    {"statistic": "Sackin (mean tip depth)", "value": round(sackin_index(big, normalize=True), 2),
+     "captures": "tree imbalance / heterogeneity"},
+    {"statistic": "Colless (normalised)", "value": round(colless_index(big, normalize=True), 3),
+     "captures": "tree imbalance"},
+    {"statistic": "offspring dispersion k", "value": round(k2, 2),
+     "captures": "superspreading (epi headline)"},
+]))
+```
+
+The first two are computed above; the third — the most useful — deserves its own
+figure. **Lineages-through-time** counts the sampled tree's ancestral lineages
+at each moment, and its early near-exponential rise tracks the epidemic growth
+rate. Push that one step further and you get a **skyline**: in each interval
+between coalescent events, $\Delta t \cdot \binom{A}{2}$ estimates a coalescent
+$N_e$ that — because the SIR pairwise coalescent rate is
+$\lambda = 2\beta S/(NI) \propto 1/I$ — is proportional to **prevalence**. So the
+tree alone can reconstruct the prevalence trajectory. Let us check it against the
+truth, on a cleanly single-introduction epidemic (so the whole epidemic is one
+tree):
+
+```{python}
+#| label: skyline-generate
+#| echo: false
+#| output: false
+camdl("simulate", f"{DIR}/models/sir_lineage.camdl", "--params", f"{DIR}/sir_single.toml",
+      "--seed", "3", "--backend", "gillespie", "-o", f"{RES}/single_traj.tsv",
+      "--event-log", f"{RES}/single_epi.parquet")
+camdl("lineage", "realize", f"{RES}/single_epi.parquet", "--identity-seed", "1",
+      "-o", f"{RES}/single_ll.parquet")
+camdl("lineage", "tree", f"{RES}/single_ll.parquet", "--scheme", "flat:0.3",
+      "--sample-seed", "1", "-o", f"{RES}/single_tree.nwk")
+```
+
+```{python}
+#| label: fig-skyline
+#| fig-cap: "Top: the skyline reconstructed from the tree (rescaled, since the absolute level is sampling- and rate-dependent) against the true prevalence I(t) from the simulation. Bottom: the same tree, sharing the time axis. The skyline rises with prevalence through the growth phase as lineages accumulate, gets noisy near the peak (coalescences become rapid), and loses signal in the decline — by then the sampled lineages have already found their common ancestors. The genealogy is most informative about epidemic *growth*."
+from _lib.trees import plot_tree_with_skyline, skyline_from_tree
+traj = pl.read_csv(f"{RES}/single_traj.tsv", separator="\t", comment_prefix="#")
+big_s = max(parse_newick(Path(f"{RES}/single_tree.nwk").read_text()), key=lambda r: r.n_tips())
+fig, (axt, axb) = plot_tree_with_skyline(
+    big_s, traj["t"].to_numpy(), traj["I"].to_numpy(),
+    figsize=(8, 6), window=25, linewidth=0.35)
+st, _ = skyline_from_tree(big_s, window=25)
+axt.set_xlim(0, float(st.max()) + 3)
+axt.set_title(f"single-introduction epidemic, {big_s.n_tips()} sampled tips (30%)", fontsize=9)
+plt.show()
+```
+
+That figure is the chapter's thesis in one frame: the transmission tree is a
+lens on the epidemic — it carries the growth trajectory, and through $k$ the
+superspreading structure — but only what the sampling lets through, and only
+where the coalescent had events to inform it. Of the three statistics,
+**offspring dispersion $k$** has the most direct epidemiological cargo: it is the
+superspreading parameter that governs whether targeted control beats blanket
+control, and it responds to mechanism. Sackin and Colless are shape descriptors
+useful for *comparing* trees, without a one-to-one epidemiological reading.
+
+## What this is — and isn't
+
+Be clear about the boundaries of the current feature:
+
+- These are **transmission trees** (infection-time / sampling-time branch
+  lengths), **not viral phylogenies** — there is no within-host coalescent and
+  no sequence evolution.
+- Stratified sampling keys on the **integer deme index** (`0`, `1`), not stratum
+  names; a model-level `lineage { sampling }` block with named strata and
+  rates-as-parameters is a future milestone.
+- Only the **line-list log-probability** exists. There is no tree-likelihood
+  scoring and no native tree inference yet — the architecture deliberately stops
+  at synthetic-data generation, which is what validating a phylodynamic method
+  needs.

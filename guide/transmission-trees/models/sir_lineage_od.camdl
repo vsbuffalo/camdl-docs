@@ -1,0 +1,35 @@
+# Single-population SIR with #[lineage] transmission AND environmental noise:
+# gamma white noise of intensity sigma_se multiplies the infection rate
+# (He et al. 2010). The overdispersed() wrapper is transparent to lineage
+# attribution — the same linear weight beta*S/N is extracted — so the genealogy
+# is still well-defined; the noise lives in the count dynamics. Requires the
+# chain_binomial / tau_leap backends.
+time_unit = 'days
+
+compartments { S, I, R }
+
+parameters {
+  beta     : rate     in [0.001, 2.0]
+  gamma    : rate     in [0.001, 1.0]
+  sigma_se : positive in [0.001, 2.0]
+  N0       : count    in [100, 100000]
+  I0       : count    in [1, 1000]
+}
+
+let N = S + I + R
+
+transitions {
+  #[lineage]
+  infection : S --> I  @ overdispersed(beta * S * I / N, sigma_se)
+  recovery  : I --> R  @ gamma * I
+}
+
+init {
+  S = N0 - I0
+  I = I0
+}
+
+simulate {
+  from = 0 'days
+  to   = 80 'days
+}

@@ -1,0 +1,5 @@
+beta = 0.6
+gamma = 0.2
+sigma_se = 0.5
+N0 = 2000
+I0 = 8

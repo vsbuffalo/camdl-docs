@@ -25,6 +25,7 @@ book:
         - guide/scenarios.qmd
         - guide/dimensions.qmd
         - guide/integrator-step.qmd
+        - guide/transmission-trees.qmd
         - guide/fitting/likelihood.qmd
         # - guide/fitting/model_comparison.qmd  # draft: missing pipeline artifacts
         - guide/fitting/identifiability.qmd
