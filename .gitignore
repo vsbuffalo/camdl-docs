@@ -53,3 +53,7 @@ boarding-school-sir-clean/test_procnoise/preq/*.json
 
 # Transmission-trees chapter: lineage artifacts regenerated at render time
 guide/transmission-trees/results/
+
+# seed-timing chapter: regenerated results + deletable archive snapshot
+guide/fitting/seed-timing/results/
+guide/fitting/seed-timing/archive/

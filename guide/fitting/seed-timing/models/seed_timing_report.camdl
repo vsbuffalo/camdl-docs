@@ -1,0 +1,58 @@
+# Seed-timing model WITH a time-varying reporting ramp.
+#
+# Same smooth-importation seed as seed_timing.camdl, but the reporting fraction
+# is now a logistic ramp rho(t) instead of a constant rho. This lets the model
+# represent surveillance scaling up: cryptic early infections are under-reported
+# (rho(t) ~ 0 before the ramp), and the later detected explosion is real growth
+# seen through a rising reporting fraction — rather than forcing a single rho,
+# which (on WA 2020 data) drives a degenerate R0<1 import-dominated fit.
+#
+#   rho(t) = rho_max / (1 + exp(-(t - t_rep)/w_rep))
+#
+#   t_rep — reporting-ramp onset (when testing came online; externally known)
+#   w_rep — reporting-ramp width
+#   rho_max — asymptotic reporting fraction once surveillance is fully scaled
+time_unit = 'days
+
+compartments { S, I, R }
+
+parameters {
+  beta    : rate        in [0.001, 5.0]
+  gamma   : rate        in [0.01, 1.0]
+  tau     : real        in [0.0, 120.0]
+  lambda  : positive    in [0.0, 100.0]
+  w       : positive    in [0.1, 20.0]
+  N0      : count       in [100, 1000000]
+  rho_max : probability in [0.01, 1.0]
+  t_rep   : real        in [0.0, 120.0]
+  w_rep   : positive    in [0.1, 30.0]
+  k       : positive    in [0.1, 1000.0]
+}
+
+let N = S + I + R
+let rho_t = rho_max / (1 + exp(-(t - t_rep) / w_rep))
+
+transitions {
+  #[lineage]
+  infection : S --> I  @ beta * S * I / N
+  recovery  : I --> R  @ gamma * I
+  seed      :     --> I  @ lambda / (1 + exp(-(t - tau) / w))
+}
+
+observations {
+  cases : {
+    projected  = incidence(infection)
+    every      = 1 'days
+    likelihood = neg_binomial(mean = rho_t * projected, r = k)
+  }
+}
+
+init {
+  S = N0
+  I = 0
+}
+
+simulate {
+  from = 0 'days
+  to   = 120 'days
+}

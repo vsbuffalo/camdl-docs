@@ -1,0 +1,714 @@
+---
+title: "Seed Timing"
+subtitle: "When did the outbreak start? — smooth seeding, the (τ, λ) ridge, and reporting it honestly"
+draft: true
+execute:
+  echo: true
+  warning: false
+code-fold: true
+code-summary: "show code"
+---
+
+```{python}
+#| label: setup
+#| echo: false
+#| output: false
+import sys, subprocess
+from pathlib import Path
+import polars as pl
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+GREY = "#555555"
+mpl.rcParams.update({
+    "figure.facecolor": "none", "axes.facecolor": "none", "savefig.facecolor": "none",
+    "figure.dpi": 150, "font.size": 10,
+    "text.color": GREY, "axes.labelcolor": GREY, "xtick.color": GREY,
+    "ytick.color": GREY, "axes.edgecolor": GREY, "legend.edgecolor": GREY,
+    "axes.spines.top": False, "axes.spines.right": False,
+})
+
+sys.path.insert(0, str(Path("/Users/vsb/projects/work/camdl-book")))
+from _lib.cli import run_cli
+
+MODEL = "seed-timing/models/seed_timing.camdl"
+SYNTH = "seed-timing/data/seed_cases.tsv"
+
+# Synthetic data-generating parameters (this is genuine truth: we simulated the
+# data from these, so slicing the likelihood through them is honest).
+TRUTH = dict(beta=0.6, gamma=0.2, lam=2.0, w=3.0, N0=5000, tau=30, rho=0.5, k=20)
+
+def pfilter_loglik(data, particles=1500, seed=5, **params):
+    """Particle-filter log-likelihood at a fixed parameter vector (no
+    optimisation) — a likelihood slice. `lam` maps to the model's `lambda`."""
+    args = ["camdl", "pfilter", MODEL, "--data", data,
+            "--particles", str(particles), "--dt", "1", "--seed", str(seed)]
+    for key, val in params.items():
+        name = "lambda" if key == "lam" else key
+        args += ["--param", f"{name}={val}"]
+    r = subprocess.run(args, capture_output=True, text=True)
+    if r.returncode != 0:
+        raise RuntimeError(f"pfilter failed:\n{r.stderr[-400:]}")
+    return float(r.stdout.strip().splitlines()[-1])
+
+def simulate_cases(out, seed=11, model=MODEL, **params):
+    args = ["camdl", "simulate", model, "--backend", "chain_binomial", "--dt", "1",
+            "--seed", str(seed), "--obs-only", out]
+    for key, val in params.items():
+        name = "lambda" if key == "lam" else key
+        args += ["--param", f"{name}={val}"]
+    subprocess.run(args, capture_output=True, text=True, check=True)
+    return pl.read_csv(out, separator="\t")
+
+def seed_rate(t, tau, lam, w):
+    return lam / (1 + np.exp(-(t - tau) / w))
+
+def prequential_pred(data, model, params_file, particles=2000, seed=1):
+    """One-step-ahead predictive distribution at fixed parameters — the
+    quantity the particle-filter likelihood actually scores. Returns the
+    per-observation predictive mean/quantiles plus the PIT-coverage and
+    elpd diagnostics. This is the *correct* fit diagnostic for a POMP: a
+    free simulation from theta-hat is unconditioned and wanders, whereas
+    this conditions on the data through step t-1, exactly as the filter does."""
+    import json, tempfile, os
+    stem = tempfile.mktemp()
+    args = ["camdl", "pfilter", model, "--data", data, "--params", params_file,
+            "--particles", str(particles), "--dt", "1", "--seed", str(seed),
+            "--save-prequential", stem]
+    r = subprocess.run(args, capture_output=True, text=True)
+    if r.returncode != 0:
+        raise RuntimeError(f"pfilter --save-prequential failed:\n{r.stderr[-400:]}")
+    trace = json.load(open(stem + ".json"))
+    os.unlink(stem + ".json"); os.unlink(stem + ".tsv")
+    t, obs, mean, p5, p50, p95, pit = [], [], [], [], [], [], []
+    for s in trace["steps"]:
+        samp = np.asarray(s["y_pred_samples"], dtype=float)
+        t.append(s["t"]); obs.append(s["y_obs"]); mean.append(samp.mean())
+        p5.append(np.percentile(samp, 5)); p50.append(np.median(samp))
+        p95.append(np.percentile(samp, 95)); pit.append(s["pit"])
+    # Calibration via the (randomised) PIT: a well-calibrated 90% interval has
+    # ~90% of PIT values in [0.05, 0.95]. We report coverage on the *informative*
+    # steps (obs > 0): the long pre-takeoff run of zeros is trivially predicted
+    # by any model (PIT degenerate) and only dilutes the metric.
+    pit = np.array(pit); obs = np.array(obs)
+    inwin = lambda m: float(np.mean((pit[m] >= 0.05) & (pit[m] <= 0.95)))
+    return dict(t=np.array(t), obs=obs, mean=np.array(mean),
+                p5=np.array(p5), p50=np.array(p50), p95=np.array(p95),
+                pit=pit, pit_cov90=inwin(obs > 0), pit_cov90_all=inwin(obs >= 0))
+```
+
+"When did this outbreak start?" is a central question early on in an outbreak.
+The **seed time** τ is our answer to it — the moment local transmission was first
+established. But notice that a *time* only means anything relative to an origin:
+τ is not a calendar date, it is an *offset*, the number of days after some
+reference point t = 0 that we are free to choose. The origin is ours to set —
+the first observation, a vaccination campaign, a border closure, a policy change
+— and what inference actually recovers is the offset from it. (In the Washington
+example below we set t = 0 to 2020-01-21, so a posterior of τ ≈ 22 days reads as
+"the chain was seeded around 12 February.") Fixing the origin is what turns the
+vague "when did it start?" into an estimable number.
+
+And "the seed date" is really three questions of increasing difficulty:
+
+- **E1 — recover τ when the seed size is known.** The cleanest case; τ is
+  identifiable.
+- **E2 — the origin / burn-in.** How much transmission preceded the first
+  observation?
+- **E3 — the joint (τ, seed size).** The most honest, and the least
+  identifiable: during exponential growth the data pin a *combination* of seed
+  time and seed size, not either alone. This is the **seed-timing ridge** — the
+  temporal twin of the initial-condition ridge in
+  [Identifiability](identifiability.qmd), and the heart of this chapter.
+
+## Real data: cryptic introduction in Washington State
+
+The early-2020 Washington State COVID-19 outbreak is the textbook
+cryptic-introduction case, and a good example dataset to show camdl's features
+for seed time and size inference. We now know from genomic analyses that the
+outbreak-clade common ancestor (tMRCA) is estimated to have emerged between
+**18 Jan and 9 Feb 2020** ([Bedford et al. 2020, *Science*](https://doi.org/10.1126/science.abc0523)),
+weeks before the first observed community case (28 Feb).
+
+```{python}
+#| label: fig-covid
+#| echo: false
+#| fig-cap: "Early-2020 WA daily reported cases (NYT). Index case 21 Jan (t=0, a travel import); ~5 near-flat weeks; explosion from late February. Red band = genomic clade-MRCA window (18 Jan–9 Feb); dashed line = first community case (28 Feb)."
+wa = pl.read_csv("seed-timing/data/covid_wa_daily.tsv", separator="\t")
+fig, ax = plt.subplots(figsize=(7.5, 3.2))
+ax.bar(wa["time"], wa["cases"], color="#3366cc", width=1.0)
+ax.axvspan(-3, 19, color="#d62728", alpha=0.15)
+ax.annotate("genomic clade-MRCA\n(18 Jan – 9 Feb)", (8, ax.get_ylim()[1]*0.7), ha="center", fontsize=8, color="#d62728")
+ax.axvline(38, color=GREY, ls="--", lw=1)
+ax.annotate("first community\ncase (28 Feb)", (38, ax.get_ylim()[1]*0.45), textcoords="offset points", xytext=(6, 0), fontsize=8, color=GREY)
+ax.set_xlabel("days since 2020-01-21"); ax.set_ylabel("daily reported cases")
+fig.tight_layout(); plt.show()
+```
+
+Here, for the sake of a teaching example, we assume we do not have genomic
+sequences or a tMRCA estimate, and ask: what can we learn about the seed time
+from statewide WA daily reported cases (NYT)? We fit the **pre-lockdown growth
+window, days 0–55**. 
+
+Importantly, we drop the 21 Jan index case. This particular case was a lone
+travel import, and almost surely *not* the community-clade founder. In initial
+fits with this index case, a single smooth seed gives it ≈ 0 probability and a
+log-likelihood of −∞ (it's a worthwhile exercise to try to fit with this
+datapoint included). The seed-timing question is about the *cryptic*
+introduction, so we start with the first observed community case (28 Feb, t=38)
+as our day-0. The data before that are not just uninformative about the seed
+time, they are *misleading* --- they are noise from a separate process (travel
+import) that the model cannot represent.
+
+Additionally, WA interventions ramped 11–23 Mar, so a constant-β SIR cannot fit
+the lockdown-flattened tail. However, information about the seed timing lives
+in the early growth phase (e.g. pre-non-pharmaceutical interventions)
+regardless. 
+
+Two structural choices in the model make the seed time inferable rather than
+assumed. The first is a smooth importation pulse, `seed rate = λ / (1 +
+e^−(t−τ)/w)`. The population starts fully susceptible (`S = N0`, `I = 0`), so
+transmission `βSI/N` is zero until something seeds the first cases — and the
+naïve fix, a hard initial condition `I(0) = seed`, would pin that seeding to t =
+0, the very thing we want to infer. Letting infections instead arrive through an
+import that is ≈ 0 before τ and rises to a plateau λ over a fixed window w turns
+τ into the inflection point of the import curve: a free, continuous parameter.
+The onset is smooth rather than a step for two reasons — it keeps the likelihood
+continuous in τ (a step would flip a whole seeding event in or out as τ crosses a
+filter step), and it matches how cryptic introductions actually trickle in. λ
+trades off against τ, since a larger assumed seed pushes the inferred onset
+later; that trade-off is the seed-timing ridge, and it is why τ's posterior comes
+out broad rather than a spike.
+
+```{python}
+#| label: fig-pulse-shape
+#| echo: false
+#| fig-align: center
+#| fig-cap: "The importation pulse. The seed rate is ≈ 0 before τ and rises to its plateau λ over a window of width w, with τ the inflection point. A hard step (dashed) would make the likelihood discontinuous in τ."
+t = np.linspace(0, 40, 400)
+tau, lam, w = 18.0, 2.0, 4.0
+fig, ax = plt.subplots(figsize=(5.0, 1.7))
+ax.plot(t, seed_rate(t, tau, lam, w), color="#3366cc", lw=2, label=f"smooth (w = {w:g})")
+ax.plot(t, np.where(t < tau, 0.0, lam), color=GREY, lw=1, ls="--", label="hard step")
+ax.axvline(tau, color="#d62728", lw=1, ls=":")
+ax.annotate("τ", (tau, lam * 1.05), color="#d62728", fontsize=11, ha="center")
+ax.set_ylim(0, lam * 1.3); ax.set_yticks([0, lam]); ax.set_yticklabels(["0", "λ"])
+ax.set_xlabel("time (days)"); ax.set_ylabel("seed rate")
+ax.legend(loc="upper left", frameon=False, fontsize=8)
+fig.tight_layout(); plt.show()
+```
+
+The second is a logistic reporting ramp, `ρ(t) = ρ_max / (1 + e^−(t−t_rep)/w_rep)`.
+We observe not infections but a fraction ρ of incidence, and early in an emerging
+outbreak that fraction is not constant: detection climbs from near-zero to a
+ceiling ρ_max as testing and case-finding scale up. Hold ρ fixed and the model
+can only bend the reported curve into the observed S-shape by speeding up β or
+shifting the seed — relabelling a surveillance artefact as epidemic dynamics and
+biasing the very τ and λ we are after. The ramp gives the reported fraction its
+own degree of freedom. We anchor t_rep to the known WA testing timeline rather
+than estimate it, because a later reporting onset and a later seed both delay the
+take-off and are confounded; whether the ramp earns its extra parameters we test
+directly in the model comparison below.
+
+```{python}
+#| label: fig-ramp-shape
+#| echo: false
+#| fig-align: center
+#| fig-cap: "The reporting ramp (the same logistic form). The reported fraction climbs from ≈ 0 to a ceiling ρ_max around the onset t_rep over width w_rep, absorbing surveillance scale-up so it is not misread as transmission."
+t = np.linspace(0, 50, 400)
+t_rep, rho_max, w_rep = 22.0, 0.4, 7.0
+fig, ax = plt.subplots(figsize=(5.0, 1.7))
+ax.plot(t, seed_rate(t, t_rep, rho_max, w_rep), color="#00897b", lw=2)
+ax.axvline(t_rep, color="#d62728", lw=1, ls=":")
+ax.annotate("$t_{rep}$", (t_rep, rho_max * 1.08), color="#d62728", fontsize=10, ha="center")
+ax.set_ylim(0, rho_max * 1.3); ax.set_yticks([0, rho_max]); ax.set_yticklabels(["0", r"$\rho_{max}$"])
+ax.set_xlabel("time (days)"); ax.set_ylabel("reporting ρ(t)")
+fig.tight_layout(); plt.show()
+```
+
+### Model and parameters
+
+Six parameters estimated, four fixed. The free/fixed split is identical for both
+methods below (IF2 and PMMH); only the priors differ (IF2 ignores them). Priors
+are *general-coronavirus* — what one would have believed about an emerging
+coronavirus at the outbreak's start, **not** values back-fitted to SARS-CoV-2.
+
+| parameter | role                   | est/fixed       | value or prior                            | rationale                                                                                                                                             |
+|-----------|------------------------|-----------------|-------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `tau`     | seed time (target)     | **estimated**   | `uniform(0, 45)` d                        | quantity of interest; flat prior lets the data speak                                                                                                  |
+| `beta`    | transmission rate      | **estimated**   | `log_normal(μ=−0.92, σ=0.4)`, median 0.40 | with γ prior, implied R₀ 90% CI ≈ [1.5, 5.5]                                                                                                          |
+| `gamma`   | recovery rate          | **estimated**   | `log_normal(μ=−1.97, σ=0.4)`, median 0.14 | infectious period ≈ 7 d (90% CI 3.7–14); **breaks the β/γ degeneracy**                                                                                |
+| `lambda`  | seed magnitude         | **estimated**   | `exponential(rate=0.5)`, mean 2           | non-identifiable from one growth curve; weak prior favours small cryptic seeds                                                                        |
+| `rho_max` | ceiling reporting      | **estimated**   | `beta(2, 3)`, mean 0.40                   | weakly informative                                                                                                                                    |
+| `k`       | NegBinomial dispersion | **estimated**   | `log_normal(μ=3, σ=1)`, median 20         | weakly informative                                                                                                                                    |
+| `N0`      | initial susceptibles   | fixed 1,000,000 | —                                         | not identifiable on growth phase (S≈N ⇒ incidence ≈ βI, independent of N0); cumulative infections ≪ N0, so 1 M / 4 M / 7.7 M give the same likelihood |
+| `w`       | seed-pulse width       | fixed 5.0 d     | —                                         | a single smooth onset cannot resolve it                                                                                                               |
+| `w_rep`   | reporting-ramp width   | fixed 7.0 d     | —                                         | surveillance scale-up timescale, ≈ 1 week                                                                                                             |
+| `t_rep`   | reporting-ramp onset   | fixed 37.0 d    | —                                         | **external anchor**: known WA testing timeline (≈ first community detection)                                                                          |
+
+
+Data are statewide WA (~7.7 M); early spread was concentrated in the Seattle /
+Puget Sound metro (~4 M). Because N0 is non-identifiable, this geographic
+ambiguity does not affect the seed-time estimate. `tau` and `t_rep` are
+`real`-typed; under IF2 their fit-bounds are not enforced (camdl#66), so the IF2
+fits below set `transform = "logit"` as a workaround — the PMMH posterior
+sidesteps this entirely, since the prior defines τ's support.
+
+## The likelihood landscape, interactively
+
+When fitting camdl models, especially tricky models with questionable
+identifiability, we recommend surveying the likelihood landscape first with
+`camdl survey`. Here, we do a 1800-point Latin-hypercube sweep with a
+particle-filter evaluation at each point (`camdl survey --fit
+fits/covid_wa_survey.toml --eval pfilter --render`), rendered as an interactive
+pair-plot. Pick any two parameters; the level-ridges that defeated the MLE show
+as diagonal high-likelihood bands (β–γ especially) rather than a single peak.
+
+<iframe src="seed-timing/results/survey/landscape.html" width="100%" height="660"
+        style="border:1px solid #ddd; border-radius:4px;"
+        title="camdl survey landscape — WA seed timing"></iframe>
+
+A caveat for reading it: about 72% of the Latin-hypercube points land in
+low-likelihood regions where the particle-filter estimate is noisy (per-point
+SE > 1.7 nats), so the exact ranking of bad points is unreliable. However, the
+high-likelihood region — the ridge itself — is trustworthy (and as we'll see in
+a bit, its best point with loglik ≈ −78 matches the PMMH posterior mode with ≈
+−77). The survey is a *diagnostic* that tells you the shape of the problem; the
+posterior above is the inference.
+
+## Method 1 — Maximum likelihood (IF2)
+
+Next, we try a simple IF2 (iterated filtering) seeks the MLE by perturb-and-filter. On this data it
+**does not converge**: the level-setting parameters (λ, ρ_max, and the β/γ split)
+trade off along ridges, so there is no single peak to find. camdl's compound
+scout-convergence gate reports this directly — both legs fail across every IF2
+configuration we ran:
+
+```{python}
+#| label: wa-if2-gate
+#| echo: false
+import subprocess, re
+def gate(slug):
+    d = sorted(Path("seed-timing/results/fits").glob(f"{slug}-*"))[-1]
+    txt = subprocess.run(["camdl", "fit", "summary", str(d)], capture_output=True, text=True).stdout
+    g = lambda pat: (re.search(pat, txt) or [None, "?"])[1]
+    return dict(amax=g(r"max Â = ([\d.]+) \((\w+)\)"), apar=g(r"max Â = [\d.]+ \((\w+)\)"),
+                db=g(r"Δ = ([\d.]+) dB"), tau=g(r"tau\s+=\s+[\d.]+\s+Â=([\d.]+)"),
+                verdict="✗ FAIL" if "FAIL" in txt else "✓ pass")
+from IPython.display import Markdown
+rows = ["| IF2 fit | worst-agreeing param (Â) | loglik spread Δ_dB | τ agreement Â | gate |",
+        "|---|---|---|---|---|"]
+for slug, lbl in [("covid_wa_if2", "all 6 free"), ("covid_wa_if2_gammafix", "γ fixed at 0.14")]:
+    g = gate(slug)
+    rows.append(f"| {lbl} | {g['apar']} (Â={g['amax']}) | {g['db']} dB | {g['tau']} | {g['verdict']} |")
+Markdown("\n".join(rows))
+```
+
+Both fail (threshold: Â ≤ 1.01, Δ_dB ≤ 30). The worst-agreeing parameter is
+always `rho_max` — the *level* of the curve, which trades off with λ and the
+β-magnitude along a flat ridge. Crucially, **fixing γ does not rescue it**: the
+β/γ growth-rate degeneracy is *not* the binding problem; the level ridge is.
+Only τ ever agrees across chains (Â ≈ 1.0). An optimiser cannot pin a valley —
+the remedy is not a better optimiser but the missing *information*, supplied as
+priors in a posterior.
+
+### The fit calls, and what the gate actually prints
+
+The two scout runs are launched by `make if2` — identical 24-chain IF2 fits, one
+with all six parameters free and one pinning γ:
+
+```bash
+# from this chapter's seed-timing/ directory; long-running, so run via `make if2`
+camdl fit run fits/covid_wa_if2.toml          --seed 42 --stage scout --progress plain
+camdl fit run fits/covid_wa_if2_gammafix.toml --seed 42 --stage scout --progress plain
+```
+
+The table above is a digest of `camdl fit summary`. Its full output is more
+telling: the per-parameter Â column (note `rho_max` blowing past the threshold
+while `tau` sits at 1.000), the per-chain loglik-eval log-likelihoods and SEs
+that the decibans leg keys on, and the final compound verdict. Both are
+**FAIL**. Expand to see exactly what camdl reports:
+
+```{python}
+#| label: wa-if2-summary-full
+#| echo: false
+from IPython.display import display
+for slug in ("covid_wa_if2", "covid_wa_if2_gammafix"):
+    d = sorted(Path("seed-timing/results/fits").glob(f"{slug}-*"))[-1].name
+    display(run_cli(f"camdl fit summary results/fits/{d}",
+                    echo=f"camdl fit summary results/fits/{d}",
+                    cwd="seed-timing", collapse=True, max_lines=None))
+```
+
+## Method 2 — Bayesian posterior (PMMH)
+
+A posterior *explores* the ridge instead of failing to optimise on it. Two
+implementation facts:
+
+- **Priors regularise the ridge** (general-coronavirus, table above). The
+  load-bearing prior is on γ (infectious period ≈ 1 week): the data fix
+  `r = β − γ`, so an informed γ pins β. λ and ρ_max keep weak priors — their
+  posteriors will reveal what the data add.
+- **PMMH, not PGAS.** PGAS's NUTS gradient does not yet cover the observation
+  likelihood (camdl audit C1), so it cannot estimate ρ_max or k; PMMH is
+  gradient-free and fine at *T* = 55. Sampler: 4 chains × 15 000 iterations,
+  800 particles (log-lik SD ≈ 0.12 nats), burn-in 3 000, thinned ×5, started at
+  an interior point with finite prior density.
+
+**Convergence.** R̂, ESS, and the posterior summary:
+
+```{python}
+#| label: wa-posterior-table
+#| echo: false
+import json
+from scipy import stats
+from IPython.display import Markdown
+draws = pl.read_csv("seed-timing/results/wa_post_draws.tsv", separator="\t")
+summ = json.load(open("seed-timing/results/wa_post_summary.json"))
+LBL = {"tau": "τ (days)", "beta": "β", "gamma": "γ", "lambda": "λ", "rho_max": "ρ_max", "k": "k"}
+NOTE = {"tau": "**informed** (≈ Feb 12; far narrower than its flat prior)",
+        "beta": "well determined", "gamma": "≈ prior (growth phase can't split β/γ)",
+        "lambda": "≈ prior — **sloppy/non-identified**",
+        "rho_max": "partially informed", "k": "partially informed"}
+rows = ["| param | R̂ | ESS | posterior median | 90% CI | what the data say |",
+        "|---|---|---|---|---|---|"]
+for p in ["tau", "beta", "gamma", "lambda", "rho_max", "k"]:
+    v = draws[p].to_numpy()
+    rows.append(f"| {LBL[p]} | {summ['rhat'][p]:.3f} | {summ['ess'][p]:.0f} | "
+                f"{np.median(v):.2f} | [{np.percentile(v,5):.2f}, {np.percentile(v,95):.2f}] | {NOTE[p]} |")
+Markdown("\n".join(rows))
+```
+
+All six R̂ = 1.00, ESS > 1000, acceptance ≈ 22% — converged, in contrast to the
+IF2 fits the gate rejects. Prior-versus-posterior marginals show which
+parameters the data moved:
+
+```{python}
+#| label: wa-posterior-marginals
+#| echo: false
+#| fig-cap: "Prior (dashed grey) versus posterior (filled blue) for each parameter. τ is sharply updated away from its flat prior — the data *do* date the introduction. β is well determined. γ and λ posteriors sit essentially on top of their priors: the growth-phase data carry almost no information about the recovery rate or the seed magnitude, so honesty demands we report them as prior-dominated, not as precise estimates."
+priors = {"beta": stats.lognorm(s=0.4, scale=np.exp(-0.92)),
+          "gamma": stats.lognorm(s=0.4, scale=np.exp(-1.97)),
+          "tau": stats.uniform(0, 45), "lambda": stats.expon(scale=1/0.5),
+          "rho_max": stats.beta(2, 3), "k": stats.lognorm(s=1.0, scale=np.exp(3.0))}
+RNG = {"beta": (0, 1.2), "gamma": (0, 0.6), "tau": (0, 45),
+       "lambda": (0, 12), "rho_max": (0, 1), "k": (0, 60)}
+fig, axes = plt.subplots(2, 3, figsize=(8.4, 4.8))
+for ax, p in zip(axes.flat, ["tau", "beta", "gamma", "lambda", "rho_max", "k"]):
+    v = draws[p].to_numpy(); lo, hi = RNG[p]; xs = np.linspace(lo, hi, 300)
+    ax.hist(v, bins=45, range=(lo, hi), density=True, color="#1f77b4", alpha=0.55)
+    ax.plot(xs, priors[p].pdf(xs), color=GREY, ls="--", lw=1.3)
+    ax.set_title(LBL[p], fontsize=10, color=GREY); ax.set_yticks([])
+    ax.set_xlim(lo, hi)
+axes.flat[0].plot([], [], color=GREY, ls="--", label="prior")
+axes.flat[0].hist([], color="#1f77b4", alpha=0.55, label="posterior")
+axes.flat[0].legend(frameon=False, fontsize=8, loc="upper right")
+fig.tight_layout(); plt.show()
+```
+
+```{python}
+#| label: wa-tau-posterior
+#| echo: false
+#| fig-cap: "Posterior for the seed time τ, the quantity of interest. The data concentrate τ around day 22 (≈ 12 Feb) — narrower than the flat prior (dashed) — but with a genuine 90% credible interval of roughly [7, 36] days once the uncertainty in the sloppy parameters (λ especially) is *propagated* rather than conditioned away. The posterior sits just after the genomic introduction window (green), the expected modest late bias of incidence-only timing: cases cannot see the earliest cryptic transmission. This is the honest seed-timing answer — informative, but not the false precision an MLE point would imply."
+v = draws["tau"].to_numpy()
+med, lo, hi = np.median(v), np.percentile(v, 5), np.percentile(v, 95)
+fig, ax = plt.subplots(figsize=(7.4, 3.0))
+ax.axvspan(0, 19, color="#2ca02c", alpha=0.12, label="genomic intro window (18 Jan–9 Feb)")
+ax.hist(v, bins=50, range=(0, 45), density=True, color="#d62728", alpha=0.5)
+ax.axvspan(lo, hi, color="#d62728", alpha=0.08)
+ax.axvline(med, color="#d62728", lw=1.6)
+ax.axhline(1/45, color=GREY, ls="--", lw=1.1, label="prior (uniform)")
+ax.set_xlim(0, 45); ax.set_yticks([])
+ax.set_xlabel("seed time τ (days since 2020-01-21)")
+ax.set_title(f"posterior τ̂ = {med:.0f} d (≈ 12 Feb),  90% CI [{lo:.0f}, {hi:.0f}]",
+             fontsize=10, color=GREY)
+ax.legend(frameon=False, fontsize=8, loc="upper right")
+fig.tight_layout(); plt.show()
+```
+
+```{python}
+#| label: wa-posterior-ridge
+#| echo: false
+#| fig-cap: "The two ridges, as posterior correlations. **Left:** seed time τ versus seed magnitude λ (posterior corr ≈ 0.57) — *this* is the seed-timing ridge `ln λ ≈ rτ + const`: a larger assumed seed pushes the inferred introduction later, and the data constrain the combination, not either alone. It is precisely why τ's marginal is wide — τ's uncertainty is inherited from λ's. **Right:** β versus γ (corr ≈ 0.79) — the growth-phase degeneracy along constant r = β − γ; the informed γ prior keeps it bounded. These ridges are *why* the MLE never converged: there is no single peak, only valleys — which the posterior represents honestly as a spread of jointly-plausible values."
+fig, (a0, a1) = plt.subplots(1, 2, figsize=(8.2, 3.6))
+a0.hexbin(draws["lambda"], draws["tau"], gridsize=35, cmap="Blues", mincnt=1, extent=(0, 9, 0, 45))
+a0.set_xlabel("seed magnitude λ"); a0.set_ylabel("seed time τ (days)")
+a0.set_title("τ – λ seed-timing ridge (r ≈ 0.57)", fontsize=9, color=GREY, loc="left")
+a1.hexbin(draws["beta"], draws["gamma"], gridsize=35, cmap="Blues", mincnt=1)
+a1.set_xlabel("β"); a1.set_ylabel("γ")
+a1.set_title("β – γ degeneracy, r = β − γ (r ≈ 0.79)", fontsize=9, color=GREY, loc="left")
+fig.tight_layout(); plt.show()
+```
+
+**Posterior predictive check.** Drawing 200 parameter sets from the posterior,
+simulating each, and overlaying the predictive envelope on the observed cases —
+the inference-grade "observed vs predicted", with parameter *and* process
+uncertainty propagated:
+
+```{python}
+#| label: wa-posterior-ppc
+#| echo: false
+#| fig-cap: "Posterior predictive check on the fit window. For 200 posterior draws we free-simulate the model (chain-binomial) and plot the per-day predictive median (line) with 50% and 90% bands, against observed reported cases (bars). The envelope brackets the observed climb across days 0–55 — the fitted posterior reproduces the data it was fit to, with parameter and process uncertainty propagated. (Beyond day 55 the real curve is reshaped by the mid-March lockdown, which this model does not include — out of scope for dating the seed.) Green = genomic clade-MRCA window."
+np.random.seed(0)
+PPC_TO = 55
+idx = np.random.choice(draws.height, 200, replace=False)
+sims = []
+for j, ix in enumerate(idx):
+    r = {c: draws[c][int(ix)] for c in ["beta", "gamma", "tau", "lambda", "rho_max", "k", "w", "N0", "t_rep", "w_rep"]}
+    df = simulate_cases(f"/tmp/wa_ppc_{j}.tsv", seed=j + 1, model="seed-timing/models/seed_timing_report.camdl",
+                        beta=r["beta"], gamma=r["gamma"], tau=r["tau"], lam=r["lambda"],
+                        rho_max=r["rho_max"], k=r["k"], w=r["w"], N0=r["N0"],
+                        t_rep=r["t_rep"], w_rep=r["w_rep"]).filter(pl.col("time") <= PPC_TO)
+    sims.append(df["cases"].to_numpy())
+M = np.vstack(sims); ts = np.arange(M.shape[1])
+obs = pl.read_csv("seed-timing/data/covid_wa_growth.tsv", separator="\t").filter(pl.col("time") <= PPC_TO)
+fig, ax = plt.subplots(figsize=(7.8, 3.4))
+ax.bar(obs["time"], obs["cases"], color="#cfd8ea", width=1.0, zorder=1, label="observed")
+ax.axvspan(-3, 19, color="#2ca02c", alpha=0.08, zorder=0)
+ax.fill_between(ts, np.percentile(M, 5, 0), np.percentile(M, 95, 0), color="#d62728", alpha=0.15, label="90% predictive")
+ax.fill_between(ts, np.percentile(M, 25, 0), np.percentile(M, 75, 0), color="#d62728", alpha=0.28, label="50% predictive")
+ax.plot(ts, np.median(M, 0), color="#d62728", lw=1.6, label="predictive median")
+ax.set_xlim(-3, 55); ax.set_xlabel("days since 2020-01-21"); ax.set_ylabel("daily reported cases")
+ax.legend(frameon=False, fontsize=8, loc="upper left")
+fig.tight_layout(); plt.show()
+```
+
+**Result:** τ ≈ 12 February, 90% CI ≈ [28 Jan, 26 Feb] — just after the genomic
+window, with real but bounded uncertainty. λ, γ, and the reporting ceiling are
+not recoverable from one growth curve; the posterior says so by leaving their
+marginals at the prior, rather than laundering the ridge into a false point.
+
+## The priors are load-bearing
+
+PMMH did not out-muscle IF2 — the priors supplied the information the
+growth-phase likelihood lacks. Re-running the *same* sampler with the priors
+replaced by vague uniforms (≈ pure likelihood) makes it collapse the way IF2
+does: acceptance falls, chains fail to mix, and the sloppy marginals balloon to
+the parameter bounds.
+
+```{python}
+#| label: wa-vague-vs-informative
+#| echo: false
+import json
+from IPython.display import Markdown
+inf = pl.read_csv("seed-timing/results/wa_post_draws.tsv", separator="\t")
+vag = pl.read_csv("seed-timing/results/wa_vague_draws.tsv", separator="\t")
+isum = json.load(open("seed-timing/results/wa_post_summary.json"))
+vsum = json.load(open("seed-timing/results/wa_vague_summary.json"))
+def ci(df, p):
+    v = df[p].to_numpy(); return f"[{np.percentile(v,5):.2f}, {np.percentile(v,95):.2f}]"
+def rh(s, p):
+    r = s["rhat"].get(p); return "✗ NaN" if r is None else f"{r:.2f}"
+rows = ["| param | informative R̂ | informative 90% CI | vague R̂ | vague 90% CI |",
+        "|---|---|---|---|---|"]
+for p in ["tau", "beta", "gamma", "lambda", "rho_max", "k"]:
+    rows.append(f"| {p} | {rh(isum,p)} | {ci(inf,p)} | {rh(vsum,p)} | {ci(vag,p)} |")
+Markdown("\n".join(rows))
+```
+
+With vague priors γ runs toward its bound, λ and ρ_max span their full ranges,
+and even τ loses its anchor — the same failure the IF2 gate reports. The
+general-coronavirus priors are what make the problem well-posed; they regularise
+the ridge, they do not dictate the answer.
+
+## Was the reporting ramp necessary? Model comparison
+
+We added a logistic reporting ramp ρ(t) on the argument that early testing
+scaled up. Is it justified, or overfitting? We compare three PMMH models —
+constant ρ, ρ(t) ramp, and ρ(t) + process overdispersion — by prequential
+expected log predictive density (`camdl compare`, scored at each posterior
+mode). All three have the same estimated dimension, so the comparison is fair.
+
+```{python}
+#| label: wa-compare-table
+#| echo: false
+from IPython.display import Markdown
+Markdown(open("seed-timing/results/wa_compare.md").read())
+```
+
+The reporting ramp is **necessary**: dropping it (constant ρ) costs ΔELPD ≈ −2
+with substantial evidence against, and a clearly worse CRPS. Process
+overdispersion is **unnecessary**: ΔELPD ≈ 0 (indeterminate) — once τ is
+estimated, extra process noise adds nothing. The posterior-predictive overlay
+shows why the constant-ρ model fits worse: it cannot bend its reported-case
+shape to reconcile a cryptic seed with a late detected onset.
+
+```{python}
+#| label: wa-compare-ppc
+#| echo: false
+#| fig-cap: "Posterior-predictive medians (lines) with 50% bands for the constant-ρ model (blue) and the ρ(t)-ramp model (red), against observed reported cases (bars), days 0–55. The ρ(t) model tracks the delayed, accelerating onset; the constant-ρ model must compromise and sits above the early data and below the late climb."
+np.random.seed(1)
+def ppc(path, model, cols, fixed, n=120):
+    d = pl.read_csv(path, separator="\t")
+    idx = np.random.choice(d.height, n, replace=False)
+    sims = []
+    for j, ix in enumerate(idx):
+        kw = {("lam" if c == "lambda" else c): d[c][int(ix)] for c in cols}
+        df = simulate_cases(f"/tmp/cmp_{j}.tsv", seed=j + 1, model=model, **kw, **fixed).filter(pl.col("time") <= 55)
+        sims.append(df["cases"].to_numpy())
+    M = np.vstack(sims); return np.arange(M.shape[1]), M
+tc, Mc = ppc("seed-timing/results/wa_constrho_draws.tsv", "seed-timing/models/seed_timing_const_rho_prior.camdl",
+             ["beta", "gamma", "tau", "lambda", "rho", "k"], {"N0": 1000000, "w": 5})
+tr, Mr = ppc("seed-timing/results/wa_post_draws.tsv", "seed-timing/models/seed_timing_report.camdl",
+             ["beta", "gamma", "tau", "lambda", "rho_max", "k"], {"N0": 1000000, "w": 5, "t_rep": 37, "w_rep": 7})
+obs = pl.read_csv("seed-timing/data/covid_wa_growth.tsv", separator="\t").filter(pl.col("time") <= 55)
+fig, ax = plt.subplots(figsize=(7.8, 3.4))
+ax.bar(obs["time"], obs["cases"], color="#cfd8ea", width=1.0, zorder=1, label="observed")
+for t, M, c, lab in [(tc, Mc, "#1f77b4", "constant ρ"), (tr, Mr, "#d62728", "ρ(t) ramp")]:
+    ax.fill_between(t, np.percentile(M, 25, 0), np.percentile(M, 75, 0), color=c, alpha=0.18)
+    ax.plot(t, np.median(M, 0), color=c, lw=1.7, label=lab)
+ax.set_xlim(-3, 55); ax.set_xlabel("days since 2020-01-21"); ax.set_ylabel("daily reported cases")
+ax.legend(frameon=False, fontsize=8, loc="upper left")
+fig.tight_layout(); plt.show()
+```
+
+::: {.callout-note title="Two convergence verdicts, both honest"}
+The **MLE** fits never pass camdl's compound scout-convergence gate — the sloppy
+directions (λ everywhere, ρ_max with chain-agreement Â up to ≈ 14) keep the
+per-parameter agreement leg from clearing threshold. That is the *correct*
+verdict for a structurally sloppy model under optimisation: there is no single
+peak to agree on, only a ridge. The **posterior** does converge (R̂ = 1.00, ESS
+> 1000) because it does not chase a peak — it represents the ridge as a spread of
+jointly-plausible values, regularised by the priors. Same data, same model: an
+optimiser correctly fails, a sampler correctly succeeds. We never launder an MLE
+point estimate out of a gate that refuses; we report the posterior, which is
+honest about what the level-ridge leaves unknowable.
+:::
+
+## Reflections
+
+On synthetic data the seed time is recoverable when the seed size is known (E1),
+and the joint (τ, λ) problem is a genuine ridge (E3). On the WA data, an external
+anchor (the testing timeline pinning `t_rep`) plus general-coronavirus priors
+date the seed (τ ≈ 12 Feb, 90% CI ≈ [28 Jan, 26 Feb]) even though λ stays
+unknowable. The methodological point: on a model with a ridge, the optimiser
+correctly fails the convergence gate while the posterior converges and reports
+the ridge as a spread — same data, same model, two honest verdicts.
+
+---
+
+## Appendix — synthetic foundations
+
+The experiments below (run on synthetic data simulated from known parameters) establish the concepts the WA analysis rests on: the smooth seed, recovering τ when the seed size is known (E1), and the (τ, λ) ridge (E3). Kept here for reference.
+
+## A smooth seed
+
+How do you make "introduction time" an estimable parameter? A discrete import
+event at τ is a step function in τ — its likelihood gradient is zero almost
+everywhere, so no gradient-based or iterated-filtering method can move it. The
+fix is a **smooth importation pulse**: a source-less inflow into `I` whose rate
+is a logistic soft-onset,
+
+$$
+\text{seed}: \varnothing \to I \quad @ \quad \frac{\lambda}{1 + \exp\!\big(-(t - \tau)/w\big)},
+$$
+
+with τ the onset time, λ the importation strength (the **seed magnitude**), and
+`w` the pulse width — the timescale over which the influx ramps from ~0 to ~λ.
+Finite `w` makes the rate differentiable in τ, so every backend and sampler
+handles τ as an ordinary global parameter. `w` is the identifiability dial:
+small `w` gives sharp timing on a stiff surface; large `w` blurs τ into a slow
+ramp. The inflow has no infector, so the lineage layer mints each imported
+individual with `parent = Import` — the seed founders are Import-rooted in the
+transmission tree (see [Transmission Trees](../transmission-trees.qmd)).
+
+```{python}
+#| label: fig-seed-pulse
+#| fig-cap: "Left: the logistic seed rate for two onset times τ (same λ, w) — a smooth, differentiable shift. Right: the resulting daily incidence (simulated) — a later seed simply translates the whole onset later, which is what makes τ recoverable when the seed size is fixed."
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 3.6))
+t = np.linspace(0, 80, 400)
+for tau, c in [(25, "#3366cc"), (40, "#d62728")]:
+    ax1.plot(t, seed_rate(t, tau, TRUTH["lam"], TRUTH["w"]), color=c, lw=1.8,
+             label=f"τ = {tau}")
+    df = simulate_cases(f"/tmp/seed_tau{tau}.tsv",
+                        **{**TRUTH, "tau": tau})
+    ax2.plot(df["time"], df["cases"], color=c, lw=1.5, label=f"τ = {tau}")
+ax1.set_xlabel("time (days)"); ax1.set_ylabel("seed inflow rate"); ax1.legend(frameon=False)
+ax1.axvline(25, color="#3366cc", ls=":", lw=0.8); ax1.axvline(40, color="#d62728", ls=":", lw=0.8)
+ax2.set_xlabel("time (days)"); ax2.set_ylabel("daily cases"); ax2.legend(frameon=False)
+fig.tight_layout(); plt.show()
+```
+
+## E1: recovering τ when the seed size is known
+
+We generate synthetic daily cases at **τ = 30** (β = 0.6, γ = 0.2, λ = 2.0,
+w = 3, N₀ = 5000, ρ = 0.5, k = 20) and ask the cleanest question: with every
+other parameter known, does the likelihood locate τ? Each point below is a
+particle-filter likelihood **slice** at the true nuisance values:
+
+```{python}
+#| label: fig-e1
+#| fig-cap: "1D likelihood slice over τ (all other parameters at their true values), synthetic data generated at τ = 30 (dashed line). The slice peaks at the truth and falls off smoothly; past the observed onset a seed *later* than the data cannot explain cases that have already happened, so the likelihood drops to −∞ (the wall, off-scale right). With the seed size known, τ is sharply identified."
+taus = [12, 18, 22, 26, 30, 34, 38, 42, 46]
+nuis = {k: v for k, v in TRUTH.items() if k != "tau"}
+lls = [pfilter_loglik(SYNTH, tau=t, **nuis) for t in taus]
+taus_f = [t for t, l in zip(taus, lls) if np.isfinite(l)]
+lls_f = [l for l in lls if np.isfinite(l)]
+fig, ax = plt.subplots(figsize=(7, 3.6))
+ax.plot(taus_f, lls_f, "-o", color="#3366cc", markerfacecolor="white", markeredgewidth=1.3)
+ax.axvline(30, color=GREY, ls="--", lw=1)
+ax.annotate("truth τ = 30", (30, min(lls_f)), textcoords="offset points",
+            xytext=(6, 4), fontsize=8, color=GREY)
+walls = [t for t, l in zip(taus, lls) if not np.isfinite(l)]
+if walls:
+    ax.annotate(f"−∞ wall for τ ≥ {min(walls)}", (min(walls), np.median(lls_f)),
+                textcoords="offset points", xytext=(-4, 0), ha="right", fontsize=8, color="#d62728")
+ax.set_xlabel("seed time τ (days)"); ax.set_ylabel("log-likelihood")
+fig.tight_layout(); plt.show()
+```
+
+## E3: the (τ, λ) ridge
+
+Now the honest question: estimate τ and the seed magnitude λ *together*. During
+exponential growth, $I(t) \approx N_{\text{seed}}\,e^{r(t-\tau)}$ with
+$N_{\text{seed}} \propto \lambda$, so the early case curve constrains the
+combination $\ln\lambda - r\tau$, not τ and λ separately: **a later seed with a
+larger influx produces a nearly identical early epidemic.** The likelihood is
+flat along that direction and steep across it — a sloppy ridge.
+
+```{python}
+#| label: fig-e3-ridge
+#| fig-cap: "2D likelihood slice over (τ, λ) with β, γ, ρ, k at their true values. The high-likelihood band (yellow) runs **diagonally** — later seed times pair with larger seed magnitudes along ln λ ≈ rτ + const. The data cannot separate *when* from *how much*; it pins only the combination. The white star marks the true (τ=30, λ=2)."
+taus = [22, 26, 30, 34, 38]
+lams = [0.5, 1.0, 2.0, 4.0, 8.0]
+nuis = {k: v for k, v in TRUTH.items() if k not in ("tau", "lam")}
+Z = np.array([[pfilter_loglik(SYNTH, tau=t, lam=l, **nuis) for l in lams] for t in taus])
+Zm = np.where(np.isfinite(Z), Z, np.nan)
+fig, ax = plt.subplots(figsize=(6.6, 4.2))
+im = ax.imshow(Zm, origin="lower", aspect="auto", cmap="viridis",
+               extent=[-0.5, len(lams) - 0.5, -0.5, len(taus) - 0.5])
+ax.set_xticks(range(len(lams))); ax.set_xticklabels(lams)
+ax.set_yticks(range(len(taus))); ax.set_yticklabels(taus)
+ax.set_xlabel("seed magnitude λ"); ax.set_ylabel("seed time τ (days)")
+ax.scatter([lams.index(2.0)], [taus.index(30)], marker="*", s=180,
+           color="white", edgecolors="black", zorder=3)
+fig.colorbar(im, ax=ax, label="log-likelihood")
+fig.tight_layout(); plt.show()
+```
+
+The ridge is not a failure of the method — it is a true property of the data.
+The honest deliverable is the 2D surface itself, with the constrained
+combination $\ln\lambda - r\tau$ named, **not** a spuriously precise point
+estimate of τ.
+
+## Does the ridge matter? Yes — and it doesn't break forecasting
+
+Three points along the ridge give very different (τ, λ) but near-identical case
+curves — which is exactly why the data can't separate them:
+
+```{python}
+#| label: fig-ridge-predictions
+#| fig-cap: "Three points along the (τ, λ) ridge: an early-small seed, the truth, and a late-large seed. The simulated case curves are nearly indistinguishable through the growth phase — the data that would discriminate them does not exist. A model non-identifiable in (τ, λ) can still *forecast* the trajectory; identifiability and calibration are different things."
+ridge = [(24, 0.7, "#2ca02c", "early-small (τ=24, λ=0.7)"),
+         (30, 2.0, "#3366cc", "truth (τ=30, λ=2.0)"),
+         (36, 5.5, "#d62728", "late-large (τ=36, λ=5.5)")]
+fig, ax = plt.subplots(figsize=(7.5, 3.8))
+obs = pl.read_csv(SYNTH, separator="\t")
+ax.plot(obs["time"], obs["cases"], "o", ms=3, color=GREY, alpha=0.5, label="synthetic data")
+for tau, lam, c, lab in ridge:
+    df = simulate_cases(f"/tmp/ridge_{tau}.tsv", **{**TRUTH, "tau": tau, "lam": lam})
+    ax.plot(df["time"], df["cases"], color=c, lw=1.6, label=lab)
+ax.set_xlim(0, 70); ax.set_xlabel("time (days)"); ax.set_ylabel("daily cases")
+ax.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False, fontsize=8)
+fig.tight_layout(); plt.show()
+```

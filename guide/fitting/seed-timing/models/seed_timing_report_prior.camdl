@@ -1,0 +1,65 @@
+# Bayesian seed-timing model: same dynamics as seed_timing_report.camdl, but
+# with priors on the estimated parameters so a PGAS posterior can *explore* the
+# level-setting ridge (lambda, rho_max, beta/gamma) instead of an MLE optimiser
+# failing on it. Priors are deliberately general — what a modeller would have
+# believed about an emerging coronavirus at the *start* of an outbreak, NOT
+# values back-fitted to SARS-CoV-2:
+#
+#   gamma   infectious period ~ 1 week (median 7 d), 90% CI ~ [3.7, 14] d.
+#           This is the load-bearing prior: it breaks the beta/gamma degeneracy
+#           (the data fix the growth rate r = beta - gamma; an informed gamma
+#           then pins beta).
+#   beta    median R0 ~ 2.9 with gamma above; implied R0 90% CI ~ [1.5, 5.5] —
+#           a generic emerging-respiratory-virus belief.
+#   rho_max early-outbreak surveillance detects a modest, uncertain fraction.
+#   lambda  cryptic introductions are small (mean ~2), weakly informative.
+#   tau     flat over the plausible window — let the data speak.
+#   k       weakly informative around moderate dispersion.
+#
+# N0, w, w_rep, t_rep carry no prior and are supplied via [fixed]: N0 is a
+# non-identifiable scale placeholder, w/w_rep are unresolvable shape widths, and
+# t_rep is the external reporting-onset anchor (known WA testing timeline).
+time_unit = 'days
+
+compartments { S, I, R }
+
+parameters {
+  beta    : rate        in [0.001, 5.0]  ~ log_normal(mu = -0.92, sigma = 0.4)
+  gamma   : rate        in [0.01, 1.0]   ~ log_normal(mu = -1.97, sigma = 0.4)
+  tau     : real        in [0.0, 45.0]   ~ uniform(lower = 0.0, upper = 45.0)
+  lambda  : positive    in [0.0, 100.0]  ~ exponential(rate = 0.5)
+  w       : positive    in [0.1, 20.0]
+  N0      : count        in [100, 1000000]
+  rho_max : probability in [0.0, 1.0]    ~ beta(alpha = 2.0, beta = 3.0)
+  t_rep   : real        in [0.0, 120.0]
+  w_rep   : positive    in [0.1, 30.0]
+  k       : positive    in [0.1, 1000.0] ~ log_normal(mu = 3.0, sigma = 1.0)
+}
+
+let N = S + I + R
+let rho_t = rho_max / (1 + exp(-(t - t_rep) / w_rep))
+
+transitions {
+  #[lineage]
+  infection : S --> I  @ beta * S * I / N
+  recovery  : I --> R  @ gamma * I
+  seed      :     --> I  @ lambda / (1 + exp(-(t - tau) / w))
+}
+
+observations {
+  cases : {
+    projected  = incidence(infection)
+    every      = 1 'days
+    likelihood = neg_binomial(mean = rho_t * projected, r = k)
+  }
+}
+
+init {
+  S = N0
+  I = 0
+}
+
+simulate {
+  from = 0 'days
+  to   = 120 'days
+}

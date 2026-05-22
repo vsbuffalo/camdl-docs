@@ -10,8 +10,14 @@ $content-max-width: 1400px !default;
   max-width: $content-max-width;
 }
 
-/* Figures should never overflow their container */
-.cell-output-display img {
+/* Figures should never overflow their container. Quarto puts captioned,
+   labelled figures (`#| label: fig-*`) inside `.quarto-figure` floats whose
+   <img> is NOT wrapped in `.cell-output-display`, so the cell-output rule alone
+   left them at intrinsic pixel width and they cropped on narrow columns. Cover
+   both: raw cell output, quarto floats, and any Bootstrap `.figure-img`. */
+.cell-output-display img,
+.quarto-figure img,
+img.figure-img {
   max-width: 100%;
   height: auto;
 }

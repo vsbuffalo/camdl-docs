@@ -1,0 +1,57 @@
+# Bayesian seed-timing posterior (PMMH) on the WA pre-lockdown growth window.
+# Replaces the non-converged IF2 profile: instead of optimising on the
+# level-setting ridge (lambda, rho_max, beta/gamma) and failing the gate, the
+# sampler *explores* it and returns honest marginals — tight for tau, wide for
+# the sloppy directions. Priors are general-coronavirus (not SARS-CoV-2-tuned),
+# mirrored in models/seed_timing_report_prior.camdl. t_rep is the external
+# reporting-onset anchor; N0/w/w_rep are non-identifiable and fixed.
+[model]
+camdl      = "../models/seed_timing_report_prior.camdl"
+output_dir = "../results/covid_wa_pmmh"
+
+[data.observations]
+cases = "../data/covid_wa_growth.tsv"
+
+[config]
+backend = "chain_binomial"
+dt      = 1
+
+# General-coronavirus priors (NOT SARS-CoV-2-tuned); mirrored in
+# models/seed_timing_report_prior.camdl. This build reads priors from the fit
+# config, not the model `~` block.
+# `start` values are interior points with finite prior density — PMMH inits
+# here (init_method = "single"). NOT scout-derived: an IF2 scout ignores the
+# priors and parks rho_max at its bound 1.0, where the beta prior is 0
+# (log-posterior = -inf) and the chain freezes. The flat lambda/rho_max ridge
+# disperses the chains on its own as they sample.
+[estimate]
+beta    = { bounds = [0.001, 5.0],  start = 0.6,  prior = { log_normal = { mu = -0.92, sigma = 0.4 } } }
+gamma   = { bounds = [0.01, 1.0],   start = 0.18, prior = { log_normal = { mu = -1.97, sigma = 0.4 } } }
+tau     = { bounds = [0.0, 45.0],   start = 23.0, prior = { uniform = { lower = 0.0, upper = 45.0 } } }
+lambda  = { bounds = [0.0, 100.0],  start = 2.0,  prior = { exponential = { rate = 0.5 } } }
+rho_max = { bounds = [0.0, 1.0],    start = 0.4,  prior = { beta = { alpha = 2.0, beta = 3.0 } } }
+k       = { bounds = [0.1, 1000.0], start = 20.0, prior = { log_normal = { mu = 3.0, sigma = 1.0 } } }
+
+[fixed]
+N0    = 1000000
+w     = 5.0
+w_rep = 7.0
+t_rep = 37.0
+
+# PMMH (not PGAS): PGAS's NUTS gradient does not yet thread observation-
+# likelihood derivatives (camdl audit C1), so it cannot estimate rho_max or k
+# — precisely the level parameters we need the posterior to explore. PMMH is
+# gradient-free (PF-inside-MH) and fine at this small T (= 55); log-lik SD at
+# 800 particles is ~0.12 nats, well inside the pseudo-marginal sweet spot.
+# init_method = "single" starts every chain at the interior `start` values
+# (finite prior density); adaptive Metropolis tunes the proposal from there.
+[stages.posterior]
+algorithm   = "pmmh"
+backend     = "chain_binomial"
+chains      = 4
+particles   = 800
+iterations  = 15000
+burn_in     = 3000
+thin        = 5
+init_method = "single"
+adapt       = true

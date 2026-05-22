@@ -1,0 +1,41 @@
+# Model-comparison arm: PMMH on the rho(t) + OVERDISPERSION model. Same priors
+# and sampler as covid_wa_pmmh.toml, plus sigma_se (extra-demographic process
+# noise on transmission). `camdl compare` against the plain rho(t) fit tests
+# whether the data want process noise once tau is estimated (expected: little to
+# none). sigma_se -> 0 nests the plain rho(t) model.
+[model]
+camdl      = "../models/seed_timing_report_od_prior.camdl"
+output_dir = "../results/covid_wa_pmmh_od"
+
+[data.observations]
+cases = "../data/covid_wa_growth.tsv"
+
+[config]
+backend = "chain_binomial"
+dt      = 1
+
+[estimate]
+beta     = { bounds = [0.001, 5.0],   start = 0.6,  prior = { log_normal = { mu = -0.92, sigma = 0.4 } } }
+gamma    = { bounds = [0.01, 1.0],    start = 0.18, prior = { log_normal = { mu = -1.97, sigma = 0.4 } } }
+tau      = { bounds = [0.0, 45.0],    start = 23.0, prior = { uniform = { lower = 0.0, upper = 45.0 } } }
+lambda   = { bounds = [0.0, 100.0],   start = 2.0,  prior = { exponential = { rate = 0.5 } } }
+rho_max  = { bounds = [0.0, 1.0],     start = 0.4,  prior = { beta = { alpha = 2.0, beta = 3.0 } } }
+k        = { bounds = [0.1, 1000.0],  start = 20.0, prior = { log_normal = { mu = 3.0, sigma = 1.0 } } }
+sigma_se = { bounds = [0.0001, 2.0],  start = 0.1,  prior = { exponential = { rate = 5.0 } } }
+
+[fixed]
+N0    = 1000000
+w     = 5.0
+w_rep = 7.0
+t_rep = 37.0
+
+[stages.posterior]
+algorithm   = "pmmh"
+backend     = "chain_binomial"
+chains      = 4
+particles   = 800
+iterations  = 15000
+burn_in     = 3000
+thin        = 5
+init_method = "single"
+adapt       = true

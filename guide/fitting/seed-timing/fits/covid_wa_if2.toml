@@ -1,0 +1,38 @@
+# Headline IF2 (maximum-likelihood) attempt: the rho(t) model, all six
+# parameters free, no priors. This is the natural MLE fit — and it FAILS the
+# compound convergence gate, because the growth-phase likelihood is flat along
+# the level ridge (beta-magnitude / lambda / rho_max). It is the evidence for the
+# "Method 1 fails" section. tau uses transform="logit" only as a camdl#66
+# workaround (real-typed fit-bounds are otherwise unenforced under IF2).
+[model]
+camdl      = "../models/seed_timing_report.camdl"
+output_dir = "../results/covid_wa_if2"
+
+[data.observations]
+cases = "../data/covid_wa_growth.tsv"
+
+[config]
+backend = "chain_binomial"
+dt      = 1
+
+[estimate]
+beta    = { bounds = [0.1, 1.5],   start = 0.5 }
+gamma   = { bounds = [0.08, 0.5],  start = 0.2 }
+tau     = { bounds = [0.0, 45.0],  start = 20.0, transform = "logit" }
+lambda  = { bounds = [0.01, 10.0], start = 2.0 }
+rho_max = { bounds = [0.01, 1.0],  start = 0.4 }
+k       = { bounds = [1.0, 100.0], start = 10.0 }
+
+[fixed]
+N0    = 1000000
+w     = 5.0
+w_rep = 7.0
+t_rep = 37.0
+
+[stages.scout]
+algorithm  = "if2"
+backend    = "chain_binomial"
+chains     = 24
+particles  = 2000
+iterations = 200
+cooling    = 0.95

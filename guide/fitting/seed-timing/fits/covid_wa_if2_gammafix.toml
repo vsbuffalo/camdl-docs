@@ -1,0 +1,37 @@
+# Diagnostic: IF2 with gamma FIXED at the prior median (0.14, infectious period
+# ~7 d). Tests whether breaking the beta/gamma degeneracy — the load-bearing job
+# of the gamma prior in the PMMH posterior — is enough to let the IF2 MLE
+# converge. If beta and tau now agree across chains, the IF2 non-convergence was
+# the unregularised beta/gamma ridge, not an algorithm failure.
+[model]
+camdl      = "../models/seed_timing_report.camdl"
+output_dir = "../results/covid_wa_if2_gammafix"
+
+[data.observations]
+cases = "../data/covid_wa_growth.tsv"
+
+[config]
+backend = "chain_binomial"
+dt      = 1
+
+[estimate]
+beta    = { bounds = [0.1, 1.5],   start = 0.5 }
+tau     = { bounds = [0.0, 45.0],  start = 20.0, transform = "logit" }
+lambda  = { bounds = [0.01, 10.0], start = 2.0 }
+rho_max = { bounds = [0.01, 1.0],  start = 0.4 }
+k       = { bounds = [1.0, 100.0], start = 10.0 }
+
+[fixed]
+N0    = 1000000
+w     = 5.0
+w_rep = 7.0
+t_rep = 37.0
+gamma = 0.14
+
+[stages.scout]
+algorithm  = "if2"
+backend    = "chain_binomial"
+chains     = 24
+particles  = 2000
+iterations = 200
+cooling    = 0.95

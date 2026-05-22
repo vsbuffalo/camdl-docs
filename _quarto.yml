@@ -29,6 +29,7 @@ book:
         - guide/fitting/likelihood.qmd
         # - guide/fitting/model_comparison.qmd  # draft: missing pipeline artifacts
         - guide/fitting/identifiability.qmd
+        - guide/fitting/seed-timing.qmd
     - part: "Inference"
       chapters:
         - inference/likelihood.qmd

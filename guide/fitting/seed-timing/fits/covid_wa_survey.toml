@@ -1,0 +1,40 @@
+# Likelihood-landscape survey config for `camdl survey --fit`. Maps p(y|theta)
+# over a Latin-hypercube of the estimated parameters on the WA growth window,
+# to show identifiability directly: loglik should vary sharply along tau and
+# be flat along the lambda/rho_max level-ridge. Bounds are focused on the
+# plausible region (not the wide MCMC support) so LHS coverage isn't wasted on
+# obviously-bad corners. No priors — this is a likelihood diagnostic.
+[model]
+camdl      = "../models/seed_timing_report.camdl"
+output_dir = "../results/covid_wa_survey"
+
+[data.observations]
+cases = "../data/covid_wa_growth.tsv"
+
+[config]
+backend = "chain_binomial"
+dt      = 1
+
+[estimate]
+beta    = { bounds = [0.3, 1.0] }
+gamma   = { bounds = [0.08, 0.5] }
+tau     = { bounds = [0.0, 45.0] }
+lambda  = { bounds = [0.5, 10.0] }
+rho_max = { bounds = [0.1, 0.9] }
+k       = { bounds = [2.0, 200.0] }
+
+[fixed]
+N0    = 1000000
+w     = 5.0
+w_rep = 7.0
+t_rep = 37.0
+
+# Unused by `camdl survey` (which reads only [estimate] bounds + [data]); present
+# solely to satisfy fit.toml schema validation.
+[stages.scout]
+algorithm  = "if2"
+backend    = "chain_binomial"
+chains     = 4
+particles  = 500
+iterations = 50
+cooling    = 0.95
