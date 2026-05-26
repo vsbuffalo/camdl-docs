@@ -1,0 +1,337 @@
+---
+title: "Model Comparison"
+draft: true
+execute:
+  echo: true
+  warning: false
+code-fold: true
+code-summary: "show code"
+---
+
+```{python}
+#| label: setup
+#| echo: false
+#| output: false
+import sys
+from pathlib import Path
+import polars as pl
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+sys.path.insert(0, str(Path("/Users/vsb/projects/work/camdl-book")))
+from _lib.cli import run_cli, fit_clean
+
+# Reader-faithfulness: clear stale dirs for the fits this chapter owns.
+# The Poisson dt = 0.1 fit is owned by the likelihood chapter; we read
+# its MLE here but don't re-run, so we don't clean it.
+fit_clean(
+    "fits/negbin_fixed_ic.toml",
+    "fits/procnoise_fixed_ic.toml",
+)
+
+GREY = "#555555"
+mpl.rcParams.update({
+    "figure.dpi": 150, "font.size": 10,
+    "axes.edgecolor": GREY, "axes.labelcolor": GREY,
+    "xtick.color": GREY, "ytick.color": GREY, "text.color": GREY,
+    "axes.spines.top": False, "axes.spines.right": False,
+})
+
+POI_MLE = next(Path("results/fits").glob("poisson_fixed_ic_dt01-*/real/fit_28")) / "refine/mle_params.toml"
+```
+
+In [Likelihood Fitting](likelihood.qmd) we landed a calibrated
+SIR + Poisson + fixed-IC fit at `dt = 0.1`: β̂ ≈ 1.94, γ̂ ≈ 0.50,
+R₀ ≈ 3.87, and a posterior-predictive check that tracks the data
+(1 of 14 observations outside the 90 % envelope, against an expected
+1.4). Two mechanistic alternatives each add one parameter:
+
+1. **Negative-binomial observation** — an observation-level
+   dispersion parameter $k$. Variance splits between the latent
+   $I(t)$ trajectory and over-dispersed counting.
+2. **Process noise on $\beta$** — gamma white noise of intensity
+   $\sigma_{\text{se}}$ multiplying the infection rate, following
+   [@he2010]. Variance lives in the dynamics, not the counting.
+
+The question is whether either is justified — and the answer, at the
+calibrated step, is **no**. That's worth a short chapter, partly
+because the *machinery* (joint IF2 fails on a sloppy direction →
+profile it → score prequentially) is reusable, and partly because of
+what happens if you run the comparison at the *un*calibrated
+`dt = 1.0` instead: there the alternatives look essential. They
+aren't. That's the chapter's real lesson, and it comes at the end.
+
+## Three candidates, three model files
+
+```camdl
+# Poisson (no extra parameter)
+likelihood = poisson(rate = projected)
+
+# Negative binomial (adds k)
+likelihood = neg_binomial(mean = projected, r = k)
+
+# Process noise on β (adds sigma_se)
+infection : S --> I @ overdispersed(beta * S * I / N, sigma_se)
+likelihood = poisson(rate = projected)   # obs unchanged
+```
+
+All three share the same SIR dynamics, fixed $N = 763$ and
+$I(0) = 3$ (the BMJ source), and `dt = 0.1`.
+
+## Joint IF2 fails for both alternatives
+
+Run IF2 on each alternative with the same budget as the Poisson fit
+(48 scout chains × 2000 particles × 250 iterations, then 12 refine
+chains × 4000 particles × 400 iterations):
+
+```{python}
+#| echo: false
+#| label: fit-negbin
+run_cli(
+    'camdl fit run fits/negbin_fixed_ic.toml --seed 28 --label "NegBin dt 0.1" --progress plain',
+    echo='camdl fit run fits/negbin_fixed_ic.toml --seed 28 --label "NegBin dt 0.1"',
+    max_lines=20, collapse=False,
+)
+```
+
+```{python}
+#| echo: false
+#| label: fit-procnoise
+run_cli(
+    'camdl fit run fits/procnoise_fixed_ic.toml --seed 28 --label "procnoise dt 0.1" --progress plain',
+    echo='camdl fit run fits/procnoise_fixed_ic.toml --seed 28 --label "procnoise dt 0.1"',
+    max_lines=20, collapse=False,
+)
+```
+
+Both fits **fail the scout convergence gate** — the gate refuses to
+run refine. The failure modes are diagnostic:
+
+| model | $\beta$ Â | $\gamma$ Â | extra Â | reading |
+|---|---:|---:|---:|---|
+| NegBin | 1.01 ✓ | 1.00 ✓ | $k$: **1.23** ✗ | $\beta, \gamma$ pin tightly; $k$ chains spread along a flat ridge |
+| Procnoise | **2.09** ✗ | 1.04 ⚠ | $\sigma_{\text{se}}$: **13.4** ✗ | multimodal in $(\beta, \sigma_{\text{se}})$; $\sigma_{\text{se}}$ wanders the whole axis |
+
+For NegBin, the data + model don't constrain $k$ from above — chains
+reach similar log-likelihoods at wildly different $k$, so the gate
+won't pick one. For procnoise it's worse: $\sigma_{\text{se}}$ Â of
+13.4 (vs 8.15 at `dt = 1.0` — *more* unidentified, not less), and
+$\beta$ Â fails too, the signature of compensating basins (high
+$\beta$ + high noise vs low $\beta$ + low noise). **Joint IF2 cannot
+honestly pick a single MLE on a sloppy direction**, and we don't
+bypass that with `--allow-nonconverged-scout` — a chain's lucky
+endpoint along a flat axis isn't an MLE.
+
+## Profile likelihoods: both peak at the Poisson limit
+
+The fix is a **profile likelihood**: sweep the sloppy parameter on a
+grid, and at each cell let IF2 optimise the remaining parameters.
+The conditional surface in $(\beta, \gamma)$ at fixed $k$ (or fixed
+$\sigma_{\text{se}}$) is unimodal, so IF2 converges legitimately per
+cell; the grid traces out the profile log-likelihood with
+$(\beta, \gamma)$ already maximised out.
+
+```{python}
+#| echo: false
+#| label: profile-negbin
+run_cli(
+    "camdl profile models/boarding_school_sir_negbin.camdl --data data/in_bed.tsv "
+    "--params output/profile_start_nb.toml --dt 0.1 "
+    "--sweep 'k=3,5,8,12,18,27,40,60,90,130,200,500' "
+    "--rw-sd 'beta=0.05,gamma=0.02' --particles 1000 --iterations 80 --starts 3 "
+    "--seed 28 --parallel 8 -o output/profile_negbin_k.tsv",
+    echo=("camdl profile models/boarding_school_sir_negbin.camdl --data data/in_bed.tsv "
+          "--params output/profile_start_nb.toml --dt 0.1 "
+          "--sweep 'k=3,5,...,500' --rw-sd 'beta=0.05,gamma=0.02' "
+          "--particles 1000 --iterations 80 --starts 3 -o output/profile_negbin_k.tsv"),
+    max_lines=6,
+)
+```
+
+```{python}
+#| echo: false
+#| label: profile-procnoise
+run_cli(
+    "camdl profile models/boarding_school_sir_procnoise.camdl --data data/in_bed.tsv "
+    "--params output/profile_start.toml --dt 0.1 "
+    "--sweep 'sigma_se=0.005,0.01,0.02,0.05,0.08,0.12,0.20,0.30,0.45,0.65,1.00,1.40' "
+    "--rw-sd 'beta=0.05,gamma=0.02' --particles 1000 --iterations 80 --starts 3 "
+    "--seed 28 --parallel 8 -o output/profile_procnoise_sigma.tsv",
+    echo=("camdl profile models/boarding_school_sir_procnoise.camdl --data data/in_bed.tsv "
+          "--params output/profile_start.toml --dt 0.1 "
+          "--sweep 'sigma_se=0.005,0.01,...,1.40' --rw-sd 'beta=0.05,gamma=0.02' "
+          "--particles 1000 --iterations 80 --starts 3 -o output/profile_procnoise_sigma.tsv"),
+    max_lines=6,
+)
+```
+
+```{python}
+#| label: fig-profiles
+#| fig-cap: "1D profile log-likelihoods at dt = 0.1 (β, γ optimised per cell, fixed I(0) = 3). **Left:** NegBin's k — rises monotonically to k ≈ 90–130, then flat out to k = 500 (Δll < 0.5 nats); the data wants k large, i.e. the Poisson limit (k → ∞). The 'peak' at k = 130 is noise on a ridge with no upper edge. **Right:** procnoise's σ_se — highest at the lowest grid point (0.005) and monotone-declining; the profile maximum sits at the lower bound, so the data wants ≈ no process noise on β. Neither alternative's preferred parameter value differs meaningfully from 'turn this term off'."
+nb = pl.read_csv("output/profile_negbin_k.tsv", separator="\t", comment_prefix="#").sort("k")
+pn = pl.read_csv("output/profile_procnoise_sigma.tsv", separator="\t", comment_prefix="#").sort("sigma_se")
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 3.6), gridspec_kw={"wspace": 0.3})
+
+ks = nb["k"].to_numpy(); lls_k = nb["loglik"].to_numpy()
+ik = int(np.argmax(lls_k))
+ax1.plot(ks, lls_k, "-o", color="#3366cc", lw=1.5, markerfacecolor="white",
+         markeredgewidth=1.2, markeredgecolor="#3366cc", markersize=6)
+ax1.scatter([ks[ik]], [lls_k[ik]], marker="*", s=250, color="red",
+            edgecolor="white", lw=1.0, zorder=6, label=f"profile max (k = {ks[ik]:.0f})")
+for lvl, lbl in [(1.92, "95%"), (4.61, "99%")]:
+    ax1.axhline(lls_k[ik] - lvl, color="#888", ls=":", lw=0.9, label=f"Wilks {lbl} CI")
+ax1.set_xscale("log"); ax1.set_xlabel("$k$  (NegBin dispersion)")
+ax1.set_ylabel("profile log-likelihood")
+ax1.set_title("NegBin: profile over $k$", fontsize=10, pad=4)
+ax1.legend(frameon=False, loc="lower right", fontsize=8)
+
+ss = pn["sigma_se"].to_numpy(); lls_s = pn["loglik"].to_numpy()
+isg = int(np.argmax(lls_s))
+ax2.plot(ss, lls_s, "-o", color="#e67e22", lw=1.5, markerfacecolor="white",
+         markeredgewidth=1.2, markeredgecolor="#e67e22", markersize=6)
+ax2.scatter([ss[isg]], [lls_s[isg]], marker="*", s=250, color="red",
+            edgecolor="white", lw=1.0, zorder=6,
+            label=f"profile max ($\\sigma_{{se}}$ = {ss[isg]:.3f})")
+for lvl, lbl in [(1.92, "95%"), (4.61, "99%")]:
+    ax2.axhline(lls_s[isg] - lvl, color="#888", ls=":", lw=0.9, label=f"Wilks {lbl} CI")
+ax2.set_xscale("log"); ax2.set_xlabel("$\\sigma_{\\text{se}}$  (process-noise SD on $\\beta$)")
+ax2.set_ylabel("profile log-likelihood")
+ax2.set_title("Procnoise: profile over $\\sigma_{\\text{se}}$", fontsize=10, pad=4)
+ax2.legend(frameon=False, loc="lower left", fontsize=8)
+fig.tight_layout()
+
+# Write the plug-in MLEs at each profile argmax for the prequential scoring.
+nb_row = nb.row(ik, named=True); pn_row = pn.row(isg, named=True)
+Path("output/mle_negbin_profile.toml").write_text(
+    f"# NegBin profile MLE at dt = 0.1 (argmax of the k-sweep). The k-profile\n"
+    f"# is flat from k ~ 90 upward (Δll < 0.5 nats out to k = 500): the data\n"
+    f"# wants k large, i.e. the Poisson limit.\n"
+    f"beta = {nb_row['beta']}\ngamma = {nb_row['gamma']}\nk = {nb_row['k']}\nN0 = 763\nI0 = 3\n")
+Path("output/mle_procnoise_profile.toml").write_text(
+    f"# procnoise profile MLE at dt = 0.1 (argmax of the sigma_se sweep — the\n"
+    f"# lowest grid point). The profile declines monotonically as sigma_se\n"
+    f"# grows: the data wants ~no process noise on beta.\n"
+    f"beta = {pn_row['beta']}\ngamma = {pn_row['gamma']}\nsigma_se = {pn_row['sigma_se']}\nN0 = 763\nI0 = 3\n")
+print(f"NegBin profile MLE:    k = {nb_row['k']:.0f}, β̂ = {nb_row['beta']:.3f}, γ̂ = {nb_row['gamma']:.3f}, ll = {lls_k.max():.2f}")
+print(f"Procnoise profile MLE: σ_se = {pn_row['sigma_se']:.3f}, β̂ = {pn_row['beta']:.3f}, γ̂ = {pn_row['gamma']:.3f}, ll = {lls_s.max():.2f}")
+```
+
+**Reading.** Both profiles tell the same story: the maximum sits at
+the parameter value that *deactivates* the extra term. NegBin's $k$
+rises toward infinity (the Poisson limit) with no upper edge the
+14 observations can pin; procnoise's $\sigma_{\text{se}}$ wants the
+lower bound. Compared to the Poisson fit's log-likelihood (≈ −58.7),
+neither profile maximum is more than a fraction of a nat better — and
+"a fraction of a nat for one extra parameter" is below the AIC break-
+even (which needs a 1-nat gain per parameter). The parameters are
+weakly identified *and* unwanted; there's no there there.
+
+(Contrast `dt = 1.0`: NegBin's $k$-profile peaked at $k = 40$ with a
+*real* gain and procnoise's at $\sigma_{\text{se}} = 0.12$ — those
+"wants" were absorbing the discretization bias. More on that below.)
+
+## Prequential comparison
+
+For a one-step-ahead check, the bootstrap PF gives the prequential
+decomposition $\log p(y_{1:T}) = \sum_t \log p(y_{t+1} \mid y_{1:t})$
+[@dawid1984] essentially for free: one PF run per model at its plug-in
+MLE. (All three at `dt = 0.1`, the calibrated step.)
+
+```{python}
+#| echo: false
+#| label: preq-traces
+run_cli(f"camdl pfilter models/boarding_school_sir.camdl --params {POI_MLE} --data data/in_bed.tsv --particles 5000 --dt 0.1 --seed 1 --save-prequential output/preq_poisson",
+        echo="camdl pfilter models/boarding_school_sir.camdl --params <Poisson dt=0.1 MLE> --dt 0.1 ... --save-prequential output/preq_poisson", max_lines=3)
+run_cli("camdl pfilter models/boarding_school_sir_negbin.camdl --params output/mle_negbin_profile.toml --data data/in_bed.tsv --particles 5000 --dt 0.1 --seed 1 --save-prequential output/preq_negbin",
+        echo="camdl pfilter models/boarding_school_sir_negbin.camdl --params <NegBin profile MLE> --dt 0.1 ... --save-prequential output/preq_negbin", max_lines=3)
+run_cli("camdl pfilter models/boarding_school_sir_procnoise.camdl --params output/mle_procnoise_profile.toml --data data/in_bed.tsv --particles 5000 --dt 0.1 --seed 1 --save-prequential output/preq_procnoise",
+        echo="camdl pfilter models/boarding_school_sir_procnoise.camdl --params <procnoise profile MLE> --dt 0.1 ... --save-prequential output/preq_procnoise", max_lines=3)
+```
+
+```{python}
+#| echo: false
+#| label: compare-table
+run_cli(
+    "camdl compare output/preq_poisson.json output/preq_negbin.json output/preq_procnoise.json",
+    echo="camdl compare output/preq_poisson.json output/preq_negbin.json output/preq_procnoise.json",
+    max_lines=12, collapse=False,
+)
+```
+
+**Poisson wins.** It has the best one-step elpd and the lowest CRPS;
+NegBin's $\Delta\text{elpd} \approx -1.3$ nats is within one standard
+error of zero (NegBin ≈ Poisson, exactly as the flat $k$-ridge
+predicts), and procnoise lands ~4 nats *below* Poisson. AIC reaches
+the same verdict by parsimony: no log-likelihood gain, more
+parameters — keep the simple model. The one wrinkle: all three
+*under*-cover at the one-step level (PIT 90 % coverage ≈ 0.7–0.8
+against a nominal 0.9), a known limitation of i.i.d. observation
+models on autocorrelated daily counts — but that's *not* a
+`dt` artifact (the `dt = 1.0` Poisson fit under-covered identically),
+and it doesn't make the more complex models the answer when they cost
+elpd. **With 14 daily counts of a closed-system outbreak, the data
+does not justify either extra parameter.**
+
+## The bigger lesson: calibrate `dt` before comparing models
+
+Run this same comparison at `dt = 1.0` — the value
+[The Integrator Step](../integrator-step.qmd) shows is ~4× too coarse
+for this model — and it reads completely differently. There the Poisson
+PPC misses 5 of 14 observations; the NegBin profile peaks at a finite
+$k$ with a real log-likelihood gain; the procnoise profile peaks at
+$\sigma_{\text{se}} = 0.12$ and pulls β̂ up to 2.36; and the
+prequential comparison puts *both* alternatives ~6–7 nats **ahead** of
+Poisson. You'd conclude the simple model is inadequate and you need
+extra variance — and you'd be wrong. The "extra variance" the
+alternatives provided at `dt = 1.0` was absorbing the integrator's
+discretization bias: the coarse chain-binomial step makes the Poisson
+trajectory too slow and too narrow, and a wider observation layer (or
+a noisier transmission rate) papers over it. Once `dt` is fine enough
+that the discretization error is below the noise floor, the patch is
+unnecessary — and the data says so.
+
+| | dt = 1.0 | dt = 0.1 (calibrated) |
+|---|---|---|
+| Poisson PPC | 5/14 outside the envelope | 1/14 |
+| NegBin profile peak | $k = 40$, meaningful gain | $k \to \infty$ (≈ Poisson) |
+| Procnoise profile peak | $\sigma_{\text{se}} = 0.12$, β̂ → 2.36 | $\sigma_{\text{se}} \to 0$ (≈ Poisson) |
+| $\Delta\text{elpd}$, NegBin − Poisson | $+6.3$ (decisive *for* NegBin) | $-1.3 \pm 2.7$ (≈ 0) |
+| $\Delta\text{elpd}$, Procnoise − Poisson | $+7.4$ (decisive *for* procnoise) | $-4.4 \pm 4.5$ (against) |
+| Verdict | "you need extra variance" | "the simple model is the right answer" |
+
+Model comparison is a downstream operation. If your numerics aren't
+converged, you'll attribute discretization error to model structure
+and buy complexity you don't need. **Calibrate `dt` (see
+[The Integrator Step](../integrator-step.qmd)) before you compare
+models.**
+
+::: {.callout-note}
+## What earlier drafts of this chapter said
+
+The v1 chapter reported *procnoise winning by ~3 nats over NegBin* —
+but that used NegBin's `--allow-nonconverged-scout` endpoint at
+$k \approx 182$, a point on the flat ridge several nats below the true
+profile maximum; with honest profiles the procnoise–NegBin gap
+collapsed. The v2 chapter fixed the profiles but still ran at
+`dt = 1.0`, so *both* alternatives "beat" Poisson by absorbing the
+discretization bias. This (v3) version runs everything at the
+calibrated `dt = 0.1` — and the simplest model wins. Two corrections,
+same direction: every time we made the analysis more honest, the case
+for extra complexity got weaker.
+:::
+
+## Conditional on fixed initial conditions
+
+This whole comparison holds $I(0) = 3$ (the BMJ source) and $R(0) = 0$
+fixed. Free either up and the picture can shift — different
+observation likelihoods absorb different parts of variance, and that
+trades off against what free initial conditions absorb. The next
+chapter (forthcoming) lets $I(0)$ and $R(0)$ free, shows the
+four-parameter joint fit is structurally non-identifiable from
+14 observations, and shows that an informed prior on $R(0)$
+(Avilov 2024 seroprevalence ≈ 30 %) collapses the ridge into a
+coherent posterior. Whether any of the extra-variance terms earn their
+keep under free initial conditions is a question that chapter
+answers — at `dt = 0.1`, this time.

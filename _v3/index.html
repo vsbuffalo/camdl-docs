@@ -1,0 +1,38 @@
+<!doctype html><html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>seed-timing v3 — lab notes / rough draft</title>
+<style>
+body{font-family:system-ui;max-width:1300px;margin:2em auto;padding:0 1em;color:#333;line-height:1.5}
+img{max-width:100%;border:1px solid #ddd;border-radius:4px;margin:.5em 0}
+h2{margin-top:2em;border-bottom:1px solid #eee;padding-bottom:.3em}
+h3{margin-top:1.5em;color:#555}
+p.note{color:#666;font-size:.92em;font-style:italic}
+table{border-collapse:collapse;margin:.5em 0}
+td,th{padding:.4em .8em;border:1px solid #ddd;text-align:left}
+th{background:#f0f0f0}
+pre{background:#f5f5f5;padding:.7em;font-size:.88em;border-radius:4px;overflow-x:auto}
+code{background:#f5f5f5;padding:.1em .3em;border-radius:3px;font-size:.9em}
+.draft-note{background:#fffbe6;border-left:3px solid #f4c542;padding:.8em 1em;margin:1em 0}
+</style></head><body>
+
+<h1>Seed-timing v3 — lab notes</h1>
+<p class="note">Rough working notes + figures for the v3 rewrite of the WA seed-timing chapter. Built up section-by-section as we go. Eventually distilled into a clean .qmd. Predecessor: <a href="../_verify/">v2 verify dir</a> (preserved in <code>guide/fitting/seed-timing-v2/</code>).</p>
+
+<div class="draft-note"><strong>Premise of v3 rewrite:</strong> the v1 and v2 chapter used a plain SIR model with COVID-specific γ pinned. Two mistakes acknowledged: (a) SIR with exponential generation interval is wrong for a respiratory virus with real latent period — biases R₀ and τ; (b) using COVID-specific parameter values conflates the "with hindsight" framing with the "real-time analyst" framing. v3 uses SEIR with pre-COVID coronavirus priors (Feb-2020 vintage) per <a href="../../guide/fitting/seed-timing/docs/coronavirus_priors.md">priors doc</a>.</p></div>
+
+<h2>Plan / structure</h2>
+<ol>
+  <li>Set up SEIR model with pre-COVID priors</li>
+  <li>Synthetic-truth exploration: generate one ground-truth trajectory and verify pipeline recovers params</li>
+  <li>Apply to real WA — naive fit (loose priors)</li>
+  <li>2D profile L(t_seed, n_seed) on real WA</li>
+  <li>Sensitivity to (ρ_max, t_rep) at the profile MLE</li>
+  <li>Bedford monophyly anchor: pin n_seed=1 and recompute τ</li>
+  <li>Discuss identifiability, ridges, and what the chapter's headline answer is</li>
+</ol>
+
+<h2>1. SEIR model + priors</h2>
+<p>Section TBD as we build it. Will link to model file in <code>guide/fitting/seed-timing/models/</code>.</p>
+
+</body></html>

@@ -68,7 +68,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../guide/fitting/likelihood.html" rel="next">
+<link href="../guide/migration.html" rel="next">
 <link href="../guide/integrator-step.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -81,9 +81,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-6667564092b74b448163e6ade2e1f3b4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-c8430341214b22b81b300d69ff936483.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-6667564092b74b448163e6ade2e1f3b4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-012aefe9a5216f45842f7f883b752e3f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-1f626ec5f403c8c4b2900d40c78ecb90.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-012aefe9a5216f45842f7f883b752e3f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -476,7 +476,7 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#counts-fix-the-epidemic-identity-is-a-second-draw" id="toc-counts-fix-the-epidemic-identity-is-a-second-draw" class="nav-link active" data-scroll-target="#counts-fix-the-epidemic-identity-is-a-second-draw">Counts fix the epidemic; identity is a second draw</a></li>
+  <li><a href="#three-artifacts-three-seeds" id="toc-three-artifacts-three-seeds" class="nav-link active" data-scroll-target="#three-artifacts-three-seeds">Three artifacts, three seeds</a></li>
   <li><a href="#the-pipeline-end-to-end" id="toc-the-pipeline-end-to-end" class="nav-link" data-scroll-target="#the-pipeline-end-to-end">The pipeline, end to end</a></li>
   <li><a href="#bursts-and-superspreaders-what-a-tree-can-and-cant-see" id="toc-bursts-and-superspreaders-what-a-tree-can-and-cant-see" class="nav-link" data-scroll-target="#bursts-and-superspreaders-what-a-tree-can-and-cant-see">Bursts and superspreaders: what a tree can and can’t see</a>
   <ul class="collapse">
@@ -484,9 +484,10 @@ window.Quarto = {
   <li><a href="#why-the-tree-is-blind-an-information-argument" id="toc-why-the-tree-is-blind-an-information-argument" class="nav-link" data-scroll-target="#why-the-tree-is-blind-an-information-argument">Why the tree is blind: an information argument</a></li>
   <li><a href="#putting-the-heterogeneity-on-individuals" id="toc-putting-the-heterogeneity-on-individuals" class="nav-link" data-scroll-target="#putting-the-heterogeneity-on-individuals">Putting the heterogeneity on individuals</a></li>
   </ul></li>
-  <li><a href="#the-centerpiece-who-you-sequence-shapes-what-you-see" id="toc-the-centerpiece-who-you-sequence-shapes-what-you-see" class="nav-link" data-scroll-target="#the-centerpiece-who-you-sequence-shapes-what-you-see">The centerpiece: who you sequence shapes what you see</a></li>
+  <li><a href="#who-you-sequence-shapes-what-you-see" id="toc-who-you-sequence-shapes-what-you-see" class="nav-link" data-scroll-target="#who-you-sequence-shapes-what-you-see">Who you sequence shapes what you see</a></li>
   <li><a href="#tree-statistics-through-an-epidemiological-lens" id="toc-tree-statistics-through-an-epidemiological-lens" class="nav-link" data-scroll-target="#tree-statistics-through-an-epidemiological-lens">Tree statistics through an epidemiological lens</a></li>
   <li><a href="#what-this-is-and-isnt" id="toc-what-this-is-and-isnt" class="nav-link" data-scroll-target="#what-this-is-and-isnt">What this is — and isn’t</a></li>
+  <li><a href="#sec-eventlog-anatomy" id="toc-sec-eventlog-anatomy" class="nav-link" data-scroll-target="#sec-eventlog-anatomy">Appendix: Anatomy of the event log</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/vsbuffalo/camdl-book/edit/main/guide/transmission-trees.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
@@ -514,24 +515,45 @@ window.Quarto = {
 </header>
 
 
-<p>A compartmental simulation tells you <em>how many</em> individuals are in each state through time — <code>S(t)</code>, <code>I(t)</code>, <code>R(t)</code>. It does <strong>not</strong> tell you <em>who infected whom</em>. That genealogy — the transmission tree — is the object phylodynamics works with: it is what you reconstruct from pathogen sequences, and what methods like the structured coalescent try to fit. To <strong>validate</strong> such a method you need synthetic data with a <em>known</em> true tree, which means a simulator that can attach individual identity to a compartmental run.</p>
-<p>camdl’s lineage layer does this. The essential idea, and the reason it is worth a chapter rather than a flag, is that <strong>the tree is not a deterministic readout of the epidemic</strong> — one epidemic defines a <em>distribution</em> over genealogies.</p>
-<section id="counts-fix-the-epidemic-identity-is-a-second-draw" class="level2">
-<h2 class="anchored" data-anchor-id="counts-fix-the-epidemic-identity-is-a-second-draw">Counts fix the epidemic; identity is a second draw</h2>
-<p>The augmented process factorises:</p>
-<p><span class="math display">\[
-P(\text{augmented trajectory}) \;=\; \underbrace{P(\text{count trajectory})}_{\text{the epidemic}} \;\times\; \underbrace{P(\text{identity} \mid \text{counts})}_{\text{the genealogy}}.
-\]</span></p>
-<p>The compartmental backend draws the first factor: it fixes the ordered event sequence (a transmission fired at <span class="math inline">\(t_1\)</span>, a recovery at <span class="math inline">\(t_2\)</span>, …). It does <em>not</em> fix the second — given that an infection happened at <span class="math inline">\(t_1\)</span>, <em>which</em> infectious individual was the parent is a separate stochastic choice, and many attributions are equally consistent with the same counts. So camdl separates three independently cacheable layers:</p>
+<p>Compartmental simulation models <em>how many</em> individuals occupy each state through time — these are the familiar time-indexed counts <code>S(t)</code>, <code>I(t)</code>, <code>R(t)</code>. However, these models do <strong>not</strong> model <em>who infected whom</em>. That <em>transmission tree</em> (or, with multiple seeds, a <em>transmission forest</em>) is a central object of contact tracing and outbreak investigation, and it underpins phylodynamic inference: the tree constrains the coalescent events that shape the genealogy of sampled pathogen sequences — the genealogy you reconstruct from those sequences, and that methods like the structured coalescent try to fit. To <strong>validate</strong> such a method you need synthetic data with a <em>known</em> true tree, which means a simulator that can attach individual identity to a compartmental run.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Relation to existing tree simulators">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Relation to existing tree simulators
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Conditioning a genealogy on a simulated population trajectory is not new. <a href="https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14038"><strong>TiPS</strong></a> (Danesh et al.&nbsp;2023) takes a compartmental model, runs a Gillespie trajectory, and draws a phylogeny under a backward-in-time coalescent conditioned on that trajectory. <a href="https://academic.oup.com/mbe/article/30/6/1480/1146197"><strong>MASTER</strong></a> (Vaughan &amp; Drummond 2013) generates genealogies alongside the population histories they correspond to from birth–death master equations.</p>
+<p>camdl shares their starting point — a count trajectory governed by compartmental dynamics — but differs in two ways. First, camdl realises the <em>forward</em> transmission tree (an explicit who-infected-whom parentage) and treats the sampled-sequence genealogy as a further within-host draw <em>inside</em> that tree, rather than coalescing lineages backward through the trajectory. Second, camdl’s pipeline architecture is split into three independently cacheable, separately seeded stages (below), and the identity attribution exposes an exact log-probability. The novelty is in this architecture, not in the generative model — which, like TiPS and MASTER, is counts-first and inherits the limitation noted next.</p>
+</div>
+</div>
+<p>camdl’s <strong>lineage layer</strong> builds the tree in three stages, each one a data object an infectious-disease modeler already knows:</p>
+<ul>
+<li>an <strong>event log</strong> — the bare compartmental flows, one row per event firing, with no individual identity attached;</li>
+<li>a <strong>lineage-annotated line list</strong> — the same events, except now every transmission has a named parent;</li>
+<li>a sampled <strong>tree</strong> — the line list pruned down to the tips you actually observed, written out as Newick.</li>
+</ul>
+<p>Each lineage-annotated line list and its implied transmission tree is not a deterministic readout of the epidemic, but a sample from a distribution of trees consistent with the event log. Each stage of the lineage layer has its own cache key, so one expensive epidemic simulation can generate many cheap sampled genealogies consistent with that event log — which matters, since the genealogy is not pinned down by the event log, and you need many realizations to characterize the distribution of transmission trees.</p>
+<p>Before going further, it’s worth being upfront about what this lineage architecture <em>isn’t</em>. Everything rests on one factorization:</p>
+<p><span class="math display">\[P(\text{augmented}) = P(\text{counts}) \times P(\text{identity}\mid\text{counts}).\]</span></p>
+<p>That split is exact for the compartmental model — but it runs the real generative story backwards. In an actual outbreak, individuals and their contacts produce the transmission events, and the counts <span class="math inline">\(S(t)\)</span>, <span class="math inline">\(I(t)\)</span>, <span class="math inline">\(R(t)\)</span> are just the tally that falls out. With camdl, this goes the other way: the compartmental dynamics determine the event firings, flows, and counts first (this is the event log); then the lineage-annotated line list samples an identity attribution consistent with the fixed event log.</p>
+<p>The two only agree because mass-action mixing makes infectives mathematically exchangeable (within a pool, once a model has structure/strata). This exchangeability implies that given the counts, every infective is an equally good candidate “parent” (infector), so the tree carries no information the counts hadn’t already pinned down in distribution. But the moment the <em>real</em> epidemic carries structure the compartmental model can’t represent — a contact network, a superspreader, repeated contacts between the same pair — that exchangeability is false. camdl will still hand you the exact genealogy <em>of the model</em>; it is just that the model has become an approximation of that richer reality, so its trees are no longer faithful draws from the true transmission-tree distribution. If you need that realism, you want a different kind of simulator (agent-based, network, multitype branching-process) — the counts-first route trades it for speed and for a likelihood you can actually fit. It’s the same bargain TiPS and MASTER strike.</p>
+<p>The payoff, and the reason this earns a chapter instead of a <code>--tree</code> flag: <strong>the tree is not a deterministic readout of the epidemic.</strong> One count trajectory defines a whole <em>distribution</em> of transmission trees.</p>
+<section id="three-artifacts-three-seeds" class="level2">
+<h2 class="anchored" data-anchor-id="three-artifacts-three-seeds">Three artifacts, three seeds</h2>
+<p>Those three stages map onto three commands, and each command has its own independent stochastic seed — this is what makes resampling lineage-annotated line lists and transmission trees given the event log so cheap:</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
+<col style="width: 16%">
+<col style="width: 34%">
+<col style="width: 49%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>Layer</th>
+<th>Stage</th>
 <th>Command</th>
 <th>Produces</th>
 </tr>
@@ -550,12 +572,12 @@ P(\text{augmented trajectory}) \;=\; \underbrace{P(\text{count trajectory})}_{\t
 <tr class="odd">
 <td><strong>3. Tree</strong></td>
 <td><code>lineage tree --scheme --sample-seed</code></td>
-<td>a sampled, pruned, Newick transmission tree</td>
+<td>a pruned Newick tree over randomly sampled tips</td>
 </tr>
 </tbody>
 </table>
-<p>One expensive epidemic → many cheap identity realisations → many cheap sampled trees. Three seeds, three cache keys: <code>--seed</code> (dynamics), <code>--identity-seed</code> (genealogy), <code>--sample-seed</code> (observation). Changing the identity seed or sampling scheme never re-runs the epidemic.</p>
-<p>A transition becomes a parent→child event by marking it <code>#[lineage]</code>:</p>
+<p>One expensive epidemic → many cheap identity realizations → many cheap sampled trees. The <code>--seed</code> argument passed to the <code>camdl simulate</code> call drives the dynamics (which events fire, when), <code>--identity-seed</code> determines the lineage-annotated line list and full transmission tree (which infective is the parent at each transmission), and <code>--sample-seed</code> sets the observations (which tips you actually sample from the full genealogy). The line list already <em>is</em> the complete transmission tree; the tree step only samples observed tips from it, so it is its own stochastic stage with its own seed. Change either of the last two and the epidemic never re-runs.</p>
+<p>Not every transition is a transmission, so you mark the ones that are with <code>#[lineage]</code> — only those produce a parent→child event:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">transitions</span> {</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">#[lineage]</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">infection </span>: S <span class="op">--&gt;</span> I  <span class="op">@</span> beta * S * I / N</span>
@@ -568,7 +590,7 @@ P(\text{augmented trajectory}) \;=\; \underbrace{P(\text{count trajectory})}_{\t
 <p>We start with a plain single-population SIR (<code>R₀ = β/γ = 3</code>), simulated with the <strong>exact Gillespie</strong> backend so the genealogy carries no sub-step approximation.</p>
 <div id="cell-layer1-sim" class="cell" data-execution_count="2">
 <div id="layer1-sim" class="cell-output cell-output-display" data-execution_count="2">
-<details class="cli-run"><summary><code>$ $ camdl simulate sir_lineage.camdl --params sir.toml --seed 42 --backend gillespie --event-log epi.parquet</code></summary><pre class="ansi-output"><code># camdl 0.1.0+dc225cb (2026-05-20)
+<details class="cli-run"><summary><code>$ $ camdl simulate sir_lineage.camdl --params sir.toml --seed 42 --backend gillespie --event-log epi.parquet</code></summary><pre class="ansi-output"><code># camdl 0.1.0+9faf0d6 (2026-05-26)
 t   S   I   R   flow_infection  flow_recovery
 0   1992    8   0   0   0
 1   1987    10  3   5   3
@@ -660,31 +682,77 @@ t   S   I   R   flow_infection  flow_recovery
   next: camdl lineage realize transmission-trees/results/epi.parquet --identity-seed &lt;N&gt; -o line_list.parquet</span></code></pre></details>
 </div>
 </div>
-<p>The <strong>event log</strong> is identity-free: per event it stores the time, the transition, and — at <code>#[lineage]</code> events — the evaluated per-pool infector masses. It is self-contained; replay needs only the log. <strong>Realising</strong> it under an identity seed samples a concrete parent for every transmission and reports the exact log-probability of that attribution:</p>
-<div id="cell-layer2-realize" class="cell" data-execution_count="3">
-<div id="layer2-realize" class="cell-output cell-output-display" data-execution_count="3">
+<p>The <strong>event log</strong> is identity-free: per event it stores the time, the transition, and — at <code>#[lineage]</code> events — the evaluated per-pool infector masses (<code>lineage_weights</code>). A few rows:</p>
+<div id="peek-eventlog" class="cell" data-execution_count="3">
+<div class="cell-output cell-output-stdout">
+<pre><code>┌──────────┬────────────┬──────────────────────┐
+│ time     ┆ transition ┆ lineage_weights      │
+│ ---      ┆ ---        ┆ ---                  │
+│ f64      ┆ u64        ┆ str                  │
+╞══════════╪════════════╪══════════════════════╡
+│ 0.080633 ┆ 1          ┆ null                 │
+│ 0.159467 ┆ 1          ┆ null                 │
+│ 0.25151  ┆ 1          ┆ null                 │
+│ 0.267588 ┆ 0          ┆ [2.988]              │
+│ 0.666269 ┆ 0          ┆ [3.5837999999999997] │
+│ 0.75812  ┆ 0          ┆ [4.179]              │
+└──────────┴────────────┴──────────────────────┘</code></pre>
+</div>
+</div>
+<p>The rows with <code>transition = 0</code> are the transmission events (the transitions we annotated with <code>#[lineage]</code>, and these consequently carry weights used to sample individuals for the next lineage-annotated line list step); <code>transition = 1</code> are recovery events (no weights). This event log is self-contained; downstream sampling of lineage-annotated line lists and transmission trees need only this log — no model file is required (see <a href="#sec-eventlog-anatomy">Appendix: Anatomy of the event log</a> for the full schema, what <code>lineage_weights</code> mean, and how <code>realize</code> reconstructs a genealogy from it). <strong>Realizing</strong> it under an identity seed samples a concrete parent for every transmission and reports the exact log-probability of that attribution:</p>
+<div id="cell-layer2-realize" class="cell" data-execution_count="4">
+<div id="layer2-realize" class="cell-output cell-output-display" data-execution_count="4">
 <details class="cli-run"><summary><code>$ $ camdl lineage realize epi.parquet --identity-seed 7 -o line_list.parquet</code></summary><pre class="ansi-output"><code><span style="opacity:0.7">lineage realize: wrote line list to transmission-trees/results/line_list.parquet (parquet); identity-seed 7, 1889 edges, log P(line list | event log) = -22025.186546
   sub-dt bias: 0.000 (exact — Gillespie event log)</span></code></pre></details>
 </div>
 </div>
-<p>That log-probability, <span class="math inline">\(\log P(\text{line list}\mid\text{event log}) = \sum_{\text{events}} \log P(\text{attribution})\)</span>, is the <strong>only</strong> clean exact likelihood the architecture provides. There is no cheap full-tree likelihood: recovery attributions are not independent of the tree, so any tree likelihood needs a combinatorial marginalisation — which is exactly what structured-coalescent methods approximate.</p>
-<p>Finally, <strong>project</strong> the line list to a sampled Newick tree. Because the seed infectives (<span class="math inline">\(I_0 = 8\)</span>) each found their own lineage, the result is in general a <strong>forest</strong> — one tree per independent introduction:</p>
-<div id="cell-layer3-tree" class="cell" data-execution_count="4">
-<div id="layer3-tree" class="cell-output cell-output-display" data-execution_count="4">
+<p>The <strong>lineage-annotated line list</strong> is the event log with identity filled in by a random sample consistent with the event log’s counts and weights. It is the complete — each row now names the <code>individual</code> that moved and, for transmissions, its <code>parent_id</code>:</p>
+<div id="peek-linelist" class="cell" data-execution_count="5">
+<div class="cell-output cell-output-stdout">
+<pre><code>┌──────────┬────────────┬────────────┬─────────────┬───────────┬─────────────────┐
+│ time     ┆ transition ┆ individual ┆ parent_kind ┆ parent_id ┆ attribution_lo… │
+│ ---      ┆ ---        ┆ ---        ┆ ---         ┆ ---       ┆ ---             │
+│ f64      ┆ u64        ┆ u64        ┆ str         ┆ i64       ┆ f64             │
+╞══════════╪════════════╪════════════╪═════════════╪═══════════╪═════════════════╡
+│ 0.080633 ┆ 1          ┆ 7          ┆ none        ┆ -1        ┆ -2.079442       │
+│ 0.159467 ┆ 1          ┆ 2          ┆ none        ┆ -1        ┆ -1.94591        │
+│ 0.25151  ┆ 1          ┆ 1          ┆ none        ┆ -1        ┆ -1.791759       │
+│ 0.267588 ┆ 0          ┆ 8          ┆ individual  ┆ 0         ┆ -1.609438       │
+│ 0.666269 ┆ 0          ┆ 9          ┆ individual  ┆ 8         ┆ -1.791759       │
+│ 0.75812  ┆ 0          ┆ 10         ┆ individual  ┆ 6         ┆ -1.94591        │
+└──────────┴────────────┴────────────┴─────────────┴───────────┴─────────────────┘</code></pre>
+</div>
+</div>
+<p>Non-transmissions get <code>parent_kind = none</code> and <code>parent_id = -1</code>. The <code>attribution_logprob</code> is the exact log-probability of each draw: the first recovery scores <span class="math inline">\(\log(1/8) = -2.079\)</span> (uniform over 8 infectives), the first infection <span class="math inline">\(\log(1/5) = -1.609\)</span>. Summed over rows, that gives the only clean exact likelihood the architecture provides, <span class="math inline">\(\log P(\text{line list}\mid\text{event log}) = \sum_{\text{events}} \log P(\text{attribution})\)</span>. (The <code>source</code>/<code>destination</code>/<code>deme</code> columns are covered in the <a href="#sec-eventlog-anatomy">appendix</a>.) There is no cheap full-tree likelihood: recovery attributions are not independent of the tree, so any tree likelihood needs a combinatorial marginalisation — which is exactly what structured-coalescent methods approximate.</p>
+<p>Finally, we can <strong>project</strong> the line list as a sampled Newick tree. Because the seed infectives (<span class="math inline">\(I_0 = 8\)</span>) each found their own lineage, the result is in general a <strong>forest</strong> — one tree per independent introduction:</p>
+<div id="cell-layer3-tree" class="cell" data-execution_count="6">
+<div id="layer3-tree" class="cell-output cell-output-display" data-execution_count="6">
 <details class="cli-run"><summary><code>$ $ camdl lineage tree line_list.parquet --scheme flat:0.5 --sample-seed 3 -o tree.nwk</code></summary><pre class="ansi-output"><code><span style="opacity:0.7">lineage tree: 1897 candidate individuals, 930 sampled tips, 5 tree(s)</span></code></pre></details>
 </div>
 </div>
-<div id="cell-fig-single-tree" class="cell" data-execution_count="5">
+<p>The output is plain <strong>Newick</strong>, one string per forest component. Tips are sampled individuals (<code>indN</code>); the <code>:x.xx</code> are branch lengths in days:</p>
+<div id="peek-tree" class="cell" data-execution_count="7">
+<div class="cell-output cell-output-stdout">
+<pre><code>5 forest components:
+
+  [1] (((((((ind120:0.67468584292895,ind102:0.7371044476408146):1.10533208 …
+  [2] ind2:0;
+  [3] (((ind994:14.609747541331654,((((ind868:7.57384034251633,ind235:5.60 …
+  [4] (ind65:6.121634000570138,(((ind335:3.4899464692325903,ind283:6.64113 …
+  [5] (ind26:4.293107500850029,ind31:1.5129340867712768,((((((((ind1278:9. …</code></pre>
+</div>
+</div>
+<div id="cell-fig-single-tree" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>show code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>forest <span class="op">=</span> parse_newick(Path(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/tree.nwk"</span>).read_text())</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>forest.sort(key<span class="op">=</span><span class="kw">lambda</span> r: r.n_tips(), reverse<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>plot_forest(forest, ax, max_components<span class="op">=</span><span class="dv">6</span>, linewidth<span class="op">=</span><span class="fl">0.7</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(forest)<span class="sc">}</span><span class="ss"> forest components; "</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>             <span class="ss">f"</span><span class="sc">{</span><span class="bu">sum</span>(r.n_tips() <span class="cf">for</span> r <span class="kw">in</span> forest)<span class="sc">}</span><span class="ss"> sampled tips"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>forest <span class="op">=</span> parse_newick(Path(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/tree.nwk"</span>).read_text())</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>forest.sort(key<span class="op">=</span><span class="kw">lambda</span> r: r.n_tips(), reverse<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>plot_forest(forest, ax, max_components<span class="op">=</span><span class="dv">6</span>, linewidth<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(forest)<span class="sc">}</span><span class="ss"> forest components; "</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>             <span class="ss">f"</span><span class="sc">{</span><span class="bu">sum</span>(r.n_tips() <span class="cf">for</span> r <span class="kw">in</span> forest)<span class="sc">}</span><span class="ss"> sampled tips"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-single-tree" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -702,31 +770,32 @@ Figure&nbsp;7.1: One realised transmission forest from the SIR epidemic (50% fla
 </section>
 <section id="bursts-and-superspreaders-what-a-tree-can-and-cant-see" class="level2">
 <h2 class="anchored" data-anchor-id="bursts-and-superspreaders-what-a-tree-can-and-cant-see">Bursts and superspreaders: what a tree can and can’t see</h2>
-<p>This section is the chapter’s central lesson: two models that both make the epidemic <em>burstier</em> — but only one of which leaves a mark on the genealogy. It turns on exactly where the extra variability lives.</p>
+<p>Now, we explore how the tree responds to different sources of variability in the epidemic — with the goal of clarifying what camdl’s tree can and cannot see, and why. The two models below both make the epidemic <em>burstier</em> — but only one of them leaves a mark on the genealogy. It turns on exactly where the extra variability lives.</p>
 <p>A common modelling choice is <strong>environmental (extra-demographic) noise</strong> on the transmission rate — gamma white noise of intensity <span class="math inline">\(\sigma_{se}\)</span> multiplying the force of infection, following He, Ionides &amp; King (2010, <em>J. R. Soc. Interface</em> <strong>7</strong>:271–283). The two models below are identical except that the second wraps the infection rate in <code>overdispersed(·, sigma_se)</code>:</p>
 <div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sir_lineage.camdl — plain</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#[lineage]</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>infection : S <span class="op">--&gt;</span> I</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">@</span> beta * S * I / N</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sir_lineage.camdl — plain</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#[lineage]</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>infection : S <span class="op">--&gt;</span> I</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">@</span> beta * S * I / N</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sir_lineage_od.camdl — overdispersed</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#[lineage]</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>infection : S <span class="op">--&gt;</span> I</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">@</span> <span class="bu">overdispersed</span>(beta * S * I / N, sigma_se)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sir_lineage_od.camdl — overdispersed</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#[lineage]</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>infection : S <span class="op">--&gt;</span> I</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">@</span> <span class="bu">overdispersed</span>(beta * S * I / N, sigma_se)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
-<p>The noise wrapper is <strong>transparent to attribution</strong> — the classifier extracts the same linear weight <span class="math inline">\(\beta S/N\)</span> — so the genealogy is still well-defined. But <code>overdispersed()</code> requires the <strong>chain-binomial</strong> (or tau-leap) backend; the exact Gillespie scheme cannot inject environmental noise. Chain-binomial trees are <em>approximate</em>: they batch events per <code>dt</code> step and <strong>lose parent→child edges shorter than <code>dt</code></strong>, and <code>realize</code> reports that loss fraction. So we run <strong>both</strong> models on chain-binomial at the same small <code>dt = 0.05</code> — the sub-<code>dt</code> bias is then common to both and the comparison isolates the noise.</p>
+<p>This overdispersion is transparent to the individual attribution: the parent sampler still extracts the same per-infective weight <span class="math inline">\(\beta S/N\)</span> for every infective, so the genealogy is just as well-defined as before.</p>
+<p>One practical wrinkle: <code>overdispersed()</code> injects its noise through the chain-binomial backend, not the exact Gillespie scheme we used above — so to compare the two models <em>fairly</em> we run <strong>both</strong> on chain-binomial at the same step <code>dt = 0.05</code>.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Any difference between them is then the noise itself, not the backend.</p>
 <p>You might expect that adding noise to the transmission rate would create <strong>superspreading</strong> — a few individuals throwing off many secondary cases, the heavy-tailed offspring distribution measured by the dispersion parameter <span class="math inline">\(k\)</span> (negative binomial; Lloyd-Smith, Schreiber, Kopp &amp; Getz, 2005, <em>Nature</em> <strong>438</strong>:355–359, where <span class="math inline">\(k&lt;1\)</span> signals a minority of cases driving most transmission). It does not — and the reason is structural. The environmental noise <span class="math inline">\(\xi(t)\)</span> is a <em>shared</em> multiplier on the whole population’s force of infection, so in the parent-attribution probability for any infection event,</p>
 <p><span class="math display">\[
 P(\text{parent} = j) \;=\; \frac{w_j\, I_j}{\sum_b w_b\, I_b},
 \]</span></p>
 <p>the factor <span class="math inline">\(\xi(t)\)</span> appears in every term and <strong>cancels</strong>. Conditional on an infection occurring, <em>who</em> the parent is does not depend on the noise — so the genealogy’s shape should be statistically identical with and without it. Measuring across several genealogy realisations confirms it (<span class="math inline">\(k\)</span> over <strong>all</strong> infected individuals including the ~half who infect nobody; tree-shape indices on the largest sampled component):</p>
-<div id="tbl-genealogy-invariance" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="7">
+<div id="tbl-genealogy-invariance" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="10">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-genealogy-invariance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;7.1
@@ -750,21 +819,21 @@ sub-dt edge loss (chain-binomial, dt=0.05): plain 0.021, overdispersed 0.098</co
 </div>
 <p>Every genealogical statistic overlaps within its across-realisation spread: the transmission tree is essentially <strong>blind</strong> to environmental overdispersion. The noisy model shows a slightly wider, slightly lower <span class="math inline">\(k\)</span> — a second-order effect, because an individual whose infectious window happens to overlap a burst accumulates a few more offspring — but there is no systematic shift into the superspreading regime, and the topology indices do not move at all. <strong>If you want individual superspreading in a tree you need individual-level heterogeneity (a contact network, an individual-rate model), not a shared rate multiplier.</strong></p>
 <p>The noise has to go <em>somewhere</em> — and it goes into the <strong>count trajectory</strong>, not the genealogy. The same two runs produce visibly different incidence curves: the overdispersed run is far burstier, with sharper peaks and day-to-day swings the plain run never shows.</p>
-<div id="cell-fig-od-incidence" class="cell" data-execution_count="8">
+<div id="cell-fig-od-incidence" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>show code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> daily_incidence(tag):</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    tr <span class="op">=</span> load_line_list(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/ll_</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">.parquet"</span>).<span class="bu">filter</span>(pl.col(<span class="st">"parent_kind"</span>) <span class="op">==</span> <span class="st">"individual"</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    inc <span class="op">=</span> tr.with_columns(pl.col(<span class="st">"time"</span>).floor().alias(<span class="st">"d"</span>)).group_by(<span class="st">"d"</span>).<span class="bu">len</span>().sort(<span class="st">"d"</span>)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> inc[<span class="st">"d"</span>].to_numpy(), inc[<span class="st">"len"</span>].to_numpy()</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>, <span class="fl">3.6</span>))</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> tag, col <span class="kw">in</span> [(<span class="st">"plain"</span>, <span class="st">"#3366cc"</span>), (<span class="st">"od"</span>, <span class="st">"#d62728"</span>)]:</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    d, c <span class="op">=</span> daily_incidence(tag)</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    ax.plot(d, c, color<span class="op">=</span>col, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span>{<span class="st">"plain"</span>: <span class="st">"plain (σ_se = 0)"</span>,</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">"od"</span>: <span class="st">"overdispersed (σ_se = 1.5)"</span>}[tag])</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"time (days)"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"daily infections"</span>)</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>ax.legend(loc<span class="op">=</span><span class="st">"center left"</span>, bbox_to_anchor<span class="op">=</span>(<span class="fl">1.02</span>, <span class="fl">0.5</span>), frameon<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> daily_incidence(tag):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    tr <span class="op">=</span> load_line_list(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/ll_</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">.parquet"</span>).<span class="bu">filter</span>(pl.col(<span class="st">"parent_kind"</span>) <span class="op">==</span> <span class="st">"individual"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    inc <span class="op">=</span> tr.with_columns(pl.col(<span class="st">"time"</span>).floor().alias(<span class="st">"d"</span>)).group_by(<span class="st">"d"</span>).<span class="bu">len</span>().sort(<span class="st">"d"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> inc[<span class="st">"d"</span>].to_numpy(), inc[<span class="st">"len"</span>].to_numpy()</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>, <span class="fl">3.6</span>))</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> tag, col <span class="kw">in</span> [(<span class="st">"plain"</span>, <span class="st">"#3366cc"</span>), (<span class="st">"od"</span>, <span class="st">"#d62728"</span>)]:</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    d, c <span class="op">=</span> daily_incidence(tag)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    ax.plot(d, c, color<span class="op">=</span>col, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span>{<span class="st">"plain"</span>: <span class="st">"plain (σ_se = 0)"</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">"od"</span>: <span class="st">"overdispersed (σ_se = 1.5)"</span>}[tag])</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"time (days)"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"daily infections"</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>ax.legend(loc<span class="op">=</span><span class="st">"center left"</span>, bbox_to_anchor<span class="op">=</span>(<span class="fl">1.02</span>, <span class="fl">0.5</span>), frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-od-incidence" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -782,7 +851,7 @@ Figure&nbsp;7.2: Daily incidence from the two runs (chain-binomial, dt = 0.05, s
 <section id="a-burst-in-the-counts-is-not-a-star-in-the-tree" class="level3">
 <h3 class="anchored" data-anchor-id="a-burst-in-the-counts-is-not-a-star-in-the-tree">A burst in the counts is not a star in the tree</h3>
 <p>The overdispersed curve has a pronounced spike — a <em>burst</em> of infections in a narrow window. The instinct from outbreak investigation is to read a burst as a <strong>superspreader event</strong>: one infectious individual throwing off many secondary cases, which in a transmission tree is a <strong>star</strong> — a single node with a fan of children. Dissect the biggest burst, though, and that instinct fails:</p>
-<div id="tbl-burst" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="9">
+<div id="tbl-burst" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="12">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-burst-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;7.2
@@ -813,31 +882,31 @@ Table&nbsp;7.2
 </section>
 <section id="why-the-tree-is-blind-an-information-argument" class="level3">
 <h3 class="anchored" data-anchor-id="why-the-tree-is-blind-an-information-argument">Why the tree is blind: an information argument</h3>
-<p>Make it precise. The genealogy is assembled entirely from the per-event attribution <span class="math inline">\(P(\text{parent}=j) = w_j I_j / \sum_b w_b I_b\)</span> — the <em>only</em> channel through which individual-level structure enters the tree. A shared multiplier <span class="math inline">\(\xi(t)\)</span> scales every <span class="math inline">\(w_j\)</span> identically and cancels, so it carries <strong>zero information</strong> about <em>which</em> individual is the parent: the mutual information between “a burst occurred” and “individual <span class="math inline">\(j\)</span> transmitted” is zero, and a zero-capacity channel cannot encode it. For heterogeneity to show up in the tree it must live in the weights <span class="math inline">\(w_j\)</span> themselves — it must be <strong>attached to individuals</strong>, so that conditioning on a transmission <em>concentrates</em> the attribution (low entropy) onto the high-<span class="math inline">\(w_j\)</span> individuals. Shared-in-time variation has no capacity through this channel; individual variation has full capacity.</p>
+<p>The genealogy is assembled entirely from the per-event attribution <span class="math inline">\(P(\text{parent}=j) = w_j I_j / \sum_b w_b I_b\)</span> — the <em>only</em> channel through which individual-level structure enters the tree. A shared multiplier <span class="math inline">\(\xi(t)\)</span> scales every <span class="math inline">\(w_j\)</span> identically and cancels, so it carries <strong>zero information</strong> about <em>which</em> individual is the parent: the mutual information between “a burst occurred” and “individual <span class="math inline">\(j\)</span> transmitted” is zero, and a zero-capacity channel cannot encode it. For heterogeneity to show up in the tree it must live in the weights <span class="math inline">\(w_j\)</span> themselves — it must be <strong>attached to individuals</strong>, so that conditioning on a transmission <em>concentrates</em> the attribution (low entropy) onto the high-<span class="math inline">\(w_j\)</span> individuals. Shared-in-time variation has no capacity through this channel; individual variation has full capacity.</p>
 </section>
 <section id="putting-the-heterogeneity-on-individuals" class="level3">
 <h3 class="anchored" data-anchor-id="putting-the-heterogeneity-on-individuals">Putting the heterogeneity on individuals</h3>
 <p>So move the dispersion from the environment to the individual. A fraction <span class="math inline">\(p_{hi}\)</span> of infections become <strong>superspreaders</strong> (compartment <code>I_hi</code>) with transmission weight <span class="math inline">\(c\)</span> times an ordinary case — the heterogeneity now lives in the per-individual weight, exactly where the information argument says it must:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="pp">let</span> force = beta * S * (I_lo + c * I_hi) / N      <span class="co"># I_hi carries weight c, I_lo weight 1</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#[lineage] infect_lo : S --&gt; I_lo @ force * (1 - p_hi)</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#[lineage] infect_hi : S --&gt; I_hi @ force * p_hi</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode camdl code-with-copy"><code class="sourceCode camdl"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="pp">let</span> force = beta * S * (I_lo + c * I_hi) / N      <span class="co"># I_hi carries weight c, I_lo weight 1</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">#[lineage] infect_lo : S --&gt; I_lo @ force * (1 - p_hi)</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">#[lineage] infect_hi : S --&gt; I_hi @ force * p_hi</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Now the genealogy lights up. The offspring distribution grows a heavy tail that the shared-environment run never did:</p>
-<div id="cell-fig-offspring" class="cell" data-execution_count="11">
+<div id="cell-fig-offspring" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>show code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> offs(tag):</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    ll <span class="op">=</span> load_line_list(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/ll_</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">.parquet"</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    tr, uni <span class="op">=</span> infected_universe(ll)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> offspring_counts(tr[<span class="st">"parent_id"</span>].to_list(), uni)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">3.8</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, tag, title, col <span class="kw">in</span> [(axes[<span class="dv">0</span>], <span class="st">"od"</span>, <span class="st">"shared-env overdispersion"</span>, <span class="st">"#3366cc"</span>),</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                            (axes[<span class="dv">1</span>], <span class="st">"ss"</span>, <span class="st">"individual heterogeneity"</span>, <span class="st">"#d62728"</span>)]:</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    o <span class="op">=</span> offs(tag)<span class="op">;</span> k <span class="op">=</span> dispersion_k(o)</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    ax.hist(o, bins<span class="op">=</span><span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">int</span>(o.<span class="bu">max</span>()) <span class="op">+</span> <span class="dv">2</span>), color<span class="op">=</span>col)</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    ax.set_yscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"secondary cases"</span>)</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"</span><span class="sc">{</span>title<span class="sc">}</span><span class="ch">\n</span><span class="ss">k = </span><span class="sc">{</span>k<span class="sc">:.2f}</span><span class="ss">, max = </span><span class="sc">{</span><span class="bu">int</span>(o.<span class="bu">max</span>())<span class="sc">}</span><span class="ss">"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"individuals (log scale)"</span>)</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> offs(tag):</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    ll <span class="op">=</span> load_line_list(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/ll_</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">.parquet"</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    tr, uni <span class="op">=</span> infected_universe(ll)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> offspring_counts(tr[<span class="st">"parent_id"</span>].to_list(), uni)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">3.8</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, tag, title, col <span class="kw">in</span> [(axes[<span class="dv">0</span>], <span class="st">"od"</span>, <span class="st">"shared-env overdispersion"</span>, <span class="st">"#3366cc"</span>),</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                            (axes[<span class="dv">1</span>], <span class="st">"ss"</span>, <span class="st">"individual heterogeneity"</span>, <span class="st">"#d62728"</span>)]:</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    o <span class="op">=</span> offs(tag)<span class="op">;</span> k <span class="op">=</span> dispersion_k(o)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    ax.hist(o, bins<span class="op">=</span><span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">int</span>(o.<span class="bu">max</span>()) <span class="op">+</span> <span class="dv">2</span>), color<span class="op">=</span>col)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    ax.set_yscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"secondary cases"</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"</span><span class="sc">{</span>title<span class="sc">}</span><span class="ch">\n</span><span class="ss">k = </span><span class="sc">{</span>k<span class="sc">:.2f}</span><span class="ss">, max = </span><span class="sc">{</span><span class="bu">int</span>(o.<span class="bu">max</span>())<span class="sc">}</span><span class="ss">"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"individuals (log scale)"</span>)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-offspring" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -852,21 +921,21 @@ Figure&nbsp;7.3: Offspring distributions — secondary cases per infected indivi
 </div>
 </div>
 </div>
-<div id="cell-fig-ss-trees" class="cell" data-execution_count="12">
+<div id="cell-fig-ss-trees" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>show code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> max_outdeg(n):</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">max</span>([<span class="bu">len</span>(n.children)] <span class="op">+</span> [max_outdeg(c) <span class="cf">for</span> c <span class="kw">in</span> n.children]) <span class="cf">if</span> n.children <span class="cf">else</span> <span class="dv">0</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">5</span>))</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, tag, title <span class="kw">in</span> [(axes[<span class="dv">0</span>], <span class="st">"od"</span>, <span class="st">"shared-env overdispersion"</span>),</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                       (axes[<span class="dv">1</span>], <span class="st">"ss"</span>, <span class="st">"individual superspreaders"</span>)]:</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    camdl(<span class="st">"lineage"</span>, <span class="st">"tree"</span>, <span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/ll_</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">.parquet"</span>, <span class="st">"--scheme"</span>, <span class="st">"flat:0.5"</span>,</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>          <span class="st">"--sample-seed"</span>, <span class="st">"3"</span>, <span class="st">"-o"</span>, <span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/tree_</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">.nwk"</span>)</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    big <span class="op">=</span> <span class="bu">max</span>(parse_newick(Path(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/tree_</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">.nwk"</span>).read_text()), key<span class="op">=</span><span class="kw">lambda</span> r: r.n_tips())</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    plot_forest([big], ax, linewidth<span class="op">=</span><span class="fl">0.6</span>)</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"</span><span class="sc">{</span>title<span class="sc">}</span><span class="ch">\n</span><span class="sc">{</span>big<span class="sc">.</span>n_tips()<span class="sc">}</span><span class="ss"> tips, max children of one node = </span><span class="sc">{</span>max_outdeg(big)<span class="sc">}</span><span class="ss">"</span>,</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>                 fontsize<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> max_outdeg(n):</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">max</span>([<span class="bu">len</span>(n.children)] <span class="op">+</span> [max_outdeg(c) <span class="cf">for</span> c <span class="kw">in</span> n.children]) <span class="cf">if</span> n.children <span class="cf">else</span> <span class="dv">0</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">5</span>))</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, tag, title <span class="kw">in</span> [(axes[<span class="dv">0</span>], <span class="st">"od"</span>, <span class="st">"shared-env overdispersion"</span>),</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>                       (axes[<span class="dv">1</span>], <span class="st">"ss"</span>, <span class="st">"individual superspreaders"</span>)]:</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    camdl(<span class="st">"lineage"</span>, <span class="st">"tree"</span>, <span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/ll_</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">.parquet"</span>, <span class="st">"--scheme"</span>, <span class="st">"flat:0.5"</span>,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>          <span class="st">"--sample-seed"</span>, <span class="st">"3"</span>, <span class="st">"-o"</span>, <span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/tree_</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">.nwk"</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    big <span class="op">=</span> <span class="bu">max</span>(parse_newick(Path(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/tree_</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">.nwk"</span>).read_text()), key<span class="op">=</span><span class="kw">lambda</span> r: r.n_tips())</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    plot_forest([big], ax, linewidth<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"</span><span class="sc">{</span>title<span class="sc">}</span><span class="ch">\n</span><span class="sc">{</span>big<span class="sc">.</span>n_tips()<span class="sc">}</span><span class="ss"> tips, max children of one node = </span><span class="sc">{</span>max_outdeg(big)<span class="sc">}</span><span class="ss">"</span>,</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>                 fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-ss-trees" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -884,11 +953,11 @@ Figure&nbsp;7.4: Largest transmission tree: shared-environment overdispersion (l
 <p>The superspreader model puts a heavy tail on the offspring distribution — a handful of individuals cause a large share of all transmission — and grows visible stars in the tree, <em>because</em> the heterogeneity is carried by the individual attribution weights, the one place the genealogy can see. The shared-environment model, despite a far burstier epidemic curve, leaves no such mark. <strong>A transmission tree is blind to <em>when</em> transmission is variable, and sharp-eyed about <em>who</em>.</strong></p>
 </section>
 </section>
-<section id="the-centerpiece-who-you-sequence-shapes-what-you-see" class="level2">
-<h2 class="anchored" data-anchor-id="the-centerpiece-who-you-sequence-shapes-what-you-see">The centerpiece: who you sequence shapes what you see</h2>
+<section id="who-you-sequence-shapes-what-you-see" class="level2">
+<h2 class="anchored" data-anchor-id="who-you-sequence-shapes-what-you-see">Who you sequence shapes what you see</h2>
 <p>The genealogy you actually observe is filtered by <strong>sampling</strong> — which infected individuals get sequenced. camdl samples over <em>all</em> individuals (an infector can be a tip), at a per-deme rate. To see how decisive sampling is, we use a deliberately <strong>asymmetric two-patch SIR</strong>: patch <em>a</em> and patch <em>b</em> mix through an asymmetric contact matrix (<span class="math inline">\(C_{ba}=1.5 \gg C_{ab}=0.3\)</span>) and start with unequal infectious seeds. We simulate it once (Gillespie, exact), realise one genealogy, then project the <em>same</em> line list under two sampling regimes.</p>
 <p>First, the <strong>truth</strong>: where does transmission actually happen? From the line list’s <code>parent_deme → deme</code> flows:</p>
-<div id="tbl-flow" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="14">
+<div id="tbl-flow" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="17">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-flow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;7.3
@@ -913,33 +982,33 @@ True case composition: deme 0 = 66.4%, deme 1 = 33.6%</code></pre>
 </figure>
 </div>
 <p>Transmission is <strong>not</strong> balanced — patch <em>a</em> is the dominant hub, originating the large majority of infections and accumulating about two-thirds of cases. Now compare what two sampling designs <em>recover</em> about that composition:</p>
-<div id="cell-fig-sampling-bars" class="cell" data-execution_count="15">
+<div id="cell-fig-sampling-bars" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>show code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>id2deme <span class="op">=</span> <span class="bu">dict</span>(<span class="bu">zip</span>(ll2[<span class="st">"individual"</span>].to_list(), ll2[<span class="st">"deme"</span>].to_list()))</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tip_composition(nwk):</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    forest <span class="op">=</span> parse_newick(Path(nwk).read_text())</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    ids <span class="op">=</span> tip_ids(forest)</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    d0 <span class="op">=</span> <span class="bu">sum</span>(<span class="dv">1</span> <span class="cf">for</span> i <span class="kw">in</span> ids <span class="cf">if</span> id2deme.get(i) <span class="op">==</span> <span class="dv">0</span>)</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">len</span>(ids), d0</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>labels, d0s, d1s <span class="op">=</span> [], [], []</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>labels.append(<span class="st">"TRUE</span><span class="ch">\n</span><span class="st">(all infections)"</span>)<span class="op">;</span> d0s.append(true0)<span class="op">;</span> d1s.append(tot<span class="op">-</span>true0)</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> nwk, lab <span class="kw">in</span> [(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/uniform.nwk"</span>, <span class="st">"uniform</span><span class="ch">\n</span><span class="st">flat:0.3"</span>),</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>                 (<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/biased.nwk"</span>, <span class="st">"biased</span><span class="ch">\n</span><span class="st">0=0.4, 1=0.03"</span>)]:</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    n, d0 <span class="op">=</span> tip_composition(nwk)<span class="op">;</span> labels.append(lab)<span class="op">;</span> d0s.append(d0)<span class="op">;</span> d1s.append(n<span class="op">-</span>d0)</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>d0s <span class="op">=</span> np.array(d0s, <span class="bu">float</span>)<span class="op">;</span> d1s <span class="op">=</span> np.array(d1s, <span class="bu">float</span>)<span class="op">;</span> tots <span class="op">=</span> d0s <span class="op">+</span> d1s</span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">4</span>))</span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>ax.bar(labels, <span class="dv">100</span><span class="op">*</span>d0s<span class="op">/</span>tots, color<span class="op">=</span>DEME_COLOR[<span class="dv">0</span>], label<span class="op">=</span><span class="st">"patch a (deme 0)"</span>)</span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>ax.bar(labels, <span class="dv">100</span><span class="op">*</span>d1s<span class="op">/</span>tots, bottom<span class="op">=</span><span class="dv">100</span><span class="op">*</span>d0s<span class="op">/</span>tots, color<span class="op">=</span>DEME_COLOR[<span class="dv">1</span>], label<span class="op">=</span><span class="st">"patch b (deme 1)"</span>)</span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, (a, t) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(d0s, tots)):</span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    ax.text(i, <span class="dv">100</span><span class="op">*</span>a<span class="op">/</span>t <span class="op">-</span> <span class="dv">5</span>, <span class="ss">f"</span><span class="sc">{</span><span class="dv">100</span><span class="op">*</span>a<span class="op">/</span>t<span class="sc">:.0f}</span><span class="ss">%"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    ax.text(i, <span class="dv">100</span> <span class="op">-</span> <span class="dv">3</span>, <span class="ss">f"</span><span class="sc">{</span><span class="dv">100</span><span class="op">*</span>(t<span class="op">-</span>a)<span class="op">/</span>t<span class="sc">:.0f}</span><span class="ss">%"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"</span><span class="sc">% o</span><span class="st">f sampled tips"</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>, <span class="dv">100</span>)</span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>ax.legend(loc<span class="op">=</span><span class="st">"center left"</span>, bbox_to_anchor<span class="op">=</span>(<span class="fl">1.02</span>, <span class="fl">0.5</span>), frameon<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>id2deme <span class="op">=</span> <span class="bu">dict</span>(<span class="bu">zip</span>(ll2[<span class="st">"individual"</span>].to_list(), ll2[<span class="st">"deme"</span>].to_list()))</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tip_composition(nwk):</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    forest <span class="op">=</span> parse_newick(Path(nwk).read_text())</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    ids <span class="op">=</span> tip_ids(forest)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    d0 <span class="op">=</span> <span class="bu">sum</span>(<span class="dv">1</span> <span class="cf">for</span> i <span class="kw">in</span> ids <span class="cf">if</span> id2deme.get(i) <span class="op">==</span> <span class="dv">0</span>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">len</span>(ids), d0</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>labels, d0s, d1s <span class="op">=</span> [], [], []</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>labels.append(<span class="st">"TRUE</span><span class="ch">\n</span><span class="st">(all infections)"</span>)<span class="op">;</span> d0s.append(true0)<span class="op">;</span> d1s.append(tot<span class="op">-</span>true0)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> nwk, lab <span class="kw">in</span> [(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/uniform.nwk"</span>, <span class="st">"uniform</span><span class="ch">\n</span><span class="st">flat:0.3"</span>),</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>                 (<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/biased.nwk"</span>, <span class="st">"biased</span><span class="ch">\n</span><span class="st">0=0.4, 1=0.03"</span>)]:</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    n, d0 <span class="op">=</span> tip_composition(nwk)<span class="op">;</span> labels.append(lab)<span class="op">;</span> d0s.append(d0)<span class="op">;</span> d1s.append(n<span class="op">-</span>d0)</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>d0s <span class="op">=</span> np.array(d0s, <span class="bu">float</span>)<span class="op">;</span> d1s <span class="op">=</span> np.array(d1s, <span class="bu">float</span>)<span class="op">;</span> tots <span class="op">=</span> d0s <span class="op">+</span> d1s</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">4</span>))</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>ax.bar(labels, <span class="dv">100</span><span class="op">*</span>d0s<span class="op">/</span>tots, color<span class="op">=</span>DEME_COLOR[<span class="dv">0</span>], label<span class="op">=</span><span class="st">"patch a (deme 0)"</span>)</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>ax.bar(labels, <span class="dv">100</span><span class="op">*</span>d1s<span class="op">/</span>tots, bottom<span class="op">=</span><span class="dv">100</span><span class="op">*</span>d0s<span class="op">/</span>tots, color<span class="op">=</span>DEME_COLOR[<span class="dv">1</span>], label<span class="op">=</span><span class="st">"patch b (deme 1)"</span>)</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, (a, t) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(d0s, tots)):</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    ax.text(i, <span class="dv">100</span><span class="op">*</span>a<span class="op">/</span>t <span class="op">-</span> <span class="dv">5</span>, <span class="ss">f"</span><span class="sc">{</span><span class="dv">100</span><span class="op">*</span>a<span class="op">/</span>t<span class="sc">:.0f}</span><span class="ss">%"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    ax.text(i, <span class="dv">100</span> <span class="op">-</span> <span class="dv">3</span>, <span class="ss">f"</span><span class="sc">{</span><span class="dv">100</span><span class="op">*</span>(t<span class="op">-</span>a)<span class="op">/</span>t<span class="sc">:.0f}</span><span class="ss">%"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"</span><span class="sc">% o</span><span class="st">f sampled tips"</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>, <span class="dv">100</span>)</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>ax.legend(loc<span class="op">=</span><span class="st">"center left"</span>, bbox_to_anchor<span class="op">=</span>(<span class="fl">1.02</span>, <span class="fl">0.5</span>), frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-sampling-bars" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -954,18 +1023,18 @@ Figure&nbsp;7.5: Apparent deme composition of the sampled tips under uniform vs 
 </div>
 </div>
 </div>
-<div id="cell-fig-sampling-trees" class="cell" data-execution_count="16">
+<div id="cell-fig-sampling-trees" class="cell" data-execution_count="19">
 <details class="code-fold">
 <summary>show code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">7</span>))</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, nwk, title <span class="kw">in</span> [(axes[<span class="dv">0</span>], <span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/uniform.nwk"</span>, <span class="st">"uniform"</span>),</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                       (axes[<span class="dv">1</span>], <span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/biased.nwk"</span>, <span class="st">"biased (deme-0 heavy)"</span>)]:</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    forest <span class="op">=</span> parse_newick(Path(nwk).read_text())<span class="op">;</span> annotate_demes(forest, id2deme)</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    forest.sort(key<span class="op">=</span><span class="kw">lambda</span> r: r.n_tips(), reverse<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    plot_forest(forest, ax, color_by_deme<span class="op">=</span><span class="va">True</span>, palette<span class="op">=</span>DEME_COLOR,</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                max_components<span class="op">=</span><span class="dv">4</span>, linewidth<span class="op">=</span><span class="fl">0.4</span>, tip_size<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">7</span>))</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, nwk, title <span class="kw">in</span> [(axes[<span class="dv">0</span>], <span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/uniform.nwk"</span>, <span class="st">"uniform"</span>),</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                       (axes[<span class="dv">1</span>], <span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/biased.nwk"</span>, <span class="st">"biased (deme-0 heavy)"</span>)]:</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    forest <span class="op">=</span> parse_newick(Path(nwk).read_text())<span class="op">;</span> annotate_demes(forest, id2deme)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    forest.sort(key<span class="op">=</span><span class="kw">lambda</span> r: r.n_tips(), reverse<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    plot_forest(forest, ax, color_by_deme<span class="op">=</span><span class="va">True</span>, palette<span class="op">=</span>DEME_COLOR,</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>                max_components<span class="op">=</span><span class="dv">4</span>, linewidth<span class="op">=</span><span class="fl">0.4</span>, tip_size<span class="op">=</span><span class="dv">14</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-sampling-trees" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -985,7 +1054,7 @@ Figure&nbsp;7.6: The same epidemic, two sampling designs, tips coloured by patch
 <section id="tree-statistics-through-an-epidemiological-lens" class="level2">
 <h2 class="anchored" data-anchor-id="tree-statistics-through-an-epidemiological-lens">Tree statistics through an epidemiological lens</h2>
 <p>Three families of summary statistic recur in phylodynamics. Computed here on the uniform-sampling forest above:</p>
-<div id="tbl-stats" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="17">
+<div id="tbl-stats" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="20">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-stats-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;7.4
@@ -1006,20 +1075,20 @@ Table&nbsp;7.4
 </div>
 </figure>
 </div>
-<p>The first two are computed above; the third — the most useful — deserves its own figure. <strong>Lineages-through-time</strong> counts the sampled tree’s ancestral lineages at each moment, and its early near-exponential rise tracks the epidemic growth rate. Push that one step further and you get a <strong>skyline</strong>: in each interval between coalescent events, <span class="math inline">\(\Delta t \cdot \binom{A}{2}\)</span> estimates a coalescent <span class="math inline">\(N_e\)</span> that — because the SIR pairwise coalescent rate is <span class="math inline">\(\lambda = 2\beta S/(NI) \propto 1/I\)</span> — is proportional to <strong>prevalence</strong>. So the tree alone can reconstruct the prevalence trajectory. Let us check it against the truth, on a cleanly single-introduction epidemic (so the whole epidemic is one tree):</p>
-<div id="cell-fig-skyline" class="cell" data-execution_count="19">
+<p>The first two are computed above; the third — the most useful — deserves its own figure. <strong>Lineages-through-time</strong> counts the sampled tree’s ancestral lineages at each moment, and its early near-exponential rise tracks the epidemic growth rate. Push that one step further and you get a <strong>skyline</strong>: in each interval between coalescent events, <span class="math inline">\(\Delta t \cdot \binom{A}{2}\)</span> estimates a coalescent <span class="math inline">\(N_e\)</span>. For an SIR genealogy the pairwise coalescent rate is <span class="math inline">\(\lambda = 2f/I^2 = 2\beta S/(NI)\)</span>, where <span class="math inline">\(f = \beta SI/N\)</span> is incidence and <span class="math inline">\(I\)</span> is prevalence, so <span class="math inline">\(N_e \propto I^2/f\)</span>. During exponential growth <span class="math inline">\(S \approx N\)</span> and that collapses to <span class="math inline">\(N_e \propto I\)</span> — <strong>prevalence</strong> (not incidence, and not <span class="math inline">\(I^2/f\)</span> in general; the proportionality to prevalence is a growth-phase result, which is exactly the regime where the tree carries signal). So the tree alone can reconstruct the prevalence trajectory. Let us check it against the truth, on a cleanly single-introduction epidemic (so the whole epidemic is one tree):</p>
+<div id="cell-fig-skyline" class="cell" data-execution_count="22">
 <details class="code-fold">
 <summary>show code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> _lib.trees <span class="im">import</span> plot_tree_with_skyline, skyline_from_tree</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>traj <span class="op">=</span> pl.read_csv(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/single_traj.tsv"</span>, separator<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>, comment_prefix<span class="op">=</span><span class="st">"#"</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>big_s <span class="op">=</span> <span class="bu">max</span>(parse_newick(Path(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/single_tree.nwk"</span>).read_text()), key<span class="op">=</span><span class="kw">lambda</span> r: r.n_tips())</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>fig, (axt, axb) <span class="op">=</span> plot_tree_with_skyline(</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    big_s, traj[<span class="st">"t"</span>].to_numpy(), traj[<span class="st">"I"</span>].to_numpy(),</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>), window<span class="op">=</span><span class="dv">25</span>, linewidth<span class="op">=</span><span class="fl">0.35</span>)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>st, _ <span class="op">=</span> skyline_from_tree(big_s, window<span class="op">=</span><span class="dv">25</span>)</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>axt.set_xlim(<span class="dv">0</span>, <span class="bu">float</span>(st.<span class="bu">max</span>()) <span class="op">+</span> <span class="dv">3</span>)</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>axt.set_title(<span class="ss">f"single-introduction epidemic, </span><span class="sc">{</span>big_s<span class="sc">.</span>n_tips()<span class="sc">}</span><span class="ss"> sampled tips (30%)"</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> _lib.trees <span class="im">import</span> plot_tree_with_skyline, skyline_from_tree</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>traj <span class="op">=</span> pl.read_csv(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/single_traj.tsv"</span>, separator<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>, comment_prefix<span class="op">=</span><span class="st">"#"</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>big_s <span class="op">=</span> <span class="bu">max</span>(parse_newick(Path(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/single_tree.nwk"</span>).read_text()), key<span class="op">=</span><span class="kw">lambda</span> r: r.n_tips())</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>fig, (axt, axb) <span class="op">=</span> plot_tree_with_skyline(</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    big_s, traj[<span class="st">"t"</span>].to_numpy(), traj[<span class="st">"I"</span>].to_numpy(),</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>), window<span class="op">=</span><span class="dv">25</span>, linewidth<span class="op">=</span><span class="fl">0.35</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>st, _ <span class="op">=</span> skyline_from_tree(big_s, window<span class="op">=</span><span class="dv">25</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>axt.set_xlim(<span class="dv">0</span>, <span class="bu">float</span>(st.<span class="bu">max</span>()) <span class="op">+</span> <span class="dv">3</span>)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>axt.set_title(<span class="ss">f"single-introduction epidemic, </span><span class="sc">{</span>big_s<span class="sc">.</span>n_tips()<span class="sc">}</span><span class="ss"> sampled tips (30%)"</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-skyline" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -1044,8 +1113,65 @@ Figure&nbsp;7.7: Top: the skyline reconstructed from the tree (rescaled, since t
 <li>Stratified sampling keys on the <strong>integer deme index</strong> (<code>0</code>, <code>1</code>), not stratum names; a model-level <code>lineage { sampling }</code> block with named strata and rates-as-parameters is a future milestone.</li>
 <li>Only the <strong>line-list log-probability</strong> exists. There is no tree-likelihood scoring and no native tree inference yet — the architecture deliberately stops at synthetic-data generation, which is what validating a phylodynamic method needs.</li>
 </ul>
+</section>
+<section id="sec-eventlog-anatomy" class="level2">
+<h2 class="anchored" data-anchor-id="sec-eventlog-anatomy">Appendix: Anatomy of the event log</h2>
+<p>The event log is meant to be self-contained — <code>lineage realize</code> reconstructs the whole genealogy from it without ever seeing the model file. It’s worth seeing how, because if you open the parquet yourself the columns look almost too sparse to support that claim.</p>
+<p>Each row is one event firing: <code>time</code>, an integer <code>transition</code>, batching bookkeeping (<code>multiplicity</code>, <code>batched</code>, <code>step</code>), and <code>lineage_weights</code> — a bare list of numbers, populated only at <code>#[lineage]</code> events:</p>
+<div id="appendix-eventlog-rows" class="cell" data-execution_count="23">
+<div class="cell-output cell-output-stdout">
+<pre><code>shape: (6, 3)
+┌──────────┬────────────┬────────────────────────────────────────┐
+│ time     ┆ transition ┆ lineage_weights                        │
+│ ---      ┆ ---        ┆ ---                                    │
+│ f64      ┆ u64        ┆ str                                    │
+╞══════════╪════════════╪════════════════════════════════════════╡
+│ 0.006224 ┆ 3          ┆ null                                   │
+│ 0.011658 ┆ 3          ┆ null                                   │
+│ 0.017212 ┆ 3          ┆ null                                   │
+│ 0.018038 ┆ 0          ┆ [7.49063670411985,32.64705882352941]   │
+│ 0.041657 ┆ 1          ┆ [6.741573033707866,10.882352941176471] │
+│ 0.047874 ┆ 0          ┆ [8.986516853932583,33.5210294117647]   │
+└──────────┴────────────┴────────────────────────────────────────┘</code></pre>
+</div>
+</div>
+<p>The numbers are unlabelled, and there’s no model file in sight. Two things make this work, and both live in the parquet’s <strong>file-level metadata</strong> rather than the rows:</p>
+<div id="appendix-eventlog-meta" class="cell" data-execution_count="24">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>md <span class="op">=</span> pl.read_parquet_metadata(<span class="ss">f"</span><span class="sc">{</span>RES<span class="sc">}</span><span class="ss">/epi_2p.parquet"</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>pools <span class="op">=</span> json.loads(md[<span class="st">"camdl.event_log.initial_pools"</span>])</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>trans <span class="op">=</span> json.loads(md[<span class="st">"camdl.event_log.transitions"</span>])</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"initial_pools:"</span>, pools)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"transition 0 :"</span>, json.dumps(trans[<span class="dv">0</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>initial_pools: [[0, 2, 5], [1, 3, 40]]
+transition 0 : {"source": 0, "source_deme": 0, "destination": 2, "destination_deme": 0, "child_deme": 0, "touches_tracked": true, "parent_pools": [[2, 0], [3, 1]]}</code></pre>
+</div>
+</div>
+<p><code>camdl.event_log.transitions</code> describes every transition: its source and destination pool (so replay knows which compartment gains or loses an individual), whether it’s lineage-tracked, and — the key field — <code>parent_pools</code>, an ordered list of <code>[pool, deme]</code> pairs. <strong>That list is the label for <code>lineage_weights</code>.</strong> For the two-patch model, transition 0 (infection into patch a) carries <code>parent_pools = [[2,0],[3,1]]</code> — pool 2 = <span class="math inline">\(I_a\)</span>, pool 3 = <span class="math inline">\(I_b\)</span> — so its weight vector reads as a distribution over source pools:</p>
+<div id="appendix-weight-to-prob" class="cell" data-execution_count="25">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># first infection-into-patch-a event (transition 0)</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> json.loads(ev.<span class="bu">filter</span>(pl.col(<span class="st">"transition"</span>) <span class="op">==</span> <span class="dv">0</span>)[<span class="st">"lineage_weights"</span>][<span class="dv">0</span>])</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>tot <span class="op">=</span> <span class="bu">sum</span>(w)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"weights        = </span><span class="sc">{</span>w<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"P(parent ∈ I_a) = </span><span class="sc">{</span>w[<span class="dv">0</span>] <span class="op">/</span> tot<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"P(parent ∈ I_b) = </span><span class="sc">{</span>w[<span class="dv">1</span>] <span class="op">/</span> tot<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>weights        = [7.49063670411985, 32.64705882352941]
+P(parent ∈ I_a) = 0.187
+P(parent ∈ I_b) = 0.813</code></pre>
+</div>
+</div>
+<p>So a new infection in patch a is sourced from patch b with probability ~0.81 here — unsurprising at <span class="math inline">\(t=0\)</span>, when <span class="math inline">\(I_b = 40 \gg I_a = 5\)</span>. <code>initial_pools = [[0,2,5],[1,3,40]]</code> seeds the rest: deme 0 / pool 2 starts with 5 infectives, deme 1 / pool 3 with 40.</p>
+<p><code>realize</code> then just replays forward: seed the per-pool rosters from <code>initial_pools</code>, walk the rows in time order minting a fresh individual into the destination pool on each infection and removing one on each recovery, and at every <code>#[lineage]</code> event normalise the weights, pick a source pool by <code>parent_pools</code>, and draw a parent uniformly from that pool’s current roster. The only quantity it <em>couldn’t</em> recompute is the evaluated rate weights (they depend on <span class="math inline">\(\beta\)</span>, the contact matrix, and <span class="math inline">\(N\)</span> at firing time) — which is exactly, and only, what gets persisted.</p>
+<p>One caveat if you go poking: a <code>lineage_weights</code> vector is meaningless pulled out on its own. Its labels live in <code>parent_pools</code>, so if you extract the column into a TSV the mapping has to travel with it.</p>
 
 
+</section>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn1"><p>Chain-binomial trees are <em>approximate</em>: events are batched per <code>dt</code> step, so any parent→child edge shorter than <code>dt</code> is dropped, and <code>realize</code> reports that loss fraction (printed with the table below). Because both runs share the same <code>dt</code>, the loss is common to both and cancels out of the comparison — unlike the exact-Gillespie tree earlier, which has no such bias.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
 </section>
 
 </main> <!-- /main -->
@@ -1469,8 +1595,8 @@ Figure&nbsp;7.7: Top: the skyline reconstructed from the tree (rescaled, since t
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../guide/fitting/likelihood.html" class="pagination-link" aria-label="Likelihood Fitting">
-        <span class="nav-page-text"><span class="chapter-title">Likelihood Fitting</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../guide/migration.html" class="pagination-link" aria-label="Human vs Pathogen Migration">
+        <span class="nav-page-text"><span class="chapter-title">Human vs Pathogen Migration</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

@@ -69,7 +69,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
 <link href="../../guide/fitting/identifiability.html" rel="next">
-<link href="../../guide/integrator-step.html" rel="prev">
+<link href="../../guide/migration.html" rel="prev">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
@@ -81,9 +81,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-6667564092b74b448163e6ade2e1f3b4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-c8430341214b22b81b300d69ff936483.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-6667564092b74b448163e6ade2e1f3b4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-012aefe9a5216f45842f7f883b752e3f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-1f626ec5f403c8c4b2900d40c78ecb90.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-012aefe9a5216f45842f7f883b752e3f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -619,7 +619,7 @@ t   S   I   R   flow_infection  flow_recovery
 <img src="likelihood_files/figure-html/fig-synth-output-1.png" width="1035" height="467" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-synth-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7.1: Synthetic outbreak at truth (β = 1.20, γ = 0.33), generated from boarding_school_sir.camdl — the same model the fit uses (seed 17, dt = 0.1). Peaks around day 7-8 (~270 boys), still declining at the day-14 cutoff. The real outbreak peaks earlier; recovering (1.20, 0.33) here means IF2 found the synthetic basin, not the real-data one.
+Figure&nbsp;9.1: Synthetic outbreak at truth (β = 1.20, γ = 0.33), generated from boarding_school_sir.camdl — the same model the fit uses (seed 17, dt = 0.1). Peaks around day 7-8 (~270 boys), still declining at the day-14 cutoff. The real outbreak peaks earlier; recovering (1.20, 0.33) here means IF2 found the synthetic basin, not the real-data one.
 </figcaption>
 </figure>
 </div>
@@ -876,7 +876,7 @@ results/fits/poisson_fixed_ic_synth-c771fac0/real/fit_30/
 <img src="likelihood_files/figure-html/fig-obs-output-1.png" width="1036" height="467" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-obs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7.2: 1978 English boarding-school influenza outbreak: daily counts of boys confined to bed (BMJ 1978; N = 763 students). Peak of 298 on day 5, declining to single digits by day 14.
+Figure&nbsp;9.2: 1978 English boarding-school influenza outbreak: daily counts of boys confined to bed (BMJ 1978; N = 763 students). Peak of 298 on day 5, declining to single digits by day 14.
 </figcaption>
 </figure>
 </div>
@@ -1078,7 +1078,7 @@ Observed misses: 1</code></pre>
 <img src="likelihood_files/figure-html/fig-ppc-dt01-output-1.png" width="1036" height="511" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ppc-dt01-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7.3: Posterior-predictive check at the dt = 0.1 MLE. Blue band: 5–95% envelope of <code>in_bed</code> across 200 chain-binomial forward replicates with Poisson observation noise; blue line: median; black dots: 1978 BMJ observations. The envelope tracks the data — 1 of 14 observations outside the 90% envelope against an expected 1.4 ± 1.1. Process and observation uncertainty together comfortably cover the outbreak.
+Figure&nbsp;9.3: Posterior-predictive check at the dt = 0.1 MLE. Blue band: 5–95% envelope of <code>in_bed</code> across 200 chain-binomial forward replicates with Poisson observation noise; blue line: median; black dots: 1978 BMJ observations. The envelope tracks the data — 1 of 14 observations outside the 90% envelope against an expected 1.4 ± 1.1. Process and observation uncertainty together comfortably cover the outbreak.
 </figcaption>
 </figure>
 </div>
@@ -1733,8 +1733,8 @@ results/fits/poisson_fixed_ic-8333af99/real/fit_28/
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../../guide/integrator-step.html" class="pagination-link" aria-label="The Integrator Step">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">The Integrator Step</span></span>
+      <a href="../../guide/migration.html" class="pagination-link" aria-label="Human vs Pathogen Migration">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Human vs Pathogen Migration</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

@@ -68,7 +68,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
-<link href="../../inference/likelihood.html" rel="next">
+<link href="../../guide/fitting/seed-timing.html" rel="next">
 <link href="../../guide/fitting/likelihood.html" rel="prev">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -81,9 +81,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-6667564092b74b448163e6ade2e1f3b4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-c8430341214b22b81b300d69ff936483.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-6667564092b74b448163e6ade2e1f3b4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-012aefe9a5216f45842f7f883b752e3f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-1f626ec5f403c8c4b2900d40c78ecb90.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-012aefe9a5216f45842f7f883b752e3f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -738,7 +738,7 @@ written to output/profile_i0_r0.tsv</span></code></pre></details>
 <img src="identifiability_files/figure-html/fig-profile-i0-r0-output-1.png" width="1938" height="590" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-profile-i0-r0-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8.1: 2D profile likelihood over <span class="math inline">\((I(0), R(0))\)</span> with <span class="math inline">\((\beta, \gamma)\)</span> IF2-optimised per cell. <strong>Top-left:</strong> Δ log-likelihood from the profile maximum (red star). Wilks 2D contours mark 95 / 99 / 99.9 % joint CIs (Δll = 3.00 / 4.61 / 6.91). <strong>Top-right &amp; bottom:</strong> the conditional MLEs <span class="math inline">\(\hat\beta(I(0), R(0))\)</span> and <span class="math inline">\(\hat\gamma(I(0), R(0))\)</span>. β̂ trades off systematically along the ridge — low <span class="math inline">\(R(0)\)</span> pairs with low β̂; high <span class="math inline">\(R(0)\)</span> requires higher β̂ to compensate for the shrunk susceptible pool. γ̂ is more stable. The blue square marks the fixed-IC scenario <span class="math inline">\((I(0)=3, R(0)=0)\)</span> used in the <a href="../../guide/fitting/likelihood.html">likelihood chapter</a> — essentially <em>at</em> the profile maximum here, but the ridge in <span class="math inline">\(R(0)\)</span> extends well above it without the log-lik moving much.
+Figure&nbsp;10.1: 2D profile likelihood over <span class="math inline">\((I(0), R(0))\)</span> with <span class="math inline">\((\beta, \gamma)\)</span> IF2-optimised per cell. <strong>Top-left:</strong> Δ log-likelihood from the profile maximum (red star). Wilks 2D contours mark 95 / 99 / 99.9 % joint CIs (Δll = 3.00 / 4.61 / 6.91). <strong>Top-right &amp; bottom:</strong> the conditional MLEs <span class="math inline">\(\hat\beta(I(0), R(0))\)</span> and <span class="math inline">\(\hat\gamma(I(0), R(0))\)</span>. β̂ trades off systematically along the ridge — low <span class="math inline">\(R(0)\)</span> pairs with low β̂; high <span class="math inline">\(R(0)\)</span> requires higher β̂ to compensate for the shrunk susceptible pool. γ̂ is more stable. The blue square marks the fixed-IC scenario <span class="math inline">\((I(0)=3, R(0)=0)\)</span> used in the <a href="../../guide/fitting/likelihood.html">likelihood chapter</a> — essentially <em>at</em> the profile maximum here, but the ridge in <span class="math inline">\(R(0)\)</span> extends well above it without the log-lik moving much.
 </figcaption>
 </figure>
 </div>
@@ -901,7 +901,7 @@ Figure&nbsp;8.1: 2D profile likelihood over <span class="math inline">\((I(0), R
 <img src="identifiability_files/figure-html/fig-ridge-predictions-output-2.png" width="1185" height="662" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ridge-predictions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8.2: Forward-simulated incidence (<code>flow_infection</code>, new infections per day) at three points along the <span class="math inline">\((I(0), R(0))\)</span> ridge — all inside the 95 % Wilks 2D CI of the profile, any of which would be a defensible MLE if we accepted the data alone. Each scenario contributes 10 chain-binomial replicates at its conditional <span class="math inline">\((\hat\beta, \hat\gamma, I(0), R(0))\)</span>. Cool-to-warm colour: <span class="math inline">\(R(0) = 0\)</span> (blue) → <span class="math inline">\(R(0) = 140\)</span> (red). The trajectories <em>visibly</em> separate: the high-<span class="math inline">\(R(0)\)</span> scenario peaks ~1.5× higher and 2 days earlier than the low-<span class="math inline">\(R(0)\)</span> one. The data on its own can’t pick between them.
+Figure&nbsp;10.2: Forward-simulated incidence (<code>flow_infection</code>, new infections per day) at three points along the <span class="math inline">\((I(0), R(0))\)</span> ridge — all inside the 95 % Wilks 2D CI of the profile, any of which would be a defensible MLE if we accepted the data alone. Each scenario contributes 10 chain-binomial replicates at its conditional <span class="math inline">\((\hat\beta, \hat\gamma, I(0), R(0))\)</span>. Cool-to-warm colour: <span class="math inline">\(R(0) = 0\)</span> (blue) → <span class="math inline">\(R(0) = 140\)</span> (red). The trajectories <em>visibly</em> separate: the high-<span class="math inline">\(R(0)\)</span> scenario peaks ~1.5× higher and 2 days earlier than the low-<span class="math inline">\(R(0)\)</span> one. The data on its own can’t pick between them.
 </figcaption>
 </figure>
 </div>
@@ -969,7 +969,7 @@ written to output/profile_bg_free_ic.tsv</span></code></pre></details>
 <img src="identifiability_files/figure-html/fig-profile-bg-output-1.png" width="1940" height="591" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-profile-bg-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8.3: 2D profile likelihood over <span class="math inline">\((\beta, \gamma)\)</span> with <span class="math inline">\((I(0), R(0))\)</span> IF2-optimised per cell. <strong>Top-left:</strong> Δ log-lik with Wilks contours and profile-max star. <strong>Top-right &amp; bottom:</strong> <span class="math inline">\(\hat I(0)(\beta, \gamma)\)</span> and <span class="math inline">\(\hat R(0)(\beta, \gamma)\)</span> — at low-β cells the optimiser pushes <span class="math inline">\(R(0)\)</span> high and vice versa, the same trade-off as the previous figure but viewed from the orthogonal axis. The blue square marks the fixed-IC MLE from the <a href="../../guide/fitting/likelihood.html">likelihood chapter</a> at <span class="math inline">\((\beta=1.94, \gamma=0.50)\)</span> — a point inside the 95 % CI but <em>not</em> the profile max because the profile lets <span class="math inline">\((I(0), R(0))\)</span> readjust away from the fixed values.
+Figure&nbsp;10.3: 2D profile likelihood over <span class="math inline">\((\beta, \gamma)\)</span> with <span class="math inline">\((I(0), R(0))\)</span> IF2-optimised per cell. <strong>Top-left:</strong> Δ log-lik with Wilks contours and profile-max star. <strong>Top-right &amp; bottom:</strong> <span class="math inline">\(\hat I(0)(\beta, \gamma)\)</span> and <span class="math inline">\(\hat R(0)(\beta, \gamma)\)</span> — at low-β cells the optimiser pushes <span class="math inline">\(R(0)\)</span> high and vice versa, the same trade-off as the previous figure but viewed from the orthogonal axis. The blue square marks the fixed-IC MLE from the <a href="../../guide/fitting/likelihood.html">likelihood chapter</a> at <span class="math inline">\((\beta=1.94, \gamma=0.50)\)</span> — a point inside the 95 % CI but <em>not</em> the profile max because the profile lets <span class="math inline">\((I(0), R(0))\)</span> readjust away from the fixed values.
 </figcaption>
 </figure>
 </div>
@@ -1081,7 +1081,7 @@ Wilks 95 % CI on R(0): [0, 60]  (5/18 cells)</code></pre>
 <img src="identifiability_files/figure-html/fig-profile-r-init-output-2.png" width="1054" height="1275" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-profile-r-init-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8.4: 1D profile log-likelihood over <span class="math inline">\(R(0)\)</span> (the <em>initial recovered count</em>, model parameter <code>R_init</code>) with <span class="math inline">\(\beta, \gamma, I(0)\)</span> all IF2-optimised at each cell (4000 particles × 150 iterations × 5 starts per cell). <strong>Top:</strong> profile log-lik (red star = max). Dashed lines = Wilks 1D thresholds (1.92 = 95%, 4.61 = 99%, 9.21 = 99.9%) below the profile maximum. <strong>Below:</strong> the conditional MLEs <span class="math inline">\(\hat\beta, \hat\gamma, \hat I(0)\)</span> at each <span class="math inline">\(R(0)\)</span> — what the optimiser had to set them to to fit each cell. The profile is <strong>flat across <span class="math inline">\(R(0) \in [0, 150]\)</span></strong> and then declines steadily: 9 of 18 cells sit inside the 95 % CI. The data does not pin <span class="math inline">\(R(0)\)</span> once the dynamical parameters and <span class="math inline">\(I(0)\)</span> are free. β̂ climbs from ~1.9 to ~4.1 along the profile while γ̂ drifts down from ~0.63 to ~0.55 — the (β–R(0)) trade-off identified in the 2D profile re-appears as a 1D-conditional finding.
+Figure&nbsp;10.4: 1D profile log-likelihood over <span class="math inline">\(R(0)\)</span> (the <em>initial recovered count</em>, model parameter <code>R_init</code>) with <span class="math inline">\(\beta, \gamma, I(0)\)</span> all IF2-optimised at each cell (4000 particles × 150 iterations × 5 starts per cell). <strong>Top:</strong> profile log-lik (red star = max). Dashed lines = Wilks 1D thresholds (1.92 = 95%, 4.61 = 99%, 9.21 = 99.9%) below the profile maximum. <strong>Below:</strong> the conditional MLEs <span class="math inline">\(\hat\beta, \hat\gamma, \hat I(0)\)</span> at each <span class="math inline">\(R(0)\)</span> — what the optimiser had to set them to to fit each cell. The profile is <strong>flat across <span class="math inline">\(R(0) \in [0, 150]\)</span></strong> and then declines steadily: 9 of 18 cells sit inside the 95 % CI. The data does not pin <span class="math inline">\(R(0)\)</span> once the dynamical parameters and <span class="math inline">\(I(0)\)</span> are free. β̂ climbs from ~1.9 to ~4.1 along the profile while γ̂ drifts down from ~0.63 to ~0.55 — the (β–R(0)) trade-off identified in the 2D profile re-appears as a 1D-conditional finding.
 </figcaption>
 </figure>
 </div>
@@ -1526,8 +1526,8 @@ Figure&nbsp;8.4: 1D profile log-likelihood over <span class="math inline">\(R(0)
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../../inference/likelihood.html" class="pagination-link" aria-label="Likelihood and the Particle Filter">
-        <span class="nav-page-text"><span class="chapter-title">Likelihood and the Particle Filter</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../../guide/fitting/seed-timing.html" class="pagination-link" aria-label="Estimating seed timing from early-COVID Washington cases">
+        <span class="nav-page-text"><span class="chapter-title">Estimating seed timing from early-COVID Washington cases</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
